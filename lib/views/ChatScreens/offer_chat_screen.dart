@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -61,10 +64,13 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     });
   }
 
+  bool isSending = false;
   @override
   Widget build(BuildContext context) {
     final open = Provider.of<NotifyProvider>(context);
     final chatApi = Provider.of<ChatApiProvider>(context);
+
+    log("chatApi data = ${chatApi.conversationData}");
     return Scaffold(
       appBar: ChatAppBar(
         title: widget.title,
@@ -196,7 +202,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                       )
                     : const SizedBox.shrink(),
                 Expanded(
-                  child: chatApi.conversationData== null
+                  child: chatApi.conversationData == null
                       ? const SizedBox.shrink()
                       : StreamBuilder<Object>(
                           stream: secRef.onValue,
@@ -218,7 +224,8 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                                       : false,
                                   message:
                                       "${chatApi.conversationData["conversation"][index]["message"]}",
-                                  img: "",
+                                  img:
+                                      "${chatApi.conversationData["conversation"][index]["file"]}",
                                 );
                               },
                             );
@@ -245,31 +252,69 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
         textColor: AppTheme.whiteColor);
   }
 
-  Widget _buildMessageBubble({user, message, img, time}) {
+  Widget _buildMessageBubble(
+      {required user, String? message, String? img, required var time}) {
+    log("img msg = $img");
+    log("message msg = $message");
     return Column(
       crossAxisAlignment:
           user ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
-        Container(
-            alignment: user ? Alignment.centerRight : Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 250, minWidth: 80),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: user ? AppTheme.appColor : const Color(0xffEAEAEA),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppText.appText("$message",
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      textColor: user ? AppTheme.whiteColor : Colors.black),
-                ],
-              ),
-            )),
+        if (img != null && (img.isEmpty || img.trim().isEmpty))
+          Container(
+              alignment: user ? Alignment.centerRight : Alignment.centerLeft,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 250, minWidth: 80),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: user ? AppTheme.appColor : const Color(0xffEAEAEA),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppText.appText(message ?? "no text",
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        textColor: user ? AppTheme.whiteColor : Colors.black)
+                  ],
+                ),
+              ))
+        else if (img != null &&
+            (img.endsWith(".png") ||
+                img.endsWith(".jpeg") ||
+                img.endsWith(".jpg")))
+          // Display image message
+          BubbleNormalImage(
+            isSender: user,
+            id: 'id001',
+            image: Image.network(img),
+            // color: Colors.purpleAccent,
+            tail: true,
+            delivered: true,
+          )
+        else
+          Container(
+              alignment: user ? Alignment.centerRight : Alignment.centerLeft,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 250, minWidth: 80),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: user ? AppTheme.appColor : const Color(0xffEAEAEA),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppText.appText(message ?? "no text",
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        textColor: user ? AppTheme.whiteColor : Colors.black)
+                  ],
+                ),
+              )),
         Padding(
           padding: user
               ? const EdgeInsets.only(right: 20.0)
@@ -308,38 +353,58 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                 ),
               ),
             ),
-            InkWell(
-              onTap: () {},
-              child: SizedBox(
-                  height: 24,
-                  width: 24,
-                  child: Image.asset(
-                    "assets/images/gallery.png",
-                    fit: BoxFit.fill,
-                    color: const Color(0xff8E97A4),
-                  )),
-            ),
-            InkWell(
-              onTap: () {
-                final userMessage = _textEditingController.text;
-                if (userMessage.isNotEmpty) {
-                  chatApi.sendMessage(
-                      dio: dio,
-                      context: context,
-                      senderId: userId,
-                      recieverId: widget.recieverId,
-                      title: widget.title,
-                      message: userMessage);
-                }
-              },
-              child: SizedBox(
-                  height: 24,
-                  width: 24,
-                  child: Image.asset(
-                    "assets/images/send.png",
-                    fit: BoxFit.cover,
-                  )),
-            ),
+            // InkWell(
+            //   onTap: () {},
+            //   child: SizedBox(
+            //       height: 24,
+            //       width: 24,
+            //       child: Image.asset(
+            //         "assets/images/gallery.png",
+            //         fit: BoxFit.fill,
+            //         color: const Color(0xff8E97A4),
+            //       )),
+            // ),
+            if (isSending)
+              Center(
+                child: CircularProgressIndicator(
+                  color: AppTheme.appColor,
+                ),
+              )
+            else
+              InkWell(
+                onTap: () async {
+                  final userMessage = _textEditingController.text;
+                  if (userMessage.isNotEmpty) {
+                    //! this is chat api
+                    setState(() {
+                      isSending = true;
+                    });
+                    bool isSent = await chatApi.sendMessage(
+                        dio: dio,
+                        context: context,
+                        senderId: userId,
+                        recieverId: widget.recieverId,
+                        title: widget.title,
+                        message: userMessage);
+
+                    setState(() {
+                      isSending = false;
+                    });
+                    if (isSent) {
+                      _textEditingController.clear();
+
+                      showSnackBar(context, "Message Sent");
+                    }
+                  }
+                },
+                child: SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: Image.asset(
+                      "assets/images/send.png",
+                      fit: BoxFit.cover,
+                    )),
+              ),
           ],
         ),
       ),

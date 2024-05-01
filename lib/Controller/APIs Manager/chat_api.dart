@@ -69,7 +69,7 @@ class ChatApiProvider extends ChangeNotifier {
     }
   }
 
-  void sendMessage(
+  Future<bool> sendMessage(
       {required dio,
       required context,
       required senderId,
@@ -116,34 +116,43 @@ class ChatApiProvider extends ChangeNotifier {
         showSnackBar(context, "${responseData["message"]}");
         isLoading = false;
         notifyListeners();
+        return false;
       } else if (response.statusCode == responseCode401) {
         showSnackBar(context, "${responseData["message"]}");
         isLoading = false;
         notifyListeners();
+        return false;
       } else if (response.statusCode == responseCode404) {
         showSnackBar(context, "${responseData["message"]}");
 
         isLoading = false;
         notifyListeners();
+        return false;
       } else if (response.statusCode == responseCode500) {
         showSnackBar(context, "${responseData["message"]}");
 
         isLoading = false;
         notifyListeners();
+        return false;
       } else if (response.statusCode == responseCode422) {
         isLoading = false;
         notifyListeners();
+        return false;
       } else if (response.statusCode == responseCode200) {
         isLoading = false;
-        var data = responseData["data"]["Message"][0];
+        // var data = responseData["data"]["Message"][0];
         //  getConversation(dio: dio, context: context, conversationId: data["conversation_id"], recieverId: recieverId, title: title);
         notifyListeners();
+        return true;
+      } else {
+        return false;
       }
     } catch (e) {
       print("Something went Wrong ${e}");
       showSnackBar(context, "Something went Wrong.");
       isLoading = false;
       notifyListeners();
+      return false;
     }
   }
 

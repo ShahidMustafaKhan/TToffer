@@ -5,6 +5,7 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
+import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/Sellings/item_dashboard.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
@@ -26,6 +27,8 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
   var sellingData;
   var purchaseData;
   var archieveData;
+
+  SellingProductsModel? sellingProductsModel;
 
   @override
   void initState() {
@@ -49,17 +52,19 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
           children: [
             selectOption(),
             if (selectedOption == "Selling")
-              const Expanded(
+              Expanded(
                   child: SellingPurchaseListView(
                 ischeck: 1,
+                sellingProductsModel: sellingProductsModel,
               )),
             if (selectedOption == "Buying")
-              const Expanded(
+              Expanded(
                   child: SellingPurchaseListView(
                 ischeck: 2,
+                sellingProductsModel: sellingProductsModel,
               )),
             if (selectedOption == "Archive")
-              const Expanded(
+              Expanded(
                   child: SellingPurchaseListView(
                 ischeck: 3,
               )),
@@ -214,7 +219,8 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
       } else if (response.statusCode == responseCode200) {
         setState(() {
           isLoading = false;
-          sellingData = responseData["sold"];
+          // sellingData = responseData["sold"];
+          sellingProductsModel = SellingProductsModel.fromJson(responseData);
           purchaseData = responseData["purchase"];
           archieveData = responseData["archive"];
         });
@@ -231,7 +237,8 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
 
 class SellingPurchaseListView extends StatefulWidget {
   final int? ischeck;
-  const SellingPurchaseListView({super.key, this.ischeck});
+  SellingProductsModel? sellingProductsModel;
+  SellingPurchaseListView({super.key, this.ischeck, this.sellingProductsModel});
 
   @override
   State<SellingPurchaseListView> createState() =>
@@ -243,7 +250,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
   Widget build(BuildContext context) {
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: 7,
+      itemCount: widget.sellingProductsModel?.data?.selling.length,
       itemBuilder: (context, index) {
         return Column(
           children: [
@@ -284,7 +291,10 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              AppText.appText("Modern light clothes",
+                              AppText.appText(
+                                  widget.sellingProductsModel?.data
+                                          ?.selling[index].title ??
+                                      "",
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   textColor: AppTheme.txt1B20),

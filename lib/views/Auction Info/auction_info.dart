@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -46,28 +48,37 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     "Authenticity"
   ];
   static const List<String> bidList = [
-    "\$26K",
-    "\$28K",
-    "\$32K",
-    "\$45K",
+    "\$20",
+    "\$40",
+    "\$80",
+    "\$100",
     "use custom bid",
   ];
   static List<String> wrapList1 = [];
   late AppDio dio;
   AppLogger logger = AppLogger();
   var userId;
+  var productId;
   @override
   void initState() {
     dio = AppDio(context);
     logger.init();
     getUserId();
+
+    // log("widget.detailResponse = ${widget.detailResponse}");
+    productId = widget.detailResponse["id"];
+
+    log("productId = $productId");
     wrapList1 = [
       '${widget.detailResponse["condition"]}',
-      'Samsung ',
-      'Galaxy M02',
-      "2/32",
-      "Original"
+      '${widget.detailResponse["brand"]}',
+      '${widget.detailResponse["model"]}',
+      '${widget.detailResponse["color"]}',
+      '${widget.detailResponse["authenticity"]}',
+      // "2/32",
+      // "Original"
     ];
+
     _priceController.text = "\$ 60";
     super.initState();
   }
@@ -157,9 +168,11 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                         ),
                         child: GestureDetector(
                           onTap: () {
+                            log("clicked");
                             open.index(index: index);
                             if (index < bidList.length - 1) {
                               open.bidPrices(price: bidList[index]);
+                              _priceController.text = bidList[index];
                             } else {
                               open.makeField();
                             }
@@ -211,7 +224,12 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                           )
                         : AppButton.appButton("Place Bid for ${open.bidPrice}",
                             onTap: () {
-                            showLogOutALert(context, 2500);
+                            showLogOutALert(
+                              context,
+                              _priceController.text ?? bidList[0],
+                              productId,
+                              userId,
+                            );
                           },
                             height: 53,
                             width: 200,
@@ -224,11 +242,18 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                       children: [
                         GestureDetector(
                           onTap: () {
+                            // log("open.field = ${open.field}");
                             if (open.field == false) {
                               open.sheetTrue();
                               panelController.open();
+                              open.makeField();
                               // _panelKey.currentState!.re;
+                            } else {
+                              open.bidPrices(price: _priceController.text);
                             }
+                            //  else {
+                            //   open.field = false;
+                            // }
                           },
                           child: Container(
                             height: 53,
