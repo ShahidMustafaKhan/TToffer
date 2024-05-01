@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:tt_offer/Utils/utils.dart';
-import 'package:tt_offer/View/Authentication%20screens/login_screen.dart';
+import 'package:tt_offer/views/Authentication%20screens/login_screen.dart';
 import 'package:tt_offer/config/app_urls.dart';
 
 class ProductsApiProvider extends ChangeNotifier {
@@ -10,7 +10,6 @@ class ProductsApiProvider extends ChangeNotifier {
   var subCatagoryData;
   var catagoryData;
   bool isLoading = false;
-
 
   ////////////////////////////////////////// Auction Productss ////////////////////////////////////////////////
 

@@ -7,9 +7,9 @@ import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Controller/provider_class.dart';
-import 'package:tt_offer/View/Authentication%20screens/GoogleSignIn/google_signin_provider.dart';
 import 'package:tt_offer/firebase_options.dart';
 import 'package:tt_offer/splash_screen.dart';
+import 'package:tt_offer/views/Authentication%20screens/GoogleSignIn/google_signin_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:tt_offer/Utils/utils.dart';
-import 'package:tt_offer/View/ChatScreens/offer_chat_screen.dart';
+import 'package:tt_offer/views/ChatScreens/offer_chat_screen.dart';
 import 'package:tt_offer/config/app_urls.dart';
 
 class ChatApiProvider extends ChangeNotifier {

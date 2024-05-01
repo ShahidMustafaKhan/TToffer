@@ -4,9 +4,9 @@ import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
-import 'package:tt_offer/View/Authentication%20screens/login_screen.dart';
-import 'package:tt_offer/View/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
+import 'package:tt_offer/views/Authentication%20screens/login_screen.dart';
+import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 
 class OnBoardScreen extends StatefulWidget {
   const OnBoardScreen({super.key});
