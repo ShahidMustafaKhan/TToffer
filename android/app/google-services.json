@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "778831276994",
+    "firebase_url": "https://ttoffer-2b291-default-rtdb.firebaseio.com",
+    "project_id": "ttoffer-2b291",
+    "storage_bucket": "ttoffer-2b291.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:778831276994:android:51557ac6f4e9cb5c5d845b",
+        "android_client_info": {
+          "package_name": "com.example.tt_offer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7QBsMoXe7banHxeOat5VkTJTJY_yWTXI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
