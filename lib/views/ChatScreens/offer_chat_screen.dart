@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -43,7 +44,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
   late final DatabaseReference firstResf;
   final DatabaseReference secRef =
       FirebaseDatabase.instance.ref().child('Chats');
-
+  XFile? pickedImage;
   late AppDio dio;
   AppLogger logger = AppLogger();
   int? userId;
@@ -353,17 +354,30 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                 ),
               ),
             ),
-            // InkWell(
-            //   onTap: () {},
-            //   child: SizedBox(
-            //       height: 24,
-            //       width: 24,
-            //       child: Image.asset(
-            //         "assets/images/gallery.png",
-            //         fit: BoxFit.fill,
-            //         color: const Color(0xff8E97A4),
-            //       )),
-            // ),
+            InkWell(
+              onTap: () async {
+                pickedImage = await ImagePicker().pickImage(
+                  source: ImageSource.gallery,
+                );
+
+                await chatApi.sendMessage(
+                    dio: dio,
+                    context: context,
+                    image: pickedImage,
+                    senderId: userId,
+                    recieverId: widget.recieverId,
+                    title: widget.title,
+                    message: "");
+              },
+              child: SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: Image.asset(
+                    "assets/images/gallery.png",
+                    fit: BoxFit.fill,
+                    color: const Color(0xff8E97A4),
+                  )),
+            ),
             if (isSending)
               Center(
                 child: CircularProgressIndicator(
@@ -382,6 +396,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                     bool isSent = await chatApi.sendMessage(
                         dio: dio,
                         context: context,
+                        image: pickedImage,
                         senderId: userId,
                         recieverId: widget.recieverId,
                         title: widget.title,

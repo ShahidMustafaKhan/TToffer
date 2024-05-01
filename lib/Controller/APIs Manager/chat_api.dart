@@ -1,5 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/views/ChatScreens/offer_chat_screen.dart';
 import 'package:tt_offer/config/app_urls.dart';
@@ -76,7 +78,7 @@ class ChatApiProvider extends ChangeNotifier {
       required recieverId,
       required message,
       title,
-      image,
+      XFile? image,
       document}) async {
     // final imageProvider =
     //     Provider.of<ImageNotifyProvider>(context, listen: false);
@@ -102,15 +104,29 @@ class ChatApiProvider extends ChangeNotifier {
     //   "images[]": imageFiles,
     //   "documents[]": document,
     // });
-    Map<String, dynamic> params = {
-      "sender_id": senderId,
-      "receiver_id": recieverId,
-      "message": message,
-      // "images[]": image,
-      // "documents[]": document,
-    };
+    var formData;
+    Map<String, dynamic>? params;
+
+    if (image != null) {
+      formData = FormData.fromMap({
+        "sender_id": senderId,
+        "receiver_id": recieverId,
+        // "message": message,
+        "images[]": MultipartFile.fromFile(image.path, filename: image.name),
+      });
+    } else {
+      params = {
+        "sender_id": senderId,
+        "receiver_id": recieverId,
+        "message": message,
+        // "images[]": image,
+        // "documents[]": document,
+      };
+    }
+
     try {
-      response = await dio.post(path: AppUrls.sendMessage, data: params);
+      response =
+          await dio.post(path: AppUrls.sendMessage, data: formData ?? params);
       var responseData = response.data;
       if (response.statusCode == responseCode400) {
         showSnackBar(context, "${responseData["message"]}");
