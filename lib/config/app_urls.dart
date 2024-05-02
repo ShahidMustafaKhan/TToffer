@@ -27,10 +27,9 @@ class AppUrls {
   static const String getAllChats = "get/user/all/chats/";
   static const String getConverstaion = "get/conversation/";
 
-  static const String updateProfile= "update/user";
-  static const String getProfile= "me";
+  static const String updateProfile = "update/user";
+  static const String getProfile = "me";
 
-  static const String sellingScreen= "selling-screen";
-
- 
+  static const String sellingScreen = "selling-screen";
+  static const String markProductSold = "mark-product-sold";
 }

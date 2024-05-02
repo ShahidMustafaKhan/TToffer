@@ -69,9 +69,9 @@ class Selling {
   int? fixPrice;
   int? firmOnPrice;
   int? auctionPrice;
-  DateTime? startingDate;
+  String? startingDate;
   String? startingTime;
-  DateTime? endingDate;
+  String? endingDate;
   String? endingTime;
   dynamic sellToUs;
   String? location;
@@ -140,13 +140,9 @@ class Selling {
         fixPrice: json["fix_price"],
         firmOnPrice: json["firm_on_price"],
         auctionPrice: json["auction_price"],
-        startingDate: json["starting_date"] == null
-            ? null
-            : DateTime.parse(json["starting_date"]),
+        startingDate: json["starting_date"],
         startingTime: json["starting_time"],
-        endingDate: json["ending_date"] == null
-            ? null
-            : DateTime.parse(json["ending_date"]),
+        endingDate: json["ending_date"],
         endingTime: json["ending_time"],
         sellToUs: json["sell_to_us"],
         location: json["location"],
@@ -180,9 +176,9 @@ class Selling {
         "fix_price": fixPrice,
         "firm_on_price": firmOnPrice,
         "auction_price": auctionPrice,
-        "starting_date": startingDate?.toIso8601String(),
+        // "starting_date": startingDate?.toIso8601String(),
         "starting_time": startingTime,
-        "ending_date": endingDate?.toIso8601String(),
+        // "ending_date": endingDate?.toIso8601String(),
         "ending_time": endingTime,
         "sell_to_us": sellToUs,
         "location": location,
