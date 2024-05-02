@@ -171,10 +171,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                   txt: "Saved items",
                   img: "assets/images/heart.png"),
-              customRow(
-                  onTap: () {},
-                  txt: "Search alerts",
-                  img: "assets/images/notification.png"),
+              // customRow(
+              //     onTap: () {},
+              //     txt: "Search alerts",
+              //     img: "assets/images/notification.png"),
               const CustomDivider(),
               headingText(txt: "Account"),
               customRow(

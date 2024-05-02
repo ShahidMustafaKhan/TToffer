@@ -51,34 +51,40 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
         title: widget.title,
         leading: false,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          children: [
-            selectOption(),
-            if (selectedOption == "Selling")
-              Expanded(
-                  child: SellingPurchaseListView(
-                getSellingProduct: getSellingProducts,
-                ischeck: 1,
-                sellingProductsModel: sellingProductsModel,
-              )),
-            if (selectedOption == "Buying")
-              Expanded(
-                  child: SellingPurchaseListView(
-                getSellingProduct: getSellingProducts,
-                ischeck: 2,
-                sellingProductsModel: sellingProductsModel,
-              )),
-            if (selectedOption == "Archive")
-              Expanded(
-                  child: SellingPurchaseListView(
-                getSellingProduct: getSellingProducts,
-                ischeck: 3,
-              )),
-          ],
-        ),
-      ),
+      body: sellingProductsModel == null || isLoading
+          ? Center(
+              child: CircularProgressIndicator(
+                color: AppTheme.appColor,
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                children: [
+                  selectOption(),
+                  if (selectedOption == "Selling")
+                    Expanded(
+                        child: SellingPurchaseListView(
+                      getSellingProduct: getSellingProducts,
+                      ischeck: 1,
+                      sellingProductsModel: sellingProductsModel,
+                    )),
+                  if (selectedOption == "Buying")
+                    Expanded(
+                        child: SellingPurchaseListView(
+                      getSellingProduct: getSellingProducts,
+                      ischeck: 2,
+                      sellingProductsModel: sellingProductsModel,
+                    )),
+                  if (selectedOption == "Archive")
+                    Expanded(
+                        child: SellingPurchaseListView(
+                      getSellingProduct: getSellingProducts,
+                      ischeck: 3,
+                    )),
+                ],
+              ),
+            ),
     );
   }
 
@@ -195,51 +201,51 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
     int responseCode422 = 422; // For For data not found
     int responseCode500 = 500; // Internal server error.
 
-    // try {
-    response = await dio.get(path: AppUrls.sellingScreen);
-    var responseData = response.data;
-    if (response.statusCode == responseCode400) {
-      showSnackBar(context, "${responseData["message"]}");
-      setState(() {
-        isLoading = false;
-      });
-    } else if (response.statusCode == responseCode401) {
-      showSnackBar(context, "${responseData["message"]}");
-      setState(() {
-        isLoading = false;
-      });
-    } else if (response.statusCode == responseCode404) {
-      showSnackBar(context, "${responseData["message"]}");
+    try {
+      response = await dio.get(path: AppUrls.sellingScreen);
+      var responseData = response.data;
+      if (response.statusCode == responseCode400) {
+        showSnackBar(context, "${responseData["message"]}");
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode401) {
+        showSnackBar(context, "${responseData["message"]}");
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode404) {
+        showSnackBar(context, "${responseData["message"]}");
 
-      setState(() {
-        isLoading = false;
-      });
-    } else if (response.statusCode == responseCode500) {
-      showSnackBar(context, "${responseData["message"]}");
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode500) {
+        showSnackBar(context, "${responseData["message"]}");
 
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode422) {
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode200) {
+        setState(() {
+          isLoading = false;
+          // sellingData = responseData["sold"];
+          sellingProductsModel = SellingProductsModel.fromJson(responseData);
+          purchaseData = responseData["purchase"];
+          archieveData = responseData["archive"];
+        });
+      }
+    } catch (e) {
+      print("Something went Wrong ${e}");
+      showSnackBar(context, "Something went Wrong.");
       setState(() {
         isLoading = false;
-      });
-    } else if (response.statusCode == responseCode422) {
-      setState(() {
-        isLoading = false;
-      });
-    } else if (response.statusCode == responseCode200) {
-      setState(() {
-        isLoading = false;
-        // sellingData = responseData["sold"];
-        sellingProductsModel = SellingProductsModel.fromJson(responseData);
-        purchaseData = responseData["purchase"];
-        archieveData = responseData["archive"];
       });
     }
-    // } catch (e) {
-    //   print("Something went Wrong ${e}");
-    //   showSnackBar(context, "Something went Wrong.");
-    //   setState(() {
-    //     isLoading = false;
-    //   });
-    // }
   }
 }
 
@@ -439,18 +445,24 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
 
   Future<void> markAsSold(int? id, context) async {
     alertDialogueWithLoader(context: context);
-    var responce = await customGetRequest.httpGetRequest(
-        url: "${AppUrls.markProductSold}/$id");
+    try {
+      var responce = await customGetRequest.httpGetRequest(
+          url: "${AppUrls.markProductSold}/$id");
 
-    Navigator.of(context).pop();
-    showSnackBar(context, responce["message"]);
+      Navigator.of(context).pop();
+      showSnackBar(context, responce["message"]);
 
-    if (responce.statusCode == 200) {
-      if (responce["status"] == true) {
-        widget.getSellingProduct();
+      if (responce.statusCode == 200) {
+        if (responce["status"] == true) {
+          widget.getSellingProduct();
+        }
       }
-    }
 
-    log("responce = $responce");
+      log("responce = $responce");
+    } catch (e) {
+      log("excepion = ${e.toString()}");
+      Navigator.of(context).pop();
+      showSnackBar(context, "Something went Wrong");
+    }
   }
 }

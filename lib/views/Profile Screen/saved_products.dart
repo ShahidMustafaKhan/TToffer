@@ -141,94 +141,102 @@ class _SavedItemListViewState extends State<SavedItemListView> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: widget.data.length,
-      itemBuilder: (context, index) {
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20.0),
-              child: GestureDetector(
-                onTap: () {
-                  if (widget.data[index]["product"]["fix_price"] == null) {
-                    getAuctionProductDetail(
-                        productId: widget.data[index]["product_id"]);
-                  } else {
-                    getFeatureProductDetail(
-                        productId: widget.data[index]["product_id"]);
-                  }
-                },
-                child: SizedBox(
-                  height: 70,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            height: 70,
-                            width: 70,
-                            decoration: BoxDecoration(
-                              color: Colors.amber,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: Image.asset(
-                                "assets/images/auction1.png",
-                                fit: BoxFit.cover,
+    if (widget.data == null || widget.data.isEmpty) {
+      return Center(
+        child: CircularProgressIndicator(
+          color: AppTheme.appColor,
+        ),
+      );
+    } else {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: widget.data.length,
+        itemBuilder: (context, index) {
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                child: GestureDetector(
+                  onTap: () {
+                    if (widget.data[index]["product"]["fix_price"] == null) {
+                      getAuctionProductDetail(
+                          productId: widget.data[index]["product_id"]);
+                    } else {
+                      getFeatureProductDetail(
+                          productId: widget.data[index]["product_id"]);
+                    }
+                  },
+                  child: SizedBox(
+                    height: 70,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              height: 70,
+                              width: 70,
+                              decoration: BoxDecoration(
+                                color: Colors.amber,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Image.asset(
+                                  "assets/images/auction1.png",
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              AppText.appText(
-                                  "${widget.data[index]["product"]["title"]}",
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  textColor: AppTheme.txt1B20),
-                              AppText.appText(
-                                  "${widget.data[index]["product"]["location"]}",
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  textColor: AppTheme.lighttextColor),
-                              AppText.appText(
-                                  formatTimestamp(
-                                      "${widget.data[index]["product"]["created_at"]}"),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  textColor: AppTheme.appColor)
-                            ],
-                          ),
-                        ],
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          AppText.appText(
-                              formatTimestamp(
-                                  "${widget.data[index]["created_at"]}"),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                              textColor: AppTheme.lighttextColor),
-                        ],
-                      )
-                    ],
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                AppText.appText(
+                                    "${widget.data[index]["product"]["title"]}",
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    textColor: AppTheme.txt1B20),
+                                AppText.appText(
+                                    "${widget.data[index]["product"]["location"]}",
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    textColor: AppTheme.lighttextColor),
+                                AppText.appText(
+                                    formatTimestamp(
+                                        "${widget.data[index]["product"]["created_at"]}"),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    textColor: AppTheme.appColor)
+                              ],
+                            ),
+                          ],
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            AppText.appText(
+                                formatTimestamp(
+                                    "${widget.data[index]["created_at"]}"),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                textColor: AppTheme.lighttextColor),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            const CustomDivider()
-          ],
-        );
-      },
-    );
+              const CustomDivider()
+            ],
+          );
+        },
+      );
+    }
   }
 
   String formatTimestamp(String timestamp) {
