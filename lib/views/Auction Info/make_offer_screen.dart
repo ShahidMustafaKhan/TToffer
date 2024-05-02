@@ -15,6 +15,7 @@ import 'package:tt_offer/config/keys/pref_keys.dart';
 
 class MakeOfferScreen extends StatefulWidget {
   final data;
+
   const MakeOfferScreen({super.key, this.data});
 
   @override
@@ -26,6 +27,7 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
   late AppDio dio;
   AppLogger logger = AppLogger();
   var userId;
+
   @override
   void initState() {
     dio = AppDio(context);
@@ -45,7 +47,9 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
   @override
   Widget build(BuildContext context) {
     final chatApiProvider = Provider.of<ChatApiProvider>(context);
-    final screenSize = MediaQuery.of(context).size;
+    final screenSize = MediaQuery
+        .of(context)
+        .size;
     return Scaffold(
       appBar: const CustomAppBar1(
         title: "Make Your Offer",
@@ -72,9 +76,9 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                             borderRadius: BorderRadius.circular(16),
                             image: widget.data["photo"].isNotEmpty
                                 ? DecorationImage(
-                                    image: NetworkImage(
-                                        "${widget.data["photo"][0]["src"]}"),
-                                    fit: BoxFit.fill)
+                                image: NetworkImage(
+                                    "${widget.data["photo"][0]["src"]}"),
+                                fit: BoxFit.fill)
                                 : null),
                       ),
                       const SizedBox(
@@ -123,7 +127,7 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 40.0),
                 child: AppButton.appButton("Send Offer", onTap: () {
                   String priceWithoutDollarSign =
-                      _priceController.text.replaceAll('\$', '');
+                  _priceController.text.replaceAll('\$', '');
                   chatApiProvider.makeOffer(
                       dio: dio,
                       context: context,

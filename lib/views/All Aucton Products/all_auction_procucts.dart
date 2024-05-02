@@ -30,6 +30,7 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
   bool isLoading = false;
   var catId;
   var subCatId;
+
   @override
   void initState() {
     dio = AppDio(context);

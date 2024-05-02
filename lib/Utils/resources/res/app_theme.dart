@@ -18,4 +18,10 @@ class AppTheme {
   static Color disableColor = const Color(0xffB9D4CD);
   static Color textColor00 = const Color(0xff001B2E);
 
+
+
+
+
+
+
 }
