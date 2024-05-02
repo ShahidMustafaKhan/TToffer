@@ -9,7 +9,7 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/models/common_model.dart';
 import 'package:tt_offer/utils/utils.dart';
 
-Future deleteNotificationDialog(
+Future CustomAlertDialog(
   BuildContext context,
   String? title,
   String? description,

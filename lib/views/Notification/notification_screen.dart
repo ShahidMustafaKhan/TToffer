@@ -44,6 +44,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     await NotificationDeleteRequest()
         .notificationDeleteRequest(context: context);
     getNotificationHandler();
+    Navigator.pop(context);
   }
 
   @override
@@ -82,11 +83,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       itemBuilder: (context, index) {
                         return InkWell(
                           onLongPress: () {
-                            deleteNotificationDialog(
+                            CustomAlertDialog(
                                 context,
                                 'Confirm Delete',
                                 'Are you sure want to delete this notification',
-                                'Delete', () {
+                                'Delete', () async {
                               deleteHandler();
                             }, delLoading, 'Cancel');
                           },
