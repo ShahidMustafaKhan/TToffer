@@ -3,8 +3,11 @@ import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 
+import '../../models/selling_products_model.dart';
+
 class ListViewContainer extends StatefulWidget {
-  const ListViewContainer({super.key});
+  const ListViewContainer({super.key, required this.selling});
+  final Selling selling;
 
   @override
   State<ListViewContainer> createState() => _ListViewContainerState();
@@ -46,7 +49,7 @@ class _ListViewContainerState extends State<ListViewContainer> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        AppText.appText("Modern light clothes",
+                        AppText.appText(widget.selling.title,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             textColor: AppTheme.txt1B20),
@@ -56,7 +59,7 @@ class _ListViewContainerState extends State<ListViewContainer> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            AppText.appText("Sold",
+                            AppText.appText(widget.selling.status.toString(),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
                                 textColor: AppTheme.appColor),

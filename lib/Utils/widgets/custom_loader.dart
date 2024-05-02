@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:tt_offer/utils/resources/res/app_theme.dart';
 
-alertDialogueWithLoader({required BuildContext context}) {
+showAlertLoader({required BuildContext context}) {
   log("alertDialogueWithLoader fired");
   showDialog(
     barrierDismissible: true,

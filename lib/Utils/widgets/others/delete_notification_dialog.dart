@@ -1,23 +1,17 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
-import 'package:tt_offer/config/app_urls.dart';
-import 'package:tt_offer/config/dio/app_dio.dart';
-import 'package:tt_offer/models/common_model.dart';
-import 'package:tt_offer/utils/utils.dart';
 
-Future CustomAlertDialog(
-  BuildContext context,
-  String? title,
-  String? description,
-  String? confirmButtonTitle,
-  Function()? onTap,
-  bool loading,
-  String? cancelButtonTitle,
-) {
+Future CustomAlertDialog({
+  required BuildContext context,
+  required String title,
+  required String description,
+  required String confirmButtonTitle,
+  required Function()? onTap,
+  required bool loading,
+  required String? cancelButtonTitle,
+}) {
   return showDialog(
     context: context,
     builder: (BuildContext context) {

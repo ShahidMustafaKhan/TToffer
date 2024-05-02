@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/listview_container.dart';
@@ -6,10 +7,13 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
+import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/Post%20screens/post_card_payment.dart';
 
 class SellFaster extends StatefulWidget {
-  const SellFaster({super.key});
+  const SellFaster({super.key, required this.selling});
+
+  final Selling selling;
 
   @override
   State<SellFaster> createState() => _SellFasterState();
@@ -26,7 +30,9 @@ class _SellFasterState extends State<SellFaster> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           children: [
-            const ListViewContainer(),
+            ListViewContainer(
+              selling: widget.selling,
+            ),
             const CustomDivider(),
             const SizedBox(
               height: 20,

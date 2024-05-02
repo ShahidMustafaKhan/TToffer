@@ -83,13 +83,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       itemBuilder: (context, index) {
                         return InkWell(
                           onLongPress: () {
-                            CustomAlertDialog(
-                                context,
-                                'Confirm Delete',
-                                'Are you sure want to delete this notification',
-                                'Delete', () async {
-                              deleteHandler();
-                            }, delLoading, 'Cancel');
+                            // CustomAlertDialog(
+                            //     context,
+                            //     'Confirm Delete',
+                            //     'Are you sure want to delete this notification',
+                            //     'Delete', () async {
+                            //   deleteHandler();
+                            // }, delLoading, 'Cancel');
                           },
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
