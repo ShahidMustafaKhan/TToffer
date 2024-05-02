@@ -7,6 +7,7 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_logout_pop_up.dart';
 import 'package:tt_offer/Utils/widgets/others/delete_notification_dialog.dart';
+import 'package:tt_offer/custom_requests/notification_delete_request.dart';
 import 'package:tt_offer/models/notifications_model.dart';
 import 'package:tt_offer/providers/notification_provider.dart';
 
@@ -19,6 +20,7 @@ class NotificationScreen extends StatefulWidget {
 
 class _NotificationScreenState extends State<NotificationScreen> {
   bool loading = false;
+  bool delLoading = false;
 
   List<NotificationData> notification = [];
 
@@ -36,6 +38,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
     notification =
         Provider.of<NotificationProvider>(context, listen: false).notifications;
     setState(() {});
+  }
+
+  deleteHandler() async {
+    await NotificationDeleteRequest()
+        .notificationDeleteRequest(context: context);
+    getNotificationHandler();
   }
 
   @override
@@ -78,9 +86,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 context,
                                 'Confirm Delete',
                                 'Are you sure want to delete this notification',
-                                'Delete',
-                                () {},
-                                'Cancel');
+                                'Delete', () {
+                              deleteHandler();
+                            }, delLoading, 'Cancel');
                           },
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,

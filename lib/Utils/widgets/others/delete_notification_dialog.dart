@@ -15,6 +15,7 @@ Future deleteNotificationDialog(
   String? description,
   String? confirmButtonTitle,
   Function()? onTap,
+  bool loading,
   String? cancelButtonTitle,
 ) {
   return showDialog(
@@ -47,8 +48,7 @@ Future deleteNotificationDialog(
                         height: 30,
                       ),
                       Container(
-                        child: AppText.appText(
-                            description!,
+                        child: AppText.appText(description!,
                             textAlign: TextAlign.center,
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
@@ -57,13 +57,16 @@ Future deleteNotificationDialog(
                       const SizedBox(
                         height: 30,
                       ),
-                      AppButton.appButton(confirmButtonTitle!, onTap: onTap,
-                          height: 53,
-                          fontSize: 14,
-                          radius: 32.0,
-                          fontWeight: FontWeight.w500,
-                          textColor: AppTheme.whiteColor,
-                          backgroundColor: AppTheme.appColor),
+                      loading
+                          ? CircularProgressIndicator(color: AppTheme.appColor)
+                          : AppButton.appButton(confirmButtonTitle!,
+                              onTap: onTap,
+                              height: 53,
+                              fontSize: 14,
+                              radius: 32.0,
+                              fontWeight: FontWeight.w500,
+                              textColor: AppTheme.whiteColor,
+                              backgroundColor: AppTheme.appColor),
                       const SizedBox(
                         height: 10,
                       ),

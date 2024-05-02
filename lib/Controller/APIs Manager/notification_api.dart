@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/models/notifications_model.dart';
@@ -19,7 +20,7 @@ class NotificationService {
       var headers = {'Authorization': 'Bearer $token'};
       var dio = Dio();
       var response = await dio.get(
-        'https://ttoffer.com/api/get/user/all/notifications/$id',
+        '${AppUrls.baseUrl}get/user/all/notifications/$id',
         options: Options(
           headers: headers,
         ),
