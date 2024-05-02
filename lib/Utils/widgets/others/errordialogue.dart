@@ -8,7 +8,7 @@ alertDialogError({context, message}) {
     context: context,
     builder: (context) {
       return Padding(
-        padding: EdgeInsets.only(left: 5, right: 5),
+        padding: const EdgeInsets.only(left: 5, right: 5),
         child: AlertDialog(
           actionsPadding: const EdgeInsets.only(top: 5, left: 0, right: 0),
           shape: RoundedRectangleBorder(
@@ -64,7 +64,7 @@ alertDialogErrorLogin({context, message}) {
     context: context,
     builder: (context) {
       return Padding(
-        padding: EdgeInsets.only(left: 5, right: 5),
+        padding: const EdgeInsets.only(left: 5, right: 5),
         child: AlertDialog(
           actionsPadding: const EdgeInsets.only(top: 5, left: 0, right: 0),
           shape: RoundedRectangleBorder(
