@@ -5,10 +5,12 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
+import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/Sellings/item_performance.dart';
 
 class ItemDashBoard extends StatefulWidget {
-  const ItemDashBoard({super.key});
+  const ItemDashBoard({super.key, required this.selling});
+  final Selling selling;
 
   @override
   State<ItemDashBoard> createState() => _ItemDashBoardState();
@@ -88,9 +90,9 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               customListview(
-                  img: "assets/images/auction1.png",
-                  title: "Modern Light Clothes",
-                  subtitle: "\$500"),
+                  img: widget.selling.photo![0].src,
+                  title: widget.selling.title,
+                  subtitle: widget.selling.auctionPrice),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: Row(
@@ -226,10 +228,15 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: Image.asset(
-                      "$img",
-                      fit: BoxFit.cover,
-                    ),
+                    child: img.contains("https")
+                        ? Image.network(
+                            "$img",
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            "$img",
+                            fit: BoxFit.cover,
+                          ),
                   ),
                 ),
                 const SizedBox(

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -108,11 +110,13 @@ class ChatApiProvider extends ChangeNotifier {
     Map<String, dynamic>? params;
 
     if (image != null) {
+      log("sending image in chat i.e = ${image.path}");
       formData = FormData.fromMap({
         "sender_id": senderId,
         "receiver_id": recieverId,
         // "message": message,
-        "images[]": MultipartFile.fromFile(image.path, filename: image.name),
+        "images[]":
+            await MultipartFile.fromFile(image.path, filename: image.name),
       });
     } else {
       params = {

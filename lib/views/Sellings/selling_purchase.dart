@@ -282,7 +282,13 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
               child: GestureDetector(
                 onTap: () {
                   if (widget.ischeck == 1) {
-                    push(context, const ItemDashBoard());
+                    log("go to ItemDashBoard");
+                    push(
+                        context,
+                        ItemDashBoard(
+                          selling:
+                              widget.sellingProductsModel!.data!.selling[index],
+                        ));
                   }
                 },
                 child: SizedBox(
@@ -301,8 +307,9 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
-                              child: Image.asset(
-                                "assets/images/auction1.png",
+                              child: Image.network(
+                                widget.sellingProductsModel!.data!
+                                    .selling[index].photo![0].src,
                                 fit: BoxFit.cover,
                               ),
                             ),

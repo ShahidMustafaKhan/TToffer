@@ -14,7 +14,6 @@ import 'package:tt_offer/firebase_options.dart';
 import 'package:tt_offer/providers/notification_provider.dart';
 import 'package:tt_offer/splash_screen.dart';
 import 'package:tt_offer/views/Authentication%20screens/GoogleSignIn/google_signin_provider.dart';
-import 'package:intl/date_symbol_data_local.dart';
 
 late SharedPreferences pref;
 late CustomPostRequest customPostRequest;
@@ -29,8 +28,7 @@ Future<void> main() async {
   pref = await SharedPreferences.getInstance();
   customPostRequest = CustomPostRequest();
   customGetRequest = CustomGetRequest();
-
-  initializeDateFormatting().then((_) => runApp(const MyApp()));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
