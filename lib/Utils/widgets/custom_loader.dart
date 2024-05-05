@@ -24,3 +24,7 @@ showAlertLoader({required BuildContext context}) {
     },
   );
 }
+
+getWidth(context) {
+  return MediaQuery.of(context).size.width;
+}

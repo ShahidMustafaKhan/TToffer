@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -5,7 +7,11 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
+import 'package:tt_offer/config/app_urls.dart';
+import 'package:tt_offer/main.dart';
+import 'package:tt_offer/models/common_model.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
+import 'package:tt_offer/utils/widgets/custom_loader.dart';
 import 'package:tt_offer/views/Sellings/item_performance.dart';
 
 class ItemDashBoard extends StatefulWidget {
@@ -17,6 +23,7 @@ class ItemDashBoard extends StatefulWidget {
 }
 
 class _ItemDashBoardState extends State<ItemDashBoard> {
+  bool loading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,10 +96,92 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              customListview(
-                  img: widget.selling.photo![0].src,
-                  title: widget.selling.title,
-                  subtitle: widget.selling.auctionPrice),
+              InkWell(
+                onLongPress: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return StatefulBuilder(
+                        builder: (context, setStatess) {
+                          return AlertDialog(
+                            backgroundColor: Colors.white,
+                            content: SizedBox(
+                              height: 200,
+                              width: getWidth(context) * .8,
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 4),
+                                    child: InkWell(
+                                      onTap: () {},
+                                      child: AppText.appText("Share",
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          textColor: AppTheme.appColor),
+                                    ),
+                                  ),
+                                  const Divider(),
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 4),
+                                    child: InkWell(
+                                      onTap: () {},
+                                      child: AppText.appText("Sell Another",
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          textColor: AppTheme.appColor),
+                                    ),
+                                  ),
+                                  const Divider(),
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 4),
+                                    child: InkWell(
+                                      onTap: () {
+                                        markArchived(
+                                            widget.selling.id, setStatess);
+                                      },
+                                      child: AppText.appText("Archive",
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          textColor: AppTheme.appColor),
+                                    ),
+                                  ),
+                                  const Divider(),
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 4),
+                                    child: InkWell(
+                                      onTap: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: AppText.appText("Cancel",
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          textColor: AppTheme.appColor),
+                                    ),
+                                  ),
+                                  if (loading)
+                                    Center(
+                                      child: CircularProgressIndicator(
+                                        color: AppTheme.appColor,
+                                      ),
+                                    )
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+                child: customListview(
+                    img: widget.selling.photo![0].src,
+                    title: widget.selling.title,
+                    subtitle: widget.selling.auctionPrice),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: Row(
@@ -271,5 +360,33 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
         ),
       ),
     );
+  }
+
+  Future<void> markArchived(int id, setStatesss) async {
+    setStatesss(() {
+      loading = true;
+    });
+
+    try {
+      var responce = await customGetRequest.httpGetRequest(
+          url: "${AppUrls.markProductArchive}/$id");
+
+      setStatesss(() {
+        loading = false;
+      });
+
+      Navigator.of(context).pop();
+
+      showSnackBar(context, responce["message"]);
+
+      log("responce of markArchived = $responce");
+    } catch (e) {
+      setStatesss(() {
+        loading = false;
+      });
+      Navigator.of(context).pop();
+
+      showSnackBar(context, "Something went Wrong");
+    }
   }
 }

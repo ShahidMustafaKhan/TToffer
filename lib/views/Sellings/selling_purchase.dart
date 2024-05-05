@@ -67,21 +67,19 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
                   if (selectedOption == "Selling")
                     Expanded(
                         child: SellingPurchaseListView(
-                      // getSellingProduct: getSellingProducts,
                       ischeck: 1,
                       sellingProductsModel: sellingProductsModel,
                     )),
                   if (selectedOption == "Buying")
                     Expanded(
                         child: SellingPurchaseListView(
-                      // getSellingProduct: getSellingProducts,
                       ischeck: 2,
                       sellingProductsModel: sellingProductsModel,
                     )),
                   if (selectedOption == "Archive")
                     Expanded(
                         child: SellingPurchaseListView(
-                      // getSellingProduct: getSellingProducts,
+                      sellingProductsModel: sellingProductsModel,
                       ischeck: 3,
                     )),
                 ],
@@ -269,11 +267,47 @@ class SellingPurchaseListView extends StatefulWidget {
 }
 
 class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
+  // int listCount = 0;
+  var data;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.ischeck == 1) {
+      // listCount = widget.sellingProductsModel!.data!.selling!.length;
+      data = widget.sellingProductsModel!.data!.selling;
+    } else if (widget.ischeck == 2) {
+      // listCount = widget.sellingProductsModel!.data!.purchase!.length;
+      data = widget.sellingProductsModel!.data!.purchase;
+    } else {
+      // listCount = widget.sellingProductsModel!.data!.archive!.length;
+      data = widget.sellingProductsModel!.data!.archive;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant SellingPurchaseListView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.ischeck == 1) {
+      // listCount = widget.sellingProductsModel!.data!.selling!.length;
+      data = widget.sellingProductsModel!.data!.selling;
+    } else if (widget.ischeck == 2) {
+      // listCount = widget.sellingProductsModel!.data!.purchase!.length;
+      data = widget.sellingProductsModel!.data!.purchase;
+    } else {
+      // listCount = widget.sellingProductsModel!.data!.archive!.length;
+      data = widget.sellingProductsModel!.data!.archive;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    log("data for check ${widget.ischeck} = $data");
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: widget.sellingProductsModel?.data?.selling.length,
+      itemCount: data.length,
       itemBuilder: (context, index) {
         return Column(
           children: [
@@ -286,8 +320,8 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                     push(
                         context,
                         ItemDashBoard(
-                          selling:
-                              widget.sellingProductsModel!.data!.selling[index],
+                          selling: widget
+                              .sellingProductsModel!.data!.selling![index],
                         ));
                   }
                 },
@@ -308,8 +342,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: Image.network(
-                                widget.sellingProductsModel!.data!
-                                    .selling[index].photo![0].src,
+                                data[index].photo![0].src,
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -321,10 +354,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              AppText.appText(
-                                  widget.sellingProductsModel?.data
-                                          ?.selling[index].title ??
-                                      "",
+                              AppText.appText(data[index].title ?? "",
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   textColor: AppTheme.txt1B20),
@@ -389,10 +419,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                       push(
                                           context,
                                           SellFaster(
-                                            selling: widget
-                                                .sellingProductsModel!
-                                                .data!
-                                                .selling[index],
+                                            selling: data[index],
                                           ));
                                     },
                                     child: AppText.appText(
@@ -422,10 +449,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                     onTap: () {
                                       if (widget.ischeck == 1) {
                                         markAsSold(
-                                            widget.sellingProductsModel?.data
-                                                ?.selling[index].id,
-                                            context,
-                                            index);
+                                            data[index].id, context, index);
                                       } else {}
                                     },
                                     child: AppText.appText(
@@ -487,7 +511,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
 
           // if (responce.statusCode == 200) {
           if (responce["status"] == true) {
-            widget.sellingProductsModel?.data?.selling.removeAt(index);
+            widget.sellingProductsModel?.data?.selling!.removeAt(index);
 
             setState(() {});
           }

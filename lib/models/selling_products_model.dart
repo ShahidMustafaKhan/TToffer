@@ -7,14 +7,14 @@ class SellingProductsModel {
 
   SellingProductsModel({
     required this.success,
-    required this.data,
+    this.data,
     required this.message,
   });
 
   factory SellingProductsModel.fromJson(Map<String, dynamic> json) =>
       SellingProductsModel(
         success: json["success"],
-        data: Data.fromJson(json["data"]),
+        data: json["data"] == null ? null : Data.fromJson(json["data"]),
         message: json["message"],
       );
 
@@ -26,27 +26,29 @@ class SellingProductsModel {
 }
 
 class Data {
-  List<Selling> selling;
-  List<dynamic> purchase;
-  List<dynamic> archive;
+  List<Selling>? selling;
+  List<Selling>? purchase;
+  List<Selling>? archive;
 
   Data({
-    required this.selling,
-    required this.purchase,
-    required this.archive,
+    this.selling,
+    this.purchase,
+    this.archive,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
         selling:
             List<Selling>.from(json["selling"].map((x) => Selling.fromJson(x))),
-        purchase: List<dynamic>.from(json["purchase"].map((x) => x)),
-        archive: List<dynamic>.from(json["archive"].map((x) => x)),
+        purchase: List<Selling>.from(
+            json["purchase"].map((x) => Selling.fromJson(x))),
+        archive:
+            List<Selling>.from(json["archive"].map((x) => Selling.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
-        "selling": List<dynamic>.from(selling.map((x) => x.toJson())),
-        "purchase": List<dynamic>.from(purchase.map((x) => x)),
-        "archive": List<dynamic>.from(archive.map((x) => x)),
+        "selling": List<dynamic>.from(selling!.map((x) => x.toJson())),
+        "purchase": List<dynamic>.from(purchase!.map((x) => x)),
+        "archive": List<dynamic>.from(archive!.map((x) => x)),
       };
 }
 
