@@ -8,6 +8,7 @@ import 'package:tt_offer/config/app_urls.dart';
 class ProfileApiProvider extends ChangeNotifier {
   bool isLoading = false;
   var profileData;
+
   ////////////////////////////////////////// Make Offer ////////////////////////////////////////////////
 
   void updateProfile(
@@ -19,7 +20,7 @@ class ProfileApiProvider extends ChangeNotifier {
       profile,
       emial,
       userName}) async {
-        print("object${profile}");
+    print("object${profile}");
     isLoading = true;
     var response;
     int responseCode200 = 200; // For successful request.
@@ -42,15 +43,15 @@ class ProfileApiProvider extends ChangeNotifier {
       "email": emial,
       "username": userName
     });
-   if (profile == true) {
-  formData = FormData.fromMap({
-    "user_id": userId,
-    "img": profilePhoto == null
-        ? ""
-        : await MultipartFile.fromFile(profilePhoto.path),
-  });
-}
-       print("nfk4nfl${formData.fields}");
+    if (profile == true) {
+      formData = FormData.fromMap({
+        "user_id": userId,
+        "img": profilePhoto == null
+            ? ""
+            : await MultipartFile.fromFile(profilePhoto.path),
+      });
+    }
+    print("nfk4nfl${formData.fields}");
     try {
       response = await dio.post(path: AppUrls.updateProfile, data: formData);
       var responseData = response.data;
@@ -88,7 +89,7 @@ class ProfileApiProvider extends ChangeNotifier {
     }
   }
 
-  void getProfile({required dio, required context}) async {
+  getProfile({required dio, required context}) async {
     isLoading = true;
     var response;
     int responseCode200 = 200; // For successful request.

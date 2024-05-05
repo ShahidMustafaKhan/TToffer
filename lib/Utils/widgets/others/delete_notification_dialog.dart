@@ -14,6 +14,7 @@ Future CustomAlertDialog(
   String? title,
   String? description,
   String? confirmButtonTitle,
+
   Function()? onTap,
   bool loading,
   String? cancelButtonTitle,

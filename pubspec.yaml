@@ -64,6 +64,8 @@ dependencies:
   # flutter_chat_ui: ^1.6.12
   chat_bubbles: ^1.6.0
   http: ^1.2.1
+  intl_phone_number_input: ^0.7.4
+  pinput: ^4.0.0
 
   
 flutter_icons:

@@ -11,9 +11,10 @@ class ChatApiProvider extends ChangeNotifier {
   var allChatsData;
   var conversationData;
   var conversationsList;
+
   ////////////////////////////////////////// Make Offer ////////////////////////////////////////////////
 
-  void makeOffer(
+  makeOffer(
       {required dio,
       required context,
       required productId,
@@ -37,6 +38,12 @@ class ChatApiProvider extends ChangeNotifier {
     try {
       response = await dio.post(path: AppUrls.makeOffer, data: params);
       var responseData = response.data;
+
+      if (responseData['success'] == true) {
+        showSnackBar(context, "Offer Made placed Successfully");
+        notifyListeners();
+      }
+
       if (response.statusCode == responseCode400) {
         showSnackBar(context, "${responseData["message"]}");
         isLoading = false;

@@ -44,12 +44,12 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
     });
   }
 
+  bool loader = false;
+
   @override
   Widget build(BuildContext context) {
     final chatApiProvider = Provider.of<ChatApiProvider>(context);
-    final screenSize = MediaQuery
-        .of(context)
-        .size;
+    final screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: const CustomAppBar1(
         title: "Make Your Offer",
@@ -76,9 +76,9 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                             borderRadius: BorderRadius.circular(16),
                             image: widget.data["photo"].isNotEmpty
                                 ? DecorationImage(
-                                image: NetworkImage(
-                                    "${widget.data["photo"][0]["src"]}"),
-                                fit: BoxFit.fill)
+                                    image: NetworkImage(
+                                        "${widget.data["photo"][0]["src"]}"),
+                                    fit: BoxFit.fill)
                                 : null),
                       ),
                       const SizedBox(
@@ -125,29 +125,39 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 40.0),
-                child: AppButton.appButton("Send Offer", onTap: () {
-                  String priceWithoutDollarSign =
-                  _priceController.text.replaceAll('\$', '');
-                  chatApiProvider.makeOffer(
-                      dio: dio,
-                      context: context,
-                      productId: widget.data["id"],
-                      sellerId: widget.data["user"]["id"],
-                      buyerId: int.parse(userId),
-                      offerPrice: int.parse(priceWithoutDollarSign));
-                  // push(
-                  //     context,
-                  //     OfferChatScreen(
-                  //       offerPrice: priceWithoutDollarSign,
-                  //       isOffer: true,
-                  //     ));
-                },
-                    height: 53,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    radius: 32.0,
-                    backgroundColor: AppTheme.appColor,
-                    textColor: AppTheme.whiteColor),
+                child: loader
+                    ? CircularProgressIndicator(color: AppTheme.appColor)
+                    : AppButton.appButton("Send Offer", onTap: () async {
+                        setState(() {
+                          loader = true;
+                        });
+                        String priceWithoutDollarSign =
+                            _priceController.text.replaceAll('\$', '');
+                         await chatApiProvider.makeOffer(
+                            dio: dio,
+                            context: context,
+                            productId: widget.data["id"],
+                            sellerId: widget.data["user"]["id"],
+                            buyerId: int.parse(userId),
+                            offerPrice: int.parse(priceWithoutDollarSign));
+
+                        setState(() {
+                          loader = false;
+                        });
+
+                        // push(
+                        //     context,
+                        //     OfferChatScreen(
+                        //       offerPrice: priceWithoutDollarSign,
+                        //       isOffer: true,
+                        //     ));
+                      },
+                        height: 53,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        radius: 32.0,
+                        backgroundColor: AppTheme.appColor,
+                        textColor: AppTheme.whiteColor),
               ),
             ],
           ),

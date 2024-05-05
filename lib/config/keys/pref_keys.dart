@@ -45,4 +45,5 @@ class PrefKey {
   static const String currencyTitle = "currency_title";
   static const String countryID = "country_id";
   static const String countryTitle = "country_title";
+  static const String phoneFirebase = "phone_firebase";
 }

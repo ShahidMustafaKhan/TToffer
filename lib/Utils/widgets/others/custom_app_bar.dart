@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tt_offer/Constants/app_logger.dart';
+import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
+import 'package:tt_offer/config/dio/app_dio.dart';
 
 class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
   final double preferredHeight = 50.0;
@@ -22,17 +26,32 @@ class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
       this.img,
       this.leading});
 
+
+
   @override
   Widget build(BuildContext context) {
+
+    late AppDio dio;
+    AppLogger logger = AppLogger();
+
+
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: leading == false
-            ? SizedBox.shrink()
+            ? const SizedBox.shrink()
             : GestureDetector(
-                onTap: () {
+                onTap: () async {
+                  // dio = AppDio(context);
+                  // logger.init();
+                  // final profileApi =
+                  // Provider.of<ProfileApiProvider>(context, listen: false);
+                  // await profileApi.getProfile(
+                  //   dio: dio,
+                  //   context: context,
+                  // );
                   Navigator.pop(context);
                 },
                 child: Padding(

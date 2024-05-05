@@ -10,7 +10,11 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
+import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/Authentication%20screens/login_screen.dart';
+import 'package:tt_offer/views/ContactPage/contact_page.dart';
+import 'package:tt_offer/views/EmailVerification/email_verification_screen.dart';
+import 'package:tt_offer/views/PhoneVerify/phone_verify_screen.dart';
 import 'package:tt_offer/views/Profile%20Screen/Account%20Settigs/account_setting.dart';
 import 'package:tt_offer/views/Profile%20Screen/custom_link.dart';
 import 'package:tt_offer/views/Profile%20Screen/payment%20Screens/payment_screen.dart';
@@ -31,6 +35,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   var userId;
   late AppDio dio;
   AppLogger logger = AppLogger();
+
+  String? phone;
+
+  getPhone() {
+    phone = pref.getString(PrefKey.phoneFirebase);
+    print('phone---->$phone');
+    setState(() {});
+  }
+
   @override
   void initState() {
     dio = AppDio(context);
@@ -41,6 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
     );
     getUserDetail();
+    getPhone();
 
     super.initState();
   }
@@ -116,6 +130,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             verifiedContainer(
+                                onTap: () {
+                                        push(context,
+                                            const EmailVerificationScreen());
+                                      },
+
                                 txt: "Email Verified",
                                 img: "assets/images/sms.png",
                                 color: profileApi
@@ -132,6 +151,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? Colors.greenAccent
                                     : AppTheme.appColor),
                             verifiedContainer(
+                                onTap: profileApi
+                                            .profileData["phone_verified_at"] ==
+                                        null
+                                    ? () {
+                                        push(context, PhoneVerifyScreen());
+                                      }
+                                    : null,
                                 txt: "Phone Verified",
                                 img: "assets/images/call.png",
                                 color: profileApi
@@ -196,7 +222,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const CustomDivider(),
               headingText(txt: "Help"),
               customRow(
-                  onTap: () {},
+                  onTap: () {
+                    push(context, const ContactPage());
+                  },
                   txt: "Help Center",
                   img: "assets/images/helpCenter.png"),
               const SizedBox(
@@ -207,7 +235,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ));
   }
 
-  Widget verifiedContainer({img, txt, color}) {
+  Widget verifiedContainer({img, txt, color, Function()? onTap}) {
     final profileApi = Provider.of<ProfileApiProvider>(context, listen: false);
 
     return Padding(
@@ -215,34 +243,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: SizedBox(
         height: 80,
         width: 48,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              height: 36,
-              width: 36,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle, color: color ?? AppTheme.appColor),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.asset(
-                  "$img",
-                  height: 20,
-                  color: AppTheme.whiteColor,
+        child: InkWell(
+          onTap: (onTap),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                height: 36,
+                width: 36,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle, color: color ?? AppTheme.appColor),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.asset(
+                    "$img",
+                    height: 20,
+                    color: AppTheme.whiteColor,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(
-              width: 20,
-            ),
-            Container(
-              child: AppText.appText("$txt",
-                  textAlign: TextAlign.center,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.txt1B20),
-            ),
-          ],
+              const SizedBox(
+                width: 20,
+              ),
+              Container(
+                child: AppText.appText("$txt",
+                    textAlign: TextAlign.center,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.txt1B20),
+              ),
+            ],
+          ),
         ),
       ),
     );

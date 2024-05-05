@@ -1,113 +1,57 @@
-class NotificationModel {
-  bool? success;
-  List<NotificationData>? data;
-  String? message;
-
-  NotificationModel({this.success, this.data, this.message});
-
-  NotificationModel.fromJson(Map<String, dynamic> json) {
-    success = json['success'];
-    if (json['data'] != null) {
-      data = <NotificationData>[];
-      json['data'].forEach((v) {
-        data!.add(NotificationData.fromJson(v));
-      });
-    }
-    message = json['message'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['success'] = this.success;
-    if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
-    }
-    data['message'] = this.message;
-    return data;
-  }
-}
-
-class NotificationData {
-  int? id;
-  int? userId;
-  String? text;
-  String? type;
-  String? typeId;
+class OtpModel {
   String? status;
-  String? createdAt;
-  String? updatedAt;
-  String? deletedAt;
-  User? user;
+  String? msg;
+  int? otp;
+  Data? data;
 
-  NotificationData(
-      {this.id,
-        this.userId,
-        this.text,
-        this.type,
-        this.typeId,
-        this.status,
-        this.createdAt,
-        this.updatedAt,
-        this.deletedAt,
-        this.user});
+  OtpModel({this.status, this.msg, this.otp, this.data});
 
-  NotificationData.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    userId = json['user_id'];
-    text = json['text'];
-    type = json['type'];
-    typeId = json['type_id'];
+  OtpModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-    deletedAt = json['deleted_at'];
-    user = json['user'] != null ? User.fromJson(json['user']) : null;
+    msg = json['msg'];
+    otp = json['otp'];
+    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['text'] = this.text;
-    data['type'] = this.type;
-    data['type_id'] = this.typeId;
+    final Map<String, dynamic> data = new Map<String, dynamic>();
     data['status'] = this.status;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    data['deleted_at'] = this.deletedAt;
-    if (this.user != null) {
-      data['user'] = this.user!.toJson();
+    data['msg'] = this.msg;
+    data['otp'] = this.otp;
+    if (this.data != null) {
+      data['data'] = this.data!.toJson();
     }
     return data;
   }
 }
 
-class User {
+class Data {
   int? id;
   String? name;
   String? src;
   String? provider;
-  String? providerId;
-  String? providerToken;
+  Null? providerId;
+  Null? providerToken;
   String? code;
-  String? emailVerifiedAt;
-  String? phoneVerifiedAt;
-  String? imageVerifiedAt;
+  Null? emailVerifiedAt;
+  int? emailCode;
+  Null? phoneVerifiedAt;
+  Null? imageVerifiedAt;
   String? username;
   String? email;
   String? phone;
-  String? shareAbleLink;
+  Null? shareAbleLink;
   String? img;
   int? status;
-  String? location;
-  String? customLink;
+  Null? location;
+  Null? customLink;
   int? isTrueYou;
   String? createdAt;
   String? updatedAt;
   int? totalReview;
   int? reviewPercentage;
 
-  User(
+  Data(
       {this.id,
         this.name,
         this.src,
@@ -116,6 +60,7 @@ class User {
         this.providerToken,
         this.code,
         this.emailVerifiedAt,
+        this.emailCode,
         this.phoneVerifiedAt,
         this.imageVerifiedAt,
         this.username,
@@ -132,7 +77,7 @@ class User {
         this.totalReview,
         this.reviewPercentage});
 
-  User.fromJson(Map<String, dynamic> json) {
+  Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
     src = json['src'];
@@ -141,6 +86,7 @@ class User {
     providerToken = json['provider_token'];
     code = json['code'];
     emailVerifiedAt = json['email_verified_at'];
+    emailCode = json['email_code'];
     phoneVerifiedAt = json['phone_verified_at'];
     imageVerifiedAt = json['image_verified_at'];
     username = json['username'];
@@ -159,7 +105,7 @@ class User {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
     data['name'] = this.name;
     data['src'] = this.src;
@@ -168,6 +114,7 @@ class User {
     data['provider_token'] = this.providerToken;
     data['code'] = this.code;
     data['email_verified_at'] = this.emailVerifiedAt;
+    data['email_code'] = this.emailCode;
     data['phone_verified_at'] = this.phoneVerifiedAt;
     data['image_verified_at'] = this.imageVerifiedAt;
     data['username'] = this.username;

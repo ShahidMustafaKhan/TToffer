@@ -35,13 +35,14 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
                   push(
                       context,
                       AccountEditInfoScreen(
+                        userName: true,
                         title: "User Name",
                         lable: "Your Name",
-                        infoText: "${profileApi.profileData["name"]}",
+                        infoText: "${profileApi.profileData["username"]}",
                       ));
                 },
                 img: "assets/images/profile.png",
-                txt: "${profileApi.profileData["name"]}"),
+                txt: "${profileApi.profileData["username"]}"),
             profileApi.profileData["phone"] == null
                 ? const SizedBox.shrink()
                 : divider(),
@@ -52,6 +53,7 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
                       push(
                           context,
                           AccountEditInfoScreen(
+                            userName: false,
                             title: "Phone Number",
                             lable: "Your Number",
                             infoText: "${profileApi.profileData["phone"]}",
@@ -69,6 +71,7 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
                       push(
                           context,
                           AccountEditInfoScreen(
+                            userName: false,
                             title: "Email Address",
                             lable: "Your Email",
                             infoText: "${profileApi.profileData["email"]}",
@@ -82,7 +85,9 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
                 onTap: () {
                   push(
                       context,
-                      const AccountEditInfoScreen(
+                      AccountEditInfoScreen(
+                        emailSt: "${profileApi.profileData["email"]}",
+                        userName: false,
                         title: "Password",
                         lable: "Old Password",
                         infoText: "************",
@@ -96,21 +101,22 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
                 onTap: () {
                   push(
                       context,
-                      const AccountEditInfoScreen(
+                      AccountEditInfoScreen(
+                        userName: false,
                         title: "Location",
                         lable: "Your Location",
-                        infoText: "Belarus",
+                        infoText: "${profileApi.profileData["location"]}",
                         location: true,
                       ));
                 },
                 img: "assets/images/location.png",
-                txt: "Belarus"),
+                txt: "${profileApi.profileData["location"]}"),
             divider(),
             customRow(
                 onTap: () {
                   push(
                       context,
-                      const AccountEditInfoScreen(
+                       AccountEditInfoScreen(
                         title: "User Name",
                         lable: "Your Name",
                         infoText: "John Doe",
