@@ -9,6 +9,7 @@ import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
+import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/Auction%20Info/make_offer_screen.dart';
 import 'package:tt_offer/views/ChatScreens/offer_chat_screen.dart';
 import 'package:tt_offer/views/Seller%20Profile/seller_profile.dart';
@@ -46,16 +47,21 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
   AppLogger logger = AppLogger();
   @override
   void initState() {
-    dio = AppDio(context);
-    getUserId();
-    logger.init();
-    wrapList1 = [
-      '${widget.detailResponse["condition"]}',
-      'Samsung ',
-      'Galaxy M02',
-      "2/32",
-      "Original"
-    ];
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      dio = AppDio(context);
+      getUserId();
+      logger.init();
+
+      markProductView();
+    });
+
+    // wrapList1 = [
+    //   '${widget.detailResponse["condition"]}',
+    //   'Samsung ',
+    //   'Galaxy M02',
+    //   "2/32",
+    //   "Original"
+    // ];
     super.initState();
   }
 
@@ -649,5 +655,11 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
         isLoading = false;
       });
     }
+  }
+
+  void markProductView() {
+    Map body = {"product_id": widget.detailResponse["id"]};
+    customPostRequest.httpPostRequest(
+        url: AppUrls.increaseProductCount, body: body);
   }
 }

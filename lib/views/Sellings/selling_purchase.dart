@@ -11,6 +11,8 @@ import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
+import 'package:tt_offer/utils/widgets/others/delete_notification_dialog.dart';
+import 'package:tt_offer/views/Sell%20Faster/sell_faster.dart';
 import 'package:tt_offer/views/Sellings/item_dashboard.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
@@ -65,21 +67,19 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
                   if (selectedOption == "Selling")
                     Expanded(
                         child: SellingPurchaseListView(
-                      getSellingProduct: getSellingProducts,
                       ischeck: 1,
                       sellingProductsModel: sellingProductsModel,
                     )),
                   if (selectedOption == "Buying")
                     Expanded(
                         child: SellingPurchaseListView(
-                      getSellingProduct: getSellingProducts,
                       ischeck: 2,
                       sellingProductsModel: sellingProductsModel,
                     )),
                   if (selectedOption == "Archive")
                     Expanded(
                         child: SellingPurchaseListView(
-                      getSellingProduct: getSellingProducts,
+                      sellingProductsModel: sellingProductsModel,
                       ischeck: 3,
                     )),
                 ],
@@ -190,6 +190,7 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
   }
 
   void getSellingProducts() async {
+    log("getSellingProducts fired");
     setState(() {
       isLoading = true;
     });
@@ -252,12 +253,13 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
 class SellingPurchaseListView extends StatefulWidget {
   final int? ischeck;
   SellingProductsModel? sellingProductsModel;
-  final Function getSellingProduct;
-  SellingPurchaseListView(
-      {super.key,
-      this.ischeck,
-      this.sellingProductsModel,
-      required this.getSellingProduct});
+  // final Function getSellingProduct;
+  SellingPurchaseListView({
+    super.key,
+    this.ischeck,
+    this.sellingProductsModel,
+    // required this.getSellingProduct
+  });
 
   @override
   State<SellingPurchaseListView> createState() =>
@@ -265,11 +267,47 @@ class SellingPurchaseListView extends StatefulWidget {
 }
 
 class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
+  // int listCount = 0;
+  var data;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.ischeck == 1) {
+      // listCount = widget.sellingProductsModel!.data!.selling!.length;
+      data = widget.sellingProductsModel!.data!.selling;
+    } else if (widget.ischeck == 2) {
+      // listCount = widget.sellingProductsModel!.data!.purchase!.length;
+      data = widget.sellingProductsModel!.data!.purchase;
+    } else {
+      // listCount = widget.sellingProductsModel!.data!.archive!.length;
+      data = widget.sellingProductsModel!.data!.archive;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant SellingPurchaseListView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.ischeck == 1) {
+      // listCount = widget.sellingProductsModel!.data!.selling!.length;
+      data = widget.sellingProductsModel!.data!.selling;
+    } else if (widget.ischeck == 2) {
+      // listCount = widget.sellingProductsModel!.data!.purchase!.length;
+      data = widget.sellingProductsModel!.data!.purchase;
+    } else {
+      // listCount = widget.sellingProductsModel!.data!.archive!.length;
+      data = widget.sellingProductsModel!.data!.archive;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    log("data for check ${widget.ischeck} = $data");
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: widget.sellingProductsModel?.data?.selling.length,
+      itemCount: data.length,
       itemBuilder: (context, index) {
         return Column(
           children: [
@@ -278,7 +316,13 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
               child: GestureDetector(
                 onTap: () {
                   if (widget.ischeck == 1) {
-                    push(context, const ItemDashBoard());
+                    log("go to ItemDashBoard");
+                    push(
+                        context,
+                        ItemDashBoard(
+                          selling: widget
+                              .sellingProductsModel!.data!.selling![index],
+                        ));
                   }
                 },
                 child: SizedBox(
@@ -297,8 +341,8 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
-                              child: Image.asset(
-                                "assets/images/auction1.png",
+                              child: Image.network(
+                                data[index].photo![0].src,
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -310,10 +354,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              AppText.appText(
-                                  widget.sellingProductsModel?.data
-                                          ?.selling[index].title ??
-                                      "",
+                              AppText.appText(data[index].title ?? "",
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   textColor: AppTheme.txt1B20),
@@ -373,15 +414,24 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  AppText.appText(
-                                      widget.ischeck == 1
-                                          ? "Sell faster"
-                                          : widget.ischeck == 2
-                                              ? "Sold"
-                                              : "Sold",
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w400,
-                                      textColor: AppTheme.appColor),
+                                  InkWell(
+                                    onTap: () {
+                                      push(
+                                          context,
+                                          SellFaster(
+                                            selling: data[index],
+                                          ));
+                                    },
+                                    child: AppText.appText(
+                                        widget.ischeck == 1
+                                            ? "Sell faster"
+                                            : widget.ischeck == 2
+                                                ? "Sold"
+                                                : "Sold",
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                        textColor: AppTheme.appColor),
+                                  ),
                                   const SizedBox(
                                     width: 10,
                                   ),
@@ -399,9 +449,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                     onTap: () {
                                       if (widget.ischeck == 1) {
                                         markAsSold(
-                                            widget.sellingProductsModel?.data
-                                                ?.selling[index].id,
-                                            context);
+                                            data[index].id, context, index);
                                       } else {}
                                     },
                                     child: AppText.appText(
@@ -443,26 +491,41 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
     );
   }
 
-  Future<void> markAsSold(int? id, context) async {
-    alertDialogueWithLoader(context: context);
-    try {
-      var responce = await customGetRequest.httpGetRequest(
-          url: "${AppUrls.markProductSold}/$id");
+  Future<void> markAsSold(int? id, context, int index) async {
+    bool isLoading = false;
+    CustomAlertDialog(
+      title: "Update Item Status",
+      description: "Do you want mark item as sold ?",
+      cancelButtonTitle: "No",
+      confirmButtonTitle: "Yes, Mark as sold",
+      context: context,
+      loading: isLoading,
+      onTap: () async {
+        Navigator.of(context).pop();
+        showAlertLoader(context: context);
+        try {
+          var responce = await customGetRequest.httpGetRequest(
+              url: "${AppUrls.markProductSold}/$id");
 
-      Navigator.of(context).pop();
-      showSnackBar(context, responce["message"]);
+          showSnackBar(context, responce["message"]);
 
-      if (responce.statusCode == 200) {
-        if (responce["status"] == true) {
-          widget.getSellingProduct();
+          // if (responce.statusCode == 200) {
+          if (responce["status"] == true) {
+            widget.sellingProductsModel?.data?.selling!.removeAt(index);
+
+            setState(() {});
+          }
+          Navigator.of(context).pop(true);
+          //
+          // }
+
+          log("responce = $responce");
+        } catch (e) {
+          log("excepion = ${e.toString()}");
+          Navigator.of(context).pop(false);
+          showSnackBar(context, "Something went Wrong");
         }
-      }
-
-      log("responce = $responce");
-    } catch (e) {
-      log("excepion = ${e.toString()}");
-      Navigator.of(context).pop();
-      showSnackBar(context, "Something went Wrong");
-    }
+      },
+    );
   }
 }

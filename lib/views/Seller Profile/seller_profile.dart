@@ -45,14 +45,21 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     textColor: AppTheme.txt1B20),
-                ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: 10,
-                  itemBuilder: (context, index) {
-                    return const ListViewContainer();
-                  },
-                )
+
+                AppText.appText("Products",
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    textColor: AppTheme.txt1B20),
+                // ListView.builder(
+                //   physics: const NeverScrollableScrollPhysics(),
+                //   shrinkWrap: true,
+                //   itemCount: 10,
+                //   itemBuilder: (context, index) {
+                //     return const ListViewContainer(
+                //       selling: widget,
+                //     );
+                //   },
+                // )
               ],
             ),
           ),

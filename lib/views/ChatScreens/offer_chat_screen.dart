@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -16,8 +18,10 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
+import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
+import 'package:tt_offer/main.dart';
 
 class OfferChatScreen extends StatefulWidget {
   final String? userImgUrl;
@@ -58,7 +62,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
   }
 
   getUserDetail() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
+    // SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
       var id = pref.getString(PrefKey.userId);
       userId = int.parse(id!);
@@ -360,14 +364,20 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                   source: ImageSource.gallery,
                 );
 
-                await chatApi.sendMessage(
-                    dio: dio,
-                    context: context,
-                    image: pickedImage,
-                    senderId: userId,
-                    recieverId: widget.recieverId,
-                    title: widget.title,
-                    message: "");
+                await sendFileMsg(
+                  image: pickedImage!,
+                  senderId: userId,
+                  recieverId: widget.recieverId,
+                );
+
+                // await chatApi.sendMessage(
+                //     dio: dio,
+                //     context: context,
+                //     image: pickedImage,
+                //     senderId: userId,
+                //     recieverId: widget.recieverId,
+                //     title: widget.title,
+                //     message: "");
               },
               child: SizedBox(
                   height: 24,
@@ -431,5 +441,50 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     String formattedTime = DateFormat('HH:mm').format(time);
 
     return formattedTime;
+  }
+
+  Future<void> sendFileMsg(
+      {required senderId, required recieverId, required XFile image}) async {
+    String token = pref.getString(PrefKey.authorization)!;
+
+    log("token in sendFileMsg= $token");
+
+    log("filePath in SendFileMsgRepo=${pickedImage!.path}");
+
+    final headers = {
+      'Content-Type': 'multipart/form-data',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    };
+
+    Map<String, dynamic> json = {};
+    var request = http.MultipartRequest(
+        "POST", Uri.parse(AppUrls.baseUrl + AppUrls.sendMessage));
+    request.fields['sender_id'] = senderId.toString();
+    request.fields['receiver_id'] = recieverId.toString();
+    request.headers.addAll(headers);
+    http.MultipartFile multipartfile;
+
+    multipartfile = await http.MultipartFile.fromPath('images[]', image.path);
+    request.files.add(multipartfile);
+    // }
+
+    var response = await request.send();
+
+    log("response.statusCode : ${response.statusCode}");
+    if (response.statusCode != 200) {
+      log("exception in sending file message");
+      throw Exception("exception in sending file message");
+    }
+    var responseData = await response.stream.toBytes();
+    var responseString = String.fromCharCodes(responseData);
+
+    json = jsonDecode(responseString);
+
+    if (json["message"] == "Message Send Successfully.") {
+      showSnackBar(context, "Message Sent");
+    }
+
+    log("json in SendFileMsgRepo = ${json.toString()}");
   }
 }

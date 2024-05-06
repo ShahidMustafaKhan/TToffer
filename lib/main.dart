@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/chat_api.dart';
@@ -14,7 +15,6 @@ import 'package:tt_offer/firebase_options.dart';
 import 'package:tt_offer/providers/notification_provider.dart';
 import 'package:tt_offer/splash_screen.dart';
 import 'package:tt_offer/views/Authentication%20screens/GoogleSignIn/google_signin_provider.dart';
-import 'package:intl/date_symbol_data_local.dart';
 
 late SharedPreferences pref;
 late CustomPostRequest customPostRequest;
@@ -22,6 +22,10 @@ late CustomGetRequest customGetRequest;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  Stripe.publishableKey =
+      "pk_test_51JUUldDdNsnMpgdhSlxjCo0yQBGHy9RsTQojb3YENwH5llfYiEmqqFjkc6SmsSQpLb9BH40OKQb0fwTlfifqJhFd00Cy7xTNwd";
+  await Stripe.instance.applySettings();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -29,8 +33,7 @@ Future<void> main() async {
   pref = await SharedPreferences.getInstance();
   customPostRequest = CustomPostRequest();
   customGetRequest = CustomGetRequest();
-
-  initializeDateFormatting().then((_) => runApp(const MyApp()));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

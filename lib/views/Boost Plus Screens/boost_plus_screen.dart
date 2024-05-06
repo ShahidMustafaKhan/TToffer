@@ -55,7 +55,8 @@ class _BoostPlusScreenState extends State<BoostPlusScreen> {
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: AppButton.appButtonWithLeadingImage("Boost Plus",
                   border: true, onTap: () {
-                push(context, const SellFaster());
+                // push(context, const SellFaster());
+                showSnackBar(context, "SellFaster page");
               },
                   imagePath: "assets/images/boostPlus.png",
                   imgHeight: 20,
