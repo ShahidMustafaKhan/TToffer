@@ -20,6 +20,8 @@ import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/main.dart';
+import 'package:tt_offer/models/chat_model.dart';
+import 'package:tt_offer/providers/chat_provider.dart';
 
 class OfferChatScreen extends StatefulWidget {
   final String? userImgUrl;
@@ -56,6 +58,8 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     logger.init();
     getUserDetail();
     _priceController.text = "\$ 60";
+
+    messagesList = Provider.of<ChatProvider>(context, listen: false).data;
     super.initState();
   }
 
@@ -67,6 +71,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     });
   }
 
+  List<ChatData> messagesList = [];
   bool isSending = false;
   @override
   Widget build(BuildContext context) {
@@ -205,7 +210,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                       )
                     : const SizedBox.shrink(),
                 Expanded(
-                  child: chatApi.conversationData == null
+                  child: messagesList.isEmpty
                       ? const SizedBox.shrink()
                       : StreamBuilder<Object>(
                           stream: secRef.onValue,
@@ -213,22 +218,15 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                             return ListView.builder(
                               controller: _scrollController,
                               shrinkWrap: true,
-                              itemCount: chatApi
-                                  .conversationData["conversation"].length,
+                              itemCount: messagesList.length,
                               itemBuilder: (context, index) {
                                 return _buildMessageBubble(
-                                  time:
-                                      "${chatApi.conversationData["conversation"][index]["created_at"]}",
-                                  user: userId ==
-                                          chatApi.conversationData[
-                                                  "conversation"][index]
-                                              ["sender_id"]
+                                  time: "${messagesList[index].createdAt}",
+                                  user: userId == messagesList[index].senderId
                                       ? true
                                       : false,
-                                  message:
-                                      "${chatApi.conversationData["conversation"][index]["message"]}",
-                                  img:
-                                      "${chatApi.conversationData["conversation"][index]["file"]}",
+                                  message: "${messagesList[index].message}",
+                                  img: "${messagesList[index].file}",
                                 );
                               },
                             );

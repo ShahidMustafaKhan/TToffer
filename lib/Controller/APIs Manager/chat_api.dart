@@ -7,7 +7,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/models/chat_list_model.dart';
+import 'package:tt_offer/models/chat_model.dart';
 import 'package:tt_offer/providers/chat_list_provider.dart';
+import 'package:tt_offer/providers/chat_provider.dart';
 import 'package:tt_offer/views/ChatScreens/offer_chat_screen.dart';
 import 'package:tt_offer/config/app_urls.dart';
 
@@ -258,47 +260,58 @@ class ChatApiProvider extends ChangeNotifier {
     int responseCode422 = 422; // For For data not found
     int responseCode500 = 500; // Internal server error.
 
-    try {
-      response =
-          await dio.get(path: "${AppUrls.getConverstaion}$conversationId");
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["message"]}");
-        isLoading = false;
-        notifyListeners();
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["message"]}");
-        isLoading = false;
-        notifyListeners();
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["message"]}");
-
-        isLoading = false;
-        notifyListeners();
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["message"]}");
-
-        isLoading = false;
-        notifyListeners();
-      } else if (response.statusCode == responseCode422) {
-        isLoading = false;
-        notifyListeners();
-      } else if (response.statusCode == responseCode200) {
-        isLoading = false;
-        conversationData = responseData["data"];
-        push(
-            context,
-            OfferChatScreen(
-              recieverId: recieverId,
-              title: title,
-            ));
-        notifyListeners();
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
+    // try {
+    response = await dio.get(path: "${AppUrls.getConverstaion}$conversationId");
+    var responseData = response.data;
+    if (response.statusCode == responseCode400) {
+      showSnackBar(context, "${responseData["message"]}");
       isLoading = false;
       notifyListeners();
+    } else if (response.statusCode == responseCode401) {
+      showSnackBar(context, "${responseData["message"]}");
+      isLoading = false;
+      notifyListeners();
+    } else if (response.statusCode == responseCode404) {
+      showSnackBar(context, "${responseData["message"]}");
+
+      isLoading = false;
+      notifyListeners();
+    } else if (response.statusCode == responseCode500) {
+      showSnackBar(context, "${responseData["message"]}");
+
+      isLoading = false;
+      notifyListeners();
+    } else if (response.statusCode == responseCode422) {
+      isLoading = false;
+      notifyListeners();
+    } else if (response.statusCode == responseCode200) {
+      isLoading = false;
+      conversationData = responseData["data"];
+
+// Convert the list of data into ChatData objects
+      // List<ChatData> chatDataList =
+      //     responseData["data"].map((json) => ChatData.fromJson(json)).toList();
+
+      ChatModel model = ChatModel.fromJson(responseData);
+// responseData["data"].ma
+//       ChatModel model = ChatModel.fromJson(responseData);
+
+      Provider.of<ChatProvider>(context, listen: false)
+          .updateChatData(model.data!);
+
+      push(
+          context,
+          OfferChatScreen(
+            recieverId: recieverId,
+            title: title,
+          ));
+      notifyListeners();
     }
+    // } catch (e) {
+    //   print("Something went Wrong ${e}");
+    //   showSnackBar(context, "Something went Wrong.");
+    //   isLoading = false;
+    //   notifyListeners();
+    // }
   }
 }
