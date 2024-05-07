@@ -13,6 +13,7 @@ import 'package:tt_offer/models/common_model.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
 import 'package:tt_offer/views/Sellings/item_performance.dart';
+import 'package:tt_offer/views/Sellings/selling_purchase.dart';
 
 class ItemDashBoard extends StatefulWidget {
   const ItemDashBoard({super.key, required this.selling});
@@ -26,211 +27,216 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
   bool loading = false;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.whiteColor,
-      bottomNavigationBar: SizedBox(
-        height: 80,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            children: [
-              const CustomDivider(),
-              const SizedBox(
-                height: 5,
-              ),
-              Align(
-                  alignment: Alignment.topRight,
-                  child: Image.asset(
-                    "assets/images/cross.png",
-                    height: 14,
-                  )),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.55,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppText.appText("Sell faster with promotions",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            textColor: AppTheme.txt1B20),
-                        AppText.appText(
-                            "Get an average of 20x more views each day",
-                            fontSize: 12,
-                            textAlign: TextAlign.justify,
-                            fontWeight: FontWeight.w400,
-                            textColor: AppTheme.txt1B20),
-                      ],
-                    ),
-                  ),
-                  AppButton.appButtonWithLeadingImage(
-                    "Sell Faster",
-                    imagePath: "assets/images/sellFaster.png",
-                    imgHeight: 14,
-                    width: 90,
-                    height: 26,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w400,
-                    backgroundColor: AppTheme.appColor,
-                    textColor: AppTheme.whiteColor,
-                  )
-                ],
-              ),
-              const SizedBox(
-                height: 5,
-              )
-            ],
-          ),
-        ),
-      ),
-      appBar: const CustomAppBar1(
-        title: "Item DashBoard",
-        action: true,
-        img: "assets/images/more.png",
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              InkWell(
-                onLongPress: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return StatefulBuilder(
-                        builder: (context, setStatess) {
-                          return AlertDialog(
-                            backgroundColor: Colors.white,
-                            content: SizedBox(
-                              height: 200,
-                              width: getWidth(context) * .8,
-                              child: Column(
-                                children: [
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    child: InkWell(
-                                      onTap: () {},
-                                      child: AppText.appText("Share",
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          textColor: AppTheme.appColor),
-                                    ),
-                                  ),
-                                  const Divider(),
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    child: InkWell(
-                                      onTap: () {},
-                                      child: AppText.appText("Sell Another",
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          textColor: AppTheme.appColor),
-                                    ),
-                                  ),
-                                  const Divider(),
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    child: InkWell(
-                                      onTap: () {
-                                        markArchived(
-                                            widget.selling.id, setStatess);
-                                      },
-                                      child: AppText.appText("Archive",
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          textColor: AppTheme.appColor),
-                                    ),
-                                  ),
-                                  const Divider(),
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    child: InkWell(
-                                      onTap: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: AppText.appText("Cancel",
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          textColor: AppTheme.appColor),
-                                    ),
-                                  ),
-                                  if (loading)
-                                    Center(
-                                      child: CircularProgressIndicator(
-                                        color: AppTheme.appColor,
-                                      ),
-                                    )
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
-                child: customListview(
-                    img: widget.selling.photo![0].src,
-                    title: widget.selling.title,
-                    subtitle: widget.selling.auctionPrice),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: Row(
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (didPop) {},
+      child: Scaffold(
+        backgroundColor: AppTheme.whiteColor,
+        bottomNavigationBar: SizedBox(
+          height: 80,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              children: [
+                const CustomDivider(),
+                const SizedBox(
+                  height: 5,
+                ),
+                Align(
+                    alignment: Alignment.topRight,
+                    child: Image.asset(
+                      "assets/images/cross.png",
+                      height: 14,
+                    )),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    customContainer(
-                        img: "assets/images/eye.png", txt: "View Post"),
-                    customContainer(
-                        img: "assets/images/edit.png", txt: "Edit Post"),
-                    customContainer(
-                        img: "assets/images/markSold.png", txt: "Mark as Sold"),
-                    customContainer(
-                        img: "assets/images/sellFaster.png",
-                        txt: "Sell Faster"),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.55,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AppText.appText("Sell faster with promotions",
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              textColor: AppTheme.txt1B20),
+                          AppText.appText(
+                              "Get an average of 20x more views each day",
+                              fontSize: 12,
+                              textAlign: TextAlign.justify,
+                              fontWeight: FontWeight.w400,
+                              textColor: AppTheme.txt1B20),
+                        ],
+                      ),
+                    ),
+                    AppButton.appButtonWithLeadingImage(
+                      "Sell Faster",
+                      imagePath: "assets/images/sellFaster.png",
+                      imgHeight: 14,
+                      width: 90,
+                      height: 26,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w400,
+                      backgroundColor: AppTheme.appColor,
+                      textColor: AppTheme.whiteColor,
+                    )
                   ],
                 ),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20.0),
-                child: CustomDivider(),
-              ),
-              customRow(
-                  onTap: () {
-                    push(context, const ItemPerformanceScreen());
+                const SizedBox(
+                  height: 5,
+                )
+              ],
+            ),
+          ),
+        ),
+        appBar: const CustomAppBar1(
+          title: "Item DashBoard",
+          action: true,
+          img: "assets/images/more.png",
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  onLongPress: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return StatefulBuilder(
+                          builder: (context, setStatess) {
+                            return AlertDialog(
+                              backgroundColor: Colors.white,
+                              content: SizedBox(
+                                height: 200,
+                                width: getWidth(context) * .8,
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 4),
+                                      child: InkWell(
+                                        onTap: () {},
+                                        child: AppText.appText("Share",
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            textColor: AppTheme.appColor),
+                                      ),
+                                    ),
+                                    const Divider(),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 4),
+                                      child: InkWell(
+                                        onTap: () {},
+                                        child: AppText.appText("Sell Another",
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            textColor: AppTheme.appColor),
+                                      ),
+                                    ),
+                                    const Divider(),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 4),
+                                      child: InkWell(
+                                        onTap: () {
+                                          markArchived(
+                                              widget.selling.id, setStatess);
+                                        },
+                                        child: AppText.appText("Archive",
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            textColor: AppTheme.appColor),
+                                      ),
+                                    ),
+                                    const Divider(),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 4),
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: AppText.appText("Cancel",
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            textColor: AppTheme.appColor),
+                                      ),
+                                    ),
+                                    if (loading)
+                                      Center(
+                                        child: CircularProgressIndicator(
+                                          color: AppTheme.appColor,
+                                        ),
+                                      )
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
                   },
-                  txt: "Item Performance",
-                  img: "assets/images/performance.png"),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20.0),
-                child: CustomDivider(),
-              ),
-              AppText.appText("Message",
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  textColor: AppTheme.txt1B20),
-              ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: 3,
-                itemBuilder: (context, index) {
-                  return customListview(
-                      img: "assets/images/sp2.png",
-                      title: "Anthony (Web3.io)",
-                      subtitle: "How are you today?",
-                      trailing: "9:54 AM",
-                      subTitleColor: const Color(0xff626C7B));
-                },
-              )
-            ],
+                  child: customListview(
+                      img: widget.selling.photo![0].src,
+                      title: widget.selling.title,
+                      subtitle: widget.selling.auctionPrice),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      customContainer(
+                          img: "assets/images/eye.png", txt: "View Post"),
+                      customContainer(
+                          img: "assets/images/edit.png", txt: "Edit Post"),
+                      customContainer(
+                          img: "assets/images/markSold.png",
+                          txt: "Mark as Sold"),
+                      customContainer(
+                          img: "assets/images/sellFaster.png",
+                          txt: "Sell Faster"),
+                    ],
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  child: CustomDivider(),
+                ),
+                customRow(
+                    onTap: () {
+                      push(context, const ItemPerformanceScreen());
+                    },
+                    txt: "Item Performance",
+                    img: "assets/images/performance.png"),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  child: CustomDivider(),
+                ),
+                AppText.appText("Message",
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    textColor: AppTheme.txt1B20),
+                ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: 3,
+                  itemBuilder: (context, index) {
+                    return customListview(
+                        img: "assets/images/sp2.png",
+                        title: "Anthony (Web3.io)",
+                        subtitle: "How are you today?",
+                        trailing: "9:54 AM",
+                        subTitleColor: const Color(0xff626C7B));
+                  },
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -380,6 +386,8 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
       showSnackBar(context, responce["message"]);
 
       log("responce of markArchived = $responce");
+
+      getSellingProducts(context);
     } catch (e) {
       setStatesss(() {
         loading = false;
