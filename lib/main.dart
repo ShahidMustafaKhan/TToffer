@@ -9,16 +9,19 @@ import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Controller/provider_class.dart';
+import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/custom_requests/custom_get_request.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/firebase_options.dart';
 import 'package:tt_offer/providers/notification_provider.dart';
+import 'package:tt_offer/providers/selling_purchase_provider.dart';
 import 'package:tt_offer/splash_screen.dart';
 import 'package:tt_offer/views/Authentication%20screens/GoogleSignIn/google_signin_provider.dart';
 
 late SharedPreferences pref;
 late CustomPostRequest customPostRequest;
 late CustomGetRequest customGetRequest;
+late AppDio dio;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,8 +39,19 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  initState() {
+    super.initState();
+    dio = AppDio(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +71,10 @@ class MyApp extends StatelessWidget {
             create: (_) => ProfileApiProvider()),
         ChangeNotifierProvider<NotificationProvider>(
             create: (_) => NotificationProvider()),
+
+        ChangeNotifierProvider(create: (_) => SellingPurchaseProvider()),
+
+        // SellingPurchaseProvider
       ],
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,

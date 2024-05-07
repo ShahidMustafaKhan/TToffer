@@ -41,7 +41,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     "Edition",
     "Authenticity"
   ];
-  static List<String> wrapList1 = [];
+  // static List<String> wrapList1 = [];
   late AppDio dio;
   var userId;
   AppLogger logger = AppLogger();
@@ -52,7 +52,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
       getUserId();
       logger.init();
 
-      markProductView();
+      // markProductView();
     });
 
     // wrapList1 = [
@@ -281,11 +281,11 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
                               children: [
-                                AppText.appText("${wrapList[i]}  ",
+                                AppText.appText("this is text 1",
                                     fontSize: 12,
                                     fontWeight: FontWeight.w400,
                                     textColor: AppTheme.lighttextColor),
-                                AppText.appText(wrapList1[i],
+                                AppText.appText("this is text 2",
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     textColor: AppTheme.textColor),
