@@ -143,7 +143,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
                             onPressed: signInWithPhoneNumber,
                             child: const Text('Sign In'),
                           ),
-                    ElevatedButton(onPressed: phoneVerifyHandler, child: Text('sddsad'))
+                    // ElevatedButton(onPressed: phoneVerifyHandler, child: Text('sddsad'))
 
                   ],
                 )

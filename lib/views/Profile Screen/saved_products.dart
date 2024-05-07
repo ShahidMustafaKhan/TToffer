@@ -27,6 +27,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
   late AppDio dio;
   AppLogger logger = AppLogger();
   var savedProducts;
+
   @override
   void initState() {
     dio = AppDio(context);
@@ -120,6 +121,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
 
 class SavedItemListView extends StatefulWidget {
   final data;
+
   const SavedItemListView({
     super.key,
     this.data,
@@ -132,6 +134,7 @@ class SavedItemListView extends StatefulWidget {
 class _SavedItemListViewState extends State<SavedItemListView> {
   late AppDio dio;
   AppLogger logger = AppLogger();
+
   @override
   void initState() {
     dio = AppDio(context);
@@ -182,10 +185,12 @@ class _SavedItemListViewState extends State<SavedItemListView> {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
-                                child: Image.asset(
-                                  "assets/images/auction1.png",
+                                child: Image.network(
+                                  widget.data[index]["product"]["photo"][index]["src"],
                                   fit: BoxFit.cover,
                                 ),
+
+
                               ),
                             ),
                             const SizedBox(

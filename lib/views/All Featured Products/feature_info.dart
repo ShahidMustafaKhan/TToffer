@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,7 @@ import 'package:tt_offer/config/keys/pref_keys.dart';
 
 class FeatureInfoScreen extends StatefulWidget {
   var detailResponse;
+
   FeatureInfoScreen({super.key, this.detailResponse});
 
   @override
@@ -41,10 +43,12 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     "Edition",
     "Authenticity"
   ];
+
   // static List<String> wrapList1 = [];
   late AppDio dio;
   var userId;
   AppLogger logger = AppLogger();
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -149,6 +153,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
       ),
     );
   }
+
 ////////////////////////////////////////////////// custom ///////////////////////////////////
 
   Widget customColumn() {
@@ -167,12 +172,15 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                     fontWeight: FontWeight.w400,
                     textColor: AppTheme.lighttextColor),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0, bottom: 20),
-                child: AppText.appText(getFormattedTimestamp(),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    textColor: AppTheme.blackColor),
+              Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 10.0, bottom: 20),
+                  child: AppText.appText(getFormattedTimestamp(),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      textColor: AppTheme.blackColor),
+                ),
               ),
               Container(
                 height: 1,
@@ -219,15 +227,23 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                                 child: Container(
                                   height: 45,
                                   width: 45,
-                                  decoration: const BoxDecoration(
+                                  decoration: BoxDecoration(
                                     image: DecorationImage(
-                                        image: AssetImage(
-                                            "assets/images/auction2.png"),
-                                        fit: BoxFit.cover),
+                                      image: widget.detailResponse["user"]
+                                                  ["src"] ==
+                                              null
+                                          ? const AssetImage(
+                                                  "assets/images/auction2.png")
+                                              as ImageProvider<Object>
+                                          : NetworkImage(widget
+                                                  .detailResponse["user"]
+                                              ["img"]) as ImageProvider<Object>,
+                                    ),
                                     shape: BoxShape.circle,
                                   ),
                                 ),
                               ),
+                              const SizedBox(width: 10),
                               AppText.appText(
                                   "${widget.detailResponse["user"]["name"]}",
                                   fontSize: 12,
@@ -267,34 +283,92 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                 width: screenWidth,
                 decoration: const BoxDecoration(color: Color(0xffEAEAEA)),
               ),
+              const SizedBox(width: 5),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: Wrap(
-                  spacing: 20,
-                  runSpacing: 10,
-                  children: [
-                    for (int i = 0; i <= 4; i++)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Container(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                AppText.appText("this is text 1",
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                    textColor: AppTheme.lighttextColor),
-                                AppText.appText("this is text 2",
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    textColor: AppTheme.textColor),
-                              ],
-                            ),
-                          ),
-                        ],
-                      )
-                  ],
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: SizedBox(
+                    width: MediaQuery.sizeOf(context).width / 1.3,
+                    child: Wrap(
+                      alignment: WrapAlignment.start,
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        // for (int i = 0; i <= 4; i++)
+                        widget.detailResponse["condition"] == null
+                            ? const SizedBox.shrink()
+                            : const Text(
+                                'Condition:',
+                                style: TextStyle(fontWeight: FontWeight.w300),
+                              ),
+                        const SizedBox(width: 3),
+
+                        AppText.appText(
+                            widget.detailResponse["condition"] ?? '',
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            textColor: AppTheme.blackColor),
+
+                        const SizedBox(width: 20),
+
+                        widget.detailResponse["brand"] == null
+                            ? const SizedBox.shrink()
+                            : const Text(
+                                'Brand:',
+                                style: TextStyle(fontWeight: FontWeight.w300),
+                              ),
+                        const SizedBox(width: 3),
+
+                        AppText.appText(widget.detailResponse["brand"] ?? '',
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            textColor: AppTheme.blackColor),
+                        const SizedBox(width: 22),
+
+                        widget.detailResponse["model"] == null
+                            ? const SizedBox.shrink()
+                            : const Text(
+                                'Model:',
+                                style: TextStyle(fontWeight: FontWeight.w300),
+                              ),
+                        const SizedBox(width: 5),
+
+                        AppText.appText(widget.detailResponse["model"] ?? '',
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            textColor: AppTheme.blackColor),
+
+                        const SizedBox(width: 22),
+
+                        widget.detailResponse["edition"] == null
+                            ? const SizedBox.shrink()
+                            : const Text(
+                                'Edition:',
+                                style: TextStyle(fontWeight: FontWeight.w300),
+                              ),
+                        const SizedBox(width: 4),
+
+                        AppText.appText(widget.detailResponse["edition"] ?? '',
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            textColor: AppTheme.blackColor),
+                        const SizedBox(width: 20),
+
+                        widget.detailResponse["authenticity"] == null
+                            ? const SizedBox.shrink()
+                            : const Text(
+                                'Authenticity:',
+                                style: TextStyle(fontWeight: FontWeight.w300),
+                              ),
+                        AppText.appText(
+                            widget.detailResponse["authenticity"] ?? '',
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            textColor: AppTheme.blackColor),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               Container(
