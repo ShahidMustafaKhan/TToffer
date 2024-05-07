@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -59,7 +60,10 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     getUserDetail();
     _priceController.text = "\$ 60";
 
-    messagesList = Provider.of<ChatProvider>(context, listen: false).data;
+    conversation = Provider.of<ChatProvider>(context, listen: false)
+        .data!
+        .data
+        .conversation;
     super.initState();
   }
 
@@ -71,7 +75,8 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     });
   }
 
-  List<ChatData> messagesList = [];
+  List<Conversation> conversation = [];
+
   bool isSending = false;
   @override
   Widget build(BuildContext context) {
@@ -210,7 +215,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                       )
                     : const SizedBox.shrink(),
                 Expanded(
-                  child: messagesList.isEmpty
+                  child: conversation.isEmpty
                       ? const SizedBox.shrink()
                       : StreamBuilder<Object>(
                           stream: secRef.onValue,
@@ -218,15 +223,15 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                             return ListView.builder(
                               controller: _scrollController,
                               shrinkWrap: true,
-                              itemCount: messagesList.length,
+                              itemCount: conversation.length,
                               itemBuilder: (context, index) {
                                 return _buildMessageBubble(
-                                  time: "${messagesList[index].createdAt}",
-                                  user: userId == messagesList[index].senderId
+                                  time: "${conversation[index].createdAt}",
+                                  user: userId == conversation[index].senderId
                                       ? true
                                       : false,
-                                  message: "${messagesList[index].message}",
-                                  img: "${messagesList[index].file}",
+                                  message: "${conversation[index].message}",
+                                  img: "${conversation[index].file}",
                                 );
                               },
                             );
@@ -399,7 +404,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                     setState(() {
                       isSending = true;
                     });
-                    bool isSent = await chatApi.sendMessage(
+                    bool isSent = await sendMessage(
                         dio: dio,
                         context: context,
                         image: pickedImage,
@@ -447,6 +452,9 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
 
     log("filePath in SendFileMsgRepo=${pickedImage!.path}");
 
+    setState(() {
+      isSending = true;
+    });
     final headers = {
       'Content-Type': 'multipart/form-data',
       'Accept': 'application/json',
@@ -476,11 +484,107 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     var responseString = String.fromCharCodes(responseData);
 
     json = jsonDecode(responseString);
-
+    setState(() {
+      isSending = false;
+    });
     if (json["message"] == "Message Send Successfully.") {
       showSnackBar(context, "Message Sent");
     }
-
     log("json in SendFileMsgRepo = ${json.toString()}");
+
+    log("image file = ${json["Images"][0]["file"]} ");
+    var cons = Conversation(
+        // message: message,
+        senderId: senderId,
+        createdAt: DateTime.now(),
+        conversationId: json['conversationId'],
+        file: json["Images"][0]["file"],
+        receiverId: recieverId);
+
+    log("conversation length before = ${conversation.length}");
+    conversation.add(cons);
+
+    setState(() {});
+
+    log("conversation length after = ${conversation.length}");
+  }
+
+  Future<bool> sendMessage(
+      {required dio,
+      required context,
+      required senderId,
+      required recieverId,
+      required message,
+      title,
+      XFile? image,
+      document}) async {
+    // final imageProvider =
+    //     Provider.of<ImageNotifyProvider>(context, listen: false);
+
+    // List<MultipartFile> imageFiles = [];
+
+    // for (var i = 0; i < imageProvider.imagePaths.length; i++) {
+    //   File file = File(imageProvider.imagePaths[i]);
+    //   imageFiles.add(await MultipartFile.fromFile(file.path));
+    // }
+    // var formData = FormData.fromMap({
+    //    "sender_id": productId,
+    //   "receiver_id": sellerId,
+    //   "message": buyerId,
+    //   "images[]": imageFiles,
+    //   "documents[]": document,
+    // });
+    var formData;
+    Map<String, dynamic>? params;
+
+    if (image != null) {
+      log("sending image in chat i.e = ${image.path}");
+      formData = FormData.fromMap({
+        "sender_id": senderId,
+        "receiver_id": recieverId,
+        // "message": message,
+        "images[]":
+            await MultipartFile.fromFile(image.path, filename: image.name),
+      });
+    } else {
+      params = {
+        "sender_id": senderId,
+        "receiver_id": recieverId,
+        "message": message,
+        // "images[]": image,
+        // "documents[]": document,
+      };
+    }
+
+    // try {
+    var response =
+        await dio.post(path: AppUrls.sendMessage, data: formData ?? params);
+    var responseData = response.data;
+    if (response.statusCode == 200) {
+      log("send message response = $responseData");
+
+      var cons = Conversation(
+          message: message,
+          senderId: senderId,
+          createdAt: DateTime.now(),
+          conversationId: responseData['conversationId'],
+          // file: responseData["Images"][0],
+          receiverId: recieverId);
+
+      conversation.add(cons);
+
+      setState(() {});
+
+      // var data = responseData["data"]["Message"][0];
+      //  getConversation(dio: dio, context: context, conversationId: data["conversation_id"], recieverId: recieverId, title: title);
+      return true;
+    } else {
+      return false;
+    }
+    // } catch (e) {
+    //   print("Something went Wrong $e");
+    //   showSnackBar(context, "Something went Wrong.");
+    //   return false;
+    // }
   }
 }

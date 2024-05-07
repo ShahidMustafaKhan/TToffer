@@ -85,109 +85,6 @@ class ChatApiProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> sendMessage(
-      {required dio,
-      required context,
-      required senderId,
-      required recieverId,
-      required message,
-      title,
-      XFile? image,
-      document}) async {
-    // final imageProvider =
-    //     Provider.of<ImageNotifyProvider>(context, listen: false);
-
-    isLoading = true;
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    // List<MultipartFile> imageFiles = [];
-
-    // for (var i = 0; i < imageProvider.imagePaths.length; i++) {
-    //   File file = File(imageProvider.imagePaths[i]);
-    //   imageFiles.add(await MultipartFile.fromFile(file.path));
-    // }
-    // var formData = FormData.fromMap({
-    //    "sender_id": productId,
-    //   "receiver_id": sellerId,
-    //   "message": buyerId,
-    //   "images[]": imageFiles,
-    //   "documents[]": document,
-    // });
-    var formData;
-    Map<String, dynamic>? params;
-
-    if (image != null) {
-      log("sending image in chat i.e = ${image.path}");
-      formData = FormData.fromMap({
-        "sender_id": senderId,
-        "receiver_id": recieverId,
-        // "message": message,
-        "images[]":
-            await MultipartFile.fromFile(image.path, filename: image.name),
-      });
-    } else {
-      params = {
-        "sender_id": senderId,
-        "receiver_id": recieverId,
-        "message": message,
-        // "images[]": image,
-        // "documents[]": document,
-      };
-    }
-
-    try {
-      response =
-          await dio.post(path: AppUrls.sendMessage, data: formData ?? params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["message"]}");
-        isLoading = false;
-        notifyListeners();
-        return false;
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["message"]}");
-        isLoading = false;
-        notifyListeners();
-        return false;
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["message"]}");
-
-        isLoading = false;
-        notifyListeners();
-        return false;
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["message"]}");
-
-        isLoading = false;
-        notifyListeners();
-        return false;
-      } else if (response.statusCode == responseCode422) {
-        isLoading = false;
-        notifyListeners();
-        return false;
-      } else if (response.statusCode == responseCode200) {
-        isLoading = false;
-        // var data = responseData["data"]["Message"][0];
-        //  getConversation(dio: dio, context: context, conversationId: data["conversation_id"], recieverId: recieverId, title: title);
-        notifyListeners();
-        return true;
-      } else {
-        return false;
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      isLoading = false;
-      notifyListeners();
-      return false;
-    }
-  }
-
   void getAllChats({
     required dio,
     required context,
@@ -288,16 +185,15 @@ class ChatApiProvider extends ChangeNotifier {
       isLoading = false;
       conversationData = responseData["data"];
 
+      log("responseData for chat = $responseData");
+
 // Convert the list of data into ChatData objects
       // List<ChatData> chatDataList =
       //     responseData["data"].map((json) => ChatData.fromJson(json)).toList();
 
       ChatModel model = ChatModel.fromJson(responseData);
-// responseData["data"].ma
-//       ChatModel model = ChatModel.fromJson(responseData);
 
-      Provider.of<ChatProvider>(context, listen: false)
-          .updateChatData(model.data!);
+      Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
 
       push(
           context,
