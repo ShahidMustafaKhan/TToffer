@@ -95,33 +95,40 @@ class UpdateAccountSettingService {
     }
   }
 
-  Future updatePhoneService(
-      {required BuildContext context, required String phone}) async {
+  Future<bool> updatePhoneService({
+    required BuildContext context,
+    required String phone,
+  }) async {
     try {
-      String? id = pref.getString(PrefKey.userId);
+      String? userId = pref.getString(PrefKey.userId);
+
+      if (userId == null) {
+        return false;
+      }
 
       Map<String, dynamic> body = {
-        'user_id': id,
-        'phone_verified_at': DateTime.now().toString(),
-        // Convert DateTime to string
-        'phone': phone
+        "user_id": userId,
+        "phone_verified_at": "2024-04-05",
+        "phone": phone,
       };
 
-      var res = await CustomPostRequest()
-          .httpPostRequest(url: 'update/user', body: body);
+      var res = await CustomPostRequest().httpPostRequest(
+        url: 'update/user',
+        body: body,
+      );
 
       if (res != null && res['success'] == true) {
-        // Check if res is not null before accessing 'success'
         showSnackBar(context, 'Phone verified successfully');
         return true;
       } else {
         return false;
       }
     } catch (err) {
-      print(err);
+      print('Error updating phone: $err');
       return false;
     }
   }
+
 
   Future verifyEmail(
       {required BuildContext context, required String email}) async {

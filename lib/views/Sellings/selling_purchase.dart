@@ -19,6 +19,7 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 
 class SellingPurchaseScreen extends StatefulWidget {
   final String title;
+
   const SellingPurchaseScreen({Key? key, required this.title})
       : super(key: key);
 
@@ -253,6 +254,7 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
 class SellingPurchaseListView extends StatefulWidget {
   final int? ischeck;
   SellingProductsModel? sellingProductsModel;
+
   // final Function getSellingProduct;
   SellingPurchaseListView({
     super.key,
@@ -493,39 +495,34 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
 
   Future<void> markAsSold(int? id, context, int index) async {
     bool isLoading = false;
+
     CustomAlertDialog(
-      title: "Update Item Status",
-      description: "Do you want mark item as sold ?",
-      cancelButtonTitle: "No",
-      confirmButtonTitle: "Yes, Mark as sold",
-      context: context,
-      loading: isLoading,
-      onTap: () async {
-        Navigator.of(context).pop();
-        showAlertLoader(context: context);
-        try {
-          var responce = await customGetRequest.httpGetRequest(
-              url: "${AppUrls.markProductSold}/$id");
+        context, 'Update Item Status', 'Do you want mark item as sold ?', 'No',
+        () async {
+      Navigator.of(context).pop();
+      showAlertLoader(context: context);
+      try {
+        var responce = await customGetRequest.httpGetRequest(
+            url: "${AppUrls.markProductSold}/$id");
 
-          showSnackBar(context, responce["message"]);
+        showSnackBar(context, responce["message"]);
 
-          // if (responce.statusCode == 200) {
-          if (responce["status"] == true) {
-            widget.sellingProductsModel?.data?.selling!.removeAt(index);
+        // if (responce.statusCode == 200) {
+        if (responce["status"] == true) {
+          widget.sellingProductsModel?.data?.selling!.removeAt(index);
 
-            setState(() {});
-          }
-          Navigator.of(context).pop(true);
-          //
-          // }
-
-          log("responce = $responce");
-        } catch (e) {
-          log("excepion = ${e.toString()}");
-          Navigator.of(context).pop(false);
-          showSnackBar(context, "Something went Wrong");
+          setState(() {});
         }
-      },
-    );
+        Navigator.of(context).pop(true);
+        //
+        // }
+
+        log("responce = $responce");
+      } catch (e) {
+        log("excepion = ${e.toString()}");
+        Navigator.of(context).pop(false);
+        showSnackBar(context, "Something went Wrong");
+      }
+    }, isLoading, 'cancelButtonTitle');
   }
 }

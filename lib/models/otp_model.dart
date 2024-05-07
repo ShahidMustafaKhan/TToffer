@@ -10,14 +10,14 @@ class OtpModel {
     status = json['status'];
     msg = json['msg'];
     otp = json['otp'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['msg'] = this.msg;
-    data['otp'] = this.otp;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['msg'] = msg;
+    data['otp'] = otp;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -30,21 +30,21 @@ class Data {
   String? name;
   String? src;
   String? provider;
-  Null? providerId;
-  Null? providerToken;
+  String? providerId;
+  String? providerToken;
   String? code;
-  Null? emailVerifiedAt;
+  String? emailVerifiedAt;
   int? emailCode;
-  Null? phoneVerifiedAt;
-  Null? imageVerifiedAt;
+  String? phoneVerifiedAt;
+  String? imageVerifiedAt;
   String? username;
   String? email;
   String? phone;
-  Null? shareAbleLink;
+  String? shareAbleLink;
   String? img;
   int? status;
-  Null? location;
-  Null? customLink;
+  String? location;
+  String? customLink;
   int? isTrueYou;
   String? createdAt;
   String? updatedAt;
@@ -105,31 +105,31 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['src'] = this.src;
-    data['provider'] = this.provider;
-    data['provider_id'] = this.providerId;
-    data['provider_token'] = this.providerToken;
-    data['code'] = this.code;
-    data['email_verified_at'] = this.emailVerifiedAt;
-    data['email_code'] = this.emailCode;
-    data['phone_verified_at'] = this.phoneVerifiedAt;
-    data['image_verified_at'] = this.imageVerifiedAt;
-    data['username'] = this.username;
-    data['email'] = this.email;
-    data['phone'] = this.phone;
-    data['share_able_link'] = this.shareAbleLink;
-    data['img'] = this.img;
-    data['status'] = this.status;
-    data['location'] = this.location;
-    data['custom_link'] = this.customLink;
-    data['is_true_you'] = this.isTrueYou;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    data['total_review'] = this.totalReview;
-    data['review_percentage'] = this.reviewPercentage;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['src'] = src;
+    data['provider'] = provider;
+    data['provider_id'] = providerId;
+    data['provider_token'] = providerToken;
+    data['code'] = code;
+    data['email_verified_at'] = emailVerifiedAt;
+    data['email_code'] = emailCode;
+    data['phone_verified_at'] = phoneVerifiedAt;
+    data['image_verified_at'] = imageVerifiedAt;
+    data['username'] = username;
+    data['email'] = email;
+    data['phone'] = phone;
+    data['share_able_link'] = shareAbleLink;
+    data['img'] = img;
+    data['status'] = status;
+    data['location'] = location;
+    data['custom_link'] = customLink;
+    data['is_true_you'] = isTrueYou;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    data['total_review'] = totalReview;
+    data['review_percentage'] = reviewPercentage;
     return data;
   }
 }

@@ -74,17 +74,10 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
         codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
       );
       print('otp---->${otpField}');
-      if (FirebaseAuthException == null) {
-        setState(() {
-          otpField =
-              true; // Set otpField to true only when verification is completed
-        });
-      } else {
-        setState(() {
-          otpField =
-              false; // Set otpField to true only when verification is completed
-        });
-      }
+      setState(() {
+        otpField =
+            true; // Set otpField to true only when verification is completed
+      });
 
       setState(() {
         loading = false;
@@ -150,6 +143,8 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
                             onPressed: signInWithPhoneNumber,
                             child: const Text('Sign In'),
                           ),
+                    ElevatedButton(onPressed: phoneVerifyHandler, child: Text('sddsad'))
+
                   ],
                 )
               : Column(
@@ -157,22 +152,25 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: InternationalPhoneNumberInput(
-                        spaceBetweenSelectorAndTextField: 1,
-                        inputDecoration: InputDecoration(
-                            border: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: AppTheme.borderColor))),
-                        inputBorder: const OutlineInputBorder(),
-                        onInputChanged: (PhoneNumber number) {
-                          _phoneNumberController = number.phoneNumber;
-                          print('phone--->$_phoneNumberController');
-                        },
-                        selectorConfig: const SelectorConfig(
-                          selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                      child: Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(color: AppTheme.borderColor),
+                            borderRadius: BorderRadius.circular(10)),
+                        child: InternationalPhoneNumberInput(
+                          spaceBetweenSelectorAndTextField: 1,
+                          inputDecoration:
+                              const InputDecoration(border: InputBorder.none),
+                          inputBorder: const OutlineInputBorder(),
+                          onInputChanged: (PhoneNumber number) {
+                            _phoneNumberController = number.phoneNumber;
+                            print('phone--->$_phoneNumberController');
+                          },
+                          selectorConfig: const SelectorConfig(
+                            selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                          ),
+                          initialValue: PhoneNumber(
+                              isoCode: 'PK'), // Default country is Pakistan
                         ),
-                        initialValue: PhoneNumber(
-                            isoCode: 'PK'), // Default country is Pakistan
                       ),
                     ),
 
@@ -199,6 +197,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
                               ),
                             ),
                     ),
+
                   ],
                 ),
         ),

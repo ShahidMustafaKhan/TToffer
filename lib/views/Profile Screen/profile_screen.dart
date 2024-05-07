@@ -130,11 +130,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             verifiedContainer(
-                                onTap: () {
+                                onTap: profileApi
+                                            .profileData["email_verified_at"] ==
+                                        null
+                                    ? () {
                                         push(context,
                                             const EmailVerificationScreen());
-                                      },
-
+                                      }
+                                    : null,
                                 txt: "Email Verified",
                                 img: "assets/images/sms.png",
                                 color: profileApi
