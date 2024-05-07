@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +12,7 @@ import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Controller/provider_class.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
+import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/custom_requests/custom_get_request.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/firebase_options.dart';
@@ -19,11 +22,15 @@ import 'package:tt_offer/providers/notification_provider.dart';
 import 'package:tt_offer/providers/selling_purchase_provider.dart';
 import 'package:tt_offer/splash_screen.dart';
 import 'package:tt_offer/views/Authentication%20screens/GoogleSignIn/google_signin_provider.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 late SharedPreferences pref;
 late CustomPostRequest customPostRequest;
 late CustomGetRequest customGetRequest;
 late AppDio dio;
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +38,20 @@ Future<void> main() async {
   Stripe.publishableKey =
       "pk_test_51JUUldDdNsnMpgdhSlxjCo0yQBGHy9RsTQojb3YENwH5llfYiEmqqFjkc6SmsSQpLb9BH40OKQb0fwTlfifqJhFd00Cy7xTNwd";
   await Stripe.instance.applySettings();
+
+  ZegoUIKit().initLog().then((value) {
+    ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
+      [ZegoUIKitSignalingPlugin()],
+    );
+
+    Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    ).then((value) {
+      log("initializeApp");
+      runApp(const MyApp());
+    });
+  });
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -53,6 +74,18 @@ class _MyAppState extends State<MyApp> {
   initState() {
     super.initState();
     dio = AppDio(context);
+
+    //! use the following after user is logged in.
+    //! if logged in then after auth
+    //! use updated appid and appsign
+
+    //   ZegoUIKitPrebuiltCallInvitationService().init(
+    //   appID: appID,
+    //   appSign: appSign,
+    //   userID: "123",
+    //   userName: "Umair",
+    //   plugins: [ZegoUIKitSignalingPlugin()],
+    // );
   }
 
   @override
@@ -77,10 +110,11 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => ChatListProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
-      child: const MaterialApp(
+      child: MaterialApp(
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         title: 'TT Offer',
-        home: SplashScreen(),
+        home: const SplashScreen(),
       ),
     );
   }
