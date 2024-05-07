@@ -33,6 +33,7 @@ class AppUrls {
   static const String sellingScreen = "selling-screen";
   static const String markProductSold = "mark-product-sold";
   static const String markProductArchive = "mark-product-archive";
+  static const String markProductUnarchive = "mark-product-unarchive";
   static const String increaseProductCount = "increase-product-view";
 
   //

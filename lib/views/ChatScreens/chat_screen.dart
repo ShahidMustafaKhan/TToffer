@@ -8,9 +8,13 @@ import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
+import 'package:tt_offer/models/chat_list_model.dart';
+import 'package:tt_offer/providers/chat_list_provider.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({super.key, required this.isProductChat});
+
+  final bool isProductChat;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -28,6 +32,8 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
   }
 
+  List<ChatListData> chatList = [];
+
   getUserDetail() async {
     final apiProvider = Provider.of<ChatApiProvider>(context, listen: false);
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -42,119 +48,121 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final chatApi = Provider.of<ChatApiProvider>(context);
 
-    return Scaffold(
-      backgroundColor: AppTheme.whiteColor,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        title: AppText.appText("Chat",
-            fontSize: 20,
-            fontWeight: FontWeight.w400,
-            textColor: AppTheme.blackColor),
-      ),
-      body: chatApi.allChatsData == null
-          ? LoadingDialog()
-          : ListView.builder(
-              itemCount: chatApi.allChatsData.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    chatApi.getConversation(
-                        dio: dio,
-                        context: context,
-                        conversationId: chatApi.allChatsData[index]
-                            ["conversation_id"],
-                        title: chatApi.allChatsData[index]["receiver"]["id"] ==
-                                int.parse(userId)
-                            ? "${chatApi.allChatsData[index]["sender"]["name"]}"
-                            : "${chatApi.allChatsData[index]["receiver"]["name"]}",
-                        recieverId: chatApi.allChatsData[index]
-                                    ["receiver_id"] ==
-                                int.parse(userId)
-                            ? chatApi.allChatsData[index]["sender_id"]
-                            : chatApi.allChatsData[index]["receiver_id"]);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20.0, vertical: 10),
-                    child: SizedBox(
-                      height: 50,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    var chatWidget = Consumer<ChatListProvider>(
+      builder: (context, data, child) {
+        if (data.data.isEmpty) {
+          return LoadingDialog();
+        }
+        chatList = data.data;
+        return ListView.builder(
+          itemCount: chatList.length,
+          itemBuilder: (context, index) {
+            return GestureDetector(
+              onTap: () {
+                chatApi.getConversation(
+                    dio: dio,
+                    context: context,
+                    conversationId: chatList[index].conversationId,
+                    title: chatList[index].receiver.id == int.parse(userId)
+                        ? chatList[index].sender.name
+                        : chatList[index].receiver.name,
+                    recieverId: chatList[index].receiver.id == int.parse(userId)
+                        ? chatList[index].senderId
+                        : chatList[index].receiverId);
+              },
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                child: SizedBox(
+                  height: 50,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              const CircleAvatar(
-                                backgroundImage:
-                                    AssetImage("assets/images/sp4.png"),
-                                radius: 26,
-                              ),
-                              const SizedBox(
-                                width: 20,
-                              ),
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.45,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    AppText.appText(
-                                        chatApi.allChatsData[index]["receiver"]
-                                                    ["id"] ==
-                                                int.parse(userId)
-                                            ? "${chatApi.allChatsData[index]["sender"]["name"]}"
-                                            : "${chatApi.allChatsData[index]["receiver"]["name"]}",
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                        textColor: AppTheme.blackColor),
-                                    AppText.appText(
-                                        chatApi.allChatsData[index]
-                                                ["message"] ??
-                                            "Image",
-                                        fontSize: 14,
-                                        overflow: TextOverflow.ellipsis,
-                                        fontWeight: FontWeight.w400,
-                                        textColor: const Color(0xff626C7B)),
-                                  ],
-                                ),
-                              ),
-                            ],
+                          const CircleAvatar(
+                            backgroundImage:
+                                AssetImage("assets/images/sp4.png"),
+                            radius: 26,
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              AppText.appText(
-                                  formatTimestamp(
-                                      "${chatApi.allChatsData[index]["created_at"]}"),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  textColor: const Color(0xffA7ACB4)),
-                              // Container(
-                              //   height: 20,
-                              //   width: 20,
-                              //   decoration: BoxDecoration(
-                              //     shape: BoxShape.circle,
-                              //     color: AppTheme.appColor,
-                              //   ),
-                              //   child: Center(
-                              //     child: AppText.appText("1",
-                              //         textColor: AppTheme.whiteColor,
-                              //         fontSize: 12,
-                              //         fontWeight: FontWeight.w400),
-                              //   ),
-                              // )
-                            ],
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.45,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                AppText.appText(
+                                    chatList[index].receiver.id ==
+                                            int.parse(userId)
+                                        ? chatList[index].sender.name
+                                        : chatList[index].receiver.name,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    textColor: AppTheme.blackColor),
+                                AppText.appText(
+                                    chatList[index].message ?? "Image",
+                                    fontSize: 14,
+                                    overflow: TextOverflow.ellipsis,
+                                    fontWeight: FontWeight.w400,
+                                    textColor: const Color(0xff626C7B)),
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                    ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          AppText.appText(
+                              formatTimestamp("${chatList[index].createdAt}"),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              textColor: const Color(0xffA7ACB4)),
+                          // Container(
+                          //   height: 20,
+                          //   width: 20,
+                          //   decoration: BoxDecoration(
+                          //     shape: BoxShape.circle,
+                          //     color: AppTheme.appColor,
+                          //   ),
+                          //   child: Center(
+                          //     child: AppText.appText("1",
+                          //         textColor: AppTheme.whiteColor,
+                          //         fontSize: 12,
+                          //         fontWeight: FontWeight.w400),
+                          //   ),
+                          // )
+                        ],
+                      ),
+                    ],
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
+
+    if (widget.isProductChat) {
+      return chatWidget;
+    } else {
+      return Scaffold(
+          backgroundColor: AppTheme.whiteColor,
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            centerTitle: true,
+            title: AppText.appText("Chat",
+                fontSize: 20,
+                fontWeight: FontWeight.w400,
+                textColor: AppTheme.blackColor),
+          ),
+          body: chatWidget);
+    }
   }
 
   String formatTimestamp(String timestamp) {

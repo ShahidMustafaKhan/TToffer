@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 
 class AppText {
-  static Widget  appText(String text,
+  static Widget appText(String text,
       {TextAlign? textAlign,
       Color? textColor,
       double? fontSize,
@@ -21,7 +21,7 @@ class AppText {
       style: TextStyle(
           color: textColor,
           fontSize: fontSize,
-          fontFamily:  'Poppins',
+          fontFamily: 'Poppins',
           fontWeight: fontWeight,
           letterSpacing: letterSpacing,
           overflow: overflow,

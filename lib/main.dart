@@ -13,6 +13,7 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/custom_requests/custom_get_request.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/firebase_options.dart';
+import 'package:tt_offer/providers/chat_list_provider.dart';
 import 'package:tt_offer/providers/notification_provider.dart';
 import 'package:tt_offer/providers/selling_purchase_provider.dart';
 import 'package:tt_offer/splash_screen.dart';
@@ -73,8 +74,9 @@ class _MyAppState extends State<MyApp> {
             create: (_) => NotificationProvider()),
 
         ChangeNotifierProvider(create: (_) => SellingPurchaseProvider()),
+        ChangeNotifierProvider(create: (_) => ChatListProvider()),
 
-        // SellingPurchaseProvider
+        //
       ],
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,

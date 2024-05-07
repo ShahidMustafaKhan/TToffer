@@ -4,7 +4,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/utils.dart';
+import 'package:tt_offer/models/chat_list_model.dart';
+import 'package:tt_offer/providers/chat_list_provider.dart';
 import 'package:tt_offer/views/ChatScreens/offer_chat_screen.dart';
 import 'package:tt_offer/config/app_urls.dart';
 
@@ -224,6 +227,11 @@ class ChatApiProvider extends ChangeNotifier {
       } else if (response.statusCode == responseCode200) {
         isLoading = false;
         allChatsData = responseData["data"];
+
+        ChatListModel model = ChatListModel.fromJson(responseData);
+
+        Provider.of<ChatListProvider>(context, listen: false)
+            .updateChatList(model.data);
         notifyListeners();
       }
     } catch (e) {

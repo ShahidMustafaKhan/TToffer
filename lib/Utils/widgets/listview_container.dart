@@ -36,8 +36,8 @@ class _ListViewContainerState extends State<ListViewContainer> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(16),
-                        child: Image.asset(
-                          "assets/images/auction1.png",
+                        child: Image.network(
+                          widget.selling.photo![0].src,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -57,7 +57,7 @@ class _ListViewContainerState extends State<ListViewContainer> {
                           height: 5,
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             AppText.appText(widget.selling.status.toString(),
                                 fontSize: 12,
@@ -74,10 +74,14 @@ class _ListViewContainerState extends State<ListViewContainer> {
                             const SizedBox(
                               width: 10,
                             ),
-                            AppText.appText("",
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                textColor: AppTheme.appColor),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: AppText.appText(
+                                  widget.selling.location ?? "",
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                  textColor: AppTheme.appColor),
+                            ),
                           ],
                         )
                       ],

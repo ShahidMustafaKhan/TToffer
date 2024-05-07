@@ -330,10 +330,15 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              AppText.appText(data[index].title ?? "",
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  textColor: AppTheme.txt1B20),
+                              SizedBox(
+                                width: getWidth(context) * .5,
+                                child: AppText.appText(data[index].title ?? "",
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxlines: 1,
+                                    textColor: AppTheme.txt1B20),
+                              ),
                               const SizedBox(
                                 height: 5,
                               ),
@@ -426,7 +431,10 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                       if (widget.ischeck == 1) {
                                         markAsSold(
                                             data[index].id, context, index);
-                                      } else {}
+                                      } else if (widget.ischeck == 3) {
+                                        makrAsUnArchive(
+                                            data[index].id, context);
+                                      }
                                     },
                                     child: AppText.appText(
                                         widget.ischeck == 1
@@ -482,6 +490,43 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
         try {
           var responce = await customGetRequest.httpGetRequest(
               url: "${AppUrls.markProductSold}/$id");
+
+          showSnackBar(context, responce["message"]);
+          // showSnackBar(context, responce["success"]);
+
+          // if (responce.statusCode == 200) {
+          if (responce["success"] == true) {
+            getSellingProducts(context);
+          }
+          Navigator.of(context).pop(true);
+          //
+          // }
+
+          log("responce = $responce");
+        } catch (e) {
+          log("excepion = ${e.toString()}");
+          Navigator.of(context).pop(false);
+          showSnackBar(context, "Something went Wrong");
+        }
+      },
+    );
+  }
+
+  void makrAsUnArchive(id, BuildContext context) {
+    bool isLoading = false;
+    CustomAlertDialog(
+      title: "Update Item Status",
+      description: "Do you want to Unarchive?",
+      cancelButtonTitle: "No",
+      confirmButtonTitle: "Yes, Unarchive",
+      context: context,
+      loading: isLoading,
+      onTap: () async {
+        Navigator.of(context).pop();
+        showAlertLoader(context: context);
+        try {
+          var responce = await customGetRequest.httpGetRequest(
+              url: "${AppUrls.markProductUnarchive}/$id");
 
           showSnackBar(context, responce["message"]);
           // showSnackBar(context, responce["success"]);

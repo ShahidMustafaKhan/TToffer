@@ -20,7 +20,9 @@ class _BottomNavViewState extends State<BottomNavView> {
 
   static const List<Widget> _widgetOptions = <Widget>[
     LandingScreen(),
-    ChatScreen(),
+    ChatScreen(
+      isProductChat: false,
+    ),
     PostScreen(),
     SellingPurchaseScreen(
       title: "Selling",
