@@ -40,7 +40,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   "assets/images/location.png",
                   height: 20,
                 ),
-                AppText.appText(location!,
+                AppText.appText(location??'',
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                     textColor: AppTheme.textColor)
