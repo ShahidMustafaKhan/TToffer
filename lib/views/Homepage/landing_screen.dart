@@ -83,15 +83,10 @@ class _LandingScreenState extends State<LandingScreen> {
   List<Selling> provider = [];
 
   void searchHandler(BuildContext context) async {
-    await SearchService().searchService(
+    var res = await SearchService().searchService(
       context: context,
       query: _searchController.text.trim(),
     );
-
-    setState(() {
-      provider = Provider.of<SearchProvider>(context, listen: false).selling;
-      print('Updated provider data: $provider');
-    });
   }
 
   @override

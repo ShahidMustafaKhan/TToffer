@@ -6,11 +6,11 @@ class SearchProvider extends ChangeNotifier {
 
   void getSellingData({required List<Selling> newSelling}) {
     selling = newSelling;
-    notifyListeners();
+    notifyListeners(); // Notify listeners when data changes
   }
 
   void clearSellingData() {
     selling.clear();
-    notifyListeners();
+    notifyListeners(); // Notify listeners when data is cleared
   }
 }

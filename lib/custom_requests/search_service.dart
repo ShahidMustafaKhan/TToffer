@@ -1,14 +1,10 @@
-import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
-import 'package:tt_offer/Utils/utils.dart';
+import 'package:flutter/material.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
-import 'package:tt_offer/providers/search_provider.dart';
-import 'package:tt_offer/views/SearchPage/search_page.dart';
 
 class SearchService {
-  Future<void> searchService({
+  Future<List<SellingProductsModel>?> searchService({
     required BuildContext context,
     String? query,
   }) async {
@@ -19,22 +15,23 @@ class SearchService {
         body: body,
       );
 
-      if (res is List<dynamic> && res.isNotEmpty) {
-        List<Selling> sellingList =
-        res.map((item) => Selling.fromJson(item)).toList();
-
-        Provider.of<SearchProvider>(context, listen: false)
-            .getSellingData(newSelling: sellingList);
+      if (res != null && res is List<dynamic> && res.isNotEmpty) {
+        List<SellingProductsModel> productsList = [];
+        for (var item in res) {
+          if (item is Map<String, dynamic>) {
+            productsList.add(SellingProductsModel.fromJson(item));
+          } else {
+            print('Unexpected item format in the response: $item');
+          }
+        }
+        return productsList;
       } else {
-        // Handle empty response or other error cases
-        Provider.of<SearchProvider>(context, listen: false)
-            .clearSellingData();
+        print('No data found or empty response');
+        return []; // Return an empty list if no data is found
       }
     } catch (err) {
-      // Handle error
       print('Error fetching data: $err');
-      Provider.of<SearchProvider>(context, listen: false)
-          .clearSellingData();
+      return null; // Return null or throw an exception based on your needs
     }
   }
 }
