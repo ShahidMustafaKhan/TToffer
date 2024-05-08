@@ -42,40 +42,40 @@ class ChatListModel {
 }
 
 class ChatListData {
-  int id;
-  int senderId;
-  int receiverId;
+  int? id;
+  int? senderId;
+  int? receiverId;
   String? message;
   String? file;
   String? fileName;
   String? fileType;
-  String status;
-  String conversationId;
-  DateTime createdAt;
-  DateTime updatedAt;
+  String? status;
+  String? conversationId;
+  DateTime? createdAt;
+  DateTime? updatedAt;
   dynamic deletedAt;
-  Receiver sender;
-  Receiver receiver;
+  Receiver? sender;
+  Receiver? receiver;
   String? userImage;
-  int block;
+  int? block;
 
   ChatListData({
-    required this.id,
-    required this.senderId,
-    required this.receiverId,
-    required this.message,
-    required this.file,
-    required this.fileName,
-    required this.fileType,
-    required this.status,
-    required this.conversationId,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.deletedAt,
-    required this.sender,
-    required this.receiver,
-    required this.userImage,
-    required this.block,
+    this.id,
+    this.senderId,
+    this.receiverId,
+    this.message,
+    this.file,
+    this.fileName,
+    this.fileType,
+    this.status,
+    this.conversationId,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+    this.sender,
+    this.receiver,
+    this.userImage,
+    this.block,
   });
 
   ChatListData copyWith({
@@ -149,41 +149,41 @@ class ChatListData {
         "file_type": fileType,
         "status": status,
         "conversation_id": conversationId,
-        "created_at": createdAt.toIso8601String(),
-        "updated_at": updatedAt.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
+        "updated_at": updatedAt?.toIso8601String(),
         "deleted_at": deletedAt,
-        "sender": sender.toJson(),
-        "receiver": receiver.toJson(),
+        "sender": sender!.toJson(),
+        "receiver": receiver!.toJson(),
         "user_image": userImage,
         "block": block,
       };
 }
 
 class Receiver {
-  int id;
-  String name;
+  int? id;
+  String? name;
   String? src;
-  String provider;
+  String? provider;
   dynamic providerId;
   dynamic providerToken;
-  String code;
+  String? code;
   DateTime? emailVerifiedAt;
   int? emailCode;
   DateTime? phoneVerifiedAt;
   dynamic imageVerifiedAt;
-  String username;
-  String email;
+  String? username;
+  String? email;
   String? phone;
   dynamic shareAbleLink;
   String? img;
-  int status;
+  int? status;
   String? location;
   dynamic customLink;
   int? isTrueYou;
-  DateTime createdAt;
-  DateTime updatedAt;
-  int totalReview;
-  int reviewPercentage;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  int? totalReview;
+  int? reviewPercentage;
 
   Receiver({
     required this.id,
@@ -322,8 +322,8 @@ class Receiver {
         "location": location,
         "custom_link": customLink,
         "is_true_you": isTrueYou,
-        "created_at": createdAt.toIso8601String(),
-        "updated_at": updatedAt.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
+        "updated_at": updatedAt?.toIso8601String(),
         "total_review": totalReview,
         "review_percentage": reviewPercentage,
       };
