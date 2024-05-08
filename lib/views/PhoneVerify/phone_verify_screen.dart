@@ -6,6 +6,7 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:pinput/pinput.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
+import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/custom_requests/update_account_service.dart';
@@ -139,12 +140,11 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
                     const SizedBox(height: 20.0),
                     loading
                         ? CircularProgressIndicator(color: AppTheme.appColor)
-                        : ElevatedButton(
-                            onPressed: signInWithPhoneNumber,
-                            child: const Text('Sign In'),
-                          ),
+                        : AppButton.appButton('Sign In',
+                            height: 50,
+                            backgroundColor: AppTheme.appColor,
+                            onTap: signInWithPhoneNumber)
                     // ElevatedButton(onPressed: phoneVerifyHandler, child: Text('sddsad'))
-
                   ],
                 )
               : Column(
@@ -182,22 +182,14 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
                     //   ),
                     // ),
                     const Spacer(),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 45,
-                      child: loading
-                          ? CircularProgressIndicator(color: AppTheme.appColor)
-                          : ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.appColor),
-                              onPressed: verifyPhoneNumber,
-                              child: const Text(
-                                'Verify Phone Number',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                    ),
+                    loading
+                        ? CircularProgressIndicator(
+                            color: AppTheme.appColor)
+                        : AppButton.appButton('Verify Phone Number',
+                            backgroundColor: AppTheme.appColor,
+                        height: 50,
 
+                        onTap: verifyPhoneNumber),
                   ],
                 ),
         ),

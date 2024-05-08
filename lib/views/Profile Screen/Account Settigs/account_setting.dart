@@ -116,7 +116,7 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
                 onTap: () {
                   push(
                       context,
-                       AccountEditInfoScreen(
+                      AccountEditInfoScreen(
                         title: "User Name",
                         lable: "Your Name",
                         infoText: "John Doe",

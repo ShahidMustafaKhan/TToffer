@@ -14,6 +14,9 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_logout_pop_up.dart';
+import 'package:tt_offer/custom_requests/bids_service.dart';
+import 'package:tt_offer/models/bids_model.dart';
+import 'package:tt_offer/providers/bids_provider.dart';
 import 'package:tt_offer/views/Auction%20Info/panel_widget.dart';
 import 'package:tt_offer/views/Seller%20Profile/seller_profile.dart';
 import 'package:tt_offer/config/app_urls.dart';
@@ -22,6 +25,7 @@ import 'package:tt_offer/config/keys/pref_keys.dart';
 
 class AuctionInfoScreen extends StatefulWidget {
   var detailResponse;
+
   AuctionInfoScreen({super.key, this.detailResponse});
 
   @override
@@ -59,11 +63,13 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
   AppLogger logger = AppLogger();
   var userId;
   var productId;
+
   @override
   void initState() {
     dio = AppDio(context);
     logger.init();
     getUserId();
+    getBidsHandler();
 
     // log("widget.detailResponse = ${widget.detailResponse}");
     productId = widget.detailResponse["id"];
@@ -98,6 +104,26 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
 
   final TextEditingController _priceController = TextEditingController();
 
+  List<BidsData> bids = [];
+
+  bool loading = false;
+
+  getBidsHandler() async {
+    setState(() {
+      loading = true;
+    });
+    await BidsService().getBidsService(
+        context: context, productId: widget.detailResponse['id']);
+    setState(() {
+      loading = false;
+    });
+
+    bids = Provider.of<BidsProvider>(context, listen: false).bids;
+
+    print('getBids--->${bids}');
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final open = Provider.of<NotifyProvider>(context);
@@ -127,9 +153,11 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                     data: widget.detailResponse,
                     controller: controller,
                     panelController: panelController,
+                    bidsData: bids,
                   ))),
     );
   }
+
 ////////////////////////////////////////////////// auction ///////////////////////////////////
 
   Widget auctionBottomCard() {

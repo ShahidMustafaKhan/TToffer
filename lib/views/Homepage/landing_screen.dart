@@ -55,8 +55,20 @@ class _LandingScreenState extends State<LandingScreen> {
   late AppDio dio;
   AppLogger logger = AppLogger();
 
+  getLocation(){
+    location=  pref.getString('myLocation');
+    print('mylosodsd_--->${location}');
+    setState(() {
+
+    });
+  }
+
   @override
   void initState() {
+
+    getLocation();
+
+
     dio = AppDio(context);
     logger.init();
     final apiProvider =
@@ -108,6 +120,8 @@ class _LandingScreenState extends State<LandingScreen> {
     print('provider---->${provider}');
     setState(() {});
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -459,7 +473,7 @@ class _LandingScreenState extends State<LandingScreen> {
           push(
               context,
               AuctionInfoScreen(
-                detailResponse: detailResponse[0],
+                detailResponse: detailResponse[0]
               ));
         });
       }

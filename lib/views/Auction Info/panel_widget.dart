@@ -5,16 +5,20 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:tt_offer/Controller/provider_class.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
+import 'package:tt_offer/models/bids_model.dart';
 
 class PanelWidget extends StatefulWidget {
   final ScrollController controller;
   final PanelController panelController;
   final data;
 
-  const PanelWidget({
+  List<BidsData> bidsData = [];
+
+  PanelWidget({
     Key? key,
     required this.controller,
     required this.panelController,
+    required this.bidsData,
     this.data,
   }) : super(key: key);
 
@@ -132,7 +136,7 @@ class _PanelWidgetState extends State<PanelWidget> {
                           textColor: AppTheme.textColor00),
                     ],
                   ),
-                  AppText.appText("14 Bid made",
+                  AppText.appText("${widget.bidsData.length} Bid made",
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
                       textColor: AppTheme.textColor00),
@@ -141,7 +145,7 @@ class _PanelWidgetState extends State<PanelWidget> {
               ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                itemCount: 12,
+                itemCount: widget.bidsData.length,
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 20.0),
@@ -155,11 +159,12 @@ class _PanelWidgetState extends State<PanelWidget> {
                                 Container(
                                   height: 40,
                                   width: 40,
-                                  decoration: const BoxDecoration(
+                                  decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       image: DecorationImage(
-                                          image: AssetImage(
-                                              "assets/images/sp2.png"))),
+                                          image: NetworkImage(widget
+                                              .bidsData[index].user!.img
+                                              .toString()))),
                                 ),
                                 const SizedBox(
                                   width: 10,
@@ -168,18 +173,22 @@ class _PanelWidgetState extends State<PanelWidget> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      AppText.appText("Ronald Richards",
+                                      AppText.appText(
+                                          widget.bidsData[index].user!.name
+                                              .toString(),
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
                                           textColor: AppTheme.textColor00),
-                                      AppText.appText("20s",
+                                      AppText.appText(
+                                          widget.bidsData[index].price
+                                              .toString(),
                                           fontSize: 12,
                                           fontWeight: FontWeight.w400,
                                           textColor: AppTheme.textColor00),
                                     ])
                               ],
                             ),
-                            AppText.appText("\$24.5k",
+                            AppText.appText("\$${widget.bidsData[index].price.toString()}",
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
                                 textColor: AppTheme.textColor00),

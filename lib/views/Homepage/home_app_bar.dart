@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
+import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/Notification/notification_screen.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -39,7 +40,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   "assets/images/location.png",
                   height: 20,
                 ),
-                AppText.appText("Belarus",
+                AppText.appText(location!,
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                     textColor: AppTheme.textColor)

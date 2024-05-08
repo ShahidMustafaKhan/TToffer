@@ -89,6 +89,8 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
     var res = await UpdateAccountSettingService()
         .updateLocationService(context: context, location: controller.text);
 
+    await pref.setString('myLocation', controller.text);
+
     if (res) {
       showSnackBar(context, 'Update Successfully');
     }
