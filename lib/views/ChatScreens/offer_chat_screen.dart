@@ -21,10 +21,12 @@ import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
+import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/chat_model.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 class OfferChatScreen extends StatefulWidget {
   final String? userImgUrl;
@@ -77,6 +79,14 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
         .data!
         .data
         .conversation;
+
+    ZegoUIKitPrebuiltCallInvitationService().init(
+      appID: appID,
+      appSign: appSign,
+      userID: pref.getString(PrefKey.userId) ?? "0",
+      userName: pref.getString(PrefKey.userName) ?? "",
+      plugins: [ZegoUIKitSignalingPlugin()],
+    );
     super.initState();
   }
 
@@ -641,6 +651,8 @@ class CallButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    log("receiver id = $id");
+    log("receiver name = $name");
     return ZegoSendCallInvitationButton(
       isVideoCall: false,
       verticalLayout: true,

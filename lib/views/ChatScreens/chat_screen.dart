@@ -64,12 +64,13 @@ class _ChatScreenState extends State<ChatScreen> {
                     dio: dio,
                     context: context,
                     conversationId: chatList[index].conversationId,
-                    title: chatList[index].receiver.id == int.parse(userId)
-                        ? chatList[index].sender.name
-                        : chatList[index].receiver.name,
-                    recieverId: chatList[index].receiver.id == int.parse(userId)
-                        ? chatList[index].senderId
-                        : chatList[index].receiverId);
+                    title: chatList[index].receiver!.id == int.parse(userId)
+                        ? chatList[index].sender!.name
+                        : chatList[index].receiver!.name,
+                    recieverId:
+                        chatList[index].receiver!.id == int.parse(userId)
+                            ? chatList[index].senderId
+                            : chatList[index].receiverId);
               },
               child: Padding(
                 padding:
@@ -96,10 +97,10 @@ class _ChatScreenState extends State<ChatScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 AppText.appText(
-                                    chatList[index].receiver.id ==
+                                    chatList[index].receiver!.id ==
                                             int.parse(userId)
-                                        ? chatList[index].sender.name
-                                        : chatList[index].receiver.name,
+                                        ? chatList[index].sender!.name!
+                                        : chatList[index].receiver!.name!,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
                                     textColor: AppTheme.blackColor),

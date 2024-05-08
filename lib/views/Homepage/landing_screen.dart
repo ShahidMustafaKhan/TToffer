@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dialogs/dialogs.dart';
 import 'package:flutter/material.dart';
@@ -70,13 +72,6 @@ class _LandingScreenState extends State<LandingScreen> {
       context: context,
     );
 
-    ZegoUIKitPrebuiltCallInvitationService().init(
-      appID: appID,
-      appSign: appSign,
-      userID: pref.getString(PrefKey.userId) ?? "0",
-      userName: pref.getString(PrefKey.userName) ?? "",
-      plugins: [ZegoUIKitSignalingPlugin()],
-    );
     super.initState();
   }
 
