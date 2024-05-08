@@ -65,6 +65,9 @@ class DefaultFirebaseOptions {
     projectId: 'ttoffer-2b291',
     databaseURL: 'https://ttoffer-2b291-default-rtdb.firebaseio.com',
     storageBucket: 'ttoffer-2b291.appspot.com',
+    androidClientId: '778831276994-et93u5mj3rhk4rvs6pbtca8h612dseu1.apps.googleusercontent.com',
+    iosClientId: '778831276994-v1a446brr1d8s6pm6dmt7c1e8mf4lam7.apps.googleusercontent.com',
     iosBundleId: 'com.example.ttOffer',
   );
+
 }
