@@ -37,19 +37,15 @@ class Data {
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-    selling: (json['selling'] as List)
-        .map((sellingJson) => Selling.fromJson(sellingJson))
-        .toList(),
-    purchase: (json['purchase'] as List)
-        .map((purchaseJson) => Selling.fromJson(purchaseJson))
-        .toList(),
-    archive: (json['archive'] as List)
-        .map((archiveJson) => Selling.fromJson(archiveJson))
-        .toList(),
-  );
+        selling:
+            List<Selling>.from(json["selling"].map((x) => Selling.fromJson(x))),
+        purchase: List<Selling>.from(
+            json["purchase"].map((x) => Selling.fromJson(x))),
+        archive:
+            List<Selling>.from(json["archive"].map((x) => Selling.fromJson(x))),
+      );
 
-
-// Map<String, dynamic> toJson() => {
+  // Map<String, dynamic> toJson() => {
   //       "selling": List<dynamic>.from(selling!.map((x) => x.toJson())),
   //       "purchase": List<dynamic>.from(purchase!.map((x) => x)),
   //       "archive": List<dynamic>.from(archive!.map((x) => x)),
