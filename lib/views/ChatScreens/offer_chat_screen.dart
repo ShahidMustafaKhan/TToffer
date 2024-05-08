@@ -4,6 +4,7 @@ import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +24,7 @@ import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/chat_model.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class OfferChatScreen extends StatefulWidget {
   final String? userImgUrl;
@@ -87,6 +89,24 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     return Scaffold(
       appBar: ChatAppBar(
         title: widget.title,
+        action: const [
+          Padding(
+            padding: EdgeInsets.only(right: 20),
+            child: SizedBox(width: 40, height: 40, child: CallButtonWidget()),
+          ),
+
+          // Padding(
+          //   padding: const EdgeInsets.only(right: 20),
+          //   child: GestureDetector(
+          //     onTap: () {},
+          //     child: Image.asset(
+          //       "assets/images/callCalling.png",
+          //       height: 24,
+          //       width: 24,
+          //     ),
+          //   ),
+          // ),
+        ],
       ),
       body: GestureDetector(
         onTap: () {
@@ -586,5 +606,31 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     //   showSnackBar(context, "Something went Wrong.");
     //   return false;
     // }
+  }
+}
+
+class CallButtonWidget extends StatelessWidget {
+  const CallButtonWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ZegoSendCallInvitationButton(
+      isVideoCall: false,
+      verticalLayout: true,
+      resourceID: "ttoffer_resource_id",
+      invitees: [
+        ZegoUIKitUser(
+          id: "789",
+          name: "Wajid",
+        ),
+
+        // ZegoUIKitUser(
+        //   id: "222",
+        //   name: "ikram",
+        // )
+      ],
+    );
   }
 }

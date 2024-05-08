@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 
 class AppText {
+  AppText(String s);
+
   static Widget appText(String text,
       {TextAlign? textAlign,
       Color? textColor,

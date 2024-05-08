@@ -74,18 +74,6 @@ class _MyAppState extends State<MyApp> {
   initState() {
     super.initState();
     dio = AppDio(context);
-
-    //! use the following after user is logged in.
-    //! if logged in then after auth
-    //! use updated appid and appsign
-
-    //   ZegoUIKitPrebuiltCallInvitationService().init(
-    //   appID: appID,
-    //   appSign: appSign,
-    //   userID: "123",
-    //   userName: "Umair",
-    //   plugins: [ZegoUIKitSignalingPlugin()],
-    // );
   }
 
   @override

@@ -8,6 +8,7 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
+import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
@@ -208,11 +209,13 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
           });
           var userId = responseData["data"]["user"]["id"];
           var token = responseData["data"]["token"];
+          var name = responseData["data"]["name"];
+
           var id = userId.toString();
           print("id$id  kmff $token");
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          prefs.setString(PrefKey.userId, id ?? '');
-          prefs.setString(PrefKey.authorization, token ?? '');
+          pref.setString(PrefKey.userId, id ?? '');
+          pref.setString(PrefKey.authorization, token ?? '');
+          pref.setString(PrefKey.userName, name ?? '');
 
           Navigator.pushAndRemoveUntil(
               context,

@@ -8,6 +8,9 @@ import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
+import 'package:tt_offer/config/keys/pref_keys.dart';
+import 'package:tt_offer/constants.dart';
+import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/all_auction_procucts.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/auction_container.dart';
 import 'package:tt_offer/views/All%20Categories/all_caetgories.dart';
@@ -20,6 +23,8 @@ import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
 import 'package:tt_offer/views/Homepage/home_app_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -57,6 +62,14 @@ class _LandingScreenState extends State<LandingScreen> {
     apiProvider.getFeatureProducts(
       dio: dio,
       context: context,
+    );
+
+    ZegoUIKitPrebuiltCallInvitationService().init(
+      appID: appID,
+      appSign: appSign,
+      userID: pref.getString(PrefKey.userId) ?? "0",
+      userName: pref.getString(PrefKey.userName) ?? "",
+      plugins: [ZegoUIKitSignalingPlugin()],
     );
     super.initState();
   }

@@ -1,3 +1,3 @@
-const int appID = 812990713;
+const int appID = 354610698;
 const String appSign =
-    "d0fcd987579e2fffe90c9e8e82c453cf85b35b5676b92089ec26f7cfa7c7da41";
+    "5407a5e25b243aeb0509e0217766e90f4b32747740bf43687cac2c87249547b4";

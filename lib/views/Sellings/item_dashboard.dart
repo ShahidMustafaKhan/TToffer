@@ -106,98 +106,102 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              InkWell(
-                onLongPress: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return StatefulBuilder(
-                        builder: (context, setStatess) {
-                          return AlertDialog(
-                            backgroundColor: Colors.white,
-                            content: SizedBox(
-                              height: 200,
-                              width: getWidth(context) * .8,
-                              child: Column(
-                                children: [
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    child: InkWell(
-                                      onTap: () {},
-                                      child: AppText.appText("Share",
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          textColor: AppTheme.appColor),
-                                    ),
-                                  ),
-                                  const Divider(),
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    child: InkWell(
-                                      onTap: () {
-                                        Navigator.of(context).pop();
-
-                                        push(context, const PostScreen());
-                                      },
-                                      child: AppText.appText("Sell Another",
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          textColor: AppTheme.appColor),
-                                    ),
-                                  ),
-                                  const Divider(),
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    child: InkWell(
-                                      onTap: () {
-                                        markArchived(
-                                            widget.selling.id, setStatess);
-                                      },
-                                      child: AppText.appText("Archive",
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          textColor: AppTheme.appColor),
-                                    ),
-                                  ),
-                                  const Divider(),
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    child: InkWell(
-                                      onTap: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: AppText.appText("Cancel",
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          textColor: AppTheme.appColor),
-                                    ),
-                                  ),
-                                  if (loading)
-                                    Center(
-                                      child: CircularProgressIndicator(
-                                        color: AppTheme.appColor,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: InkWell(
+                  onLongPress: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return StatefulBuilder(
+                          builder: (context, setStatess) {
+                            return AlertDialog(
+                              backgroundColor: Colors.white,
+                              content: SizedBox(
+                                height: 200,
+                                width: getWidth(context) * .8,
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 4),
+                                      child: InkWell(
+                                        onTap: () {},
+                                        child: AppText.appText("Share",
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            textColor: AppTheme.appColor),
                                       ),
-                                    )
-                                ],
+                                    ),
+                                    const Divider(),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 4),
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.of(context).pop();
+
+                                          push(context, const PostScreen());
+                                        },
+                                        child: AppText.appText("Sell Another",
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            textColor: AppTheme.appColor),
+                                      ),
+                                    ),
+                                    const Divider(),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 4),
+                                      child: InkWell(
+                                        onTap: () {
+                                          markArchived(
+                                              widget.selling.id, setStatess);
+                                        },
+                                        child: AppText.appText("Archive",
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            textColor: AppTheme.appColor),
+                                      ),
+                                    ),
+                                    const Divider(),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 4),
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: AppText.appText("Cancel",
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            textColor: AppTheme.appColor),
+                                      ),
+                                    ),
+                                    if (loading)
+                                      Center(
+                                        child: CircularProgressIndicator(
+                                          color: AppTheme.appColor,
+                                        ),
+                                      )
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
-                child: customListview(
-                    img: widget.selling.photo![0].src,
-                    title: widget.selling.title,
-                    subtitle: widget.selling.auctionPrice),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                  child: customListview(
+                      img: widget.selling.photo![0].src,
+                      title: widget.selling.title,
+                      subtitle: widget.selling.auctionPrice),
+                ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -235,20 +239,26 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                 padding: EdgeInsets.symmetric(vertical: 20.0),
                 child: CustomDivider(),
               ),
-              customRow(
-                  onTap: () {
-                    push(context, const ItemPerformanceScreen());
-                  },
-                  txt: "Item Performance",
-                  img: "assets/images/performance.png"),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: customRow(
+                    onTap: () {
+                      push(context, const ItemPerformanceScreen());
+                    },
+                    txt: "Item Performance",
+                    img: "assets/images/performance.png"),
+              ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 20.0),
                 child: CustomDivider(),
               ),
-              AppText.appText("Message",
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  textColor: AppTheme.txt1B20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: AppText.appText("Message",
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    textColor: AppTheme.txt1B20),
+              ),
 
               const SizedBox(
                   // width: getWidth(context),
