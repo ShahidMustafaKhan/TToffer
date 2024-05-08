@@ -52,16 +52,27 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
   final DatabaseReference secRef =
       FirebaseDatabase.instance.ref().child('Chats');
   XFile? pickedImage;
-  late AppDio dio;
+  // late AppDio dio;
   AppLogger logger = AppLogger();
   int? userId;
+  ChatModel? chatModel;
+
+  var nextUserId;
+  var nextUserName;
+
   @override
   void initState() {
-    dio = AppDio(context);
+    // dio = AppDio(context);
     logger.init();
     getUserDetail();
     _priceController.text = "\$ 60";
 
+    chatModel = Provider.of<ChatProvider>(context, listen: false).data!;
+
+    if (chatModel != null) {
+      nextUserId = chatModel!.data.participant2.id;
+      nextUserName = chatModel!.data.participant2.name;
+    }
     conversation = Provider.of<ChatProvider>(context, listen: false)
         .data!
         .data
@@ -83,16 +94,22 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
   @override
   Widget build(BuildContext context) {
     final open = Provider.of<NotifyProvider>(context);
-    final chatApi = Provider.of<ChatApiProvider>(context);
+    // final chatApi = Provider.of<ChatApiProvider>(context);
 
-    log("chatApi data = ${chatApi.conversationData}");
+    // log("chatApi data = ${chatApi.conversationData}");
     return Scaffold(
       appBar: ChatAppBar(
         title: widget.title,
-        action: const [
+        action: [
           Padding(
             padding: EdgeInsets.only(right: 20),
-            child: SizedBox(width: 40, height: 40, child: CallButtonWidget()),
+            child: SizedBox(
+                width: 40,
+                height: 40,
+                child: CallButtonWidget(
+                  id: nextUserId,
+                  name: nextUserName,
+                )),
           ),
 
           // Padding(
@@ -512,19 +529,23 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     }
     log("json in SendFileMsgRepo = ${json.toString()}");
 
-    log("image file = ${json["Images"][0]["file"]} ");
-    var cons = Conversation(
-        // message: message,
-        senderId: senderId,
-        createdAt: DateTime.now(),
-        conversationId: json['conversationId'],
-        file: json["Images"][0]["file"],
-        receiverId: recieverId);
+    try {
+      log("image file = ${json["data"]["Images"][0]["file"]} ");
+      var cons = Conversation(
+          // message: message,
+          senderId: senderId,
+          createdAt: DateTime.now(),
+          conversationId: json['conversationId'],
+          file: json["data"]["Images"][0]["file"],
+          receiverId: recieverId);
 
-    log("conversation length before = ${conversation.length}");
-    conversation.add(cons);
+      log("conversation length before = ${conversation.length}");
+      conversation.add(cons);
 
-    setState(() {});
+      setState(() {});
+    } catch (e) {
+      log("exception in file = ${e.toString()}");
+    }
 
     log("conversation length after = ${conversation.length}");
   }
@@ -610,8 +631,12 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
 }
 
 class CallButtonWidget extends StatelessWidget {
-  const CallButtonWidget({
+  int id;
+  String name;
+  CallButtonWidget({
     super.key,
+    required this.id,
+    required this.name,
   });
 
   @override
@@ -622,8 +647,8 @@ class CallButtonWidget extends StatelessWidget {
       resourceID: "ttoffer_resource_id",
       invitees: [
         ZegoUIKitUser(
-          id: "789",
-          name: "Wajid",
+          id: id.toString(),
+          name: name,
         ),
 
         // ZegoUIKitUser(
