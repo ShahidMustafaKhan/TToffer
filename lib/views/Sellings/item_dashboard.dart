@@ -12,6 +12,7 @@ import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
 import 'package:tt_offer/utils/widgets/others/delete_notification_dialog.dart';
+import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
 import 'package:tt_offer/views/ChatScreens/chat_screen.dart';
 import 'package:tt_offer/views/Post%20screens/post_screen.dart';
 import 'package:tt_offer/views/Sell%20Faster/sell_faster.dart';
@@ -20,6 +21,7 @@ import 'package:tt_offer/views/Sellings/selling_purchase.dart';
 
 class ItemDashBoard extends StatefulWidget {
   const ItemDashBoard({super.key, required this.selling});
+
   final Selling selling;
 
   @override
@@ -28,6 +30,7 @@ class ItemDashBoard extends StatefulWidget {
 
 class _ItemDashBoardState extends State<ItemDashBoard> {
   bool loading = false;
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -206,7 +209,13 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        push(
+                            context,
+                            FeatureInfoScreen(
+                              detailResponse: widget.selling.toJson(),
+                            ));
+                      },
                       child: customContainer(
                           img: "assets/images/eye.png", txt: "View Post"),
                     ),

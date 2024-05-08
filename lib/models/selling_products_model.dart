@@ -18,11 +18,11 @@ class SellingProductsModel {
         message: json["message"],
       );
 
-  Map<String, dynamic> toJson() => {
-        "success": success,
-        "data": data!.toJson(),
-        "message": message,
-      };
+  // Map<String, dynamic> toJson() => {
+  //       "success": success,
+  //       "data": data!.toJson(),
+  //       "message": message,
+  //     };
 }
 
 class Data {
@@ -37,19 +37,23 @@ class Data {
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-        selling:
-            List<Selling>.from(json["selling"].map((x) => Selling.fromJson(x))),
-        purchase: List<Selling>.from(
-            json["purchase"].map((x) => Selling.fromJson(x))),
-        archive:
-            List<Selling>.from(json["archive"].map((x) => Selling.fromJson(x))),
-      );
+    selling: (json['selling'] as List)
+        .map((sellingJson) => Selling.fromJson(sellingJson))
+        .toList(),
+    purchase: (json['purchase'] as List)
+        .map((purchaseJson) => Selling.fromJson(purchaseJson))
+        .toList(),
+    archive: (json['archive'] as List)
+        .map((archiveJson) => Selling.fromJson(archiveJson))
+        .toList(),
+  );
 
-  Map<String, dynamic> toJson() => {
-        "selling": List<dynamic>.from(selling!.map((x) => x.toJson())),
-        "purchase": List<dynamic>.from(purchase!.map((x) => x)),
-        "archive": List<dynamic>.from(archive!.map((x) => x)),
-      };
+
+// Map<String, dynamic> toJson() => {
+  //       "selling": List<dynamic>.from(selling!.map((x) => x.toJson())),
+  //       "purchase": List<dynamic>.from(purchase!.map((x) => x)),
+  //       "archive": List<dynamic>.from(archive!.map((x) => x)),
+  //     };
 }
 
 class Selling {
@@ -138,37 +142,37 @@ class Selling {
   factory Selling.fromJson(Map<String, dynamic> json) => Selling(
         id: json["id"],
         userId: json["user_id"],
-        title: json["title"],
-        slug: json["slug"],
-        description: json["description"],
-        categoryId: json["category_id"],
-        subCategoryId: json["sub_category_id"],
-        condition: json["condition"],
+        title: json["title"]??'',
+        slug: json["slug"]??'',
+        description: json["description"]??'',
+        categoryId: json["category_id"]??'',
+        subCategoryId: json["sub_category_id"]??'',
+        condition: json["condition"]??'',
         makeAndModel: json["make_and_model"],
-        mileage: json["mileage"],
-        color: json["color"],
+        mileage: json["mileage"]??'',
+        color: json["color"]??'',
         brand: json["brand"],
         model: json["model"],
         edition: json["edition"],
         authenticity: json["authenticity"],
         fixPrice: json["fix_price"],
-        firmOnPrice: json["firm_on_price"],
-        auctionPrice: json["auction_price"],
-        startingDate: json["starting_date"],
-        startingTime: json["starting_time"],
-        endingDate: json["ending_date"],
-        endingTime: json["ending_time"],
-        sellToUs: json["sell_to_us"],
-        location: json["location"],
-        status: json["status"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
-        isUrgent: json["is_urgent"],
-        totalReview: json["total_review"],
-        reviewPercentage: json["review_percentage"],
-        isArchived: json["is_archived"],
-        isSold: json["is_sold"],
-        soldToUserId: json["sold_to_user_id"],
+        firmOnPrice: json["firm_on_price"]??'',
+        auctionPrice: json["auction_price"]??'',
+        startingDate: json["starting_date"]??'',
+        startingTime: json["starting_time"]??'',
+        endingDate: json["ending_date"]??'',
+        endingTime: json["ending_time"]??'',
+        sellToUs: json["sell_to_us"]??'',
+        location: json["location"]??'',
+        status: json["status"]??'',
+        createdAt: DateTime.parse(json["created_at"]??''),
+        updatedAt: DateTime.parse(json["updated_at"]??''),
+        isUrgent: json["is_urgent"]??'',
+        totalReview: json["total_review"]??'',
+        reviewPercentage: json["review_percentage"]??'',
+        isArchived: json["is_archived"]??'',
+        isSold: json["is_sold"]??'',
+        soldToUserId: json["sold_to_user_id"]??'',
         user: User.fromJson(json["user"]),
         category: Category.fromJson(json["category"]),
         subCategory: SubCategory.fromJson(json["sub_category"]),
@@ -322,7 +326,7 @@ class Photo {
 
   factory Photo.fromRawJson(String str) => Photo.fromJson(json.decode(str));
 
-  String toRawJson() => json.encode(toJson());
+  // String toRawJson() => json.encode(toJson());
 
   factory Photo.fromJson(Map<String, dynamic> json) => Photo(
         id: json["id"],
@@ -356,25 +360,25 @@ class SubCategory {
     required this.updatedAt,
   });
 
-  SubCategory copyWith({
-    int? id,
-    int? categoryId,
-    String? name,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) =>
-      SubCategory(
-        id: id ?? this.id,
-        categoryId: categoryId ?? this.categoryId,
-        name: name ?? this.name,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-      );
+  // SubCategory copyWith({
+  //   int? id,
+  //   int? categoryId,
+  //   String? name,
+  //   DateTime? createdAt,
+  //   DateTime? updatedAt,
+  // }) =>
+  //     SubCategory(
+  //       id: id ?? this.id,
+  //       categoryId: categoryId ?? this.categoryId,
+  //       name: name ?? this.name,
+  //       createdAt: createdAt ?? this.createdAt,
+  //       updatedAt: updatedAt ?? this.updatedAt,
+  //     );
+  //
+  // factory SubCategory.fromRawJson(String str) =>
+  //     SubCategory.fromJson(json.decode(str));
 
-  factory SubCategory.fromRawJson(String str) =>
-      SubCategory.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
+  // String toRawJson() => json.encode(toJson());
 
   factory SubCategory.fromJson(Map<String, dynamic> json) => SubCategory(
         id: json["id"],
@@ -448,85 +452,85 @@ class User {
     required this.reviewPercentage,
   });
 
-  User copyWith({
-    int? id,
-    String? name,
-    String? src,
-    String? provider,
-    dynamic providerId,
-    dynamic providerToken,
-    String? code,
-    dynamic emailVerifiedAt,
-    dynamic phoneVerifiedAt,
-    dynamic imageVerifiedAt,
-    String? username,
-    String? email,
-    dynamic phone,
-    dynamic shareAbleLink,
-    String? img,
-    int? status,
-    dynamic location,
-    dynamic customLink,
-    int? isTrueYou,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    int? totalReview,
-    int? reviewPercentage,
-  }) =>
-      User(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        src: src ?? this.src,
-        provider: provider ?? this.provider,
-        providerId: providerId ?? this.providerId,
-        providerToken: providerToken ?? this.providerToken,
-        code: code ?? this.code,
-        emailVerifiedAt: emailVerifiedAt ?? this.emailVerifiedAt,
-        phoneVerifiedAt: phoneVerifiedAt ?? this.phoneVerifiedAt,
-        imageVerifiedAt: imageVerifiedAt ?? this.imageVerifiedAt,
-        username: username ?? this.username,
-        email: email ?? this.email,
-        phone: phone ?? this.phone,
-        shareAbleLink: shareAbleLink ?? this.shareAbleLink,
-        img: img ?? this.img,
-        status: status ?? this.status,
-        location: location ?? this.location,
-        customLink: customLink ?? this.customLink,
-        isTrueYou: isTrueYou ?? this.isTrueYou,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-        totalReview: totalReview ?? this.totalReview,
-        reviewPercentage: reviewPercentage ?? this.reviewPercentage,
-      );
-
-  factory User.fromRawJson(String str) => User.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
+  // User copyWith({
+  //   int? id,
+  //   String? name,
+  //   String? src,
+  //   String? provider,
+  //   dynamic providerId,
+  //   dynamic providerToken,
+  //   String? code,
+  //   dynamic emailVerifiedAt,
+  //   dynamic phoneVerifiedAt,
+  //   dynamic imageVerifiedAt,
+  //   String? username,
+  //   String? email,
+  //   dynamic phone,
+  //   dynamic shareAbleLink,
+  //   String? img,
+  //   int? status,
+  //   dynamic location,
+  //   dynamic customLink,
+  //   int? isTrueYou,
+  //   DateTime? createdAt,
+  //   DateTime? updatedAt,
+  //   int? totalReview,
+  //   int? reviewPercentage,
+  // }) =>
+  //     User(
+  //       id: id ?? this.id,
+  //       name: name ?? this.name,
+  //       src: src ?? this.src,
+  //       provider: provider ?? this.provider,
+  //       providerId: providerId ?? this.providerId,
+  //       providerToken: providerToken ?? this.providerToken,
+  //       code: code ?? this.code,
+  //       emailVerifiedAt: emailVerifiedAt ?? this.emailVerifiedAt,
+  //       phoneVerifiedAt: phoneVerifiedAt ?? this.phoneVerifiedAt,
+  //       imageVerifiedAt: imageVerifiedAt ?? this.imageVerifiedAt,
+  //       username: username ?? this.username,
+  //       email: email ?? this.email,
+  //       phone: phone ?? this.phone,
+  //       shareAbleLink: shareAbleLink ?? this.shareAbleLink,
+  //       img: img ?? this.img,
+  //       status: status ?? this.status,
+  //       location: location ?? this.location,
+  //       customLink: customLink ?? this.customLink,
+  //       isTrueYou: isTrueYou ?? this.isTrueYou,
+  //       createdAt: createdAt ?? this.createdAt,
+  //       updatedAt: updatedAt ?? this.updatedAt,
+  //       totalReview: totalReview ?? this.totalReview,
+  //       reviewPercentage: reviewPercentage ?? this.reviewPercentage,
+  //     );
+  //
+  // factory User.fromRawJson(String str) => User.fromJson(json.decode(str));
+  //
+  // String toRawJson() => json.encode(toJson());
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-        id: json["id"],
-        name: json["name"],
-        src: json["src"],
-        provider: json["provider"],
-        providerId: json["provider_id"],
-        providerToken: json["provider_token"],
-        code: json["code"],
-        emailVerifiedAt: json["email_verified_at"],
-        phoneVerifiedAt: json["phone_verified_at"],
-        imageVerifiedAt: json["image_verified_at"],
-        username: json["username"],
-        email: json["email"],
-        phone: json["phone"],
-        shareAbleLink: json["share_able_link"],
-        img: json["img"],
-        status: json["status"],
-        location: json["location"],
-        customLink: json["custom_link"],
-        isTrueYou: json["is_true_you"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
-        totalReview: json["total_review"],
-        reviewPercentage: json["review_percentage"],
+        id: json["id"]??'',
+        name: json["name"]??'',
+        src: json["src"]??'',
+        provider: json["provider"]??'',
+        providerId: json["provider_id"]??'',
+        providerToken: json["provider_token"]??'',
+        code: json["code"]??'',
+        emailVerifiedAt: json["email_verified_at"]??'',
+        phoneVerifiedAt: json["phone_verified_at"]??'',
+        imageVerifiedAt: json["image_verified_at"]??'',
+        username: json["username"]??'',
+        email: json["email"]??'',
+        phone: json["phone"]??'',
+        shareAbleLink: json["share_able_link"]??'',
+        img: json["img"]??'',
+        status: json["status"]??'',
+        location: json["location"]??'',
+        customLink: json["custom_link"]??'',
+        isTrueYou: json["is_true_you"]??'',
+        createdAt: DateTime.parse(json["created_at"]??''),
+        updatedAt: DateTime.parse(json["updated_at"]??''),
+        totalReview: json["total_review"]??'',
+        reviewPercentage: json["review_percentage"]??'',
       );
 
   Map<String, dynamic> toJson() => {

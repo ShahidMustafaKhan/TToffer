@@ -21,6 +21,7 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 
 class SellingPurchaseScreen extends StatefulWidget {
   final String title;
+
   const SellingPurchaseScreen({Key? key, required this.title})
       : super(key: key);
 
@@ -32,6 +33,7 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
   String selectedOption = 'Selling';
   bool isLoading = false;
   AppLogger logger = AppLogger();
+
   // var sellingData;
   // var purchaseData;
   // var archieveData;
@@ -208,27 +210,28 @@ void getSellingProducts(context) async {
 
   var response;
 
-  try {
-    response = await dio.get(path: AppUrls.sellingScreen);
-    var responseData = response.data;
-    if (response.statusCode == 200) {
-      // sellingData = responseData["sold"];
-      SellingProductsModel model = SellingProductsModel.fromJson(responseData);
+  // try {
+  response = await dio.get(path: AppUrls.sellingScreen);
+  var responseData = response.data;
+  if (response.statusCode == 200) {
+    // sellingData = responseData["sold"];
+    SellingProductsModel model = SellingProductsModel.fromJson(responseData);
 
-      Provider.of<SellingPurchaseProvider>(context, listen: false)
-          .updateData(model: model);
-      // purchaseData = responseData["purchase"];
-      // archieveData = responseData["archive"];
-    }
-  } catch (e) {
-    print("Something went Wrong $e");
-    showSnackBar(context, "Something went Wrong.");
+    Provider.of<SellingPurchaseProvider>(context, listen: false)
+        .updateData(model: model);
+    // purchaseData = responseData["purchase"];
+    // archieveData = responseData["archive"];
   }
+  // } catch (e) {
+  //   print("Something went Wrong $e");
+  //   showSnackBar(context, "Something went Wrong.");
+  // }
 }
 
 class SellingPurchaseListView extends StatefulWidget {
   final int? ischeck;
   SellingProductsModel? sellingProductsModel;
+
   // final Function getSellingProduct;
   SellingPurchaseListView({
     super.key,

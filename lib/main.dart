@@ -19,6 +19,7 @@ import 'package:tt_offer/firebase_options.dart';
 import 'package:tt_offer/providers/chat_list_provider.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
 import 'package:tt_offer/providers/notification_provider.dart';
+import 'package:tt_offer/providers/search_provider.dart';
 import 'package:tt_offer/providers/selling_purchase_provider.dart';
 import 'package:tt_offer/splash_screen.dart';
 import 'package:tt_offer/views/Authentication%20screens/GoogleSignIn/google_signin_provider.dart';
@@ -97,6 +98,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => SellingPurchaseProvider()),
         ChangeNotifierProvider(create: (_) => ChatListProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,

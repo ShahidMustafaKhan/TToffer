@@ -95,6 +95,7 @@ class _CustomAppFormFieldState extends State<CustomAppFormField> {
           color: AppTheme.white,
           borderRadius: BorderRadius.circular(widget.radius ?? 10)),
       child: TextFormField(
+        onFieldSubmitted: (widget.onFieldSubmitted),
         style:
             TextStyle(fontSize: widget.fontsize, fontWeight: widget.fontweight),
         textAlign: widget.textAlign,

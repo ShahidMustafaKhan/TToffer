@@ -10,7 +10,10 @@ import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/constants.dart';
+import 'package:tt_offer/custom_requests/search_service.dart';
 import 'package:tt_offer/main.dart';
+import 'package:tt_offer/models/selling_products_model.dart';
+import 'package:tt_offer/providers/search_provider.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/all_auction_procucts.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/auction_container.dart';
 import 'package:tt_offer/views/All%20Categories/all_caetgories.dart';
@@ -23,6 +26,7 @@ import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
 import 'package:tt_offer/views/Homepage/home_app_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
+import 'package:tt_offer/views/SearchPage/search_page.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
@@ -36,6 +40,7 @@ class LandingScreen extends StatefulWidget {
 class _LandingScreenState extends State<LandingScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool isLoading = false;
+
   // var catagoryData;
   var subCatagoryData;
   static const List<String> _imagePaths = [
@@ -45,6 +50,7 @@ class _LandingScreenState extends State<LandingScreen> {
   ];
   late AppDio dio;
   AppLogger logger = AppLogger();
+
   @override
   void initState() {
     dio = AppDio(context);
@@ -74,6 +80,20 @@ class _LandingScreenState extends State<LandingScreen> {
     super.initState();
   }
 
+  List<Selling> provider = [];
+
+  void searchHandler(BuildContext context) async {
+    await SearchService().searchService(
+      context: context,
+      query: _searchController.text.trim(),
+    );
+
+    setState(() {
+      provider = Provider.of<SearchProvider>(context, listen: false).selling;
+      print('Updated provider data: $provider');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -91,6 +111,14 @@ class _LandingScreenState extends State<LandingScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: CustomAppFormField(
+                  onFieldSubmitted: (val) {
+                    setState(() {
+                      print('dfdsfdsf-->${val}');
+                      _searchController.text = val;
+                      searchHandler(context);
+                      push(context, SearchPage());
+                    });
+                  },
                   radius: 15.0,
                   prefixIcon: Image.asset(
                     "assets/images/search.png",
