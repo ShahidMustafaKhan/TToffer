@@ -31,8 +31,8 @@ import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 class OfferChatScreen extends StatefulWidget {
   final String? userImgUrl;
   final bool? isOffer;
-  final String? offerPrice;
-  final int? recieverId;
+  final dynamic offerPrice;
+  final dynamic recieverId;
   final String? title;
   const OfferChatScreen(
       {super.key,
@@ -112,7 +112,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
         title: widget.title,
         action: [
           Padding(
-            padding: EdgeInsets.only(right: 20),
+            padding: const EdgeInsets.only(right: 20),
             child: SizedBox(
                 width: 40,
                 height: 40,

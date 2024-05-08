@@ -82,9 +82,13 @@ class _ChatScreenState extends State<ChatScreen> {
                     children: [
                       Row(
                         children: [
-                          const CircleAvatar(
-                            backgroundImage:
-                                AssetImage("assets/images/sp4.png"),
+                          CircleAvatar(
+                            backgroundColor: Colors.transparent,
+                            backgroundImage: chatList[index].receiver!.img !=
+                                    null
+                                ? NetworkImage(chatList[index].receiver!.img!)
+                                : const AssetImage("assets/images/user.png")
+                                    as ImageProvider,
                             radius: 26,
                           ),
                           const SizedBox(

@@ -88,6 +88,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     });
   }
 
+  bool isChatBtnLoading = false;
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -123,42 +124,52 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AppButton.appButton("Chat", onTap: () async {
-              Map body = {
-                "sender_id": pref.getString(PrefKey.userId),
-                "receiver_id": widget.detailResponse["user"]["id"],
-              };
+            if (isChatBtnLoading)
+              Center(
+                  child: CircularProgressIndicator(
+                color: AppTheme.appColor,
+              ))
+            else
+              AppButton.appButton("Chat", onTap: () async {
+                setState(() {
+                  isChatBtnLoading = true;
+                });
 
-              var responce = await customPostRequest.httpPostRequest(
-                  body: body, url: AppUrls.createConversationUrl);
+                Map body = {
+                  "sender_id": pref.getString(PrefKey.userId),
+                  "receiver_id": widget.detailResponse["user"]["id"],
+                };
 
-              log("responce for createConversationUrl = $responce ");
+                var responce = await customPostRequest.httpPostRequest(
+                    body: body, url: AppUrls.createConversationUrl);
 
-              getConversation(
-                dio: dio,
-                context: context,
-                conversationId: responce["data"],
-                title: "${widget.detailResponse["user"]["name"]}",
-                recieverId: widget.detailResponse["user"]["id"],
-              );
+                log("responce for createConversationUrl = $responce ");
 
-              log("widget.detailResponse = ${widget.detailResponse}");
+                getConversation(
+                  dio: dio,
+                  context: context,
+                  conversationId: responce["data"],
+                  title: "${widget.detailResponse["user"]["name"]}",
+                  recieverId: widget.detailResponse["user"]["id"],
+                );
 
-              // push(
-              //     context,
-              //     OfferChatScreen(
-              //       recieverId: widget.detailResponse["user"]["id"],
-              //       title: "${widget.detailResponse["user"]["name"]}",
-              //       isOffer: true,
-              //     ));
-            },
-                height: 53,
-                width: 150,
-                radius: 32.0,
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-                backgroundColor: AppTheme.appColor,
-                textColor: AppTheme.whiteColor),
+                log("widget.detailResponse = ${widget.detailResponse}");
+
+                // push(
+                //     context,
+                //     OfferChatScreen(
+                //       recieverId: widget.detailResponse["user"]["id"],
+                //       title: "${widget.detailResponse["user"]["name"]}",
+                //       isOffer: true,
+                //     ));
+              },
+                  height: 53,
+                  width: 150,
+                  radius: 32.0,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  backgroundColor: AppTheme.appColor,
+                  textColor: AppTheme.whiteColor),
             const SizedBox(
               width: 10,
             ),
@@ -786,13 +797,17 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
       ChatModel model = ChatModel.fromJson(responseData);
 
       Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
-
+      setState(() {
+        isChatBtnLoading = false;
+      });
       push(
           context,
           OfferChatScreen(
             recieverId: recieverId,
             title: title,
-            isOffer: true,
+            // isOffer: true,
+            // offerPrice: widget.detailResponse["fix_price"],
+            // userImgUrl: widget.detailResponse["user"]["img"],
           ));
     }
     // } catch (e) {
