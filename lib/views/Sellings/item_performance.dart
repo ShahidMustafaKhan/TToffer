@@ -5,11 +5,13 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/Boost%20Plus%20Screens/boost_plus_screen.dart';
 
 class ItemPerformanceScreen extends StatefulWidget {
-  const ItemPerformanceScreen({super.key});
+  final Selling selling;
 
+  ItemPerformanceScreen({required this.selling});
   @override
   State<ItemPerformanceScreen> createState() => _ItemPerformanceScreenState();
 }
@@ -43,8 +45,8 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(16),
-                            child: Image.asset(
-                              "assets/images/auction1.png",
+                            child: Image.network(
+                              widget.selling.photo![0].src.toString(),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -56,7 +58,7 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            AppText.appText("Modern Light Clothes",
+                            AppText.appText(widget.selling.title.toString(),
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 textColor: AppTheme.txt1B20),

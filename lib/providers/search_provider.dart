@@ -1,16 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
+import 'package:tt_offer/models/selling_serach_model.dart';
 
 class SearchProvider extends ChangeNotifier {
-  List<Selling> selling = [];
+  List<SearchData> selling = [];
 
-  void getSellingData({required List<Selling> newSelling}) {
+  void getSellingData({required List<SearchData> newSelling}) {
     selling = newSelling;
     notifyListeners(); // Notify listeners when data changes
   }
 
-  void clearSellingData() {
-    selling.clear();
-    notifyListeners(); // Notify listeners when data is cleared
-  }
+
 }

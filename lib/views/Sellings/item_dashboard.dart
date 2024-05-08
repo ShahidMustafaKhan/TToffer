@@ -252,7 +252,11 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: customRow(
                     onTap: () {
-                      push(context, const ItemPerformanceScreen());
+                      push(
+                          context,
+                          ItemPerformanceScreen(
+                            selling: widget.selling,
+                          ));
                     },
                     txt: "Item Performance",
                     img: "assets/images/performance.png"),

@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
-import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
+import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
@@ -15,7 +15,9 @@ import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/custom_requests/search_service.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
+import 'package:tt_offer/models/selling_serach_model.dart';
 import 'package:tt_offer/providers/search_provider.dart';
+import 'package:tt_offer/utils/resources/res/app_theme.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/all_auction_procucts.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/auction_container.dart';
 import 'package:tt_offer/views/All%20Categories/all_caetgories.dart';
@@ -75,13 +77,36 @@ class _LandingScreenState extends State<LandingScreen> {
     super.initState();
   }
 
-  List<Selling> provider = [];
+  List<SearchData> provider = [];
 
   void searchHandler(BuildContext context) async {
-    var res = await SearchService().searchService(
+    showDialog(
+        context: context,
+        barrierColor: Colors.transparent,
+        builder: (context) =>  AlertDialog(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(color: AppTheme.appColor,),
+                ],
+              ),
+            ));
+
+    bool res = await SearchService().searchService(
       context: context,
       query: _searchController.text.trim(),
     );
+    Navigator.pop(context);
+
+    if (res) {
+      push(context, const SearchPage());
+    }
+
+    provider = Provider.of<SearchProvider>(context, listen: false).selling;
+    print('provider---->${provider}');
+    setState(() {});
   }
 
   @override
@@ -106,7 +131,6 @@ class _LandingScreenState extends State<LandingScreen> {
                       print('dfdsfdsf-->${val}');
                       _searchController.text = val;
                       searchHandler(context);
-                      push(context, SearchPage());
                     });
                   },
                   radius: 15.0,
