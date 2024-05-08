@@ -13,6 +13,8 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/main.dart';
+import 'package:tt_offer/models/chat_model.dart';
+import 'package:tt_offer/providers/chat_provider.dart';
 import 'package:tt_offer/views/Auction%20Info/make_offer_screen.dart';
 import 'package:tt_offer/views/ChatScreens/offer_chat_screen.dart';
 import 'package:tt_offer/views/Seller%20Profile/seller_profile.dart';
@@ -121,22 +123,26 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AppButton.appButton("Chat", onTap: () {
-              final chatApi =
-                  // Provider.of<ChatApiProvider>(context, listen: false);
+            AppButton.appButton("Chat", onTap: () async {
+              Map body = {
+                "sender_id": pref.getString(PrefKey.userId),
+                "receiver_id": widget.detailResponse["user"]["id"],
+              };
 
-//  chatApi.getConversation(
-//                     dio: dio,
-//                     context: context,
-//                     conversationId: chatList[index].conversationId,
-//                     title: chatList[index].receiver.id == int.parse(userId)
-//                         ? chatList[index].sender.name
-//                         : chatList[index].receiver.name,
-//                     recieverId: chatList[index].receiver.id == int.parse(userId)
-//                         ? chatList[index].senderId
-//                         : chatList[index].receiverId);
+              var responce = await customPostRequest.httpPostRequest(
+                  body: body, url: AppUrls.createConversationUrl);
 
-                  log("widget.detailResponse = ${widget.detailResponse}");
+              log("responce for createConversationUrl = $responce ");
+
+              getConversation(
+                dio: dio,
+                context: context,
+                conversationId: responce["data"],
+                title: "${widget.detailResponse["user"]["name"]}",
+                recieverId: widget.detailResponse["user"]["id"],
+              );
+
+              log("widget.detailResponse = ${widget.detailResponse}");
 
               // push(
               //     context,
@@ -756,5 +762,44 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     Map body = {"product_id": widget.detailResponse["id"]};
     customPostRequest.httpPostRequest(
         url: AppUrls.increaseProductCount, body: body);
+  }
+
+  void getConversation({
+    required dio,
+    required context,
+    required conversationId,
+    required recieverId,
+    required title,
+    // required isOffer,
+  }) async {
+    isLoading = true;
+    var response;
+
+    // try {
+    response = await dio.get(path: "${AppUrls.getConverstaion}$conversationId");
+    var responseData = response.data;
+    if (response.statusCode == 200) {
+      isLoading = false;
+
+      log("responseData for chat = $responseData");
+
+      ChatModel model = ChatModel.fromJson(responseData);
+
+      Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
+
+      push(
+          context,
+          OfferChatScreen(
+            recieverId: recieverId,
+            title: title,
+            isOffer: true,
+          ));
+    }
+    // } catch (e) {
+    //   print("Something went Wrong ${e}");
+    //   showSnackBar(context, "Something went Wrong.");
+    //   isLoading = false;
+    //   notifyListeners();
+    // }
   }
 }
