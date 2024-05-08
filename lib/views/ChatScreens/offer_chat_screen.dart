@@ -80,6 +80,8 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
         .data
         .conversation;
 
+    log("pref.getString(PrefKey.userId) = ${pref.getString(PrefKey.userId)}");
+    log("pref.getString(PrefKey.userName) = ${pref.getString(PrefKey.userName)}");
     ZegoUIKitPrebuiltCallInvitationService().init(
       appID: appID,
       appSign: appSign,
@@ -117,8 +119,8 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                 width: 40,
                 height: 40,
                 child: CallButtonWidget(
-                  id: nextUserId,
-                  name: nextUserName,
+                  id: 123,
+                  name: "nextUserName",
                 )),
           ),
 

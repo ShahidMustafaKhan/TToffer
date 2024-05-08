@@ -27,8 +27,7 @@ import 'package:tt_offer/views/Authentication%20screens/GoogleSignIn/google_sign
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
-
-String?location;
+String? location;
 
 late SharedPreferences pref;
 late CustomPostRequest customPostRequest;
@@ -39,7 +38,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
   Stripe.publishableKey =
       "pk_test_51JUUldDdNsnMpgdhSlxjCo0yQBGHy9RsTQojb3YENwH5llfYiEmqqFjkc6SmsSQpLb9BH40OKQb0fwTlfifqJhFd00Cy7xTNwd";
   await Stripe.instance.applySettings();
