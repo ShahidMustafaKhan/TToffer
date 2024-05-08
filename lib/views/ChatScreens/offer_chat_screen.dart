@@ -112,7 +112,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
         title: widget.title,
         action: [
           Padding(
-            padding: EdgeInsets.only(right: 20),
+            padding: const EdgeInsets.only(right: 20),
             child: SizedBox(
                 width: 40,
                 height: 40,
