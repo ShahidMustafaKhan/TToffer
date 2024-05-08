@@ -16,7 +16,10 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 
 class PostLocationScreen extends StatefulWidget {
   final productId;
-  const PostLocationScreen({super.key, this.productId});
+
+  String  image;
+  int amount;
+   PostLocationScreen({super.key, this.productId,required this.amount,required this.image});
 
   @override
   State<PostLocationScreen> createState() => _PostLocationScreenState();
@@ -166,7 +169,7 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
         });
       } else if (response.statusCode == responseCode200) {
         setState(() {
-          pushReplacement(context, const PostProductPayment());
+          pushReplacement(context,  PostProductPayment(image: widget.image, amount: widget.amount,));
           _isLoading = false;
         });
       }

@@ -35,6 +35,7 @@ class _PostScreenState extends State<PostScreen> {
   late AppDio dio;
   AppLogger logger = AppLogger();
   var userId;
+
   @override
   void initState() {
     dio = AppDio(context);
@@ -81,8 +82,8 @@ class _PostScreenState extends State<PostScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
                 child: AppButton.appButtonWithLeadingImage("Take Photo",
                     onTap: () {
-                  imageProvider.takePicture();
-                },
+                      imageProvider.takePicture();
+                    },
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                     textColor: AppTheme.textColor,
@@ -105,8 +106,8 @@ class _PostScreenState extends State<PostScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
                 child: AppButton.appButtonWithLeadingImage("Select Vedio",
                     onTap: () {
-                  imageProvider.getVediosFromGallery(context);
-                },
+                      imageProvider.getVediosFromGallery(context);
+                    },
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                     textColor: AppTheme.textColor,
@@ -117,38 +118,38 @@ class _PostScreenState extends State<PostScreen> {
               ),
               imageProvider.isCompressing == true
                   ? SizedBox(
-                      height: 110,
-                      child: LoadingDialog(),
-                    )
+                height: 110,
+                child: LoadingDialog(),
+              )
                   : imageProvider.imagePaths.isEmpty
-                      ? const SizedBox.shrink()
-                      : SizedBox(
-                          height: 110,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            shrinkWrap: true,
-                            itemCount: imageProvider.imagePaths.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 10.0, bottom: 10),
-                                child: Container(
-                                  height: 100,
-                                  width: 100,
-                                  decoration: BoxDecoration(
-                                      color: AppTheme.hintTextColor,
-                                      borderRadius: BorderRadius.circular(8),
-                                      image: DecorationImage(
-                                          image: FileImage(
-                                            File(imageProvider
-                                                .imagePaths[index]),
-                                          ),
-                                          fit: BoxFit.fill)),
+                  ? const SizedBox.shrink()
+                  : SizedBox(
+                height: 110,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  itemCount: imageProvider.imagePaths.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(
+                          left: 10.0, bottom: 10),
+                      child: Container(
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(
+                            color: AppTheme.hintTextColor,
+                            borderRadius: BorderRadius.circular(8),
+                            image: DecorationImage(
+                                image: FileImage(
+                                  File(imageProvider
+                                      .imagePaths[index]),
                                 ),
-                              );
-                            },
-                          ),
-                        ),
+                                fit: BoxFit.fill)),
+                      ),
+                    );
+                  },
+                ),
+              ),
               AppText.appText("Add your cover photo first",
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
@@ -168,36 +169,36 @@ class _PostScreenState extends State<PostScreen> {
               _isLoading == true
                   ? LoadingDialog()
                   : Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: AppButton.appButton("Next", onTap: () {
-                        // push(context, const PostDetailScreen());
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                child: AppButton.appButton("Next", onTap: () {
+                  // push(context, const PostDetailScreen());
 
-                        if (imageProvider.imagePaths.isNotEmpty) {
-                          if (_titleController.text.isNotEmpty) {
-                            if (_descController.text.isNotEmpty) {
-                              if (_descController.text.length > 100) {
-                                addProductFirstStep();
-                              } else {
-                                showSnackBar(context,
-                                    "Description must be alteast 100 characters");
-                              }
-                            } else {
-                              showSnackBar(context, "Enter Description");
-                            }
-                          } else {
-                            showSnackBar(context, "Enter title");
-                          }
+                  if (imageProvider.imagePaths.isNotEmpty) {
+                    if (_titleController.text.isNotEmpty) {
+                      if (_descController.text.isNotEmpty) {
+                        if (_descController.text.length > 100) {
+                          addProductFirstStep();
                         } else {
-                          showSnackBar(context, "Add atleast one image");
+                          showSnackBar(context,
+                              "Description must be alteast 100 characters");
                         }
-                      },
-                          height: 53,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
-                          radius: 32.0,
-                          backgroundColor: AppTheme.appColor,
-                          textColor: AppTheme.whiteColor),
-                    )
+                      } else {
+                        showSnackBar(context, "Enter Description");
+                      }
+                    } else {
+                      showSnackBar(context, "Enter title");
+                    }
+                  } else {
+                    showSnackBar(context, "Add atleast one image");
+                  }
+                },
+                    height: 53,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    radius: 32.0,
+                    backgroundColor: AppTheme.appColor,
+                    textColor: AppTheme.whiteColor),
+              )
             ],
           ),
         ),
@@ -207,7 +208,7 @@ class _PostScreenState extends State<PostScreen> {
 
   void addProductFirstStep() async {
     final imageProvider =
-        Provider.of<ImageNotifyProvider>(context, listen: false);
+    Provider.of<ImageNotifyProvider>(context, listen: false);
 
     setState(() {
       _isLoading = true;
@@ -290,7 +291,7 @@ class _PostScreenState extends State<PostScreen> {
 
   void sendImages({productId}) async {
     final imageProvider =
-        Provider.of<ImageNotifyProvider>(context, listen: false);
+    Provider.of<ImageNotifyProvider>(context, listen: false);
     print("objectId $productId");
     setState(() {
       _isLoading = true;
@@ -305,77 +306,90 @@ class _PostScreenState extends State<PostScreen> {
     int responseCode500 = 500; // Internal server error.
     List<MultipartFile> imageFiles = [];
 
+    File? myfile;
+
     for (var i = 0; i < imageProvider.imagePaths.length; i++) {
-      File file = File(imageProvider.imagePaths[i]);
-      imageFiles.add(await MultipartFile.fromFile(file.path));
-    }
-    var formData = FormData.fromMap({
-      "product_id": productId,
-      "src[]": imageFiles,
-    });
-
-    try {
-      response = await dio.post(path: AppUrls.addImage, data: formData);
-      var responseData = response.data;
-      print("object${responseData}");
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["message"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["message"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode413) {
-        showSnackBar(context, "${responseData["message"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["message"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["message"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        if (responseData["status"] == false) {
-          setState(() {
-            _isLoading = false;
-          });
-
-          return;
-        } else {
-          setState(() {
-            _descController.clear();
-            _titleController.clear();
-            imageProvider.vedioPath = "";
-            imageProvider.imagePaths.clear();
-            _isLoading = false;
-
-            push(
-                context,
-                PostDetailScreen(
-                  productId: productId,
-                ));
-          });
-        }
+      final file = File(imageProvider.imagePaths[i]);
+      if (imageProvider.imagePaths.isNotEmpty) {
+        myfile = File(imageProvider.imagePaths.first);
       }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        _isLoading = false;
+      if (file.existsSync()) {
+        imageFiles.add(await MultipartFile.fromFile(file.path));
+      } else {
+        // Handle the case where the file does not exist
+      }
+    }
+
+    if (imageFiles.isNotEmpty) {
+      var formData = FormData.fromMap({
+        "product_id": productId,
+        "src[]": imageFiles,
       });
+
+      try {
+        response = await dio.post(path: AppUrls.addImage, data: formData);
+        var responseData = response.data;
+        print("object${responseData}");
+        if (response.statusCode == responseCode400) {
+          showSnackBar(context, "${responseData["message"]}");
+          setState(() {
+            _isLoading = false;
+          });
+        } else if (response.statusCode == responseCode401) {
+          showSnackBar(context, "${responseData["message"]}");
+          setState(() {
+            _isLoading = false;
+          });
+        } else if (response.statusCode == responseCode413) {
+          showSnackBar(context, "${responseData["message"]}");
+          setState(() {
+            _isLoading = false;
+          });
+        } else if (response.statusCode == responseCode404) {
+          showSnackBar(context, "${responseData["message"]}");
+          setState(() {
+            _isLoading = false;
+          });
+        } else if (response.statusCode == responseCode500) {
+          showSnackBar(context, "${responseData["message"]}");
+          setState(() {
+            _isLoading = false;
+          });
+        } else if (response.statusCode == responseCode422) {
+          setState(() {
+            _isLoading = false;
+          });
+        } else if (response.statusCode == responseCode200) {
+          if (responseData["status"] == false) {
+            setState(() {
+              _isLoading = false;
+            });
+
+            return;
+          } else {
+            setState(() {
+              _descController.clear();
+              _titleController.clear();
+              imageProvider.vedioPath = "";
+              imageProvider.imagePaths.clear();
+              _isLoading = false;
+
+              push(
+                  context,
+                  PostDetailScreen(
+                    productId: productId,
+                    image: myfile.toString(),
+                  ));
+            });
+          }
+        }
+      } catch (e) {
+        print("Something went Wrong ${e}");
+        showSnackBar(context, "Something went Wrong.");
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 }

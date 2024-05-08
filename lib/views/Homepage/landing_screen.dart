@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
+import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
@@ -55,19 +56,23 @@ class _LandingScreenState extends State<LandingScreen> {
   late AppDio dio;
   AppLogger logger = AppLogger();
 
-  getLocation(){
-    location=  pref.getString('myLocation');
+  getLocation() {
+    location = pref.getString('myLocation');
     print('mylosodsd_--->${location}');
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   @override
   void initState() {
+    // getLocation();
 
-    getLocation();
-
+    dio = AppDio(context);
+    logger.init();
+    final profileApi = Provider.of<ProfileApiProvider>(context, listen: false);
+    profileApi.getProfile(
+      dio: dio,
+      context: context,
+    );
 
     dio = AppDio(context);
     logger.init();
@@ -95,13 +100,15 @@ class _LandingScreenState extends State<LandingScreen> {
     showDialog(
         context: context,
         barrierColor: Colors.transparent,
-        builder: (context) =>  AlertDialog(
+        builder: (context) => AlertDialog(
               backgroundColor: Colors.transparent,
               elevation: 0,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(color: AppTheme.appColor,),
+                  CircularProgressIndicator(
+                    color: AppTheme.appColor,
+                  ),
                 ],
               ),
             ));
@@ -127,6 +134,13 @@ class _LandingScreenState extends State<LandingScreen> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final apiProvider = Provider.of<ProductsApiProvider>(context);
+    final profileApi = Provider.of<ProfileApiProvider>(context);
+    if (profileApi.profileData != null) {
+      location = profileApi.profileData["location"];
+    } else {
+      // Handle the case where profileData is null
+    }
+
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
       appBar: CustomAppBar(context: context),
@@ -470,11 +484,7 @@ class _LandingScreenState extends State<LandingScreen> {
         setState(() {
           var detailResponse = responseData["data"];
           pr.dismiss();
-          push(
-              context,
-              AuctionInfoScreen(
-                detailResponse: detailResponse[0]
-              ));
+          push(context, AuctionInfoScreen(detailResponse: detailResponse[0]));
         });
       }
     } catch (e) {
