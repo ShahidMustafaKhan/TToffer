@@ -208,22 +208,22 @@ void getSellingProducts(context) async {
 
   var response;
 
-  try {
-    response = await dio.get(path: AppUrls.sellingScreen);
-    var responseData = response.data;
-    if (response.statusCode == 200) {
-      // sellingData = responseData["sold"];
-      SellingProductsModel model = SellingProductsModel.fromJson(responseData);
+  // try {
+  response = await dio.get(path: AppUrls.sellingScreen);
+  var responseData = response.data;
+  if (response.statusCode == 200) {
+    // sellingData = responseData["sold"];
+    SellingProductsModel model = SellingProductsModel.fromJson(responseData);
 
-      Provider.of<SellingPurchaseProvider>(context, listen: false)
-          .updateData(model: model);
-      // purchaseData = responseData["purchase"];
-      // archieveData = responseData["archive"];
-    }
-  } catch (e) {
-    print("Something went Wrong $e");
-    showSnackBar(context, "Something went Wrong.");
+    Provider.of<SellingPurchaseProvider>(context, listen: false)
+        .updateData(model: model);
+    // purchaseData = responseData["purchase"];
+    // archieveData = responseData["archive"];
   }
+  // } catch (e) {
+  //   print("Something went Wrong $e");
+  //   showSnackBar(context, "Something went Wrong.");
+  // }
 }
 
 class SellingPurchaseListView extends StatefulWidget {

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -17,6 +19,8 @@ import 'package:tt_offer/views/Seller%20Profile/seller_profile.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
+
+import '../../controller/APIs Manager/chat_api.dart';
 
 class FeatureInfoScreen extends StatefulWidget {
   var detailResponse;
@@ -118,12 +122,29 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             AppButton.appButton("Chat", onTap: () {
-              push(
-                  context,
-                  OfferChatScreen(
-                    recieverId: widget.detailResponse["user"]["id"],
-                    title: "${widget.detailResponse["user"]["name"]}",
-                  ));
+              final chatApi =
+                  // Provider.of<ChatApiProvider>(context, listen: false);
+
+//  chatApi.getConversation(
+//                     dio: dio,
+//                     context: context,
+//                     conversationId: chatList[index].conversationId,
+//                     title: chatList[index].receiver.id == int.parse(userId)
+//                         ? chatList[index].sender.name
+//                         : chatList[index].receiver.name,
+//                     recieverId: chatList[index].receiver.id == int.parse(userId)
+//                         ? chatList[index].senderId
+//                         : chatList[index].receiverId);
+
+                  log("widget.detailResponse = ${widget.detailResponse}");
+
+              // push(
+              //     context,
+              //     OfferChatScreen(
+              //       recieverId: widget.detailResponse["user"]["id"],
+              //       title: "${widget.detailResponse["user"]["name"]}",
+              //       isOffer: true,
+              //     ));
             },
                 height: 53,
                 width: 150,
