@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -40,7 +41,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   "assets/images/location.png",
                   height: 20,
                 ),
-                AppText.appText(location??'',
+                location==null?CupertinoActivityIndicator(color: AppTheme.appColor,):AppText.appText(location!,
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                     textColor: AppTheme.textColor)

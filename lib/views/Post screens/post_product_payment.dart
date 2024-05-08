@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -8,7 +10,10 @@ import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/views/Post%20screens/post_card_payment.dart';
 
 class PostProductPayment extends StatefulWidget {
-  const PostProductPayment({super.key});
+  String image;
+  int amount;
+
+  PostProductPayment({required this.image, required this.amount});
 
   @override
   State<PostProductPayment> createState() => _PostProductPaymentState();
@@ -42,8 +47,8 @@ class _PostProductPaymentState extends State<PostProductPayment> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(16),
-                            child: Image.asset(
-                              "assets/images/rough.png",
+                            child: Image.file(
+                              File(widget.image.toString()),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -62,7 +67,7 @@ class _PostProductPaymentState extends State<PostProductPayment> {
                             const SizedBox(
                               height: 5,
                             ),
-                            AppText.appText("500",
+                            AppText.appText(widget.amount.toString(),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                                 textColor: AppTheme.txt1B20),
@@ -97,7 +102,7 @@ class _PostProductPaymentState extends State<PostProductPayment> {
                         fontWeight: FontWeight.w600,
                         textColor: AppTheme.blackColor),
                     AppButton.appButton("Pay Now", height: 42, onTap: () {
-                      push(context, PostingPaymentScreen());
+                      push(context, const PostingPaymentScreen());
                     },
                         width: 161,
                         textColor: AppTheme.whiteColor,
