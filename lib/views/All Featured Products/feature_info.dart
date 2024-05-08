@@ -230,7 +230,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
                                       image: widget.detailResponse["user"]
-                                                  ["src"] ==
+                                                  ["img"] ==
                                               null
                                           ? const AssetImage(
                                                   "assets/images/auction2.png")
@@ -339,7 +339,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                             fontWeight: FontWeight.bold,
                             textColor: AppTheme.blackColor),
 
-                        const SizedBox(width: 22),
+                        const SizedBox(width: 25),
 
                         widget.detailResponse["edition"] == null
                             ? const SizedBox.shrink()
