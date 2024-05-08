@@ -167,7 +167,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
               SizedBox(
                 width: screenWidth,
                 child: AppText.appText(
-                    "${widget.detailResponse["description"]}",
+                    "${widget.detailResponse["description"] ?? ''}",
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                     textColor: AppTheme.lighttextColor),
@@ -199,7 +199,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                       Row(
                         children: [
                           AppText.appText(
-                              "\$${widget.detailResponse["fix_price"]}",
+                              "\$${widget.detailResponse["fix_price"] ?? ''}",
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                               textColor: AppTheme.appColor),
@@ -245,7 +245,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                               ),
                               const SizedBox(width: 10),
                               AppText.appText(
-                                  "${widget.detailResponse["user"]["name"]}",
+                                  "${widget.detailResponse["user"]["name"] ?? ''}",
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   textColor: AppTheme.blackColor),
@@ -269,7 +269,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                         alignment: Alignment.bottomRight,
                         child: AppText.appText(
                             formatTimestamp(
-                                "${widget.detailResponse["user"]["created_at"]}"),
+                                "${widget.detailResponse["user"]["created_at"] ?? ''}"),
                             fontSize: 10,
                             fontWeight: FontWeight.w400,
                             textColor: AppTheme.lighttextColor),
