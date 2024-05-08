@@ -13,6 +13,7 @@ import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
 import 'package:tt_offer/utils/widgets/others/delete_notification_dialog.dart';
 import 'package:tt_offer/views/ChatScreens/chat_screen.dart';
+import 'package:tt_offer/views/Post%20screens/post_screen.dart';
 import 'package:tt_offer/views/Sell%20Faster/sell_faster.dart';
 import 'package:tt_offer/views/Sellings/item_performance.dart';
 import 'package:tt_offer/views/Sellings/selling_purchase.dart';
@@ -135,7 +136,11 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                                     padding:
                                         const EdgeInsets.symmetric(vertical: 4),
                                     child: InkWell(
-                                      onTap: () {},
+                                      onTap: () {
+                                        Navigator.of(context).pop();
+
+                                        push(context, const PostScreen());
+                                      },
                                       child: AppText.appText("Sell Another",
                                           fontSize: 14,
                                           fontWeight: FontWeight.w400,
@@ -245,7 +250,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                   fontWeight: FontWeight.w600,
                   textColor: AppTheme.txt1B20),
 
-              SizedBox(
+              const SizedBox(
                   // width: getWidth(context),
                   height: 300,
                   child: ChatScreen(isProductChat: true)),
