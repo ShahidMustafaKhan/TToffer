@@ -31,8 +31,8 @@ import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 class OfferChatScreen extends StatefulWidget {
   final String? userImgUrl;
   final bool? isOffer;
-  final String? offerPrice;
-  final int? recieverId;
+  final dynamic offerPrice;
+  final dynamic recieverId;
   final String? title;
   const OfferChatScreen(
       {super.key,
