@@ -87,8 +87,8 @@ class User {
   String? name;
   String? src;
   String? provider;
-  String? providerId;
-  String? providerToken;
+  int? providerId;
+  int? providerToken;
   String? code;
   String? emailVerifiedAt;
   String? phoneVerifiedAt;

@@ -24,6 +24,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late AppDio dio;
   AppLogger logger = AppLogger();
   var userId;
+
   @override
   void initState() {
     dio = AppDio(context);
