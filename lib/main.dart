@@ -33,7 +33,7 @@ String?imagePath;
 
 String? location;
 
-bool  isAlready=false;
+bool isAlready = false;
 
 UserCredential? userCredential;
 
