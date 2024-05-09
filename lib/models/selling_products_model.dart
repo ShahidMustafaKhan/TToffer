@@ -37,12 +37,18 @@ class Data {
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-        selling:
-            List<Selling>.from(json["selling"].map((x) => Selling.fromJson(x))),
-        purchase: List<Selling>.from(
-            json["purchase"].map((x) => Selling.fromJson(x))),
-        archive:
-            List<Selling>.from(json["archive"].map((x) => Selling.fromJson(x))),
+        selling: json["selling"] == null
+            ? []
+            : List<Selling>.from(
+                json["selling"].map((x) => Selling.fromJson(x))),
+        purchase: json["purchase"] == null
+            ? []
+            : List<Selling>.from(
+                json["purchase"].map((x) => Selling.fromJson(x))),
+        archive: json["archive"] == null
+            ? []
+            : List<Selling>.from(
+                json["archive"].map((x) => Selling.fromJson(x))),
       );
 
   // Map<String, dynamic> toJson() => {
@@ -53,13 +59,13 @@ class Data {
 }
 
 class Selling {
-  int id;
-  int userId;
+  dynamic id;
+  dynamic userId;
   String title;
   String? slug;
   String description;
-  int? categoryId;
-  int? subCategoryId;
+  dynamic categoryId;
+  dynamic subCategoryId;
   String? condition;
   dynamic makeAndModel;
   dynamic mileage;
@@ -241,32 +247,6 @@ class Category {
     required this.updatedAt,
   });
 
-  Category copyWith({
-    int? id,
-    String? name,
-    String? slug,
-    String? color,
-    String? image,
-    int? status,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) =>
-      Category(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        slug: slug ?? this.slug,
-        color: color ?? this.color,
-        image: image ?? this.image,
-        status: status ?? this.status,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-      );
-
-  factory Category.fromRawJson(String str) =>
-      Category.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory Category.fromJson(Map<String, dynamic> json) => Category(
         id: json["id"],
         name: json["name"],
@@ -304,23 +284,6 @@ class Photo {
     required this.createdAt,
     required this.updatedAt,
   });
-
-  Photo copyWith({
-    int? id,
-    int? productId,
-    String? src,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) =>
-      Photo(
-        id: id ?? this.id,
-        productId: productId ?? this.productId,
-        src: src ?? this.src,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-      );
-
-  factory Photo.fromRawJson(String str) => Photo.fromJson(json.decode(str));
 
   // String toRawJson() => json.encode(toJson());
 
