@@ -786,43 +786,46 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     isLoading = true;
     var response;
 
-    // try {
-    response = await dio.get(path: "${AppUrls.getConverstaion}$conversationId");
-    var responseData = response.data;
-    if (response.statusCode == 200) {
-      isLoading = false;
+    log("conversationId in getConversation= $conversationId");
+    log("recieverId in getConversation= $recieverId");
 
-      log("responseData for chat = $responseData");
+    try {
+      response = await customGetRequest.httpGetRequest(
+          url: "${AppUrls.getConverstaion}$conversationId");
+      // var responseData = response;
+      if (response.statusCode == 200) {
+        isLoading = false;
 
-      ChatModel model = ChatModel.fromJson(responseData);
+        log("responseData for chat = $response");
 
-      Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
-      setState(() {
-        isChatBtnLoading = false;
-      });
+        ChatModel model = ChatModel.fromJson(response);
 
-      String? receiverImg;
-      if (recieverId == model.data.participant1.id) {
-        receiverImg = model.data.participant1.img;
-      } else {
-        receiverImg = model.data.participant2.img;
+        Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
+        setState(() {
+          isChatBtnLoading = false;
+        });
+
+        String? receiverImg;
+        if (recieverId == model.data.participant1.id) {
+          receiverImg = model.data.participant1.img;
+        } else {
+          receiverImg = model.data.participant2.img;
+        }
+        push(
+            context,
+            OfferChatScreen(
+              recieverId: recieverId,
+              title: title,
+              userImgUrl: receiverImg,
+              // isOffer: true,
+              // offerPrice: widget.detailResponse["fix_price"],
+              // userImgUrl: widget.detailResponse["user"]["img"],
+            ));
       }
-      push(
-          context,
-          OfferChatScreen(
-            recieverId: recieverId,
-            title: title,
-            userImgUrl: receiverImg,
-            // isOffer: true,
-            // offerPrice: widget.detailResponse["fix_price"],
-            // userImgUrl: widget.detailResponse["user"]["img"],
-          ));
+    } catch (e) {
+      log("Something went Wrong $e");
+      showSnackBar(context, "Something went Wrong.");
+      isLoading = false;
     }
-    // } catch (e) {
-    //   print("Something went Wrong ${e}");
-    //   showSnackBar(context, "Something went Wrong.");
-    //   isLoading = false;
-    //   notifyListeners();
-    // }
   }
 }

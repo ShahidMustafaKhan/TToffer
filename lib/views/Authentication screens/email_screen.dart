@@ -197,7 +197,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
           });
           var userId = responseData["data"]["user"]["id"];
           var token = responseData["data"]["token"];
-          var name = responseData["data"]["name"];
+          var name = responseData["data"]["user"]["name"];
           var id = userId.toString();
           print("id$id");
           // SharedPreferences prefs = await SharedPreferences.getInstance();

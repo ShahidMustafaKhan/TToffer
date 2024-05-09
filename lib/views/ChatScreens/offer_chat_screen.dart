@@ -113,11 +113,13 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 20),
             child: SizedBox(
-                width: 40,
-                height: 40,
-                child: CallButtonWidget(
-                  id: nextUserId,
-                  name: nextUserName,
+                width: 30,
+                height: 30,
+                child: Center(
+                  child: CallButtonWidget(
+                    id: nextUserId,
+                    name: nextUserName,
+                  ),
                 )),
           ),
 
@@ -653,6 +655,9 @@ class CallButtonWidget extends StatelessWidget {
     log("receiver id = $id");
     log("receiver name = $name");
     return ZegoSendCallInvitationButton(
+      // borderRadius: 30,
+      iconSize: const Size.fromRadius(15),
+      // buttonSize: Size.fromWidth(20),
       isVideoCall: false,
       verticalLayout: true,
       resourceID: "ttoffer_resource_id",

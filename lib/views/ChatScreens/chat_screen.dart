@@ -50,8 +50,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
     var chatWidget = Consumer<ChatListProvider>(
       builder: (context, data, child) {
-        if (data.data.isEmpty) {
-          // return LoadingDialog();
+        if (data.loading) {
+          return LoadingDialog();
+        } else if (data.data.isEmpty) {
           return const Center(child: Text("No Chat Found"));
         }
         chatList = data.data;

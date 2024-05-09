@@ -96,8 +96,10 @@ class _LandingScreenState extends State<LandingScreen> {
     ZegoUIKitPrebuiltCallInvitationService().init(
       appID: appID,
       appSign: appSign,
+
       userID: pref.getString(PrefKey.userId) ?? "0",
       userName: pref.getString(PrefKey.userName) ?? "",
+      // ringtoneConfig: ZegoCallRingtoneConfig(),
       plugins: [ZegoUIKitSignalingPlugin()],
     );
 

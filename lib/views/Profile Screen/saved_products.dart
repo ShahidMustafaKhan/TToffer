@@ -1,9 +1,7 @@
 import 'package:dialogs/dialogs/progress_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
@@ -144,12 +142,14 @@ class _SavedItemListViewState extends State<SavedItemListView> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.data == null || widget.data.isEmpty) {
+    if (widget.data == null) {
       return Center(
         child: CircularProgressIndicator(
           color: AppTheme.appColor,
         ),
       );
+    } else if (widget.data.isEmpty) {
+      return Center(child: AppText.appText("No Saved Item found"));
     } else {
       return ListView.builder(
         shrinkWrap: true,
@@ -186,11 +186,10 @@ class _SavedItemListViewState extends State<SavedItemListView> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
                                 child: Image.network(
-                                  widget.data[index]["product"]["photo"][index]["src"],
+                                  widget.data[index]["product"]["photo"][index]
+                                      ["src"],
                                   fit: BoxFit.cover,
                                 ),
-
-
                               ),
                             ),
                             const SizedBox(

@@ -401,11 +401,13 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                 children: [
                                   InkWell(
                                     onTap: () {
-                                      push(
-                                          context,
-                                          SellFaster(
-                                            selling: data[index],
-                                          ));
+                                      if (widget.ischeck == 1) {
+                                        push(
+                                            context,
+                                            SellFaster(
+                                              selling: data[index],
+                                            ));
+                                      }
                                     },
                                     child: AppText.appText(
                                         widget.ischeck == 1
