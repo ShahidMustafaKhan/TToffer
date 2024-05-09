@@ -67,9 +67,7 @@ class _OTPScreenState extends State<OTPScreen> {
                             fontWeight: FontWeight.w500),
                       ),
                       TextSpan(
-                          text: widget.email == true
-                              ? "name@dummy.com"
-                              : "+92313.....",
+                          text: widget.email,
                           style: TextStyle(
                               color: AppTheme.appColor,
                               fontSize: 12,
@@ -109,7 +107,7 @@ class _OTPScreenState extends State<OTPScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 40.0),
                 child: AppButton.appButton("Verify", onTap: () {
-                  push(context, const RegistrationScreen());
+                  // push(context, const RegistrationScreen());
                 },
                     height: 53,
                     fontWeight: FontWeight.w500,

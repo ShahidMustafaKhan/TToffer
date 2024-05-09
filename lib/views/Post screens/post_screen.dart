@@ -376,7 +376,7 @@ class _PostScreenState extends State<PostScreen> {
               // imageProvider.imagePaths.clear();
               _isLoading = false;
 
-              title=_titleController.text;
+              title = _titleController.text;
 
               push(
                   context,
