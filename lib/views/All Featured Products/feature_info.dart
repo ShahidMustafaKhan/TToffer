@@ -800,11 +800,19 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
       setState(() {
         isChatBtnLoading = false;
       });
+
+      String? receiverImg;
+      if (recieverId == model.data.participant1.id) {
+        receiverImg = model.data.participant1.img;
+      } else {
+        receiverImg = model.data.participant2.img;
+      }
       push(
           context,
           OfferChatScreen(
             recieverId: recieverId,
             title: title,
+            userImgUrl: receiverImg,
             // isOffer: true,
             // offerPrice: widget.detailResponse["fix_price"],
             // userImgUrl: widget.detailResponse["user"]["img"],

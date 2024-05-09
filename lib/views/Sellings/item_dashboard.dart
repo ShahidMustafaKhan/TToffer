@@ -199,7 +199,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                   child: customListview(
                       img: widget.selling.photo![0].src,
                       title: widget.selling.title,
-                      subtitle: widget.selling.auctionPrice),
+                      subtitle: widget.selling.fixPrice),
                 ),
               ),
               Padding(
