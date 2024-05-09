@@ -72,8 +72,13 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     chatModel = Provider.of<ChatProvider>(context, listen: false).data!;
 
     if (chatModel != null) {
-      nextUserId = chatModel!.data.participant2.id;
-      nextUserName = chatModel!.data.participant2.name;
+      if (userId != chatModel!.data.participant1.id) {
+        nextUserId = chatModel!.data.participant1.id;
+        nextUserName = chatModel!.data.participant1.name;
+      } else {
+        nextUserId = chatModel!.data.participant2.id;
+        nextUserName = chatModel!.data.participant2.name;
+      }
     }
     conversation = Provider.of<ChatProvider>(context, listen: false)
         .data!
