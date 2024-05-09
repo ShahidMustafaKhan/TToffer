@@ -106,7 +106,7 @@ class _PostScreenState extends State<PostScreen> {
                   space: 20.0),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: AppButton.appButtonWithLeadingImage("Select Vedio",
+                child: AppButton.appButtonWithLeadingImage("Select Video",
                     onTap: () {
                   imageProvider.getVediosFromGallery(context);
                 },

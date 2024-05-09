@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +29,8 @@ class PanelWidget extends StatefulWidget {
 
 class _PanelWidgetState extends State<PanelWidget> {
   DateTime? auctionEndTime;
+
+  int? highestBidUser;
 
   @override
   void initState() {
@@ -84,6 +87,17 @@ class _PanelWidgetState extends State<PanelWidget> {
 
   @override
   Widget build(BuildContext context) {
+    int highestPrice = 0;
+    // Map<String, dynamic>? highestBidUser;
+
+    // Find the highest bid price and the user associated with it
+    for (var bid in widget.bidsData) {
+      int price = bid.price as int;
+      if (price > highestPrice) {
+        highestPrice = price;
+        highestBidUser = price;
+      }
+    }
     final open = Provider.of<NotifyProvider>(context);
     Size size = MediaQuery.of(context).size;
     return Container(
@@ -188,7 +202,8 @@ class _PanelWidgetState extends State<PanelWidget> {
                                     ])
                               ],
                             ),
-                            AppText.appText("\$${widget.bidsData[index].price.toString()}",
+                            AppText.appText(
+                                "\$${widget.bidsData[index].price.toString()}",
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
                                 textColor: AppTheme.textColor00),
@@ -227,46 +242,26 @@ class _PanelWidgetState extends State<PanelWidget> {
               ),
               Row(
                 children: [
-                  const SizedBox(
-                    height: 20,
-                    width: 55,
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          right: 0,
-                          child: CircleAvatar(
-                            radius: 10,
-                            backgroundImage:
-                                AssetImage('assets/images/sp1.png'),
+                  for (var i = 0; i < widget.bidsData.length; i++)
+                    SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: Stack(
+                        children: [
+                          // for (var j = i; j < widget.bidsData.length; j++)
+                          Positioned(
+                            right: i * 2.5,
+                            // Adjust the position based on your preference
+                            child: CircleAvatar(
+                              radius: 10,
+                              backgroundImage: NetworkImage(
+                                widget.bidsData[i].user!.img.toString(),
+                              ),
+                            ),
                           ),
-                        ),
-                        Positioned(
-                          right: 12,
-                          child: CircleAvatar(
-                            radius: 10,
-                            backgroundImage:
-                                AssetImage('assets/images/sp2.png'),
-                          ),
-                        ),
-                        Positioned(
-                          right: 24,
-                          child: CircleAvatar(
-                            radius: 10,
-                            backgroundImage:
-                                AssetImage('assets/images/sp3.png'),
-                          ),
-                        ),
-                        Positioned(
-                          right: 36,
-                          child: CircleAvatar(
-                            radius: 10,
-                            backgroundImage:
-                                AssetImage('assets/images/sp4.png'),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
                   const SizedBox(
                     width: 5,
                   ),
@@ -274,23 +269,28 @@ class _PanelWidgetState extends State<PanelWidget> {
                     height: 24,
                     width: 24,
                     decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: AppTheme.textColor00),
-                        color: AppTheme.whiteColor),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppTheme.textColor00),
+                      color: AppTheme.whiteColor,
+                    ),
                     child: Center(
-                      child: AppText.appText("24+",
-                          fontSize: 8,
-                          fontWeight: FontWeight.w400,
-                          textColor: AppTheme.textColor00),
+                      child: AppText.appText(
+                        widget.bidsData.length.toString(),
+                        fontSize: 8,
+                        fontWeight: FontWeight.w400,
+                        textColor: AppTheme.textColor00,
+                      ),
                     ),
                   ),
                   const SizedBox(
                     width: 5,
                   ),
-                  AppText.appText("are live",
-                      fontSize: 10,
-                      fontWeight: FontWeight.w400,
-                      textColor: AppTheme.textColor00),
+                  AppText.appText(
+                    "are live",
+                    fontSize: 10,
+                    fontWeight: FontWeight.w400,
+                    textColor: AppTheme.textColor00,
+                  ),
                 ],
               ),
             ],
@@ -302,10 +302,15 @@ class _PanelWidgetState extends State<PanelWidget> {
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   textColor: AppTheme.textColor00),
-              AppText.appText("\$25,000",
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  textColor: AppTheme.textColor00),
+              highestBidUser == null
+                      ? AppText.appText("0",
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          textColor: AppTheme.textColor00)
+                      : AppText.appText("$highestBidUser",
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          textColor: AppTheme.textColor00),
               const SizedBox(
                 height: 10,
               ),

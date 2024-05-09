@@ -404,11 +404,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Colors.yellow,
                       size: 14,
                     ),
-                    AppText.appText(
-                        "${(profileApi.profileData["review_percentage"]) / 100 * 5}",
-                        fontSize: 10,
-                        fontWeight: FontWeight.w400,
-                        textColor: AppTheme.txt1B20),
+                    profileApi.profileData["review_percentage"] == 0
+                        ? const SizedBox.shrink()
+                        : AppText.appText(
+                            "${(profileApi.profileData["review_percentage"]) / 100 * 5}",
+                            fontSize: 10,
+                            fontWeight: FontWeight.w400,
+                            textColor: AppTheme.txt1B20),
                   ],
                 ),
               ],
@@ -445,19 +447,20 @@ class StarRating extends StatelessWidget {
         if (index < filledStars) {
           return Icon(
             Icons.star,
-            color: color,
+            color: percentage == 0 ? Colors.transparent : color,
             size: size,
           );
         } else if (index == filledStars && hasHalfStar) {
           return Icon(
             Icons.star_half,
-            color: color,
+            color: percentage == 0 ? Colors.transparent : color,
             size: size,
           );
         } else {
           return Icon(
             Icons.star,
-            color: const Color(0xffD5DADD),
+            color:
+                percentage == 0 ? Colors.transparent : const Color(0xffD5DADD),
             size: size,
           );
         }

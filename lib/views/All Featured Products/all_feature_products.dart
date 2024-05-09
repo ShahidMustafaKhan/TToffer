@@ -60,21 +60,21 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-              child: CustomAppFormField(
-                height: 40,
-                radius: 15.0,
-                prefixIcon: Image.asset(
-                  "assets/images/search.png",
-                  height: 17,
-                  color: AppTheme.textColor,
-                ),
-                texthint: "Search",
-                controller: _searchController,
-              ),
-            ),
+            // Padding(
+            //   padding:
+            //       const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+            //   child: CustomAppFormField(
+            //     height: 40,
+            //     radius: 15.0,
+            //     prefixIcon: Image.asset(
+            //       "assets/images/search.png",
+            //       height: 17,
+            //       color: AppTheme.textColor,
+            //     ),
+            //     texthint: "Search",
+            //     controller: _searchController,
+            //   ),
+            // ),
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),

@@ -76,11 +76,11 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
 
     log("productId = $productId");
     wrapList1 = [
-      '${widget.detailResponse["condition"]}',
-      '${widget.detailResponse["brand"]}',
-      '${widget.detailResponse["model"]}',
-      '${widget.detailResponse["color"]}',
-      '${widget.detailResponse["authenticity"]}',
+      '${widget.detailResponse["condition"]??'NA'}',
+      '${widget.detailResponse["brand"]??'NA'}',
+      '${widget.detailResponse["model"]??'NA'}',
+      '${widget.detailResponse["color"]??'NA'}',
+      '${widget.detailResponse["authenticity"]??'NA'}',
       // "2/32",
       // "Original"
     ];
@@ -469,6 +469,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     textColor: AppTheme.textColor),
+
                               ],
                             ),
                           ),
