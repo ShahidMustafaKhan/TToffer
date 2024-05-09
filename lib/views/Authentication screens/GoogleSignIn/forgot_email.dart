@@ -6,6 +6,7 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
+import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/Authentication%20screens/otp_screen.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
@@ -22,11 +23,9 @@ class _ForgotEmailPassState extends State<ForgotEmailPass> {
   final TextEditingController _emailController = TextEditingController();
 
   bool _isLoading = false;
-  late AppDio dio;
   AppLogger logger = AppLogger();
   @override
   void initState() {
-    dio = AppDio(context);
     logger.init();
     super.initState();
   }
@@ -158,6 +157,7 @@ class _ForgotEmailPassState extends State<ForgotEmailPass> {
           pushReplacement(
               context,
               OTPScreen(
+                validOtp: responseData["otp"].toString(),
                 email: _emailController.text.trim(),
               ));
         }

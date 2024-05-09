@@ -52,11 +52,11 @@ class _SigInScreenState extends State<SigInScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const GoogleSignInButton(),
-                  AppButton.appButtonWithLeadingImage("Continue with Apple",
-                      onTap: () {},
-                      height: 44,
-                      imgHeight: 40,
-                      imagePath: "assets/images/apple.png"),
+                  // AppButton.appButtonWithLeadingImage("Continue with Apple",
+                  //     onTap: () {},
+                  //     height: 44,
+                  //     imgHeight: 40,
+                  //     imagePath: "assets/images/apple.png"),
                   AppButton.appButtonWithLeadingImage("Continue with Phone",
                       onTap: () {
                     push(context, const PhoneLoginScreen());

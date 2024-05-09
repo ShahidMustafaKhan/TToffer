@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:pin_code_text_field/pin_code_text_field.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -5,11 +7,12 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
-import 'package:tt_offer/views/Authentication%20screens/registration_screen.dart';
+import 'package:tt_offer/views/Authentication%20screens/update_forgot_password.dart';
 
 class OTPScreen extends StatefulWidget {
-  final email;
-  const OTPScreen({super.key, this.email});
+  final String email;
+  final String validOtp;
+  const OTPScreen({super.key, required this.email, required this.validOtp});
 
   @override
   State<OTPScreen> createState() => _OTPScreenState();
@@ -97,17 +100,32 @@ class _OTPScreenState extends State<OTPScreen> {
                   maxLength: 6, // Set the length of your OTP
                   autofocus: false,
                   pinBoxRadius: 10,
+
                   onDone: (otp) {
-                    setState(() {
-                      enteredOTP = otp;
-                    });
+                    log("onDone fired");
+
+                    if (otp == widget.validOtp) {
+                      showSnackBar(context, "Please setup new password.. ");
+                      pushReplacement(context,
+                          UpdateForgotPassordScreen(email: widget.email));
+                    } else {
+                      showSnackBar(
+                          context, "Otp not valid, please try again... ");
+                    }
+                    // setState(() {
+                    //   enteredOTP = otp;
+                    // });
                   },
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 40.0),
                 child: AppButton.appButton("Verify", onTap: () {
-                  // push(context, const RegistrationScreen());
+                  push(
+                      context,
+                      UpdateForgotPassordScreen(
+                        email: widget.email,
+                      ));
                 },
                     height: 53,
                     fontWeight: FontWeight.w500,

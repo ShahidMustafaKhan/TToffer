@@ -15,19 +15,31 @@ class CustomPostRequest {
 
   CustomPostRequest._internal(); // Private constructor
 
-  Future httpPostRequest({required String url, required Map body}) async {
+  Future httpPostRequest(
+      {required String url, required Map body, bool? noTokenHeader}) async {
     final uri = AppUrls.baseUrl + url;
 
     log("body = $body");
-    String token = pref.getString(PrefKey.authorization)!;
+    noTokenHeader ?? false;
 
-    try {
-      log("Post Request Url $uri");
-      var headers = {
+    var headers;
+
+    if (noTokenHeader == false) {
+      String token = pref.getString(PrefKey.authorization)!;
+      headers = {
         "Content-Type": "application/json",
         "accept": "application/json",
         "Authorization": "Bearer $token"
       };
+    } else {
+      headers = {
+        "Content-Type": "application/json",
+        "accept": "application/json",
+      };
+    }
+    try {
+      log("Post Request Url $uri");
+
       http.Response response = await http.post(
         Uri.parse(uri),
         headers: headers,
