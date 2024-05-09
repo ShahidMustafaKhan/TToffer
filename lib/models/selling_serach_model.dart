@@ -10,14 +10,14 @@ class SellingSearchModel {
     if (json['data'] != null) {
       data = <SearchData>[];
       json['data'].forEach((v) {
-        data!.add(SearchData.fromJson(v));
+        data!.add(new SearchData.fromJson(v));
       });
     }
     message = json['message'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = success;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
@@ -37,17 +37,17 @@ class SearchData {
   int? subCategoryId;
   String? condition;
   String? makeAndModel;
-  dynamic mileage;
+  String? mileage;
   String? color;
   String? brand;
   String? model;
-  dynamic edition;
-  dynamic authenticity;
-  dynamic fixPrice;
-  dynamic firmOnPrice;
+  String? edition;
+  String? authenticity;
+  int? fixPrice;
+  int? firmOnPrice;
   int? auctionPrice;
-  dynamic startingDate;
-  dynamic startingTime;
+  String? startingDate;
+  String? startingTime;
   String? endingDate;
   String? endingTime;
   String? sellToUs;
@@ -60,60 +60,60 @@ class SearchData {
   int? reviewPercentage;
   int? isArchived;
   int? isSold;
-  dynamic soldToUserId;
-  dynamic viewsCount;
+  int? soldToUserId;
+  int? viewsCount;
   String? boosterStartDatetime;
   String? boosterEndDatetime;
   User? user;
   Category? category;
   SubCategory? subCategory;
   List<Photo>? photo;
-  List<dynamic>? video;
-  List<dynamic>? wishlist;
+  List<Null>? video;
+  List<Null>? wishlist;
 
   SearchData(
       {this.id,
-      this.userId,
-      this.title,
-      this.slug,
-      this.description,
-      this.categoryId,
-      this.subCategoryId,
-      this.condition,
-      this.makeAndModel,
-      this.mileage,
-      this.color,
-      this.brand,
-      this.model,
-      this.edition,
-      this.authenticity,
-      this.fixPrice,
-      this.firmOnPrice,
-      this.auctionPrice,
-      this.startingDate,
-      this.startingTime,
-      this.endingDate,
-      this.endingTime,
-      this.sellToUs,
-      this.location,
-      this.status,
-      this.createdAt,
-      this.updatedAt,
-      this.isUrgent,
-      this.totalReview,
-      this.reviewPercentage,
-      this.isArchived,
-      this.isSold,
-      this.soldToUserId,
-      this.viewsCount,
-      this.boosterStartDatetime,
-      this.boosterEndDatetime,
-      this.user,
-      this.category,
-      this.subCategory,
-      this.photo,
-      this.video,
-      this.wishlist});
+        this.userId,
+        this.title,
+        this.slug,
+        this.description,
+        this.categoryId,
+        this.subCategoryId,
+        this.condition,
+        this.makeAndModel,
+        this.mileage,
+        this.color,
+        this.brand,
+        this.model,
+        this.edition,
+        this.authenticity,
+        this.fixPrice,
+        this.firmOnPrice,
+        this.auctionPrice,
+        this.startingDate,
+        this.startingTime,
+        this.endingDate,
+        this.endingTime,
+        this.sellToUs,
+        this.location,
+        this.status,
+        this.createdAt,
+        this.updatedAt,
+        this.isUrgent,
+        this.totalReview,
+        this.reviewPercentage,
+        this.isArchived,
+        this.isSold,
+        this.soldToUserId,
+        this.viewsCount,
+        this.boosterStartDatetime,
+        this.boosterEndDatetime,
+        this.user,
+        this.category,
+        this.subCategory,
+        this.photo,
+        this.video,
+        this.wishlist});
 
   SearchData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -152,25 +152,35 @@ class SearchData {
     viewsCount = json['views_count'];
     boosterStartDatetime = json['booster_start_datetime'];
     boosterEndDatetime = json['booster_end_datetime'];
-    user = json['user'] != null ? User.fromJson(json['user']) : null;
-    category =
-        json['category'] != null ? Category.fromJson(json['category']) : null;
+    user = json['user'] != null ? new User.fromJson(json['user']) : null;
+    category = json['category'] != null
+        ? new Category.fromJson(json['category'])
+        : null;
     subCategory = json['sub_category'] != null
-        ? SubCategory.fromJson(json['sub_category'])
+        ? new SubCategory.fromJson(json['sub_category'])
         : null;
     if (json['photo'] != null) {
       photo = <Photo>[];
       json['photo'].forEach((v) {
-        photo!.add(Photo.fromJson(v));
+        photo!.add(new Photo.fromJson(v));
       });
     }
-    // Handling nullable properties like video and wishlist without directly instantiating Null
-    // video = json['video'] != null ? List.generate(json['video'].length, (index) => Null()) : null;
-    // wishlist = json['wishlist'] != null ? List.generate(json['wishlist'].length, (index) => Null()) : null;
+    // if (json['video'] != null) {
+    //   video = <Null>[];
+    //   json['video'].forEach((v) {
+    //     video!.add(new Null.fromJson(v));
+    //   });
+    // }
+    // if (json['wishlist'] != null) {
+    //   wishlist = <Null>[];
+    //   json['wishlist'].forEach((v) {
+    //     wishlist!.add(new Null.fromJson(v));
+    //   });
+    // }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = id;
     data['user_id'] = userId;
     data['title'] = title;
@@ -234,9 +244,9 @@ class User {
   String? name;
   String? src;
   String? provider;
-  dynamic providerId;
+  int? providerId;
   String? providerToken;
-  dynamic code;
+  String? code;
   String? emailVerifiedAt;
   String? emailCode;
   String? phoneVerifiedAt;
@@ -244,42 +254,42 @@ class User {
   String? username;
   String? email;
   String? phone;
-  dynamic shareAbleLink;
+  String? shareAbleLink;
   String? img;
   int? status;
   String? location;
-  dynamic customLink;
-  dynamic isTrueYou;
-  dynamic createdAt;
-  dynamic updatedAt;
+  String? customLink;
+  int? isTrueYou;
+  String? createdAt;
+  String? updatedAt;
   int? totalReview;
   int? reviewPercentage;
 
   User(
       {this.id,
-      this.name,
-      this.src,
-      this.provider,
-      this.providerId,
-      this.providerToken,
-      this.code,
-      this.emailVerifiedAt,
-      this.emailCode,
-      this.phoneVerifiedAt,
-      this.imageVerifiedAt,
-      this.username,
-      this.email,
-      this.phone,
-      this.shareAbleLink,
-      this.img,
-      this.status,
-      this.location,
-      this.customLink,
-      this.isTrueYou,
-      this.createdAt,
-      this.updatedAt,
-      this.totalReview,
-      this.reviewPercentage});
+        this.name,
+        this.src,
+        this.provider,
+        this.providerId,
+        this.providerToken,
+        this.code,
+        this.emailVerifiedAt,
+        this.emailCode,
+        this.phoneVerifiedAt,
+        this.imageVerifiedAt,
+        this.username,
+        this.email,
+        this.phone,
+        this.shareAbleLink,
+        this.img,
+        this.status,
+        this.location,
+        this.customLink,
+        this.isTrueYou,
+        this.createdAt,
+        this.updatedAt,
+        this.totalReview,
+        this.reviewPercentage});
 
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -309,7 +319,7 @@ class User {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = id;
     data['name'] = name;
     data['src'] = src;
@@ -342,7 +352,7 @@ class Category {
   int? id;
   String? name;
   String? slug;
-  dynamic color;
+  String? color;
   String? image;
   int? status;
   String? createdAt;
@@ -350,13 +360,13 @@ class Category {
 
   Category(
       {this.id,
-      this.name,
-      this.slug,
-      this.color,
-      this.image,
-      this.status,
-      this.createdAt,
-      this.updatedAt});
+        this.name,
+        this.slug,
+        this.color,
+        this.image,
+        this.status,
+        this.createdAt,
+        this.updatedAt});
 
   Category.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -370,7 +380,7 @@ class Category {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = id;
     data['name'] = name;
     data['slug'] = slug;
@@ -402,7 +412,7 @@ class SubCategory {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = id;
     data['category_id'] = categoryId;
     data['name'] = name;
@@ -430,7 +440,7 @@ class Photo {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = id;
     data['product_id'] = productId;
     data['src'] = src;
