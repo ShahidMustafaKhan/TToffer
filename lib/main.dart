@@ -30,7 +30,7 @@ import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 String? location;
 
-bool  isAlready=false;
+bool isAlready = false;
 
 UserCredential? userCredential;
 

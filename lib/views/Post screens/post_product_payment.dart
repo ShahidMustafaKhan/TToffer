@@ -19,8 +19,8 @@ class PostProductPayment extends StatefulWidget {
   String image;
   String title;
 
-  int productId;
-  int amount;
+  dynamic productId;
+  dynamic amount;
 
   PostProductPayment(
       {required this.image,
@@ -54,20 +54,21 @@ class _PostProductPaymentState extends State<PostProductPayment> {
                   children: [
                     Row(
                       children: [
-                        Container(
-                          height: 70,
-                          width: 70,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.file(
-                              File(imageProvider.imagePaths[0]),
-                              fit: BoxFit.cover,
+                        if (imageProvider.imagePaths.isNotEmpty)
+                          Container(
+                            height: 70,
+                            width: 70,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Image.file(
+                                File(imageProvider.imagePaths[0]),
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
-                        ),
                         const SizedBox(
                           width: 20,
                         ),

@@ -1,10 +1,14 @@
+import 'package:dialogs/dialogs/progress_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
+import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
+import 'package:tt_offer/utils/utils.dart';
+import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
 
 class AuctionProductContainer extends StatefulWidget {
   final data;
@@ -134,8 +138,9 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
               ),
             ],
           ),
-          AppButton.appButton("Bid Now",
-              onTap: () {},
+          AppButton.appButton("Bid Now", onTap: () {
+            getAuctionProductDetail(productId: widget.data["id"]);
+          },
               height: 32,
               width: 161,
               radius: 16.0,
@@ -146,6 +151,75 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
         ],
       ),
     );
+  }
+
+  void getAuctionProductDetail({productId, limit}) async {
+    final ProgressDialog pr = ProgressDialog(
+      context: context,
+      textColor: AppTheme.txt1B20,
+      backgroundColor: Colors.white54,
+      progressIndicatorColor: AppTheme.appColor,
+    );
+
+    setState(() {
+      pr.show();
+    });
+    var response;
+    int responseCode200 = 200; // For successful request.
+    int responseCode400 = 400; // For Bad Request.
+    int responseCode401 = 401; // For Unauthorized access.
+    int responseCode404 = 404; // For For data not found
+    int responseCode422 = 422; // For For data not found
+    int responseCode500 = 500; // Internal server error.
+    Map<String, dynamic> params = {
+      "id": productId,
+      "limit": limit,
+    };
+    try {
+      response = await dio.post(path: AppUrls.getAuctionProducts, data: params);
+      var responseData = response.data;
+      if (response.statusCode == responseCode400) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          setState(() {
+            pr.dismiss();
+          });
+        });
+      } else if (response.statusCode == responseCode401) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          pr.dismiss();
+        });
+      } else if (response.statusCode == responseCode404) {
+        showSnackBar(context, "${responseData["msg"]}");
+
+        setState(() {
+          pr.dismiss();
+        });
+      } else if (response.statusCode == responseCode500) {
+        showSnackBar(context, "${responseData["msg"]}");
+
+        setState(() {
+          pr.dismiss();
+        });
+      } else if (response.statusCode == responseCode422) {
+        setState(() {
+          pr.dismiss();
+        });
+      } else if (response.statusCode == responseCode200) {
+        setState(() {
+          var detailResponse = responseData["data"];
+          pr.dismiss();
+          push(context, AuctionInfoScreen(detailResponse: detailResponse[0]));
+        });
+      }
+    } catch (e) {
+      print("Something went Wrong ${e}");
+      showSnackBar(context, "Something went Wrong.");
+      setState(() {
+        pr.dismiss();
+      });
+    }
   }
 
   String getTimeLeftString() {

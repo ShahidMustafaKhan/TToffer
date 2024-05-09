@@ -106,7 +106,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
 
     // log("chatApi data = ${chatApi.conversationData}");
     return Scaffold(
-      key: navigatorKey,
+      // key: navigatorKey,
       appBar: ChatAppBar(
         img: widget.userImgUrl,
         title: widget.title,
@@ -656,7 +656,7 @@ class CallButtonWidget extends StatelessWidget {
     log("receiver id = $id");
     log("receiver name = $name");
     return ZegoSendCallInvitationButton(
-      key: navigatorKey,
+      // key: navigatorKey,
 
       // borderRadius: 30,
       iconSize: const Size.fromRadius(15),
