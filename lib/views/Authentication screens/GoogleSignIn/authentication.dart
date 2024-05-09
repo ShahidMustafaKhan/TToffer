@@ -7,8 +7,12 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Utils/utils.dart';
+import 'package:tt_offer/config/app_urls.dart';
+import 'package:tt_offer/config/keys/pref_keys.dart';
+import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/Authentication%20screens/login_screen.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
+import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 
 class Authentication {
   static SnackBar customSnackBar({required String content}) {
@@ -50,10 +54,9 @@ class Authentication {
       GoogleAuthProvider authProvider = GoogleAuthProvider();
 
       try {
-        final UserCredential userCredential =
-            await auth.signInWithPopup(authProvider);
+        userCredential = await auth.signInWithPopup(authProvider);
 
-        user = userCredential.user;
+        user = userCredential!.user;
       } catch (e) {
         print(e);
       }
@@ -76,15 +79,16 @@ class Authentication {
         );
 
         try {
-          final UserCredential userCredential =
-              await auth.signInWithCredential(credential);
+          userCredential = await auth.signInWithCredential(credential);
 
-          user = userCredential.user;
+          user = userCredential!.user;
           String? userEmail = user?.email;
-          bool newUser = userCredential.additionalUserInfo!.isNewUser;
+          isAlready = userCredential!.additionalUserInfo!.isNewUser;
+          isAlready = true;
           String? displayName = user?.displayName;
+
           print(
-              "This is the UID: ${user!.uid} newuser $newUser name $displayName");
+              "This is the UID: ${user!.uid} newuser $isAlready name $displayName");
 
           print("getting_user_date of birth ${user} credentials ${credential}");
         } on FirebaseAuthException catch (e) {

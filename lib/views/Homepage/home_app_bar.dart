@@ -27,7 +27,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             width: 120,
           ),
           SizedBox(
-            width: 100,
+            // width: 100,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -40,13 +40,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       height: 20,
                     )),
                 location == null
-                    ? SizedBox.shrink()
+                    ? const SizedBox.shrink()
                     : Image.asset(
                         "assets/images/location.png",
                         height: 20,
                       ),
                 location == null
-                    ? SizedBox.shrink()
+                    ? const SizedBox.shrink()
                     : AppText.appText(location!,
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
