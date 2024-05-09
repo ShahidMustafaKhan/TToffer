@@ -194,12 +194,19 @@ class ChatApiProvider extends ChangeNotifier {
       ChatModel model = ChatModel.fromJson(responseData);
 
       Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
+      String? receiverImg;
+      if (recieverId == model.data.participant1.id) {
+        receiverImg = model.data.participant1.img;
+      } else {
+        receiverImg = model.data.participant2.img;
+      }
 
       push(
           context,
           OfferChatScreen(
             recieverId: recieverId,
             title: title,
+            userImgUrl: receiverImg,
           ));
       notifyListeners();
     }

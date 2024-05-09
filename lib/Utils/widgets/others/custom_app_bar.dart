@@ -123,8 +123,10 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               )),
           title: Row(
             children: [
-              const CircleAvatar(
-                backgroundImage: AssetImage("assets/images/sp4.png"),
+              CircleAvatar(
+                backgroundImage: img == null
+                    ? const AssetImage("assets/images/user.png")
+                    : NetworkImage(img) as ImageProvider,
                 radius: 26,
               ),
               const SizedBox(

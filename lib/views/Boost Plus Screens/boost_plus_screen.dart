@@ -4,11 +4,14 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
+import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/Boost%20Plus%20Screens/boost_work.dart';
 import 'package:tt_offer/views/Sell%20Faster/sell_faster.dart';
 
 class BoostPlusScreen extends StatefulWidget {
-  const BoostPlusScreen({super.key});
+  const BoostPlusScreen({super.key, required this.selling});
+
+  final Selling selling;
 
   @override
   State<BoostPlusScreen> createState() => _BoostPlusScreenState();
@@ -55,8 +58,12 @@ class _BoostPlusScreenState extends State<BoostPlusScreen> {
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: AppButton.appButtonWithLeadingImage("Boost Plus",
                   border: true, onTap: () {
-                // push(context, const SellFaster());
-                showSnackBar(context, "SellFaster page");
+                push(
+                    context,
+                    SellFaster(
+                      selling: widget.selling,
+                    ));
+                // showSnackBar(context, "SellFaster page");
               },
                   imagePath: "assets/images/boostPlus.png",
                   imgHeight: 20,

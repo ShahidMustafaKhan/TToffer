@@ -84,11 +84,11 @@ class _ChatScreenState extends State<ChatScreen> {
                         children: [
                           CircleAvatar(
                             backgroundColor: Colors.transparent,
-                            backgroundImage: chatList[index].receiver!.img !=
-                                    null
-                                ? NetworkImage(chatList[index].receiver!.img!)
-                                : const AssetImage("assets/images/user.png")
-                                    as ImageProvider,
+                            backgroundImage:
+                                getImageUrl(chatList[index]) != null
+                                    ? NetworkImage(getImageUrl(chatList[index]))
+                                    : const AssetImage("assets/images/user.png")
+                                        as ImageProvider,
                             radius: 26,
                           ),
                           const SizedBox(
@@ -171,6 +171,15 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  // String? getImage(ChatListData chatData) {
+  //   String? receiverImg;
+  //   if (recieverId == model.data.participant1.id) {
+  //     receiverImg = model.data.participant1.img;
+  //   } else {
+  //     receiverImg = model.data.participant2.img;
+  //   }
+  // }
+
   String formatTimestamp(String timestamp) {
     DateTime now = DateTime.now();
     DateTime time = DateTime.parse(timestamp);
@@ -188,5 +197,16 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       return "${time.day}/${time.month}/${time.year}";
     }
+  }
+
+  getImageUrl(ChatListData chatList) {
+    String? receiverImg;
+    if (userId == chatList.receiver?.id) {
+      receiverImg = chatList.sender?.img;
+    } else {
+      receiverImg = chatList.receiver?.img;
+    }
+
+    return receiverImg;
   }
 }

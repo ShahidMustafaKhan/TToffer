@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
+import 'package:tt_offer/constants.dart';
 
 import '../../models/selling_products_model.dart';
 
@@ -59,7 +60,8 @@ class _ListViewContainerState extends State<ListViewContainer> {
                         Row(
                           // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            AppText.appText(widget.selling.status.toString(),
+                            AppText.appText(
+                                getItemStatus(widget.selling.status),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
                                 textColor: AppTheme.appColor),

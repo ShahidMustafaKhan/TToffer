@@ -80,15 +80,6 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
         .data
         .conversation;
 
-    log("pref.getString(PrefKey.userId) = ${pref.getString(PrefKey.userId)}");
-    log("pref.getString(PrefKey.userName) = ${pref.getString(PrefKey.userName)}");
-    ZegoUIKitPrebuiltCallInvitationService().init(
-      appID: appID,
-      appSign: appSign,
-      userID: pref.getString(PrefKey.userId) ?? "0",
-      userName: pref.getString(PrefKey.userName) ?? "",
-      plugins: [ZegoUIKitSignalingPlugin()],
-    );
     super.initState();
   }
 
@@ -111,6 +102,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     // log("chatApi data = ${chatApi.conversationData}");
     return Scaffold(
       appBar: ChatAppBar(
+        img: widget.userImgUrl,
         title: widget.title,
         action: [
           Padding(
@@ -119,8 +111,8 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                 width: 40,
                 height: 40,
                 child: CallButtonWidget(
-                  id: 123,
-                  name: "nextUserName",
+                  id: nextUserId,
+                  name: nextUserName,
                 )),
           ),
 

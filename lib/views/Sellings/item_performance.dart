@@ -5,6 +5,7 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/Boost%20Plus%20Screens/boost_plus_screen.dart';
 
@@ -65,7 +66,8 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                             const SizedBox(
                               height: 5,
                             ),
-                            AppText.appText("Sold",
+                            AppText.appText(
+                                getItemStatus(widget.selling.status),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                                 textColor: AppTheme.appColor),
@@ -108,7 +110,11 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: AppButton.appButton("Boost Plus", onTap: () {
-                push(context, const BoostPlusScreen());
+                push(
+                    context,
+                    BoostPlusScreen(
+                      selling: widget.selling,
+                    ));
               },
                   height: 50,
                   textColor: AppTheme.whiteColor,

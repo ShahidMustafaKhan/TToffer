@@ -9,6 +9,7 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
+import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/providers/selling_purchase_provider.dart';
@@ -410,8 +411,10 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                         widget.ischeck == 1
                                             ? "Sell faster"
                                             : widget.ischeck == 2
-                                                ? "Sold"
-                                                : "Sold",
+                                                ? getItemStatus(
+                                                    data[index].status ?? 1)
+                                                : getItemStatus(
+                                                    data[index].status ?? 1),
                                         fontSize: 12,
                                         fontWeight: FontWeight.w400,
                                         textColor: AppTheme.appColor),

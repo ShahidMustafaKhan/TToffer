@@ -91,6 +91,16 @@ class _LandingScreenState extends State<LandingScreen> {
       context: context,
     );
 
+    log("pref.getString(PrefKey.userId) = ${pref.getString(PrefKey.userId)}");
+    log("pref.getString(PrefKey.userName) = ${pref.getString(PrefKey.userName)}");
+    ZegoUIKitPrebuiltCallInvitationService().init(
+      appID: appID,
+      appSign: appSign,
+      userID: pref.getString(PrefKey.userId) ?? "0",
+      userName: pref.getString(PrefKey.userName) ?? "",
+      plugins: [ZegoUIKitSignalingPlugin()],
+    );
+
     super.initState();
   }
 
@@ -127,8 +137,6 @@ class _LandingScreenState extends State<LandingScreen> {
     print('provider---->${provider}');
     setState(() {});
   }
-
-
 
   @override
   Widget build(BuildContext context) {
