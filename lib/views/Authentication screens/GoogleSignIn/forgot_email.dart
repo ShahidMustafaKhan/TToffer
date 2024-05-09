@@ -31,6 +31,7 @@ class _ForgotEmailPassState extends State<ForgotEmailPass> {
     super.initState();
   }
 
+  bool loading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,7 +155,11 @@ class _ForgotEmailPassState extends State<ForgotEmailPass> {
           setState(() {
             _isLoading = false;
           });
-          pushReplacement(context, const OTPScreen());
+          pushReplacement(
+              context,
+              OTPScreen(
+                email: _emailController.text.trim(),
+              ));
         }
       }
     } catch (e) {

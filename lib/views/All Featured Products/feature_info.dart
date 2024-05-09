@@ -52,14 +52,14 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
 
   // static List<String> wrapList1 = [];
   late AppDio dio;
-  var userId;
+  var userId = pref.getString(PrefKey.userId);
   AppLogger logger = AppLogger();
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       dio = AppDio(context);
-      getUserId();
+      // getUserId();
       logger.init();
 
       // markProductView();
@@ -81,12 +81,11 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     super.dispose();
   }
 
-  getUserId() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    setState(() {
-      userId = pref.getString(PrefKey.userId);
-    });
-  }
+  // getUserId() async {
+  //   setState(() {
+  //     userId = pref.getString(PrefKey.userId);
+  //   });
+  // }
 
   bool isChatBtnLoading = false;
   @override
@@ -107,6 +106,8 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
 
 ////////////////////////////////////////////////// feature ///////////////////////////////////
   Widget featureBottomCard() {
+    log("//-- userId = $userId");
+    log("//-- widget.detailResponse user id =${widget.detailResponse["user_id"]} ");
     return Card(
       color: Colors.white,
       shape: const RoundedRectangleBorder(
@@ -271,7 +272,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                                                   ["img"] ==
                                               null
                                           ? const AssetImage(
-                                                  "assets/images/auction2.png")
+                                                  "assets/images/user.png")
                                               as ImageProvider<Object>
                                           : NetworkImage(widget
                                                   .detailResponse["user"]
@@ -551,10 +552,11 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
             ),
           ),
         ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: featureBottomCard(),
-        )
+        if (userId.toString() != widget.detailResponse["user_id"].toString())
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: featureBottomCard(),
+          )
       ],
     );
   }

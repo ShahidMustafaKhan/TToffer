@@ -116,16 +116,9 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
     });
   }
 
-  var userId;
+  var userId = pref.getString(PrefKey.userId);
   late AppDio dio;
   AppLogger logger = AppLogger();
-
-  getUserDetail() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    setState(() {
-      userId = pref.getString(PrefKey.userId);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +132,6 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
           dio: dio,
           context: context,
         );
-        getUserDetail();
         return true; // Allow the pop action
       },
       child: Scaffold(
