@@ -17,7 +17,6 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 class PostLocationScreen extends StatefulWidget {
   final productId;
 
-  String image;
   String title;
   int amount;
 
@@ -25,7 +24,6 @@ class PostLocationScreen extends StatefulWidget {
       {super.key,
       this.productId,
       required this.amount,
-      required this.image,
       required this.title});
 
   @override
@@ -180,7 +178,6 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
           pushReplacement(
               context,
               PostProductPayment(
-                image: widget.image,
                 amount: widget.amount,
                 productId: widget.productId,
                 title: widget.title,

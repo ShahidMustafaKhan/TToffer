@@ -6,15 +6,17 @@ import 'package:image/image.dart' as img;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:tt_offer/Utils/utils.dart';
+import 'package:tt_offer/main.dart';
 
 class ImageNotifyProvider extends ChangeNotifier {
   List<String> imagePaths = [];
+
+  String? newImagePath;
   var vedioPath = "";
   bool isCompressing = false;
 
 ////////////////////////////////////////// Image From Camera ///////////////////////////////////////
   ///
- 
 
   ///
 
@@ -27,10 +29,14 @@ class ImageNotifyProvider extends ChangeNotifier {
 
     if (pickedFile != null) {
       await compressAndAddImage(pickedFile.path);
+
+      newImagePath = pickedFile.path.toString();
+      notifyListeners();
     }
     isCompressing = false;
     notifyListeners();
   }
+
 ////////////////////////////////////////// Image From Galery ///////////////////////////////////////
 
   Future<void> getImagesFromGallery() async {
@@ -41,10 +47,14 @@ class ImageNotifyProvider extends ChangeNotifier {
 
     for (var pickedFile in pickedFiles) {
       await compressAndAddImage(pickedFile.path);
+
+      newImagePath= pickedFiles.single.path;
+      notifyListeners();
     }
     isCompressing = false;
     notifyListeners();
   }
+
 ////////////////////////////////////////// Image Compression ///////////////////////////////////////
 
   Future<void> compressAndAddImage(String imagePath) async {
@@ -70,6 +80,7 @@ class ImageNotifyProvider extends ChangeNotifier {
 
     return tempFile.path;
   }
+
 ////////////////////////////////////////// Get Vedio  ///////////////////////////////////////
 
   Future<void> getVediosFromGallery(context) async {
@@ -92,29 +103,29 @@ class ImageNotifyProvider extends ChangeNotifier {
     }
   }
 
-  // Future<void> _compressVideo(String videoPath) async {
-  //   final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
-  //   Directory tempDir = await getTemporaryDirectory();
-  //   String outputFileName =
-  //       'compressed_video_${DateTime.now().millisecondsSinceEpoch}.mp4'; // Unique output file name
-  //   String outputFilePath =
-  //       '${tempDir.path}/$outputFileName'; // Output file path in the temporary directory
+// Future<void> _compressVideo(String videoPath) async {
+//   final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
+//   Directory tempDir = await getTemporaryDirectory();
+//   String outputFileName =
+//       'compressed_video_${DateTime.now().millisecondsSinceEpoch}.mp4'; // Unique output file name
+//   String outputFilePath =
+//       '${tempDir.path}/$outputFileName'; // Output file path in the temporary directory
 
-  //   // Compression command
-  //   String command =
-  //       '-i $videoPath -b:v 500K $outputFilePath'; // Set video bitrate to 1M (1 megabit per second)
+//   // Compression command
+//   String command =
+//       '-i $videoPath -b:v 500K $outputFilePath'; // Set video bitrate to 1M (1 megabit per second)
 
-  //   // Run FFmpeg command
-  //   int returnCode = await _flutterFFmpeg.execute(command);
+//   // Run FFmpeg command
+//   int returnCode = await _flutterFFmpeg.execute(command);
 
-  //   if (returnCode == 0) {
-  //     print(
-  //         'Video compression successful. Compressed video saved at: $outputFilePath');
-  //     setState(() {
-  //       vedioPath = outputFilePath;
-  //     });
-  //   } else {
-  //     print('Video compression failed.');
-  //   }
-  // }
+//   if (returnCode == 0) {
+//     print(
+//         'Video compression successful. Compressed video saved at: $outputFilePath');
+//     setState(() {
+//       vedioPath = outputFilePath;
+//     });
+//   } else {
+//     print('Video compression failed.');
+//   }
+// }
 }

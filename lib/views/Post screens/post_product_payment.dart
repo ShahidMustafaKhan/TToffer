@@ -12,21 +12,18 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/custom_requests/sell-faster_stripe_api.dart';
+import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/Post%20screens/post_card_payment.dart';
 import 'package:http/http.dart' as http;
 
 class PostProductPayment extends StatefulWidget {
-  String image;
   String title;
 
-  int productId;
+  final productId;
   int amount;
 
   PostProductPayment(
-      {required this.image,
-      required this.amount,
-      required this.productId,
-      required this.title});
+      {required this.amount, required this.productId, required this.title});
 
   @override
   State<PostProductPayment> createState() => _PostProductPaymentState();
@@ -63,7 +60,7 @@ class _PostProductPaymentState extends State<PostProductPayment> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(16),
                             child: Image.file(
-                              File(imageProvider.imagePaths[0]),
+                              File(imageProvider.imagePaths.first),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -75,7 +72,7 @@ class _PostProductPaymentState extends State<PostProductPayment> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            AppText.appText(widget.title,
+                            AppText.appText(title.toString(),
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 textColor: AppTheme.txt1B20),

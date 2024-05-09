@@ -18,9 +18,9 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 
 class SetPostPriceScreen extends StatefulWidget {
   final productId;
-  String  image;
-  String  title;
-   SetPostPriceScreen({super.key, this.productId,required this.image,required this.title});
+  String title;
+
+  SetPostPriceScreen({super.key, this.productId, required this.title});
 
   @override
   State<SetPostPriceScreen> createState() => _SetPostPriceScreenState();
@@ -42,6 +42,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
   late AppDio dio;
   AppLogger logger = AppLogger();
   int _toggleValue = 0;
+
   @override
   void initState() {
     _priceController.text = "60";
@@ -639,7 +640,9 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
           pushReplacement(
               context,
               PostLocationScreen(
-                productId: widget.productId, amount: int.parse(_priceController.text), image: widget.image, title: widget.title,
+                productId: widget.productId,
+                amount: int.parse(_priceController.text),
+                title: widget.title,
               ));
           _isLoading = false;
         });

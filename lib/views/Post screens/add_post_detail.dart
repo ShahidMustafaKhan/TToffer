@@ -17,9 +17,8 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 
 class PostDetailScreen extends StatefulWidget {
   final productId;
-  String  image;
   String  title;
-   PostDetailScreen({super.key, this.productId,required this.image,required this.title});
+   PostDetailScreen({super.key, this.productId,required this.title});
 
   @override
   State<PostDetailScreen> createState() => _PostDetailScreenState();
@@ -639,7 +638,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           pushReplacement(
               context,
               SetPostPriceScreen(
-                productId: widget.productId, image: widget.image, title: widget.title,
+                productId: widget.productId, title: widget.title,
               ));
           _isLoading = false;
         });

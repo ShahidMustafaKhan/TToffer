@@ -19,6 +19,8 @@ import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 
+import '../../main.dart';
+
 class PostScreen extends StatefulWidget {
   const PostScreen({super.key});
 
@@ -368,17 +370,18 @@ class _PostScreenState extends State<PostScreen> {
             return;
           } else {
             setState(() {
-              _descController.clear();
-              _titleController.clear();
+              // _descController.clear();
+              // _titleController.clear();
               imageProvider.vedioPath = "";
-              imageProvider.imagePaths.clear();
+              // imageProvider.imagePaths.clear();
               _isLoading = false;
+
+              title=_titleController.text;
 
               push(
                   context,
                   PostDetailScreen(
                     productId: productId,
-                    image: '',
                     title: _titleController.text,
                   ));
             });

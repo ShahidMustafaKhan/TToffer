@@ -28,6 +28,9 @@ import 'package:tt_offer/views/Authentication%20screens/GoogleSignIn/google_sign
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
+String? title;
+String?imagePath;
+
 String? location;
 
 bool  isAlready=false;
