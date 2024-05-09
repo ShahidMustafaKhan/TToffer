@@ -88,17 +88,17 @@ class _SearchPageState extends State<SearchPage> {
                     children: [
                       InkWell(
                         onTap: () {
-                          if (l.auctionPrice == null) {
-                            push(
-                                context,
-                                NewFeatureInfoScreen(
-                                  searchData: l,
-                                ));
-                          } else {
-                            push(
-                                context,
-                                AuctionInfoScreen(detailResponse: l,));
-                          }
+                          // if (l.auctionPrice == null) {
+                          //   push(
+                          //       context,
+                          //       NewFeatureInfoScreen(
+                          //         searchData: l,
+                          //       ));
+                          // } else {
+                          //   push(
+                          //       context,
+                          //       AuctionInfoScreen(detailResponse: l,));
+                          // }
                         },
                         child: Container(
                           height: 210,
