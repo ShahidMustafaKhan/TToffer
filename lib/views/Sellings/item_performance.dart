@@ -28,6 +28,8 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
     super.initState();
   }
 
+  List<num> views = [];
+
   bool loading = true;
 
   @override
@@ -109,16 +111,17 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                 ],
               ),
             ),
-            const Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: 20.0,
-                ),
-                child: SizedBox(
-                  height: 256,
-                  child: ProductPerformanceChart(
-                    viewsData: [10, 20, 15, 30, 25, 80],
+            if (data.isNotEmpty)
+              Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 20.0,
                   ),
-                )),
+                  child: SizedBox(
+                    height: 256,
+                    child: ProductPerformanceChart(
+                      viewsData: views,
+                    ),
+                  )),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: AppButton.appButton("Boost Plus", onTap: () {
@@ -146,12 +149,18 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
   }
 
   Future<void> getItemPerformance() async {
-    var responce =
-        await customGetRequest.httpGetRequest(url: AppUrls.allProductsUrl);
+    var responce = await customPostRequest
+        .httpPostRequest(url: AppUrls.allProductsUrl, body: {});
 
     ProductCountModel model = ProductCountModel.fromJson(responce);
 
     data = model.data;
+
+    data.forEach(
+      (element) {
+        views.add(element.viewsCount ?? 0.0);
+      },
+    );
 
     setState(() {
       loading = false;
@@ -160,7 +169,7 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
 }
 
 class ProductPerformanceChart extends StatelessWidget {
-  final List<double> viewsData;
+  final List<num> viewsData;
 
   const ProductPerformanceChart({Key? key, required this.viewsData})
       : super(key: key);
@@ -173,7 +182,7 @@ class ProductPerformanceChart extends StatelessWidget {
           LineChartBarData(
             dotData: const FlDotData(show: false),
             spots: viewsData.asMap().entries.map((entry) {
-              return FlSpot(entry.key.toDouble(), entry.value);
+              return FlSpot(entry.key.toDouble(), entry.value.toDouble());
             }).toList(),
             isCurved: true,
             color: AppTheme.appColor,
