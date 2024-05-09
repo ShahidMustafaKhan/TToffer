@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/providers/search_provider.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/auction_container.dart';
+import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
+import 'package:tt_offer/views/All%20Featured%20Products/new_feature_screen.dart';
+import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
 
 import '../../utils/resources/res/app_theme.dart';
 
@@ -71,9 +75,9 @@ class _SearchPageState extends State<SearchPage> {
         appBar: const CustomAppBar1(title: 'Search'),
         body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                        children: [
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
               for (var l in data.selling)
                 SizedBox(
                   height: 325,
@@ -82,45 +86,61 @@ class _SearchPageState extends State<SearchPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        height: 210,
-                        width: 161,
-                        decoration: BoxDecoration(
-                            color: AppTheme.hintTextColor,
-                            borderRadius: BorderRadius.circular(14),
-                            image: l.photo!.isNotEmpty
-                                ? DecorationImage(
-                                    image: NetworkImage("${l.photo![0].src}"),
-                                    fit: BoxFit.fill)
-                                : null),
-                        child: GestureDetector(
-                          onTap: () {
-                            // widget.data["wishlist"].isNotEmpty
-                            //     ? removeFavourite(wishId: widget.data["wishlist"][0]["id"])
-                            //     : addToFavourite();
-                          },
-                          child: Align(
-                            alignment: Alignment.topRight,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 15, right: 10.0),
-                              child: Container(
-                                  height: 25,
-                                  width: 25,
-                                  decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: AppTheme.whiteColor),
-                                  child: l.wishlist==null
-                                      ? Icon(
-                                          Icons.favorite_border,
-                                          size: 13,
-                                          color: AppTheme.textColor,
-                                        )
-                                      : Icon(
-                                          size: 13,
-                                          Icons.favorite_sharp,
-                                          color: AppTheme.appColor,
-                                        )),
+                      InkWell(
+                        onTap: () {
+                          if (l.auctionPrice == null) {
+                            push(
+                                context,
+                                NewFeatureInfoScreen(
+                                  searchData: l,
+
+                                ));
+                          } else {
+                            push(
+                                context,
+                                AuctionInfoScreen(detailResponse: l,));
+                          }
+                        },
+                        child: Container(
+                          height: 210,
+                          width: 161,
+                          decoration: BoxDecoration(
+                              color: AppTheme.hintTextColor,
+                              borderRadius: BorderRadius.circular(14),
+                              image: l.photo!.isNotEmpty
+                                  ? DecorationImage(
+                                      image: NetworkImage("${l.photo![0].src}"),
+                                      fit: BoxFit.fill)
+                                  : null),
+                          child: GestureDetector(
+                            onTap: () {
+                              // widget.data["wishlist"].isNotEmpty
+                              //     ? removeFavourite(wishId: widget.data["wishlist"][0]["id"])
+                              //     : addToFavourite();
+                            },
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 15, right: 10.0),
+                                child: Container(
+                                    height: 25,
+                                    width: 25,
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: AppTheme.whiteColor),
+                                    child: l.wishlist == null
+                                        ? Icon(
+                                            Icons.favorite_border,
+                                            size: 13,
+                                            color: AppTheme.textColor,
+                                          )
+                                        : Icon(
+                                            size: 13,
+                                            Icons.favorite_sharp,
+                                            color: AppTheme.appColor,
+                                          )),
+                              ),
                             ),
                           ),
                         ),
@@ -171,9 +191,9 @@ class _SearchPageState extends State<SearchPage> {
                     ],
                   ),
                 )
-                        ],
-                      ),
-            )),
+            ],
+          ),
+        )),
       );
     });
   }

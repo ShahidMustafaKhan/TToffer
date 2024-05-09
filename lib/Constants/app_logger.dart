@@ -78,6 +78,7 @@ class AppLogger {
     return logLevel != Level.off;
   }
 
+
   _getPrinter({
     color = true,
     emojis = true,
