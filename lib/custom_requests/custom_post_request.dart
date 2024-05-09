@@ -20,7 +20,8 @@ class CustomPostRequest {
     final uri = AppUrls.baseUrl + url;
 
     log("body = $body");
-    noTokenHeader ?? false;
+
+    noTokenHeader ??= false;
 
     var headers;
 

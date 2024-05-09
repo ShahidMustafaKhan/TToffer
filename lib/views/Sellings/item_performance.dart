@@ -93,25 +93,25 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Row(
-                children: [
-                  AppText.appText("Total Views:",
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      textColor: AppTheme.textColor),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  AppText.appText("2344",
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      textColor: AppTheme.textColor),
-                ],
-              ),
-            ),
-            if (data.isNotEmpty)
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(vertical: 10.0),
+            //   child: Row(
+            //     children: [
+            //       AppText.appText("Total Views:",
+            //           fontSize: 12,
+            //           fontWeight: FontWeight.w400,
+            //           textColor: AppTheme.textColor),
+            //       const SizedBox(
+            //         width: 20,
+            //       ),
+            //       AppText.appText("2344",
+            //           fontSize: 12,
+            //           fontWeight: FontWeight.w700,
+            //           textColor: AppTheme.textColor),
+            //     ],
+            //   ),
+            // ),
+            if (!loading)
               Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 20.0,
@@ -121,7 +121,13 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                     child: ProductPerformanceChart(
                       viewsData: views,
                     ),
-                  )),
+                  ))
+            else
+              Center(
+                child: CircularProgressIndicator(
+                  color: AppTheme.appColor,
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: AppButton.appButton("Boost Plus", onTap: () {

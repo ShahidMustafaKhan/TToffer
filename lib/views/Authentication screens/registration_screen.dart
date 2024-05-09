@@ -109,6 +109,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             if (_passwordController.text.isNotEmpty) {
                               print("is $isEmail");
                               print("is $isPhoneNumber");
+
                               register(phone: isPhoneNumber);
                             } else {
                               showSnackBar(
