@@ -36,8 +36,7 @@ class AppUrls {
   static const String markProductUnarchive = "mark-product-unarchive";
   static const String increaseProductCount = "increase-product-view";
   static const String createConversationUrl = "get/conversation_id";
-
-  // get/conversation_id
+  static const String allProductsUrl = "get-all-products";
 
   //
 }

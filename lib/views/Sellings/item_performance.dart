@@ -5,7 +5,10 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/constants.dart';
+import 'package:tt_offer/main.dart';
+import 'package:tt_offer/models/products_count_model.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/Boost%20Plus%20Screens/boost_plus_screen.dart';
 
@@ -18,6 +21,15 @@ class ItemPerformanceScreen extends StatefulWidget {
 }
 
 class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
+  List<ItemData> data = [];
+  @override
+  void initState() {
+    getItemPerformance();
+    super.initState();
+  }
+
+  bool loading = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,6 +143,19 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> getItemPerformance() async {
+    var responce =
+        await customGetRequest.httpGetRequest(url: AppUrls.allProductsUrl);
+
+    ProductCountModel model = ProductCountModel.fromJson(responce);
+
+    data = model.data;
+
+    setState(() {
+      loading = false;
+    });
   }
 }
 
