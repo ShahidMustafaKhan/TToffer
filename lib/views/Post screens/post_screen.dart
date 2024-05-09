@@ -82,8 +82,8 @@ class _PostScreenState extends State<PostScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
                 child: AppButton.appButtonWithLeadingImage("Take Photo",
                     onTap: () {
-                      imageProvider.takePicture();
-                    },
+                  imageProvider.takePicture();
+                },
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                     textColor: AppTheme.textColor,
@@ -106,8 +106,8 @@ class _PostScreenState extends State<PostScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
                 child: AppButton.appButtonWithLeadingImage("Select Vedio",
                     onTap: () {
-                      imageProvider.getVediosFromGallery(context);
-                    },
+                  imageProvider.getVediosFromGallery(context);
+                },
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                     textColor: AppTheme.textColor,
@@ -118,38 +118,38 @@ class _PostScreenState extends State<PostScreen> {
               ),
               imageProvider.isCompressing == true
                   ? SizedBox(
-                height: 110,
-                child: LoadingDialog(),
-              )
+                      height: 110,
+                      child: LoadingDialog(),
+                    )
                   : imageProvider.imagePaths.isEmpty
-                  ? const SizedBox.shrink()
-                  : SizedBox(
-                height: 110,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
-                  itemCount: imageProvider.imagePaths.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(
-                          left: 10.0, bottom: 10),
-                      child: Container(
-                        height: 100,
-                        width: 100,
-                        decoration: BoxDecoration(
-                            color: AppTheme.hintTextColor,
-                            borderRadius: BorderRadius.circular(8),
-                            image: DecorationImage(
-                                image: FileImage(
-                                  File(imageProvider
-                                      .imagePaths[index]),
+                      ? const SizedBox.shrink()
+                      : SizedBox(
+                          height: 110,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            shrinkWrap: true,
+                            itemCount: imageProvider.imagePaths.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 10.0, bottom: 10),
+                                child: Container(
+                                  height: 100,
+                                  width: 100,
+                                  decoration: BoxDecoration(
+                                      color: AppTheme.hintTextColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                      image: DecorationImage(
+                                          image: FileImage(
+                                            File(imageProvider
+                                                .imagePaths[index]),
+                                          ),
+                                          fit: BoxFit.fill)),
                                 ),
-                                fit: BoxFit.fill)),
-                      ),
-                    );
-                  },
-                ),
-              ),
+                              );
+                            },
+                          ),
+                        ),
               AppText.appText("Add your cover photo first",
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
@@ -169,36 +169,36 @@ class _PostScreenState extends State<PostScreen> {
               _isLoading == true
                   ? LoadingDialog()
                   : Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: AppButton.appButton("Next", onTap: () {
-                  // push(context, const PostDetailScreen());
+                      padding: const EdgeInsets.symmetric(vertical: 20.0),
+                      child: AppButton.appButton("Next", onTap: () {
+                        // push(context, const PostDetailScreen());
 
-                  if (imageProvider.imagePaths.isNotEmpty) {
-                    if (_titleController.text.isNotEmpty) {
-                      if (_descController.text.isNotEmpty) {
-                        if (_descController.text.length > 100) {
-                          addProductFirstStep();
+                        if (imageProvider.imagePaths.isNotEmpty) {
+                          if (_titleController.text.isNotEmpty) {
+                            if (_descController.text.isNotEmpty) {
+                              if (_descController.text.length > 100) {
+                                addProductFirstStep();
+                              } else {
+                                showSnackBar(context,
+                                    "Description must be alteast 100 characters");
+                              }
+                            } else {
+                              showSnackBar(context, "Enter Description");
+                            }
+                          } else {
+                            showSnackBar(context, "Enter title");
+                          }
                         } else {
-                          showSnackBar(context,
-                              "Description must be alteast 100 characters");
+                          showSnackBar(context, "Add atleast one image");
                         }
-                      } else {
-                        showSnackBar(context, "Enter Description");
-                      }
-                    } else {
-                      showSnackBar(context, "Enter title");
-                    }
-                  } else {
-                    showSnackBar(context, "Add atleast one image");
-                  }
-                },
-                    height: 53,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    radius: 32.0,
-                    backgroundColor: AppTheme.appColor,
-                    textColor: AppTheme.whiteColor),
-              )
+                      },
+                          height: 53,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                          radius: 32.0,
+                          backgroundColor: AppTheme.appColor,
+                          textColor: AppTheme.whiteColor),
+                    )
             ],
           ),
         ),
@@ -208,7 +208,7 @@ class _PostScreenState extends State<PostScreen> {
 
   void addProductFirstStep() async {
     final imageProvider =
-    Provider.of<ImageNotifyProvider>(context, listen: false);
+        Provider.of<ImageNotifyProvider>(context, listen: false);
 
     setState(() {
       _isLoading = true;
@@ -291,7 +291,7 @@ class _PostScreenState extends State<PostScreen> {
 
   void sendImages({productId}) async {
     final imageProvider =
-    Provider.of<ImageNotifyProvider>(context, listen: false);
+        Provider.of<ImageNotifyProvider>(context, listen: false);
     print("objectId $productId");
     setState(() {
       _isLoading = true;
@@ -378,7 +378,8 @@ class _PostScreenState extends State<PostScreen> {
                   context,
                   PostDetailScreen(
                     productId: productId,
-                    image: myfile.toString(),
+                    image: '',
+                    title: _titleController.text,
                   ));
             });
           }

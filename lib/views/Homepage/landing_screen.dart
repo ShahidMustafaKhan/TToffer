@@ -152,6 +152,7 @@ class _LandingScreenState extends State<LandingScreen> {
     }
 
     return Scaffold(
+
       backgroundColor: AppTheme.whiteColor,
       appBar: CustomAppBar(context: context),
       body: Padding(
