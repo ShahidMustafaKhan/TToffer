@@ -60,16 +60,24 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                     await Authentication.initializeFirebase(context: context);
                     print("initialize");
                     await Authentication.signInWithGoogle(context: context);
-                    isAlready == true ? await signIn() : await register();
+                    isAlready == true || isRegister == true
+                        ? await signIn()
+                        : await register();
                     print("registerUser");
 
                     googleSignInProvider.setSigningIn(false);
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const BottomNavView(),
-                        ),
-                        (route) => false);
+                    // Navigator.pushAndRemoveUntil(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       builder: (context) => const BottomNavView(),
+                    //     ),
+                    //     (route) => false);
+
+                    if (isAlready) {
+                      showSnackBar(context, 'Login Successfully');
+                    } else {
+                      showSnackBar(context, 'Register Successfully');
+                    }
                   } catch (e) {
                     googleSignInProvider.setSigningIn(false);
                     print("fbjkbfjeblfbekb$e");
@@ -90,82 +98,71 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
     int responseCode200 = 200; // For successful request.
     int responseCode400 = 400; // For Bad Request.
     int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
+    int responseCode404 = 404; // For data not found.
+    int responseCode422 = 422; // For data validation errors.
     int responseCode500 = 500; // Internal server error.
+
     Map<String, dynamic> params = {
       "name": "${userCredential!.user!.displayName}",
       "email": userCredential!.user!.email,
       "username": userCredential!.user!.displayName,
       "password": userCredential!.user!.email,
-      "phone": '+923214567899',
+      "phone": '+923214567899', // Example phone number.
     };
 
-    print('body--->${params}');
-    // if (phone == true) {
-    //   params.remove("email");
-    // } else {
-    //   params.remove("phone");
-    // }
     try {
       response = await myDio.post(path: AppUrls.registration, data: params);
       var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["message"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["message"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["message"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["message"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        if (responseData["status"] == false) {
-          setState(() {
-            _isLoading = false;
-          });
 
-          return;
-        } else {
-          setState(() {
-            _isLoading = false;
-          });
-          var userId = responseData["data"]["user"]["id"];
-          var token = responseData["data"]["token"];
-          var id = userId.toString();
-          print("id$id");
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          prefs.setString(PrefKey.userId, id ?? '');
-          prefs.setString(PrefKey.authorization, token ?? '');
+      if (responseData != null) {
+        if (responseData["status"] == 'error') {
+          await signIn();
+        }
 
-          Navigator.pushAndRemoveUntil(
+        if (response.statusCode == responseCode400) {
+          // showSnackBar(context, "${responseData["message"]}");
+        } else if (response.statusCode == responseCode401) {
+          // showSnackBar(context, "${responseData["message"]}");
+        } else if (response.statusCode == responseCode404) {
+          // showSnackBar(context, "${responseData["message"]}");
+        } else if (response.statusCode == responseCode500) {
+          showSnackBar(context, "${responseData["message"]}");
+        } else if (response.statusCode == responseCode422) {
+          // Handle data validation errors if needed.
+        } else if (response.statusCode == responseCode200) {
+          if (responseData["status"] == false) {
+            showSnackBar(
+                context, "Registration failed: ${responseData["message"]}");
+          } else {
+            var userId = responseData["data"]["user"]["id"];
+            var token = responseData["data"]["token"];
+            var id = userId.toString();
+
+            // Save data to SharedPreferences
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            prefs.setString(PrefKey.userId, id ?? '');
+            prefs.setString(PrefKey.authorization, token ?? '');
+
+            Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
                 builder: (context) => const BottomNavView(),
               ),
-              (route) => false);
+              (route) => false,
+            );
+          }
+        } else {
+          showSnackBar(context, "Unexpected server response.");
         }
+      } else {
+        showSnackBar(context, "Empty response from server.");
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
+      print("Error during registration: $e");
+      showSnackBar(context, "Something went wrong. Please try again later.");
+    } finally {
       setState(() {
-        _isLoading = false;
+        _isLoading = false; // Update loading state.
       });
     }
   }
@@ -199,6 +196,10 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
         });
       } else if (response.statusCode == responseCode401) {
         showSnackBar(context, "${responseData["message"]}");
+        if (response.statusCode == responseCode401) {
+          // authMessage = 'alreadyExists';
+        }
+
         setState(() {
           _isLoading = false;
         });

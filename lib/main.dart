@@ -31,9 +31,11 @@ import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 String? title;
 String?imagePath;
 
+
 String? location;
 
 bool isAlready = false;
+bool isRegister = false;
 
 UserCredential? userCredential;
 

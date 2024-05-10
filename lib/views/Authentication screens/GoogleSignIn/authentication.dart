@@ -83,8 +83,15 @@ class Authentication {
 
           user = userCredential!.user;
           String? userEmail = user?.email;
-          isAlready = userCredential!.additionalUserInfo!.isNewUser;
-          isAlready = true;
+          if (userCredential!.additionalUserInfo!.isNewUser) {
+            isAlready = false;
+            print('isss--->${isAlready}');
+          } else {
+            isAlready = true;
+            print('isss--->${isAlready}');
+
+          }
+
           String? displayName = user?.displayName;
 
           print(
