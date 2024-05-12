@@ -10,6 +10,7 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
+import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/enter_location_screen.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
@@ -19,8 +20,10 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 class SetPostPriceScreen extends StatefulWidget {
   final productId;
   String title;
+  Selling? selling;
 
-  SetPostPriceScreen({super.key, this.productId, required this.title});
+  SetPostPriceScreen(
+      {super.key, this.productId, required this.title, this.selling});
 
   @override
   State<SetPostPriceScreen> createState() => _SetPostPriceScreenState();
@@ -48,6 +51,29 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     _priceController.text = "60";
     dio = AppDio(context);
     logger.init();
+
+    // Define a DateFormat with the expected date format
+    DateFormat dateFormat = DateFormat('MM-dd-yyyy');
+
+    if (widget.selling != null) {
+      _priceController.text = widget.selling!.fixPrice.toString();
+      _startingPriceController.text = widget.selling!.auctionPrice.toString();
+
+      try {
+        // Parse startingDate and endingDate strings
+        startDate = dateFormat.parse(widget.selling!.startingDate);
+        endDate = dateFormat.parse(widget.selling!.endingDate);
+
+        // Assuming startingTime and endingTime are in "HH:mm" format
+        startTime = DateFormat('HH:mm').parse(widget.selling!.startingTime);
+        endTime = DateFormat('HH:mm').parse(widget.selling!.endingTime);
+      } catch (e) {
+        print('Error parsing dates: $e');
+        // Handle parsing errors here
+      }
+    }
+
+
     super.initState();
   }
 
@@ -609,7 +635,11 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     }
 
     try {
-      response = await dio.post(path: AppUrls.addProductPrice, data: params);
+      response = await dio.post(
+          path: widget.selling != null
+              ? AppUrls.updateProductPrice
+              : AppUrls.addProductPrice,
+          data: params);
       var responseData = response.data;
       if (response.statusCode == responseCode400) {
         showSnackBar(context, "${responseData["msg"]}");
@@ -640,6 +670,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
           pushReplacement(
               context,
               PostLocationScreen(
+                selling: widget.selling,
                 productId: widget.productId,
                 amount: int.parse(_priceController.text),
                 title: widget.title,

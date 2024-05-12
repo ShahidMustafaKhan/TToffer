@@ -6,15 +6,12 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
+import 'package:tt_offer/custom_requests/bids_service.dart';
 import 'package:tt_offer/models/common_model.dart';
 import 'package:tt_offer/utils/utils.dart';
 
 Future showLogOutALert(
-  BuildContext context,
-  var price,
-  var productId,
-  var userId,
-) {
+    BuildContext context, var price, var productId, var userId, var id) {
   bool loading = false;
   return showDialog(
     context: context,
@@ -73,9 +70,17 @@ Future showLogOutALert(
                             "product_id": productId,
                             "price": price
                           };
+
+                          print('bodyyy--->${body}');
+
                           // AppDio dio = AppDio(context);
                           var response = await AppDio(context)
                               .post(path: AppUrls.placeBid, data: body);
+
+                          await BidsService()
+                              .getBidsService(context: context, productId: id);
+
+                          setStatess(() {});
 
                           log("response in bid post = ${response.data}");
 

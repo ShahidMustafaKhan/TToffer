@@ -18,16 +18,18 @@ class BottomNavView extends StatefulWidget {
 class _BottomNavViewState extends State<BottomNavView> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    LandingScreen(),
-    ChatScreen(
+  static final List<Widget> _widgetOptions = <Widget>[
+    const LandingScreen(),
+    const ChatScreen(
       isProductChat: false,
     ),
-    PostScreen(),
-    SellingPurchaseScreen(
+    PostScreen(
+      selling: null,
+    ),
+    const SellingPurchaseScreen(
       title: "Selling",
     ),
-    ProfileScreen()
+    const ProfileScreen()
   ];
 
   void _onItemTapped(int index) {
@@ -96,10 +98,12 @@ class _BottomNavViewState extends State<BottomNavView> {
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: AppTheme.appColor,
-        unselectedItemColor:
-            Colors.grey, // Change the selected item's color here
-        showSelectedLabels: true, // Show labels for selected item
-        showUnselectedLabels: true, // Show labels for unselected items
+        unselectedItemColor: Colors.grey,
+        // Change the selected item's color here
+        showSelectedLabels: true,
+        // Show labels for selected item
+        showUnselectedLabels: true,
+        // Show labels for unselected items
         onTap: _onItemTapped,
       ),
     );

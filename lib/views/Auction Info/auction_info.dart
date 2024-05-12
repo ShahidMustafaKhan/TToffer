@@ -52,10 +52,10 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     "Authenticity"
   ];
   static const List<String> bidList = [
-    "\$20",
-    "\$40",
-    "\$80",
-    "\$100",
+    "20",
+    "40",
+    "80",
+    "100",
     "use custom bid",
   ];
   static List<String> wrapList1 = [];
@@ -76,16 +76,16 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
 
     log("productId = $productId");
     wrapList1 = [
-      '${widget.detailResponse["condition"]??'NA'}',
-      '${widget.detailResponse["brand"]??'NA'}',
-      '${widget.detailResponse["model"]??'NA'}',
-      '${widget.detailResponse["color"]??'NA'}',
-      '${widget.detailResponse["authenticity"]??'NA'}',
+      '${widget.detailResponse["condition"] ?? 'NA'}',
+      '${widget.detailResponse["brand"] ?? 'NA'}',
+      '${widget.detailResponse["model"] ?? 'NA'}',
+      '${widget.detailResponse["color"] ?? 'NA'}',
+      '${widget.detailResponse["authenticity"] ?? 'NA'}',
       // "2/32",
       // "Original"
     ];
 
-    _priceController.text = "\$ 60";
+    _priceController.text = "60";
     super.initState();
   }
 
@@ -217,7 +217,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 5),
-                              child: AppText.appText(bidList[index],
+                              child: AppText.appText('\$${bidList[index]}',
                                   textColor: open.indexbid == index
                                       ? AppTheme.whiteColor
                                       : const Color(0xff001B2E),
@@ -250,14 +250,14 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                             cPadding: 2.0,
                             type: TextInputType.number,
                           )
-                        : AppButton.appButton("Place Bid for ${open.bidPrice}",
-                            onTap: () {
+                        : AppButton.appButton(
+                            "Place Bid for \$${open.bidPrice}", onTap: () {
                             showLogOutALert(
-                              context,
-                              _priceController.text ?? bidList[0],
-                              productId,
-                              userId,
-                            );
+                                context,
+                                _priceController.text ?? bidList[0],
+                                productId,
+                                userId,
+                                widget.detailResponse['id']);
                           },
                             height: 53,
                             width: 200,
@@ -394,15 +394,25 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  push(context, const SellerProfileScreen());
+                                  push(
+                                      context,
+                                      SellerProfileScreen(
+                                        detailResponse: widget.detailResponse,
+                                      ));
                                 },
                                 child: Container(
                                   height: 45,
                                   width: 45,
-                                  decoration: const BoxDecoration(
+                                  decoration: BoxDecoration(
                                     image: DecorationImage(
-                                        image: AssetImage(
-                                            "assets/images/auction2.png"),
+                                        image: widget.detailResponse["user"]
+                                                    ["img"] ==
+                                                null
+                                            ? const AssetImage(
+                                                'assets/images/auction2.png')
+                                            : NetworkImage(
+                                                    "${widget.detailResponse["user"]["img"]}")
+                                                as ImageProvider,
                                         fit: BoxFit.cover),
                                     shape: BoxShape.circle,
                                   ),
@@ -469,7 +479,6 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     textColor: AppTheme.textColor),
-
                               ],
                             ),
                           ),

@@ -105,12 +105,16 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
                         userName: false,
                         title: "Location",
                         lable: "Your Location",
-                        infoText: "${profileApi.profileData["location"]}",
+                        infoText: profileApi.profileData["location"] == null
+                            ? 'Add Location'
+                            : "${profileApi.profileData["location"]}",
                         location: true,
                       ));
                 },
                 img: "assets/images/location.png",
-                txt: "${profileApi.profileData["location"]}"),
+                txt: profileApi.profileData["location"] == null
+                    ? 'Add Location'
+                    : "${profileApi.profileData["location"]}"),
             divider(),
             customRow(
                 onTap: () {

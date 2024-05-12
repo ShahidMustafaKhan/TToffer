@@ -8,6 +8,7 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
+import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
 import 'package:tt_offer/views/Post%20screens/post_product_payment.dart';
@@ -17,12 +18,15 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 class PostLocationScreen extends StatefulWidget {
   final productId;
 
+  Selling? selling;
+
   String title;
   int amount;
 
   PostLocationScreen(
       {super.key,
       this.productId,
+      this.selling,
       required this.amount,
       required this.title});
 
@@ -40,6 +44,11 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
   void initState() {
     dio = AppDio(context);
     logger.init();
+
+    if (widget.selling != null) {
+      _locationController.text = widget.selling!.location;
+    }
+
     super.initState();
   }
 
@@ -147,7 +156,11 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
     };
 
     try {
-      response = await dio.post(path: AppUrls.addProductLocation, data: params);
+      response = await dio.post(
+          path: widget.selling != null
+              ? AppUrls.updateProductLocation
+              : AppUrls.addProductLocation,
+          data: params);
       var responseData = response.data;
       if (response.statusCode == responseCode400) {
         showSnackBar(context, "${responseData["msg"]}");
@@ -181,6 +194,7 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
                 amount: widget.amount,
                 productId: widget.productId,
                 title: widget.title,
+                selling: widget.selling,
               ));
           _isLoading = false;
         });

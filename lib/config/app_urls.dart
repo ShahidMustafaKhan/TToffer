@@ -7,11 +7,15 @@ class AppUrls {
   static const String categories = "categories";
   static const String subCategories = "sub-categories";
   static const String addProduct = "add-product-first-step";
+  static const String updateProduct = "edit-product-first-step";
   static const String addImage = "upload-image";
 
   static const String addProductDetail = "add-product-second-step";
+  static const String updateProductDetail = "edit-product-second-step";
   static const String addProductPrice = "add-product-third-step";
+  static const String updateProductPrice = "edit-product-third-step";
   static const String addProductLocation = "add-product-last-step";
+  static const String updateProductLocation = "edit-product-last-step";
   static const String getFeatureProducts = "featured-products";
   static const String getAuctionProducts = "auction-products";
 

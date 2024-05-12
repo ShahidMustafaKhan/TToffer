@@ -12,6 +12,7 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
+import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/add_post_detail.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
@@ -22,7 +23,9 @@ import 'package:tt_offer/config/keys/pref_keys.dart';
 import '../../main.dart';
 
 class PostScreen extends StatefulWidget {
-  const PostScreen({super.key});
+  Selling? selling;
+
+  PostScreen({this.selling});
 
   @override
   State<PostScreen> createState() => _PostScreenState();
@@ -43,6 +46,12 @@ class _PostScreenState extends State<PostScreen> {
     dio = AppDio(context);
     logger.init();
     getUserId();
+
+    if (widget.selling != null) _titleController.text = widget.selling!.title;
+    if (widget.selling != null) {
+      _descController.text = widget.selling!.description;
+    }
+
     super.initState();
   }
 
@@ -53,14 +62,23 @@ class _PostScreenState extends State<PostScreen> {
     });
   }
 
+  bool galImage = false;
+
   @override
   Widget build(BuildContext context) {
     final imageProvider = Provider.of<ImageNotifyProvider>(context);
-    print("istrue:   ${imageProvider.isCompressing}");
+
+    // if (widget.selling != null) {
+    //   Provider.of<ImageNotifyProvider>(context).imagePaths =
+    //       widget.selling!.photo!.map((photo) => photo.src).toList();
+    //
+    //   print(
+    //       'pathsssssss--->${Provider.of<ImageNotifyProvider>(context).imagePaths = widget.selling!.photo!.map((photo) => photo.src).toList()}');
+    // }
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
       appBar: CustomAppBar1(
-        title: "Post an Item",
+        title: widget.selling != null ? 'Update Post' : "Post an Item",
         leading: false,
         action: true,
         img: "assets/images/cross.png",
@@ -95,6 +113,9 @@ class _PostScreenState extends State<PostScreen> {
                     space: 20.0),
               ),
               AppButton.appButtonWithLeadingImage("Select Image", onTap: () {
+                setState(() {
+                  galImage = true;
+                });
                 imageProvider.getImagesFromGallery();
               },
                   fontSize: 14,
@@ -145,17 +166,58 @@ class _PostScreenState extends State<PostScreen> {
                                           image: FileImage(
                                             File(imageProvider
                                                 .imagePaths[index]),
-                                          ),
+                                          ) as ImageProvider,
                                           fit: BoxFit.fill)),
                                 ),
                               );
                             },
                           ),
                         ),
-              AppText.appText("Add your cover photo first",
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  textColor: AppTheme.textColor),
+              widget.selling != null && imageProvider.imagePaths.isEmpty
+                  ? Wrap(
+                      children: [
+                        for (var l in widget.selling!.photo!)
+                          Stack(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 20.0, horizontal: 8),
+                                child: Container(
+                                  height: 100,
+                                  width: 100,
+                                  decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                          image: NetworkImage(l.src.toString()),
+                                          fit: BoxFit.cover),
+                                      borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                              Positioned(
+                                right: 1,
+                                top: 1,
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      widget.selling!.photo!.removeWhere(
+                                          (item) =>
+                                              item == widget.selling!.photo);
+                                    });
+                                  },
+                                  child: const Card(
+                                    child: Icon(Icons.close),
+                                  ),
+                                ),
+                              )
+                            ],
+                          )
+                      ],
+                    )
+                  : widget.selling != null
+                      ? const SizedBox.shrink()
+                      : AppText.appText("Add your cover photo first",
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          textColor: AppTheme.textColor),
               LableTextField(
                 labelTxt: "Title",
                 hintTxt: "Title",
@@ -172,27 +234,38 @@ class _PostScreenState extends State<PostScreen> {
                   ? LoadingDialog()
                   : Padding(
                       padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: AppButton.appButton("Next", onTap: () {
-                        // push(context, const PostDetailScreen());
-
-                        if (imageProvider.imagePaths.isNotEmpty) {
-                          if (_titleController.text.isNotEmpty) {
-                            if (_descController.text.isNotEmpty) {
-                              if (_descController.text.length > 100) {
-                                addProductFirstStep();
-                              } else {
-                                showSnackBar(context,
-                                    "Description must be alteast 100 characters");
-                              }
-                            } else {
-                              showSnackBar(context, "Enter Description");
-                            }
-                          } else {
-                            showSnackBar(context, "Enter title");
-                          }
-                        } else {
-                          showSnackBar(context, "Add atleast one image");
+                      child: AppButton.appButton("Next", onTap: () async {
+                        if (imageProvider.imagePaths.isEmpty &&
+                            widget.selling == null) {
+                          showSnackBar(context, "Add at least one image");
+                          return; // Exit the onTap callback if conditions are not met
                         }
+
+                        if (_titleController.text.isEmpty) {
+                          showSnackBar(context, "Enter title");
+                          return; // Exit the onTap callback if title is empty
+                        }
+
+                        if (_descController.text.isEmpty) {
+                          showSnackBar(context, "Enter Description");
+                          return; // Exit the onTap callback if description is empty
+                        }
+
+                        if (_descController.text.length <= 100) {
+                          showSnackBar(context,
+                              "Description must be at least 100 characters");
+                          return; // Exit the onTap callback if description is less than 100 characters
+                        }
+
+                        // If all conditions are met, proceed with adding the product
+                        await addProductFirstStep();
+                        push(
+                            context,
+                            PostDetailScreen(
+                              productId: widget.selling!.id,
+                              title: _titleController.text,
+                              selling: widget.selling,
+                            ));
                       },
                           height: 53,
                           fontWeight: FontWeight.w500,
@@ -200,7 +273,7 @@ class _PostScreenState extends State<PostScreen> {
                           radius: 32.0,
                           backgroundColor: AppTheme.appColor,
                           textColor: AppTheme.whiteColor),
-                    )
+                    ),
             ],
           ),
         ),
@@ -208,7 +281,7 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
-  void addProductFirstStep() async {
+  addProductFirstStep() async {
     final imageProvider =
         Provider.of<ImageNotifyProvider>(context, listen: false);
 
@@ -230,13 +303,19 @@ class _PostScreenState extends State<PostScreen> {
       MapEntry("user_id", "$userId"),
       MapEntry("title", _titleController.text),
       MapEntry("description", _descController.text),
+      if (widget.selling != null)
+        MapEntry("product_id", widget.selling!.id.toString()),
     ]);
     if (imageProvider.vedioPath.isNotEmpty) {
       formData.files
           .add(MapEntry("video", await MultipartFile.fromFile(videoFile.path)));
     }
     try {
-      response = await dio.post(path: AppUrls.addProduct, data: formData);
+      response = await dio.post(
+          path: widget.selling != null
+              ? AppUrls.updateProduct
+              : AppUrls.addProduct,
+          data: formData);
       var responseData = response.data;
       if (response.statusCode == responseCode400) {
         showSnackBar(context, "${responseData["msg"]}");
@@ -277,7 +356,9 @@ class _PostScreenState extends State<PostScreen> {
         } else {
           setState(() {
             var productId = responseData["product_id"];
-            sendImages(productId: "$productId");
+            sendImages(
+                productId:
+                    widget.selling != null ? widget.selling!.id : "$productId");
             _isLoading = false;
           });
         }
@@ -363,9 +444,14 @@ class _PostScreenState extends State<PostScreen> {
           });
         } else if (response.statusCode == responseCode200) {
           if (responseData["status"] == false) {
+            showSnackBar(context, "${responseData["status"]}");
+
             setState(() {
               _isLoading = false;
             });
+
+            print('respomsee--->${responseData["status"]}');
+            print('new--->${responseData}');
 
             return;
           } else {
@@ -378,12 +464,15 @@ class _PostScreenState extends State<PostScreen> {
 
               title = _titleController.text;
 
-              push(
-                  context,
-                  PostDetailScreen(
-                    productId: productId,
-                    title: _titleController.text,
-                  ));
+              // push(
+              //     context,
+              //     PostDetailScreen(
+              //       productId: productId,
+              //       title: widget.selling != null
+              //           ? widget.selling!.title
+              //           : _titleController.text,
+              //       selling: widget.selling,
+              //     ));
             });
           }
         }

@@ -6,7 +6,9 @@ import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/views/Profile%20Screen/profile_screen.dart';
 
 class SellerProfileScreen extends StatefulWidget {
-  const SellerProfileScreen({super.key});
+  var detailResponse;
+
+  SellerProfileScreen({this.detailResponse});
 
   @override
   State<SellerProfileScreen> createState() => _SellerProfileScreenState();
@@ -41,15 +43,15 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                         txt: "Join TruYou", img: "assets/images/verify1.png"),
                   ],
                 ),
-                AppText.appText("Products",
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    textColor: AppTheme.txt1B20),
-
-                AppText.appText("Products",
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    textColor: AppTheme.txt1B20),
+                // AppText.appText("Products",
+                //     fontSize: 16,
+                //     fontWeight: FontWeight.w700,
+                //     textColor: AppTheme.txt1B20),
+                //
+                // AppText.appText("Products",
+                //     fontSize: 16,
+                //     fontWeight: FontWeight.w700,
+                //     textColor: AppTheme.txt1B20),
                 // ListView.builder(
                 //   physics: const NeverScrollableScrollPhysics(),
                 //   shrinkWrap: true,
@@ -126,6 +128,10 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                         height: 80,
                         width: 80,
                         decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: NetworkImage(
+                                    widget.detailResponse['user']['img']),
+                                fit: BoxFit.cover),
                             color: AppTheme.text09,
                             borderRadius: BorderRadius.circular(16)),
                       ),
@@ -146,24 +152,24 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                     ],
                   ),
                 ),
-                AppText.appText("Darlene Robertson",
+                AppText.appText(widget.detailResponse['user']['name'],
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     textColor: AppTheme.txt1B20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const StarRating(
-                      percentage: 20,
-                      color: Colors.yellow,
-                      size: 14,
-                    ),
-                    AppText.appText("5.0",
-                        fontSize: 10,
-                        fontWeight: FontWeight.w400,
-                        textColor: AppTheme.txt1B20),
-                  ],
-                ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     const StarRating(
+                //       percentage: 20,
+                //       color: Colors.yellow,
+                //       size: 14,
+                //     ),
+                //     AppText.appText("5.0",
+                //         fontSize: 10,
+                //         fontWeight: FontWeight.w400,
+                //         textColor: AppTheme.txt1B20),
+                //   ],
+                // ),
               ],
             ),
           ),

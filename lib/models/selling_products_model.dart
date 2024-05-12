@@ -18,11 +18,11 @@ class SellingProductsModel {
         message: json["message"],
       );
 
-  // Map<String, dynamic> toJson() => {
-  //       "success": success,
-  //       "data": data!.toJson(),
-  //       "message": message,
-  //     };
+// Map<String, dynamic> toJson() => {
+//       "success": success,
+//       "data": data!.toJson(),
+//       "message": message,
+//     };
 }
 
 class Data {
@@ -51,11 +51,11 @@ class Data {
                 json["archive"].map((x) => Selling.fromJson(x))),
       );
 
-  // Map<String, dynamic> toJson() => {
-  //       "selling": List<dynamic>.from(selling!.map((x) => x.toJson())),
-  //       "purchase": List<dynamic>.from(purchase!.map((x) => x)),
-  //       "archive": List<dynamic>.from(archive!.map((x) => x)),
-  //     };
+// Map<String, dynamic> toJson() => {
+//       "selling": List<dynamic>.from(selling!.map((x) => x.toJson())),
+//       "purchase": List<dynamic>.from(purchase!.map((x) => x)),
+//       "archive": List<dynamic>.from(archive!.map((x) => x)),
+//     };
 }
 
 class Selling {
@@ -177,7 +177,10 @@ class Selling {
         soldToUserId: json["sold_to_user_id"] ?? '',
         user: User.fromJson(json["user"]),
         category: Category.fromJson(json["category"]),
-        subCategory: SubCategory.fromJson(json["sub_category"]),
+        subCategory: json['sub_category'] != null
+            ? SubCategory.fromJson(json['sub_category'])
+            : null,
+        // Assign null if 'sub_category' is null in JSON
         photo: List<Photo>.from(json["photo"].map((x) => Photo.fromJson(x))),
         video: List<dynamic>.from(json["video"].map((x) => x)),
         wishlist: List<dynamic>.from(json["wishlist"].map((x) => x)),

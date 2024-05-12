@@ -88,6 +88,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
   // }
 
   bool isChatBtnLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -261,7 +262,11 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  push(context, const SellerProfileScreen());
+                                  push(
+                                      context,
+                                      SellerProfileScreen(
+                                          detailResponse:
+                                              widget.detailResponse));
                                 },
                                 child: Container(
                                   height: 45,

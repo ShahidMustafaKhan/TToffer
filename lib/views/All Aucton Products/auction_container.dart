@@ -104,10 +104,13 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
               ),
             ),
           ),
-          AppText.appText("${widget.data["title"]}",
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              textColor: AppTheme.textColor),
+          Container(
+            height: 40,
+            child: AppText.appText("${widget.data["title"]}",
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                textColor: AppTheme.textColor),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

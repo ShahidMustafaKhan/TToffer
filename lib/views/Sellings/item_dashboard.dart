@@ -144,7 +144,11 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                                         onTap: () {
                                           Navigator.of(context).pop();
 
-                                          push(context, const PostScreen());
+                                          push(
+                                              context,
+                                              PostScreen(
+                                                selling: widget.selling,
+                                              ));
                                         },
                                         child: AppText.appText("Sell Another",
                                             fontSize: 14,
@@ -219,8 +223,13 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                       child: customContainer(
                           img: "assets/images/eye.png", txt: "View Post"),
                     ),
-                    customContainer(
-                        img: "assets/images/edit.png", txt: "Edit Post"),
+                    InkWell(
+                      onTap: () {
+                        push(context, PostScreen(selling: widget.selling));
+                      },
+                      child: customContainer(
+                          img: "assets/images/edit.png", txt: "Edit Post"),
+                    ),
                     InkWell(
                       onTap: () {
                         markAsSold(widget.selling.id, context);

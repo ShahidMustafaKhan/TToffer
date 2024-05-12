@@ -9,6 +9,7 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
+import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
 import 'package:tt_offer/views/Post%20screens/set_price_screen.dart';
@@ -17,8 +18,12 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 
 class PostDetailScreen extends StatefulWidget {
   final productId;
-  String  title;
-   PostDetailScreen({super.key, this.productId,required this.title});
+  Selling? selling;
+
+  String title;
+
+  PostDetailScreen(
+      {super.key, this.productId, required this.title, this.selling});
 
   @override
   State<PostDetailScreen> createState() => _PostDetailScreenState();
@@ -52,12 +57,28 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     getCatagories(search: "");
     getSubCatagories(search: "");
 
+    if (widget.selling != null) {
+      if (widget.selling!.category != null) {
+        _selectedCategory = widget.selling!.category!.name ?? '';
+      }
+      if (widget.selling!.subCategory != null) {
+        _selectedSubCategory = widget.selling!.subCategory!.name ?? '';
+      }
+      _selectedCondition = widget.selling!.condition ?? '';
+      _modelController.text = widget.selling!.model ?? '';
+      _millageController.text = widget.selling!.mileage ?? '';
+      _colorController.text = widget.selling!.color ?? '';
+      _brandController.text = widget.selling!.brand ?? '';
+      _editionController.text = widget.selling!.edition ?? '';
+      _authenticityController.text = widget.selling!.authenticity ?? '';
+    }
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    print("object${_selectedCategory}");
+    print("object$_selectedCategory");
     return Scaffold(
       appBar: CustomAppBar1(
         title: "Detail",
@@ -515,7 +536,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         });
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
+      print("Something went Wrong $e");
       showSnackBar(context, "Something went Wrong.");
       setState(() {
         _isLoading = false;
@@ -574,7 +595,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         });
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
+      print("Something went Wrong $e");
       showSnackBar(context, "Something went Wrong.");
       setState(() {
         _isLoading = false;
@@ -594,7 +615,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     int responseCode422 = 422; // For For data not found
     int responseCode500 = 500; // Internal server error.
     Map<String, dynamic> params = {
-      "category_id": "$catagoryId",
+      "category_id":
+          "${widget.selling != null ? widget.selling!.category!.id : catagoryId}}",
       "product_id": "${widget.productId}",
       "condition": _selectedCondition,
       "sub_category_id": "$subCatagoryId",
@@ -606,8 +628,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       "edition": _editionController.text,
       "authenticity": _authenticityController.text,
     };
+
+    print('paramsSecondSteps--->$params');
     try {
-      response = await dio.post(path: AppUrls.addProductDetail, data: params);
+      response = await dio.post(
+          path: widget.selling != null
+              ? AppUrls.updateProductDetail
+              : AppUrls.addProductDetail,
+          data: params);
       var responseData = response.data;
       if (response.statusCode == responseCode400) {
         showSnackBar(context, "${responseData["msg"]}");
@@ -638,13 +666,15 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           pushReplacement(
               context,
               SetPostPriceScreen(
-                productId: widget.productId, title: widget.title,
+                selling: widget.selling,
+                productId: widget.productId,
+                title: widget.title,
               ));
           _isLoading = false;
         });
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
+      print("Something went Wrong $e");
       showSnackBar(context, "Something went Wrong.");
       setState(() {
         _isLoading = false;

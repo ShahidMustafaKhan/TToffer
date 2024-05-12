@@ -242,26 +242,23 @@ class _PanelWidgetState extends State<PanelWidget> {
               ),
               Row(
                 children: [
-                  for (var i = 0; i < widget.bidsData.length; i++)
-                    SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: Stack(
-                        children: [
-                          // for (var j = i; j < widget.bidsData.length; j++)
-                          Positioned(
-                            right: i * 2.5,
-                            // Adjust the position based on your preference
-                            child: CircleAvatar(
-                              radius: 10,
-                              backgroundImage: NetworkImage(
-                                widget.bidsData[i].user!.img.toString(),
-                              ),
-                            ),
+                  Row(
+                    children: List.generate(
+                      widget.bidsData.length >= 4 ? 4 : widget.bidsData.length,
+                          (index) => SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircleAvatar(
+                          radius: 10,
+                          backgroundImage: NetworkImage(
+                            widget.bidsData[index].user?.img ?? '',
                           ),
-                        ],
+                        ),
                       ),
                     ),
+                  ),
+
+
                   const SizedBox(
                     width: 5,
                   ),
