@@ -21,6 +21,7 @@ class PostDetailScreen extends StatefulWidget {
   final productId;
   String title;
   Selling? selling;
+
   PostDetailScreen(
       {super.key, this.productId, required this.title, this.selling});
 
@@ -613,7 +614,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       "authenticity": _authenticityController.text,
     };
     try {
-      response = await dio.post(path: AppUrls.addProductDetail, data: params);
+      response = await dio.post(
+          path: widget.selling != null
+              ? AppUrls.updateProductDetail
+              : AppUrls.addProductDetail,
+          data: params);
       var responseData = response.data;
       if (response.statusCode == responseCode400) {
         showSnackBar(context, "${responseData["msg"]}");
