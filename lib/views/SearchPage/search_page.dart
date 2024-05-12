@@ -155,10 +155,13 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           ),
                         ),
-                        AppText.appText("${l.title}",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            textColor: AppTheme.textColor),
+                        Container(
+                          height: 40.5,
+                          child: AppText.appText("${l.title}",
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              textColor: AppTheme.textColor),
+                        ),
                         AppText.appText("\$${l.auctionPrice ?? l.fixPrice}",
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -183,11 +186,15 @@ class _SearchPageState extends State<SearchPage> {
 
                         if (l.auctionPrice == null)
                           const SizedBox(
-                            height: 32,
+                            height: 30,
                           ),
 
                         if (l.auctionPrice != null)
-                          AppButton.appButton("Bid Now", onTap: () {
+                          const SizedBox(
+                            height: 20,
+                          ),
+                        Expanded(
+                          child: AppButton.appButton("Bid Now", onTap: () {
                             getAuctionProductDetail(productId: l.id);
                           },
                               height: 32,
@@ -196,7 +203,8 @@ class _SearchPageState extends State<SearchPage> {
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                               backgroundColor: AppTheme.appColor,
-                              textColor: AppTheme.whiteColor)
+                              textColor: AppTheme.whiteColor),
+                        )
                       ],
                     ),
                   ),

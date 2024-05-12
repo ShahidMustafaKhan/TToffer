@@ -1,4 +1,5 @@
 import 'package:dialogs/dialogs/progress_dialog.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
@@ -141,16 +142,19 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
               ),
             ],
           ),
-          AppButton.appButton("Bid Now", onTap: () {
-            getAuctionProductDetail(productId: widget.data["id"]);
-          },
-              height: 32,
-              width: 161,
-              radius: 16.0,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              backgroundColor: AppTheme.appColor,
-              textColor: AppTheme.whiteColor)
+          const SizedBox(height: 5),
+          Expanded(
+            child: AppButton.appButton("Bid Now", onTap: () {
+              getAuctionProductDetail(productId: widget.data["id"]);
+            },
+                height: 32,
+                width: 161,
+                radius: 16.0,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                backgroundColor: AppTheme.appColor,
+                textColor: AppTheme.whiteColor),
+          )
         ],
       ),
     );
