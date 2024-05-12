@@ -258,6 +258,9 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                                 productId,
                                 userId,
                                 widget.detailResponse['id']);
+
+                            print('id--->${productId}');
+                            print('id--->${widget.detailResponse['id']}');
                           },
                             height: 53,
                             width: 200,

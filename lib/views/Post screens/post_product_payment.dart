@@ -70,7 +70,7 @@ class _PostProductPaymentState extends State<PostProductPayment> {
                                     fit: BoxFit.cover,
                                   )
                                 : Image.file(
-                                    File(imageProvider.imagePaths.first),
+                                    File(imageProvider.imagePaths[0]),
                                     fit: BoxFit.cover,
                                   ),
                           ),
@@ -82,8 +82,10 @@ class _PostProductPaymentState extends State<PostProductPayment> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            AppText.appText(widget.selling != null
-                                ?widget.title:title.toString(),
+                            AppText.appText(
+                                widget.selling != null
+                                    ? widget.title
+                                    : title.toString(),
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 textColor: AppTheme.txt1B20),
