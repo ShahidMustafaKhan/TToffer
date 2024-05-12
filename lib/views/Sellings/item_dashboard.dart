@@ -147,8 +147,8 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                                           push(
                                               context,
                                               PostScreen(
-                                                selling: widget.selling,
-                                              ));
+                                                  // selling: widget.selling,
+                                                  ));
                                         },
                                         child: AppText.appText("Sell Another",
                                             fontSize: 14,
