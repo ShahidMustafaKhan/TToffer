@@ -47,7 +47,7 @@ class _SigInScreenState extends State<SigInScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              height: 230,
+              height: 190,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
