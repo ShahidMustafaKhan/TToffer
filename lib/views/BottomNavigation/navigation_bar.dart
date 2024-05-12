@@ -51,13 +51,13 @@ class _BottomNavViewState extends State<BottomNavView> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: false,
+      canPop: canPopScope,
       onPopInvoked: (didPop) {
-        log("backPressCounter = $backPressCounter");
         log("backPressCounter = $backPressCounter");
 
         if (backPressCounter < 2) {
-          showSnackBar(context, "Press back again to exit");
+          showSnackBar(context,
+              "Are you sure you want to close the app? Press again to confirm");
           backPressCounter++;
           Future.delayed(const Duration(seconds: 2), () {
             backPressCounter--;
