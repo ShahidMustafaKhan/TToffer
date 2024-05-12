@@ -176,14 +176,22 @@ class Selling {
         isSold: json["is_sold"] ?? '',
         soldToUserId: json["sold_to_user_id"] ?? '',
         user: User.fromJson(json["user"]),
-        category: Category.fromJson(json["category"]),
+        category: json["category"] == null
+            ? null
+            : Category.fromJson(json["category"]),
         subCategory: json['sub_category'] != null
             ? SubCategory.fromJson(json['sub_category'])
             : null,
         // Assign null if 'sub_category' is null in JSON
-        photo: List<Photo>.from(json["photo"].map((x) => Photo.fromJson(x))),
-        video: List<dynamic>.from(json["video"].map((x) => x)),
-        wishlist: List<dynamic>.from(json["wishlist"].map((x) => x)),
+        photo: json["photo"] == null
+            ? []
+            : List<Photo>.from(json["photo"].map((x) => Photo.fromJson(x))),
+        video: json["video"] == null
+            ? []
+            : List<dynamic>.from(json["video"].map((x) => x)),
+        wishlist: json["wishlist"] == null
+            ? []
+            : List<dynamic>.from(json["wishlist"].map((x) => x)),
       );
 
   Map<String, dynamic> toJson() => {
