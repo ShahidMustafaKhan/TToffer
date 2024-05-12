@@ -12,6 +12,7 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
+import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/add_post_detail.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
@@ -22,7 +23,8 @@ import 'package:tt_offer/config/keys/pref_keys.dart';
 import '../../main.dart';
 
 class PostScreen extends StatefulWidget {
-  const PostScreen({super.key});
+  Selling? selling;
+  PostScreen({super.key, this.selling});
 
   @override
   State<PostScreen> createState() => _PostScreenState();
@@ -32,25 +34,22 @@ class _PostScreenState extends State<PostScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   final PageController _controller = PageController();
-  int _currentPage = 0;
-  bool _isLoading = false;
+  int currentPage = 0;
+  bool isLoading = false;
   late AppDio dio;
   AppLogger logger = AppLogger();
-  var userId;
+  var userId = pref.getString(PrefKey.userId);
 
   @override
   void initState() {
     dio = AppDio(context);
     logger.init();
-    getUserId();
-    super.initState();
-  }
 
-  getUserId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      userId = prefs.getString(PrefKey.userId);
-    });
+    if (widget.selling != null) {
+      _titleController.text = widget.selling!.title;
+      _descController.text = widget.selling!.description;
+    }
+    super.initState();
   }
 
   @override
@@ -60,7 +59,7 @@ class _PostScreenState extends State<PostScreen> {
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
       appBar: CustomAppBar1(
-        title: "Post an Item",
+        title: widget.selling != null ? "Edit Post" : "Post an Item",
         leading: false,
         action: true,
         img: "assets/images/cross.png",
@@ -152,6 +151,30 @@ class _PostScreenState extends State<PostScreen> {
                             },
                           ),
                         ),
+              SizedBox(
+                height: 110,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  itemCount: widget.selling!.photo!.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 10.0, bottom: 10),
+                      child: Container(
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(
+                            color: AppTheme.hintTextColor,
+                            borderRadius: BorderRadius.circular(8),
+                            image: DecorationImage(
+                                image: NetworkImage(
+                                    widget.selling!.photo![index].src),
+                                fit: BoxFit.fill)),
+                      ),
+                    );
+                  },
+                ),
+              ),
               AppText.appText("Add your cover photo first",
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
@@ -168,7 +191,7 @@ class _PostScreenState extends State<PostScreen> {
                 maxLines: 3,
                 height: 100.0,
               ),
-              _isLoading == true
+              isLoading == true
                   ? LoadingDialog()
                   : Padding(
                       padding: const EdgeInsets.symmetric(vertical: 20.0),
@@ -213,7 +236,7 @@ class _PostScreenState extends State<PostScreen> {
         Provider.of<ImageNotifyProvider>(context, listen: false);
 
     setState(() {
-      _isLoading = true;
+      isLoading = true;
     });
     var response;
     int responseCode200 = 200; // For successful request.
@@ -241,36 +264,36 @@ class _PostScreenState extends State<PostScreen> {
       if (response.statusCode == responseCode400) {
         showSnackBar(context, "${responseData["msg"]}");
         setState(() {
-          _isLoading = false;
+          isLoading = false;
         });
       } else if (response.statusCode == responseCode401) {
         showSnackBar(context, "${responseData["msg"]}");
         setState(() {
-          _isLoading = false;
+          isLoading = false;
         });
       } else if (response.statusCode == responseCode413) {
         showSnackBar(context, "${responseData["msg"]}");
         setState(() {
-          _isLoading = false;
+          isLoading = false;
         });
       } else if (response.statusCode == responseCode404) {
         showSnackBar(context, "${responseData["msg"]}");
         setState(() {
-          _isLoading = false;
+          isLoading = false;
         });
       } else if (response.statusCode == responseCode500) {
         showSnackBar(context, "${responseData["msg"]}");
         setState(() {
-          _isLoading = false;
+          isLoading = false;
         });
       } else if (response.statusCode == responseCode422) {
         setState(() {
-          _isLoading = false;
+          isLoading = false;
         });
       } else if (response.statusCode == responseCode200) {
         if (responseData["status"] == false) {
           setState(() {
-            _isLoading = false;
+            isLoading = false;
           });
 
           return;
@@ -278,7 +301,7 @@ class _PostScreenState extends State<PostScreen> {
           setState(() {
             var productId = responseData["product_id"];
             sendImages(productId: "$productId");
-            _isLoading = false;
+            isLoading = false;
           });
         }
       }
@@ -286,7 +309,7 @@ class _PostScreenState extends State<PostScreen> {
       print("Something went Wrong ${e}");
       showSnackBar(context, "Something went Wrong.");
       setState(() {
-        _isLoading = false;
+        isLoading = false;
       });
     }
   }
@@ -296,7 +319,7 @@ class _PostScreenState extends State<PostScreen> {
         Provider.of<ImageNotifyProvider>(context, listen: false);
     print("objectId $productId");
     setState(() {
-      _isLoading = true;
+      isLoading = true;
     });
     var response;
     int responseCode200 = 200; // For successful request.
@@ -335,36 +358,36 @@ class _PostScreenState extends State<PostScreen> {
         if (response.statusCode == responseCode400) {
           showSnackBar(context, "${responseData["message"]}");
           setState(() {
-            _isLoading = false;
+            isLoading = false;
           });
         } else if (response.statusCode == responseCode401) {
           showSnackBar(context, "${responseData["message"]}");
           setState(() {
-            _isLoading = false;
+            isLoading = false;
           });
         } else if (response.statusCode == responseCode413) {
           showSnackBar(context, "${responseData["message"]}");
           setState(() {
-            _isLoading = false;
+            isLoading = false;
           });
         } else if (response.statusCode == responseCode404) {
           showSnackBar(context, "${responseData["message"]}");
           setState(() {
-            _isLoading = false;
+            isLoading = false;
           });
         } else if (response.statusCode == responseCode500) {
           showSnackBar(context, "${responseData["message"]}");
           setState(() {
-            _isLoading = false;
+            isLoading = false;
           });
         } else if (response.statusCode == responseCode422) {
           setState(() {
-            _isLoading = false;
+            isLoading = false;
           });
         } else if (response.statusCode == responseCode200) {
           if (responseData["status"] == false) {
             setState(() {
-              _isLoading = false;
+              isLoading = false;
             });
 
             return;
@@ -374,7 +397,7 @@ class _PostScreenState extends State<PostScreen> {
               // _titleController.clear();
               imageProvider.vedioPath = "";
               // imageProvider.imagePaths.clear();
-              _isLoading = false;
+              isLoading = false;
 
               title = _titleController.text;
 
@@ -391,7 +414,7 @@ class _PostScreenState extends State<PostScreen> {
         print("Something went Wrong ${e}");
         showSnackBar(context, "Something went Wrong.");
         setState(() {
-          _isLoading = false;
+          isLoading = false;
         });
       }
     }

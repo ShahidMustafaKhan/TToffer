@@ -9,6 +9,8 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
+import 'package:tt_offer/main.dart';
+import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
 import 'package:tt_offer/views/Post%20screens/set_price_screen.dart';
@@ -17,8 +19,10 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 
 class PostDetailScreen extends StatefulWidget {
   final productId;
-  String  title;
-   PostDetailScreen({super.key, this.productId,required this.title});
+  String title;
+  Selling? selling;
+  PostDetailScreen(
+      {super.key, this.productId, required this.title, this.selling});
 
   @override
   State<PostDetailScreen> createState() => _PostDetailScreenState();
@@ -40,17 +44,19 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   final TextEditingController _editionController = TextEditingController();
 
   bool _isLoading = false;
-  late AppDio dio;
   AppLogger logger = AppLogger();
   var catagoryData;
   var subCatagoryData;
 
   @override
   void initState() {
-    dio = AppDio(context);
     logger.init();
     getCatagories(search: "");
     getSubCatagories(search: "");
+
+    if (widget.selling != null) {
+      _millageController.text = widget.selling!.mileage;
+    }
 
     super.initState();
   }
@@ -638,7 +644,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           pushReplacement(
               context,
               SetPostPriceScreen(
-                productId: widget.productId, title: widget.title,
+                productId: widget.productId,
+                title: widget.title,
               ));
           _isLoading = false;
         });

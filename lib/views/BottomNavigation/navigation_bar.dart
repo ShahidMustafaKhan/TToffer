@@ -18,16 +18,16 @@ class BottomNavView extends StatefulWidget {
 class _BottomNavViewState extends State<BottomNavView> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    LandingScreen(),
-    ChatScreen(
+  static final List<Widget> _widgetOptions = <Widget>[
+    const LandingScreen(),
+    const ChatScreen(
       isProductChat: false,
     ),
     PostScreen(),
-    SellingPurchaseScreen(
+    const SellingPurchaseScreen(
       title: "Selling",
     ),
-    ProfileScreen()
+    const ProfileScreen()
   ];
 
   void _onItemTapped(int index) {
