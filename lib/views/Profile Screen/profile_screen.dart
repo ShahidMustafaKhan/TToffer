@@ -147,16 +147,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 color: profileApi
                                             .profileData["email_verified_at"] ==
                                         null
-                                    ? Colors.greenAccent
-                                    : AppTheme.appColor),
+                                    ? Colors.red
+                                    : null),
                             verifiedContainer(
                                 txt: "Image Verified",
                                 img: "assets/images/gallery.png",
                                 color: profileApi
                                             .profileData["image_verified_at"] ==
                                         null
-                                    ? Colors.greenAccent
-                                    : AppTheme.appColor),
+                                    ? Colors.red
+                                    : null),
                             verifiedContainer(
                                 onTap: profileApi
                                             .profileData["phone_verified_at"] ==
@@ -170,10 +170,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 color: profileApi
                                             .profileData["phone_verified_at"] ==
                                         null
-                                    ? Colors.greenAccent
-                                    : AppTheme.appColor),
+                                    ? Colors.red
+                                    : null),
                             verifiedContainer(
                                 txt: "Join TruYou",
+                                color:
+                                    profileApi.profileData["is_true_you"] == 0
+                                        ? Colors.red
+                                        : null,
                                 img: "assets/images/verify1.png"),
                           ],
                         ),

@@ -262,6 +262,8 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                             children: [
                               GestureDetector(
                                 onTap: () {
+                                  // showSnackBar(
+                                  // context, "move to SellerProfileScreen");
                                   push(
                                       context,
                                       SellerProfileScreen(
