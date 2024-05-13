@@ -12,6 +12,7 @@ class LableTextField extends StatefulWidget {
   final lableColor;
   final height;
   final maxLines;
+
   const LableTextField(
       {super.key,
       this.labelTxt,
@@ -35,13 +36,17 @@ class _LableTextFieldState extends State<LableTextField> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppText.appText("${widget.labelTxt}",
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              textColor: widget.lableColor ?? AppTheme.text09),
-          const SizedBox(
-            height: 10,
-          ),
+          widget.labelTxt == null
+              ? const SizedBox.shrink()
+              : AppText.appText("${widget.labelTxt}",
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  textColor: widget.lableColor ?? AppTheme.text09),
+          widget.labelTxt == ''
+              ? const SizedBox.shrink()
+              : const SizedBox(
+                  height: 10,
+                ),
           widget.pass == true
               ? CustomAppPasswordfield(
                   texthint: "Password",

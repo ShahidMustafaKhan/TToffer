@@ -76,6 +76,69 @@ class ProductsApiProvider extends ChangeNotifier {
     }
   }
 
+
+  void getAuctionFiltterProducts({
+    productId,
+    search,
+    cateId,
+    subCatId,
+    limit,
+    location,
+    required dio,
+    required context,
+  }) async {
+    isLoading = true;
+    var response;
+    int responseCode200 = 200; // For successful request.
+    int responseCode400 = 400; // For Bad Request.
+    int responseCode401 = 401; // For Unauthorized access.
+    int responseCode404 = 404; // For For data not found
+    int responseCode422 = 422; // For For data not found
+    int responseCode500 = 500; // Internal server error.
+    Map<String, dynamic> params = {
+      // "id": productId,
+      "sort_by": search,
+      "is_urgert": '',
+      "min_price": '',
+      "max_price": '',
+    };
+    try {
+      response = await dio.post(path: AppUrls.getAuctionProducts, data: params);
+      var responseData = response.data;
+      if (response.statusCode == responseCode400) {
+        showSnackBar(context, "${responseData["msg"]}");
+        isLoading = false;
+        notifyListeners();
+      } else if (response.statusCode == responseCode401) {
+        showSnackBar(context, "${responseData["msg"]}");
+        isLoading = false;
+        notifyListeners();
+      } else if (response.statusCode == responseCode404) {
+        showSnackBar(context, "${responseData["msg"]}");
+
+        isLoading = false;
+        notifyListeners();
+      } else if (response.statusCode == responseCode500) {
+        showSnackBar(context, "${responseData["msg"]}");
+
+        isLoading = false;
+        notifyListeners();
+      } else if (response.statusCode == responseCode422) {
+        isLoading = false;
+        notifyListeners();
+      } else if (response.statusCode == responseCode200) {
+        isLoading = false;
+        allauctionProductsData = responseData["data"];
+        notifyListeners();
+      }
+    } catch (e) {
+      print("Something went Wrong ${e}");
+      showSnackBar(context, "Something went Wrong.");
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
   ////////////////////////////////////////// Featured Productss ////////////////////////////////////////////////
 
   void getFeatureProducts({
