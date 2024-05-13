@@ -42,6 +42,9 @@ class AppUrls {
   static const String createConversationUrl = "get/conversation_id";
   static const String allProductsUrl = "get-all-products";
   static const String newPasswordUrl = "new-password";
+  static const String getUserInfoUrl = "user/info";
+
+  //
 
 //
   //

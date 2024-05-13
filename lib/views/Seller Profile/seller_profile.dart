@@ -19,8 +19,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppTheme.whiteColor,
-        appBar: const CustomAppBar1(
-          title: "Profile",
+        appBar: CustomAppBar1(
+          title: "${widget.detailResponse["user"]["name"]}'s Profile",
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -33,14 +33,30 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     verifiedContainer(
-                        txt: "Email Verified", img: "assets/images/sms.png"),
+                        txt: "Email Verified",
+                        color: widget.detailResponse["user"]
+                                    ["email_verified_at"] !=
+                                null
+                            ? null
+                            : Colors.red,
+                        img: "assets/images/sms.png"),
                     verifiedContainer(
                         txt: "Image Verified",
                         img: "assets/images/gallery.png"),
                     verifiedContainer(
-                        txt: "Phone Verified", img: "assets/images/call.png"),
+                        txt: "Phone Verified",
+                        img: "assets/images/call.png",
+                        color: widget.detailResponse["user"]
+                                    ["phone_verified_at"] !=
+                                null
+                            ? null
+                            : Colors.red),
                     verifiedContainer(
-                        txt: "Join TruYou", img: "assets/images/verify1.png"),
+                        color: widget.detailResponse["user"]["is_true_you"] == 0
+                            ? Colors.red
+                            : null,
+                        txt: "Join TruYou",
+                        img: "assets/images/verify1.png"),
                   ],
                 ),
                 // AppText.appText("Products",
@@ -135,20 +151,20 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                             color: AppTheme.text09,
                             borderRadius: BorderRadius.circular(16)),
                       ),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Container(
-                          height: 24,
-                          width: 24,
-                          decoration: BoxDecoration(
-                              color: AppTheme.whiteColor,
-                              borderRadius: BorderRadius.circular(6)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Image.asset("assets/images/camera.png"),
-                          ),
-                        ),
-                      )
+                      // Align(
+                      //   alignment: Alignment.bottomCenter,
+                      //   child: Container(
+                      //     height: 24,
+                      //     width: 24,
+                      //     decoration: BoxDecoration(
+                      //         color: AppTheme.whiteColor,
+                      //         borderRadius: BorderRadius.circular(6)),
+                      //     child: Padding(
+                      //       padding: const EdgeInsets.all(4.0),
+                      //       child: Image.asset("assets/images/camera.png"),
+                      //     ),
+                      //   ),
+                      // )
                     ],
                   ),
                 ),
