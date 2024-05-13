@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class FeatureProductContainer extends StatefulWidget {
   final data;
+
   const FeatureProductContainer({super.key, this.data});
 
   @override
@@ -14,6 +16,15 @@ class FeatureProductContainer extends StatefulWidget {
 class _FeatureProductContainerState extends State<FeatureProductContainer> {
   @override
   Widget build(BuildContext context) {
+    // Example API date
+    String apiDate = "2024-03-19T20:26:04.000000Z";
+
+    // Convert API date to DateTime
+    DateTime dateTime = DateTime.parse("${widget.data["user"]["created_at"]}");
+
+    // Calculate time ago
+    String timeAgo = getTimeAgo(dateTime);
+
     return SizedBox(
       height: 245,
       width: 150,
@@ -90,15 +101,25 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                   )
                 ],
               ),
-              AppText.appText("2 Week ago",
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  textColor: AppTheme.appColor),
+              InkWell(
+                onTap: () {
+                  print('${widget.data["user"]["created_at"]}');
+                },
+                child: AppText.appText('$timeAgo ago',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    textColor: AppTheme.appColor),
+              ),
             ],
           ),
         ],
       ),
     );
     ;
+  }
+
+  String getTimeAgo(DateTime dateTime) {
+    // Calculate time ago using the timeago package
+    return timeago.format(dateTime, locale: 'en_short');
   }
 }

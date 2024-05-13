@@ -49,6 +49,8 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
       _locationController.text = widget.selling!.location;
     }
 
+    // print('location--->${widget.selling!.location??''}');
+
     super.initState();
   }
 
@@ -192,7 +194,9 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
               context,
               PostProductPayment(
                 amount: widget.amount,
-                productId: widget.productId,
+                productId: widget.selling == null
+                    ? widget.productId
+                    : widget.selling!.id,
                 title: widget.title,
                 selling: widget.selling,
               ));

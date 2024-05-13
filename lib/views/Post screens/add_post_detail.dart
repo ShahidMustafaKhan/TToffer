@@ -56,7 +56,22 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     getSubCatagories(search: "");
 
     if (widget.selling != null) {
-      _millageController.text = widget.selling!.mileage;
+      if (widget.selling!.category != null) {
+        _selectedCategory = widget.selling!.category!.name ?? '';
+        catagoryId = widget.selling!.categoryId;
+      }
+      if (widget.selling!.subCategory != null) {
+        _selectedSubCategory = widget.selling!.subCategory!.name ?? '';
+        subCatagoryId = widget.selling!.subCategoryId ?? '';
+      }
+      _selectedCondition = widget.selling!.condition ?? '';
+      _modelController.text = widget.selling!.model ?? '';
+      _millageController.text = widget.selling!.mileage ?? '';
+      _colorController.text = widget.selling!.color ?? '';
+      _brandController.text = widget.selling!.brand ?? '';
+      _editionController.text = widget.selling!.edition ?? '';
+      _authenticityController.text = widget.selling!.authenticity ?? '';
+      _modelYearController.text = widget.selling!.makeAndModel ?? '';
     }
 
     super.initState();
@@ -64,7 +79,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("object${_selectedCategory}");
+    print("object$_selectedCategory");
     return Scaffold(
       appBar: CustomAppBar1(
         title: "Detail",
@@ -364,6 +379,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   if (value != null && value) {
                     _selectedSubCategory = subCatagoryData[index]["name"];
                     subCatagoryId = subCatagoryData[index]["id"];
+                    print('subbbbb----->${subCatagoryId}');
                   } else {
                     _selectedSubCategory = "";
                   }
@@ -522,7 +538,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         });
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
+      print("Something went Wrong $e");
       showSnackBar(context, "Something went Wrong.");
       setState(() {
         _isLoading = false;
@@ -581,7 +597,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         });
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
+      print("Something went Wrong $e");
       showSnackBar(context, "Something went Wrong.");
       setState(() {
         _isLoading = false;
@@ -601,7 +617,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     int responseCode422 = 422; // For For data not found
     int responseCode500 = 500; // Internal server error.
     Map<String, dynamic> params = {
-      "category_id": "$catagoryId",
+      "category_id": "${widget.selling == null ? catagoryId : catagoryId}",
       "product_id": "${widget.productId}",
       "condition": _selectedCondition,
       "sub_category_id": "$subCatagoryId",
@@ -649,6 +665,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           pushReplacement(
               context,
               SetPostPriceScreen(
+                selling: widget.selling,
                 productId: widget.productId,
                 title: widget.title,
               ));
@@ -656,7 +673,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         });
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
+      print("Something went Wrong $e");
       showSnackBar(context, "Something went Wrong.");
       setState(() {
         _isLoading = false;

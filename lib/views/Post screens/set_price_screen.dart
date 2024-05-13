@@ -73,7 +73,6 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
       }
     }
 
-
     super.initState();
   }
 
@@ -671,7 +670,9 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
               context,
               PostLocationScreen(
                 selling: widget.selling,
-                productId: widget.productId,
+                productId: widget.selling == null
+                    ? widget.productId
+                    : widget.selling!.id,
                 amount: int.parse(_priceController.text),
                 title: widget.title,
               ));

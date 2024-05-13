@@ -26,9 +26,7 @@ class _BottomNavViewState extends State<BottomNavView> {
     const ChatScreen(
       isProductChat: false,
     ),
-    PostScreen(
-      selling: null,
-    ),
+    PostScreen(),
     const SellingPurchaseScreen(
       title: "Selling",
     ),

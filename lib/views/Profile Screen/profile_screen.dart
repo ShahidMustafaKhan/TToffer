@@ -12,6 +12,8 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/Authentication%20screens/login_screen.dart';
+import 'package:tt_offer/views/Boost%20Plus%20Screens/boost_plus_screen.dart';
+import 'package:tt_offer/views/Boost%20Plus%20Screens/boost_work.dart';
 import 'package:tt_offer/views/ContactPage/contact_page.dart';
 import 'package:tt_offer/views/EmailVerification/email_verification_screen.dart';
 import 'package:tt_offer/views/PhoneVerify/phone_verify_screen.dart';
@@ -215,7 +217,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   txt: "Account Setting",
                   img: "assets/images/accountSetting.png"),
               customRow(
-                  onTap: () {},
+                  onTap: () {
+                    push(context, const BoostWorkScreen());
+                  },
                   txt: "Boost Plus",
                   img: "assets/images/boostPlus.png"),
               customRow(

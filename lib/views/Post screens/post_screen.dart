@@ -64,9 +64,13 @@ class _PostScreenState extends State<PostScreen> {
 
   bool galImage = false;
 
+  var ourProductId;
+
   @override
   Widget build(BuildContext context) {
     final imageProvider = Provider.of<ImageNotifyProvider>(context);
+    String title =
+        _titleController.text; // Ensure _titleController.text is not null
 
     // if (widget.selling != null) {
     //   Provider.of<ImageNotifyProvider>(context).imagePaths =
@@ -259,10 +263,13 @@ class _PostScreenState extends State<PostScreen> {
 
                         // If all conditions are met, proceed with adding the product
                         await addProductFirstStep();
+
                         push(
                             context,
                             PostDetailScreen(
-                              productId: widget.selling!.id,
+                              productId: widget.selling == null
+                                  ? ourProductId
+                                  : widget.selling!.id,
                               title: _titleController.text,
                               selling: widget.selling,
                             ));
@@ -281,7 +288,7 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
-  addProductFirstStep() async {
+  Future addProductFirstStep() async {
     final imageProvider =
         Provider.of<ImageNotifyProvider>(context, listen: false);
 
@@ -306,6 +313,10 @@ class _PostScreenState extends State<PostScreen> {
       if (widget.selling != null)
         MapEntry("product_id", widget.selling!.id.toString()),
     ]);
+
+    print(
+        'formData---->${formData.fields}'); // Print the content of formData.fields
+
     if (imageProvider.vedioPath.isNotEmpty) {
       formData.files
           .add(MapEntry("video", await MultipartFile.fromFile(videoFile.path)));
@@ -356,6 +367,9 @@ class _PostScreenState extends State<PostScreen> {
         } else {
           setState(() {
             var productId = responseData["product_id"];
+
+            ourProductId = productId;
+
             sendImages(
                 productId:
                     widget.selling != null ? widget.selling!.id : "$productId");
@@ -462,7 +476,8 @@ class _PostScreenState extends State<PostScreen> {
               // imageProvider.imagePaths.clear();
               _isLoading = false;
 
-              title = _titleController.text;
+              title = _titleController.text ??
+                  ''; // Ensure _titleController.text is not null
 
               // push(
               //     context,

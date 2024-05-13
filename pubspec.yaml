@@ -69,6 +69,7 @@ dependencies:
   flutter_stripe: ^10.1.1
   zego_uikit_prebuilt_call: ^4.9.0
   zego_uikit_signaling_plugin: ^2.7.6
+  timeago: ^3.6.1
 
   
 flutter_icons:

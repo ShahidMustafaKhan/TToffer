@@ -64,9 +64,11 @@ class _PostProductPaymentState extends State<PostProductPayment> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(16),
-                            child: widget.selling != null
+                            child: widget.selling != null &&
+                                    widget.selling!.photo != null &&
+                                    widget.selling!.photo!.isNotEmpty
                                 ? Image.network(
-                                    widget.selling!.photo![0].src.toString(),
+                                    widget.selling!.photo![0].src,
                                     fit: BoxFit.cover,
                                   )
                                 : Image.file(
@@ -83,9 +85,7 @@ class _PostProductPaymentState extends State<PostProductPayment> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             AppText.appText(
-                                widget.selling != null
-                                    ? widget.title
-                                    : title.toString(),
+                                widget.selling != null ? widget.title : title!,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 textColor: AppTheme.txt1B20),

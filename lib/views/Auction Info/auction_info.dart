@@ -251,13 +251,15 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                             type: TextInputType.number,
                           )
                         : AppButton.appButton(
-                            "Place Bid for \$${open.bidPrice}", onTap: () {
-                            showLogOutALert(
+                            "Place Bid for \$${open.bidPrice}",
+                            onTap: () async {
+                            await showLogOutALert(
                                 context,
                                 _priceController.text ?? bidList[0],
                                 productId,
                                 userId,
                                 widget.detailResponse['id']);
+                            getAuctionProductDetail();
 
                             print('id--->${productId}');
                             print('id--->${widget.detailResponse['id']}');
@@ -342,7 +344,8 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
   String getFormattedTimestamp() {
     String timestampStr = "2024-04-06T00:52:00.000000Z";
     DateTime timestamp = DateTime.parse(timestampStr);
-    DateTime convertedTime = timestamp.toLocal();
+    DateTime convertedTime =
+        DateTime.parse(widget.detailResponse["created_at"]);
     String formattedTimestamp =
         DateFormat('yyyy-MM-dd   hh:mm a').format(convertedTime);
     return "Posted on  $formattedTimestamp in ${widget.detailResponse["location"]}";
@@ -446,7 +449,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                         alignment: Alignment.bottomRight,
                         child: AppText.appText(
                             formatTimestamp(
-                                "${widget.detailResponse["user"]["created_at"]}"),
+                                "${widget.detailResponse["created_at"]}"),
                             fontSize: 10,
                             fontWeight: FontWeight.w400,
                             textColor: AppTheme.lighttextColor),
