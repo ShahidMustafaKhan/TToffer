@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
+import 'package:tt_offer/providers/selling_purchase_provider.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/add_post_detail.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
@@ -180,66 +182,57 @@ class _PostScreenState extends State<PostScreen> {
                             },
                           ),
                         ),
-              widget.selling == null && imageProvider.imagePaths.isEmpty
-                  ? (widget.selling!.photo == null || widget.selling!.photo!.isEmpty || widget.selling!.photo![0].src.isEmpty)
-                  ? const SizedBox.shrink()
-                  : Wrap(
-                children: [
-                  for (var l in widget.selling!.photo!)
-                    l.src.isEmpty
-                        ? const SizedBox()
-                        : Stack(
+              widget.selling != null && imageProvider.imagePaths.isEmpty
+                  ? Wrap(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 20.0, horizontal: 8),
-                          child: Container(
-                            height: 100,
-                            width: 100,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: NetworkImage(l.src.toString()),
-                                fit: BoxFit.cover,
+                        for (var l in widget.selling!.photo!)
+                          Stack(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 20.0, horizontal: 8),
+                                child: Container(
+                                  height: 100,
+                                  width: 100,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: NetworkImage(l.src.toString()),
+                                      fit: BoxFit.cover,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
                               ),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                              Positioned(
+                                right: 1,
+                                top: 1,
+                                child: InkWell(
+                                  onTap: () async {
+                                    await ImageDeleteService()
+                                        .imageDeleteService(
+                                      context: context,
+                                      id: l.id,
+                                      productId: l.productId,
+                                    );
+                                    setState(() {
+                                      widget.selling!.photo!.remove(l);
+                                    });
+                                  },
+                                  child: const Card(
+                                    child: Icon(Icons.close),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        Positioned(
-                          right: 1,
-                          top: 1,
-                          child: InkWell(
-                            onTap: () async {
-                              await ImageDeleteService().imageDeleteService(
-                                context: context,
-                                id: l.id,
-                                productId: l.productId,
-                              );
-
-                              await apiProvider.getAuctionProducts(
-                                dio: dio,
-                                context: context,
-                              );
-                            },
-                            child: const Card(
-                              child: Icon(Icons.close),
-                            ),
-                          ),
-                        ),
                       ],
-                    ),
-                ],
-              )
+                    )
                   : widget.selling != null
-                  ? const SizedBox.shrink()
-                  : AppText.appText(
-                "Add your cover photo first",
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                textColor: AppTheme.textColor,
-              ),
-
-
+                      ? const SizedBox.shrink()
+                      : AppText.appText("Add your cover photo first",
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          textColor: AppTheme.textColor),
               LableTextField(
                 labelTxt: "Title",
                 hintTxt: "Title",
@@ -402,6 +395,29 @@ class _PostScreenState extends State<PostScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  void getSellingProducts(context) async {
+    log("getSellingProducts fired");
+
+    var response;
+
+    // try {
+    response = await dio.get(path: AppUrls.sellingScreen);
+    var responseData = response.data;
+    if (response.statusCode == 200) {
+      // sellingData = responseData["sold"];
+      SellingProductsModel model = SellingProductsModel.fromJson(responseData);
+
+      Provider.of<SellingPurchaseProvider>(context, listen: false)
+          .updateData(model: model);
+      // purchaseData = responseData["purchase"];
+      // archieveData = responseData["archive"];
+    }
+    // } catch (e) {
+    //   print("Something went Wrong $e");
+    //   showSnackBar(context, "Something went Wrong.");
+    // }
   }
 
   void sendImages({productId}) async {
