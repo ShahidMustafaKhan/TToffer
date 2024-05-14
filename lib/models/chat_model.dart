@@ -2,83 +2,54 @@ import 'dart:convert';
 
 class ChatModel {
   bool success;
-  ChatData data;
+  Data? data;
   String message;
 
   ChatModel({
     required this.success,
-    required this.data,
+    this.data,
     required this.message,
   });
 
-  ChatModel copyWith({
-    bool? success,
-    ChatData? data,
-    String? message,
-  }) =>
-      ChatModel(
-        success: success ?? this.success,
-        data: data ?? this.data,
-        message: message ?? this.message,
-      );
-
-  factory ChatModel.fromRawJson(String str) =>
-      ChatModel.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory ChatModel.fromJson(Map<String, dynamic> json) => ChatModel(
         success: json["success"],
-        data: ChatData.fromJson(json["data"]),
+        data: Data.fromJson(json["data"]),
         message: json["message"],
       );
 
-  Map<String, dynamic> toJson() => {
-        "success": success,
-        "data": data.toJson(),
-        "message": message,
-      };
+  // Map<String, dynamic> toJson() => {
+  //       "success": success,
+  //       "data": data!.toJson(),
+  //       "message": message,
+  //     };
 }
 
-class ChatData {
-  List<Conversation> conversation;
+class Data {
+  List<Conversation>? conversation;
   Participant participant1;
   Participant participant2;
 
-  ChatData({
+  Data({
     required this.conversation,
     required this.participant1,
     required this.participant2,
   });
 
-  ChatData copyWith({
-    List<Conversation>? conversation,
-    Participant? participant1,
-    Participant? participant2,
-  }) =>
-      ChatData(
-        conversation: conversation ?? this.conversation,
-        participant1: participant1 ?? this.participant1,
-        participant2: participant2 ?? this.participant2,
-      );
-
-  factory ChatData.fromRawJson(String str) =>
-      ChatData.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory ChatData.fromJson(Map<String, dynamic> json) => ChatData(
-        conversation: List<Conversation>.from(
-            json["conversation"].map((x) => Conversation.fromJson(x))),
+  factory Data.fromJson(Map<String, dynamic> json) => Data(
+        conversation: json["conversation"] == null
+            ? []
+            : List<Conversation>.from(
+                json["conversation"].map((x) => Conversation.fromJson(x))),
         participant1: Participant.fromJson(json["Participant1"]),
         participant2: Participant.fromJson(json["Participant2"]),
       );
 
-  Map<String, dynamic> toJson() => {
-        "conversation": List<dynamic>.from(conversation.map((x) => x.toJson())),
-        "Participant1": participant1.toJson(),
-        "Participant2": participant2.toJson(),
-      };
+  // Map<String, dynamic> toJson() => {
+  //       "conversation":
+  //           List<dynamic>.from(conversation!.map((x) => x.toJson())),
+  //       "Participant1": participant1.toJson(),
+  //       "Participant2": participant2.toJson(),
+  //     };
 }
 
 class Conversation {
@@ -86,14 +57,18 @@ class Conversation {
   int? senderId;
   int? receiverId;
   String? message;
-  String? file;
-  String? fileName;
-  String? fileType;
-  // Status status;
+  dynamic file;
+  dynamic fileName;
+  dynamic fileType;
+  String? status;
   String? conversationId;
   DateTime? createdAt;
   DateTime? updatedAt;
   dynamic deletedAt;
+  int? offerId;
+  int? productId;
+  Product? product;
+  Offer? offer;
 
   Conversation({
     this.id,
@@ -103,46 +78,16 @@ class Conversation {
     this.file,
     this.fileName,
     this.fileType,
-    // this.status,
+    this.status,
     this.conversationId,
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
+    this.offerId,
+    this.productId,
+    this.product,
+    this.offer,
   });
-
-  Conversation copyWith({
-    int? id,
-    int? senderId,
-    int? receiverId,
-    String? message,
-    String? file,
-    String? fileName,
-    String? fileType,
-    // Status? status,
-    String? conversationId,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    dynamic deletedAt,
-  }) =>
-      Conversation(
-        id: id ?? this.id,
-        senderId: senderId ?? this.senderId,
-        receiverId: receiverId ?? this.receiverId,
-        message: message ?? this.message,
-        file: file ?? this.file,
-        fileName: fileName ?? this.fileName,
-        fileType: fileType ?? this.fileType,
-        // status: status ?? this.status,
-        conversationId: conversationId ?? this.conversationId,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-        deletedAt: deletedAt ?? this.deletedAt,
-      );
-
-  factory Conversation.fromRawJson(String str) =>
-      Conversation.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
 
   factory Conversation.fromJson(Map<String, dynamic> json) => Conversation(
         id: json["id"],
@@ -152,28 +97,277 @@ class Conversation {
         file: json["file"],
         fileName: json["file_name"],
         fileType: json["file_type"],
-        // status: statusValues.map[json["status"]]!,
+        status: json["status"],
         conversationId: json["conversation_id"],
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
         deletedAt: json["deleted_at"],
+        offerId: json["offer_id"],
+        productId: json["product_id"],
+        product:
+            json["product"] == null ? null : Product.fromJson(json["product"]),
+        offer: json["offer"] == null ? null : Offer.fromJson(json["offer"]),
+      );
+
+  // Map<String, dynamic> toJson() => {
+  //       "id": id,
+  //       "sender_id": senderId,
+  //       "receiver_id": receiverId,
+  //       "message": message,
+  //       "file": file,
+  //       "file_name": fileName,
+  //       "file_type": fileType,
+  //       "status": status,
+  //       "conversation_id": conversationId,
+  //       "created_at": createdAt?.toIso8601String(),
+  //       "updated_at": updatedAt?.toIso8601String(),
+  //       "deleted_at": deletedAt,
+  //       "offer_id": offerId,
+  //       "product_id": productId,
+  //       "product": product?.toJson(),
+  //       "offer": offer?.toJson(),
+  //     };
+}
+
+class Offer {
+  int? id;
+  int? productId;
+  int? sellerId;
+  int? buyerId;
+  int? offerPrice;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  int? status;
+
+  Offer({
+    this.id,
+    this.productId,
+    this.sellerId,
+    this.buyerId,
+    this.offerPrice,
+    this.createdAt,
+    this.updatedAt,
+    this.status,
+  });
+
+  factory Offer.fromJson(Map<String, dynamic> json) => Offer(
+        id: json["id"],
+        productId: json["product_id"],
+        sellerId: json["seller_id"],
+        buyerId: json["buyer_id"],
+        offerPrice: json["offer_price"],
+        createdAt: DateTime.parse(json["created_at"]),
+        updatedAt: DateTime.parse(json["updated_at"]),
+        status: json["status"],
       );
 
   Map<String, dynamic> toJson() => {
         "id": id,
-        "sender_id": senderId,
-        "receiver_id": receiverId,
-        "message": message,
-        "file": file,
-        "file_name": fileName,
-        "file_type": fileType,
-        // "status": statusValues.reverse[status],
-        "conversation_id": conversationId,
+        "product_id": productId,
+        "seller_id": sellerId,
+        "buyer_id": buyerId,
+        "offer_price": offerPrice,
         "created_at": createdAt?.toIso8601String(),
         "updated_at": updatedAt?.toIso8601String(),
-        "deleted_at": deletedAt,
+        "status": status,
       };
 }
+
+class Product {
+  int? id;
+  int? userId;
+  String? title;
+  String? slug;
+  String? description;
+  int? categoryId;
+  int? subCategoryId;
+  String? condition;
+  String? makeAndModel;
+  String? mileage;
+  String? color;
+  String? brand;
+  String? model;
+  String? edition;
+  String? authenticity;
+  int? fixPrice;
+  int? firmOnPrice;
+  dynamic auctionPrice;
+  dynamic startingDate;
+  dynamic startingTime;
+  dynamic endingDate;
+  dynamic endingTime;
+  dynamic sellToUs;
+  String? location;
+  int? status;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  int? isUrgent;
+  int? totalReview;
+  int? reviewPercentage;
+  int? isArchived;
+  int? isSold;
+  dynamic soldToUserId;
+  dynamic viewsCount;
+  dynamic boosterStartDatetime;
+  dynamic boosterEndDatetime;
+  // Category? category;
+  // SubCategory? subCategory;
+  List<Photo>? photo;
+  List<dynamic>? video;
+  List<dynamic>? wishlist;
+
+  Product({
+    this.id,
+    this.userId,
+    this.title,
+    this.slug,
+    this.description,
+    this.categoryId,
+    this.subCategoryId,
+    this.condition,
+    this.makeAndModel,
+    this.mileage,
+    this.color,
+    this.brand,
+    this.model,
+    this.edition,
+    this.authenticity,
+    this.fixPrice,
+    this.firmOnPrice,
+    this.auctionPrice,
+    this.startingDate,
+    this.startingTime,
+    this.endingDate,
+    this.endingTime,
+    this.sellToUs,
+    this.location,
+    this.status,
+    this.createdAt,
+    this.updatedAt,
+    this.isUrgent,
+    this.totalReview,
+    this.reviewPercentage,
+    this.isArchived,
+    this.isSold,
+    this.soldToUserId,
+    this.viewsCount,
+    this.boosterStartDatetime,
+    this.boosterEndDatetime,
+    // this.category,
+    // this.subCategory,
+    this.photo,
+    this.video,
+    this.wishlist,
+  });
+
+  factory Product.fromJson(Map<String, dynamic> json) => Product(
+        id: json["id"],
+        userId: json["user_id"],
+        title: json["title"],
+        slug: json["slug"],
+        description: json["description"],
+        categoryId: json["category_id"],
+        subCategoryId: json["sub_category_id"],
+        condition: json["condition"],
+        makeAndModel: json["make_and_model"],
+        mileage: json["mileage"],
+        color: json["color"],
+        brand: json["brand"],
+        model: json["model"],
+        edition: json["edition"],
+        authenticity: json["authenticity"],
+        fixPrice: json["fix_price"],
+        firmOnPrice: json["firm_on_price"],
+        auctionPrice: json["auction_price"],
+        startingDate: json["starting_date"],
+        startingTime: json["starting_time"],
+        endingDate: json["ending_date"],
+        endingTime: json["ending_time"],
+        sellToUs: json["sell_to_us"],
+        location: json["location"],
+        status: json["status"],
+        createdAt: DateTime.parse(json["created_at"]),
+        updatedAt: DateTime.parse(json["updated_at"]),
+        isUrgent: json["is_urgent"],
+        totalReview: json["total_review"],
+        reviewPercentage: json["review_percentage"],
+        isArchived: json["is_archived"],
+        isSold: json["is_sold"],
+        soldToUserId: json["sold_to_user_id"],
+        viewsCount: json["views_count"],
+        boosterStartDatetime: json["booster_start_datetime"],
+        boosterEndDatetime: json["booster_end_datetime"],
+        // category: Category.fromJson(json["category"]),
+        // subCategory: SubCategory.fromJson(json["sub_category"]),
+        photo: List<Photo>.from(json["photo"].map((x) => Photo.fromJson(x))),
+        video: List<dynamic>.from(json["video"].map((x) => x)),
+        wishlist: List<dynamic>.from(json["wishlist"].map((x) => x)),
+      );
+}
+
+// class Category {
+//   int? id;
+//   String? name;
+//   String? slug;
+//   String? color;
+//   String? image;
+//   int? status;
+//   DateTime? createdAt;
+//   DateTime? updatedAt;
+
+//   factory Category.fromJson(Map<String, dynamic> json) => Category(
+//         id: json["id"],
+//         name: json["name"],
+//         slug: json["slug"],
+//         color: json["color"],
+//         image: json["image"],
+//         status: json["status"],
+//         createdAt: DateTime.parse(json["created_at"]),
+//         updatedAt: DateTime.parse(json["updated_at"]),
+//       );
+
+// }
+
+class Photo {
+  // int id;
+  // int productId;
+  String? src;
+  // DateTime createdAt;
+  // DateTime updatedAt;
+
+  Photo({
+    //  this.id,
+    //  this.productId,
+    this.src,
+    //  this.createdAt,
+    //  this.updatedAt,
+  });
+
+  factory Photo.fromJson(Map<String, dynamic> json) => Photo(
+        // id: json["id"],
+        // productId: json["product_id"],
+        src: json["src"],
+        // createdAt: DateTime.parse(json["created_at"]),
+        // updatedAt: DateTime.parse(json["updated_at"]),
+      );
+}
+
+// class SubCategory {
+//   int id;
+//   int categoryId;
+//   String name;
+
+//   SubCategory({
+//    this.id,
+//    this.categoryId,
+//    this.name,
+//   });
+
+// factory SubCategory.fromJson(Map<String, dynamic> json) => SubCategory(
+//       id: json["id"],
+//       categoryId: json["category_id"],
+//       name: json["name"],
+//     );
 
 class Participant {
   int? id;
@@ -228,64 +422,6 @@ class Participant {
     this.reviewPercentage,
   });
 
-  Participant copyWith({
-    int? id,
-    String? name,
-    String? src,
-    String? provider,
-    dynamic providerId,
-    dynamic providerToken,
-    String? code,
-    DateTime? emailVerifiedAt,
-    int? emailCode,
-    dynamic phoneVerifiedAt,
-    dynamic imageVerifiedAt,
-    String? username,
-    String? email,
-    String? phone,
-    dynamic shareAbleLink,
-    String? img,
-    int? status,
-    String? location,
-    dynamic customLink,
-    int? isTrueYou,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    int? totalReview,
-    int? reviewPercentage,
-  }) =>
-      Participant(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        src: src ?? this.src,
-        provider: provider ?? this.provider,
-        providerId: providerId ?? this.providerId,
-        providerToken: providerToken ?? this.providerToken,
-        code: code ?? this.code,
-        emailVerifiedAt: emailVerifiedAt ?? this.emailVerifiedAt,
-        emailCode: emailCode ?? this.emailCode,
-        phoneVerifiedAt: phoneVerifiedAt ?? this.phoneVerifiedAt,
-        imageVerifiedAt: imageVerifiedAt ?? this.imageVerifiedAt,
-        username: username ?? this.username,
-        email: email ?? this.email,
-        phone: phone ?? this.phone,
-        shareAbleLink: shareAbleLink ?? this.shareAbleLink,
-        img: img ?? this.img,
-        status: status ?? this.status,
-        location: location ?? this.location,
-        customLink: customLink ?? this.customLink,
-        isTrueYou: isTrueYou ?? this.isTrueYou,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-        totalReview: totalReview ?? this.totalReview,
-        reviewPercentage: reviewPercentage ?? this.reviewPercentage,
-      );
-
-  factory Participant.fromRawJson(String str) =>
-      Participant.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory Participant.fromJson(Map<String, dynamic> json) => Participant(
         id: json["id"],
         name: json["name"],
@@ -314,43 +450,4 @@ class Participant {
         totalReview: json["total_review"],
         reviewPercentage: json["review_percentage"],
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "src": src,
-        "provider": provider,
-        "provider_id": providerId,
-        "provider_token": providerToken,
-        "code": code,
-        "email_verified_at": emailVerifiedAt?.toIso8601String(),
-        "email_code": emailCode,
-        "phone_verified_at": phoneVerifiedAt,
-        "image_verified_at": imageVerifiedAt,
-        "username": username,
-        "email": email,
-        "phone": phone,
-        "share_able_link": shareAbleLink,
-        "img": img,
-        "status": status,
-        "location": location,
-        "custom_link": customLink,
-        "is_true_you": isTrueYou,
-        "created_at": createdAt?.toIso8601String(),
-        "updated_at": updatedAt?.toIso8601String(),
-        "total_review": totalReview,
-        "review_percentage": reviewPercentage,
-      };
 }
-
-// class EnumValues<T> {
-//   Map<String, T> map;
-//   late Map<T, String> reverseMap;
-
-//   EnumValues(this.map);
-
-//   Map<T, String> get reverse {
-//     reverseMap = map.map((k, v) => MapEntry(v, k));
-//     return reverseMap;
-//   }
-// }

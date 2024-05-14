@@ -815,10 +815,10 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
         });
 
         String? receiverImg;
-        if (recieverId == model.data.participant1.id) {
-          receiverImg = model.data.participant1.img;
+        if (recieverId == model.data!.participant1.id) {
+          receiverImg = model.data!.participant1.img;
         } else {
-          receiverImg = model.data.participant2.img;
+          receiverImg = model.data!.participant2.img;
         }
         push(
             context,
