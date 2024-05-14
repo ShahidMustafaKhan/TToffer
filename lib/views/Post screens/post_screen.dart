@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
+import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -68,6 +69,8 @@ class _PostScreenState extends State<PostScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final apiProvider =
+        Provider.of<ProductsApiProvider>(context, listen: false);
     final imageProvider = Provider.of<ImageNotifyProvider>(context);
     String title =
         _titleController.text; // Ensure _titleController.text is not null
@@ -200,12 +203,17 @@ class _PostScreenState extends State<PostScreen> {
                                 right: 1,
                                 top: 1,
                                 child: InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      widget.selling!.photo!.removeWhere(
-                                          (item) =>
-                                              item == widget.selling!.photo);
-                                    });
+                                  onTap: () async {
+                                    await ImageDeleteService()
+                                        .imageDeleteService(
+                                            context: context,
+                                            id: l.id,
+                                            productId: l.productId);
+
+                                    apiProvider.getAuctionProducts(
+                                      dio: dio,
+                                      context: context,
+                                    );
                                   },
                                   child: const Card(
                                     child: Icon(Icons.close),

@@ -9,6 +9,8 @@ class AppUrls {
   static const String addProduct = "add-product-first-step";
   static const String updateProduct = "edit-product-first-step";
   static const String addImage = "upload-image";
+  static const String deleteImage = "delete-image";
+
 
   static const String addProductDetail = "add-product-second-step";
   static const String updateProductDetail = "edit-product-second-step";

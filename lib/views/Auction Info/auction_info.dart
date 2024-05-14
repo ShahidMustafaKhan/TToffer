@@ -17,6 +17,7 @@ import 'package:tt_offer/Utils/widgets/others/custom_logout_pop_up.dart';
 import 'package:tt_offer/custom_requests/bids_service.dart';
 import 'package:tt_offer/models/bids_model.dart';
 import 'package:tt_offer/providers/bids_provider.dart';
+import 'package:tt_offer/views/Auction%20Info/full_image_page.dart';
 import 'package:tt_offer/views/Auction%20Info/panel_widget.dart';
 import 'package:tt_offer/views/Seller%20Profile/seller_profile.dart';
 import 'package:tt_offer/config/app_urls.dart';
@@ -63,6 +64,14 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
   AppLogger logger = AppLogger();
   var userId;
   var productId;
+
+
+  @override
+  void didUpdateWidget(covariant AuctionInfoScreen oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    getBidsHandler();
+  }
 
   @override
   void initState() {
@@ -424,6 +433,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                                   ),
                                 ),
                               ),
+                              SizedBox(width: 10),
                               AppText.appText(
                                   "${widget.detailResponse["user"]["name"]}",
                                   fontSize: 12,
@@ -529,23 +539,32 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                         height: 300,
                         child: Stack(
                           children: [
-                            PageView.builder(
-                              controller: _pageController,
-                              itemCount: widget.detailResponse["photo"].length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return SizedBox(
-                                  height: 300,
-                                  child: Image.network(
-                                    "${widget.detailResponse["photo"][index]["src"]}",
-                                    fit: BoxFit.fill,
-                                  ),
-                                );
+                            InkWell(
+                              onTap: () {
+                                push(
+                                    context,
+                                    FullImagePage(
+                                        detailResponse: widget.detailResponse));
                               },
-                              onPageChanged: (int index) {
-                                setState(() {
-                                  _currentPage = index;
-                                });
-                              },
+                              child: PageView.builder(
+                                controller: _pageController,
+                                itemCount:
+                                    widget.detailResponse["photo"].length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return SizedBox(
+                                    height: 300,
+                                    child: Image.network(
+                                      "${widget.detailResponse["photo"][index]["src"]}",
+                                      fit: BoxFit.fill,
+                                    ),
+                                  );
+                                },
+                                onPageChanged: (int index) {
+                                  setState(() {
+                                    _currentPage = index;
+                                  });
+                                },
+                              ),
                             ),
                             GestureDetector(
                               onTap: () {

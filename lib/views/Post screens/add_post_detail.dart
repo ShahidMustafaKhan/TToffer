@@ -9,6 +9,7 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
+import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
@@ -678,6 +679,41 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+}
+
+class ImageDeleteService {
+  Future<bool> imageDeleteService(
+      {required BuildContext context,
+      required int id,
+      required int productId}) async {
+    try {
+      Map body = {'id': id, 'product_id': productId};
+
+      // Assuming CustomPostRequest().httpPostRequest returns a Map
+      var res = await CustomPostRequest()
+          .httpPostRequest(url: AppUrls.deleteImage, body: body);
+
+      // Check the response type
+      if (res is bool) {
+        // If it's already a boolean value, return it directly
+        return res;
+      } else if (res is Map) {
+        // If it's a map, check if the response indicates success
+        // For example, assuming 'success' key in the response
+        if (res['success'] == true) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        // Handle other types of responses if needed
+        return false;
+      }
+    } catch (err) {
+      print(err);
+      return false;
     }
   }
 }

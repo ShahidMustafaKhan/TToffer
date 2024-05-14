@@ -78,12 +78,11 @@ class ProductsApiProvider extends ChangeNotifier {
 
 
   void getAuctionFiltterProducts({
-    productId,
-    search,
-    cateId,
-    subCatId,
-    limit,
-    location,
+    sortBy,
+    isUrgent,
+    minPrice,
+    maxPrice,
+
     required dio,
     required context,
   }) async {
@@ -97,10 +96,10 @@ class ProductsApiProvider extends ChangeNotifier {
     int responseCode500 = 500; // Internal server error.
     Map<String, dynamic> params = {
       // "id": productId,
-      "sort_by": search,
-      "is_urgert": '',
-      "min_price": '',
-      "max_price": '',
+      "sort_by": sortBy,
+      "is_urgert": isUrgent,
+      "min_price": minPrice,
+      "max_price": maxPrice,
     };
     try {
       response = await dio.post(path: AppUrls.getAuctionProducts, data: params);

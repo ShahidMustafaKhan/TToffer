@@ -21,6 +21,7 @@ import 'package:tt_offer/providers/bids_provider.dart';
 import 'package:tt_offer/providers/chat_list_provider.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
 import 'package:tt_offer/providers/notification_provider.dart';
+import 'package:tt_offer/providers/profile_info_provider.dart';
 import 'package:tt_offer/providers/search_provider.dart';
 import 'package:tt_offer/providers/selling_purchase_provider.dart';
 import 'package:tt_offer/splash_screen.dart';
@@ -29,8 +30,7 @@ import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 String? title;
-String?imagePath;
-
+String? imagePath;
 
 String? location;
 
@@ -112,6 +112,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => SearchProvider()),
         ChangeNotifierProvider(create: (_) => BidsProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileInfoProvider()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,

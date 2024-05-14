@@ -1,18 +1,13 @@
-class SellingSearchModel {
+class UserInfoModel {
   bool? success;
-  List<SearchData>? data;
+  Data? data;
   String? message;
 
-  SellingSearchModel({this.success, this.data, this.message});
+  UserInfoModel({this.success, this.data, this.message});
 
-  SellingSearchModel.fromJson(Map<String, dynamic> json) {
+  UserInfoModel.fromJson(Map<String, dynamic> json) {
     success = json['success'];
-    if (json['data'] != null) {
-      data = <SearchData>[];
-      json['data'].forEach((v) {
-        data!.add(SearchData.fromJson(v));
-      });
-    }
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
     message = json['message'];
   }
 
@@ -20,14 +15,134 @@ class SellingSearchModel {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['success'] = success;
     if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
+      data['data'] = this.data!.toJson();
     }
     data['message'] = message;
     return data;
   }
 }
 
-class SearchData {
+class Data {
+  int? id;
+  String? name;
+  String? src;
+  String? provider;
+  dynamic providerId;
+  dynamic providerToken;
+  String? code;
+  dynamic emailVerifiedAt;
+  dynamic emailCode;
+  dynamic phoneVerifiedAt;
+  dynamic imageVerifiedAt;
+  String? username;
+  String? email;
+  dynamic phone;
+  dynamic shareAbleLink;
+  String? img;
+  int? status;
+  dynamic location;
+  dynamic customLink;
+  dynamic isTrueYou;
+  String? createdAt;
+  String? updatedAt;
+  int? totalReview;
+  int? reviewPercentage;
+  List<ProductsDataInfo>? products;
+
+  Data(
+      {this.id,
+      this.name,
+      this.src,
+      this.provider,
+      this.providerId,
+      this.providerToken,
+      this.code,
+      this.emailVerifiedAt,
+      this.emailCode,
+      this.phoneVerifiedAt,
+      this.imageVerifiedAt,
+      this.username,
+      this.email,
+      this.phone,
+      this.shareAbleLink,
+      this.img,
+      this.status,
+      this.location,
+      this.customLink,
+      this.isTrueYou,
+      this.createdAt,
+      this.updatedAt,
+      this.totalReview,
+      this.reviewPercentage,
+      this.products});
+
+  Data.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    src = json['src'];
+    provider = json['provider'];
+    providerId = json['provider_id'];
+    providerToken = json['provider_token'];
+    code = json['code'];
+    emailVerifiedAt = json['email_verified_at'];
+    emailCode = json['email_code'];
+    phoneVerifiedAt = json['phone_verified_at'];
+    imageVerifiedAt = json['image_verified_at'];
+    username = json['username'];
+    email = json['email'];
+    phone = json['phone'];
+    shareAbleLink = json['share_able_link'];
+    img = json['img'];
+    status = json['status'];
+    location = json['location'];
+    customLink = json['custom_link'];
+    isTrueYou = json['is_true_you'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+    totalReview = json['total_review'];
+    reviewPercentage = json['review_percentage'];
+    if (json['products'] != null) {
+      products = <ProductsDataInfo>[];
+      json['products'].forEach((v) {
+        products!.add(ProductsDataInfo.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['src'] = src;
+    data['provider'] = provider;
+    data['provider_id'] = providerId;
+    data['provider_token'] = providerToken;
+    data['code'] = code;
+    data['email_verified_at'] = emailVerifiedAt;
+    data['email_code'] = emailCode;
+    data['phone_verified_at'] = phoneVerifiedAt;
+    data['image_verified_at'] = imageVerifiedAt;
+    data['username'] = username;
+    data['email'] = email;
+    data['phone'] = phone;
+    data['share_able_link'] = shareAbleLink;
+    data['img'] = img;
+    data['status'] = status;
+    data['location'] = location;
+    data['custom_link'] = customLink;
+    data['is_true_you'] = isTrueYou;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    data['total_review'] = totalReview;
+    data['review_percentage'] = reviewPercentage;
+    if (products != null) {
+      data['products'] = products!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class ProductsDataInfo {
   int? id;
   int? userId;
   String? title;
@@ -60,18 +175,17 @@ class SearchData {
   int? reviewPercentage;
   int? isArchived;
   int? isSold;
-  int? soldToUserId;
-  int? viewsCount;
-  String? boosterStartDatetime;
-  String? boosterEndDatetime;
+  dynamic? soldToUserId;
+  dynamic? viewsCount;
+  dynamic? boosterStartDatetime;
+  dynamic? boosterEndDatetime;
   User? user;
   Category? category;
   SubCategory? subCategory;
   List<Photo>? photo;
-  List<Null>? video;
-  List<Null>? wishlist;
+  List<dynamic>? wishlist;
 
-  SearchData(
+  ProductsDataInfo(
       {this.id,
       this.userId,
       this.title,
@@ -112,25 +226,24 @@ class SearchData {
       this.category,
       this.subCategory,
       this.photo,
-      this.video,
       this.wishlist});
 
-  SearchData.fromJson(Map<String, dynamic> json) {
+  ProductsDataInfo.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     userId = json['user_id'];
-    title = json['title'];
-    slug = json['slug'];
-    description = json['description'];
+    title = json['title'] ?? '';
+    slug = json['slug'] ?? '';
+    description = json['description'] ?? '';
     categoryId = json['category_id'];
     subCategoryId = json['sub_category_id'];
-    condition = json['condition'];
-    makeAndModel = json['make_and_model'];
-    mileage = json['mileage'];
-    color = json['color'];
-    brand = json['brand'];
-    model = json['model'];
-    edition = json['edition'];
-    authenticity = json['authenticity'];
+    condition = json['condition'] ?? '';
+    makeAndModel = json['make_and_model'] ?? '';
+    mileage = json['mileage'] ?? '';
+    color = json['color'] ?? '';
+    brand = json['brand'] ?? '';
+    model = json['model'] ?? '';
+    edition = json['edition'] ?? '';
+    authenticity = json['authenticity'] ?? '';
     fixPrice = json['fix_price'];
     firmOnPrice = json['firm_on_price'];
     auctionPrice = json['auction_price'];
@@ -138,20 +251,20 @@ class SearchData {
     startingTime = json['starting_time'];
     endingDate = json['ending_date'];
     endingTime = json['ending_time'];
-    sellToUs = json['sell_to_us'];
-    location = json['location'];
-    status = json['status'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-    isUrgent = json['is_urgent'];
-    totalReview = json['total_review'];
-    reviewPercentage = json['review_percentage'];
-    isArchived = json['is_archived'];
-    isSold = json['is_sold'];
-    soldToUserId = json['sold_to_user_id'];
+    sellToUs = json['sell_to_us'] ?? '';
+    location = json['location'] ?? '';
+    status = json['status'] ?? '';
+    createdAt = json['created_at'] ?? '';
+    updatedAt = json['updated_at'] ?? '';
+    isUrgent = json['is_urgent'] ?? '';
+    totalReview = json['total_review'] ?? '';
+    reviewPercentage = json['review_percentage'] ?? '';
+    isArchived = json['is_archived'] ?? '';
+    isSold = json['is_sold'] ?? '';
+    soldToUserId = json['sold_to_user_id'] ?? '';
     viewsCount = json['views_count'];
-    boosterStartDatetime = json['booster_start_datetime'];
-    boosterEndDatetime = json['booster_end_datetime'];
+    boosterStartDatetime = json['booster_start_datetime'] ?? '';
+    boosterEndDatetime = json['booster_end_datetime'] ?? '';
     user = json['user'] != null ? User.fromJson(json['user']) : null;
     category =
         json['category'] != null ? Category.fromJson(json['category']) : null;
@@ -164,12 +277,6 @@ class SearchData {
         photo!.add(Photo.fromJson(v));
       });
     }
-    // if (json['video'] != null) {
-    //   video = <Null>[];
-    //   json['video'].forEach((v) {
-    //     video!.add(new Null.fromJson(v));
-    //   });
-    // }
     // if (json['wishlist'] != null) {
     //   wishlist = <Null>[];
     //   json['wishlist'].forEach((v) {
@@ -228,9 +335,6 @@ class SearchData {
     if (photo != null) {
       data['photo'] = photo!.map((v) => v.toJson()).toList();
     }
-    // if (this.video != null) {
-    //   data['video'] = this.video!.map((v) => v.toJson()).toList();
-    // }
     // if (this.wishlist != null) {
     //   data['wishlist'] = this.wishlist!.map((v) => v.toJson()).toList();
     // }
@@ -243,22 +347,22 @@ class User {
   String? name;
   String? src;
   String? provider;
-  int? providerId;
-  String? providerToken;
+  dynamic providerId;
+  dynamic providerToken;
   String? code;
-  String? emailVerifiedAt;
-  String? emailCode;
-  String? phoneVerifiedAt;
-  String? imageVerifiedAt;
+  dynamic emailVerifiedAt;
+  dynamic emailCode;
+  dynamic phoneVerifiedAt;
+  dynamic imageVerifiedAt;
   String? username;
   String? email;
-  String? phone;
-  String? shareAbleLink;
+  dynamic phone;
+  dynamic shareAbleLink;
   String? img;
   int? status;
-  String? location;
-  String? customLink;
-  int? isTrueYou;
+  dynamic location;
+  dynamic customLink;
+  dynamic isTrueYou;
   String? createdAt;
   String? updatedAt;
   int? totalReview;
