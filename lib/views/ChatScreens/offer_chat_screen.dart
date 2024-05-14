@@ -22,6 +22,8 @@ import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/chat_model.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
+import 'package:tt_offer/utils/widgets/custom_loader.dart';
+import 'package:tt_offer/utils/widgets/loading_popup.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class OfferChatScreen extends StatefulWidget {
@@ -88,6 +90,12 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
         widget.offerPrice = element.offer!.offerPrice ?? "0";
         _priceController.text = widget.offerPrice.toString();
 
+        productId = element.productId.toString();
+
+        offerId = element.offerId.toString();
+        sellerId = element.offer!.sellerId.toString();
+        buyerId = element.offer!.buyerId.toString();
+
         return;
         // }
 
@@ -101,6 +109,13 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
   List<Conversation> conversation = [];
 
   bool isSending = false;
+
+//! offer variables
+
+  String? productId;
+  String? offerId;
+  String? sellerId;
+  String? buyerId;
 
   bool offerLoading = false;
   @override
@@ -192,7 +207,9 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                                                 },
                                                 txt: "Reject Offer"),
                                             offerButtons(
-                                                onTap: () {},
+                                                onTap: () {
+                                                  acceptOfferHandler();
+                                                },
                                                 txt: "Accept Offer"),
                                             offerButtons(
                                                 onTap: () {
@@ -658,7 +675,48 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     // }
   }
 
-  void rejectOfferHandler() {}
+  Future<void> rejectOfferHandler() async {
+    Map body = {
+      "product_id": productId,
+      "seller_id": sellerId,
+      "buyer_id": buyerId,
+      "offer_id": offerId,
+    };
+    showAlertLoader(context: context);
+
+    var responce = await customPostRequest.httpPostRequest(
+        url: AppUrls.rejectOfferrUrl, body: body);
+
+    Navigator.of(context).pop();
+
+    log("responce in rejectOfferHandler = $responce");
+
+    showSnackBar(context, responce["message"]);
+  }
+
+  Future<void> acceptOfferHandler() async {
+    showAlertLoader(context: context);
+
+    Map body = {
+      "product_id": productId,
+      "seller_id": sellerId,
+      "buyer_id": buyerId,
+      "offer_id": offerId,
+    };
+    var responce = await customPostRequest.httpPostRequest(
+        url: AppUrls.acceptOfferrUrl, body: body);
+
+    Navigator.of(context).pop();
+
+    log("responce in acceptOfferHandler = $responce");
+    showSnackBar(context, responce["message"]);
+  }
+
+  void makeCustomOfferHandler() {
+    setState(() {
+      offerLoading = true;
+    });
+  }
 }
 
 class CallButtonWidget extends StatelessWidget {

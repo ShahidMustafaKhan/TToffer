@@ -11,7 +11,6 @@ class AppUrls {
   static const String addImage = "upload-image";
   static const String deleteImage = "delete-image";
 
-
   static const String addProductDetail = "add-product-second-step";
   static const String updateProductDetail = "edit-product-second-step";
   static const String addProductPrice = "add-product-third-step";
@@ -45,6 +44,10 @@ class AppUrls {
   static const String allProductsUrl = "get-all-products";
   static const String newPasswordUrl = "new-password";
   static const String getUserInfoUrl = "user/info";
+  static const String rejectOfferrUrl = "reject-offer";
+  static const String acceptOfferrUrl = "accept-offer";
+
+  //
 
   //
 
