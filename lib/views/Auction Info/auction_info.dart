@@ -65,11 +65,11 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
   var userId;
   var productId;
 
-
   @override
   void didUpdateWidget(covariant AuctionInfoScreen oldWidget) {
     // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
+
     getBidsHandler();
   }
 
@@ -123,11 +123,14 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     });
     await BidsService().getBidsService(
         context: context, productId: widget.detailResponse['id']);
+
+    bids = Provider.of<BidsProvider>(context, listen: false).bids;
+    setState(() {});
+
+
     setState(() {
       loading = false;
     });
-
-    bids = Provider.of<BidsProvider>(context, listen: false).bids;
 
     print('getBids--->${bids}');
     setState(() {});

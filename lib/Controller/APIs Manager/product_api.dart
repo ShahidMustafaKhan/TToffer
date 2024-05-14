@@ -13,7 +13,7 @@ class ProductsApiProvider extends ChangeNotifier {
 
   ////////////////////////////////////////// Auction Productss ////////////////////////////////////////////////
 
-  void getAuctionProducts({
+  Future<void> getAuctionProducts({
     productId,
     search,
     cateId,

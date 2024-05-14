@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +8,8 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:tt_offer/Controller/provider_class.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
+import 'package:tt_offer/config/keys/pref_keys.dart';
+import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/bids_model.dart';
 
 class PanelWidget extends StatefulWidget {
@@ -35,6 +39,9 @@ class _PanelWidgetState extends State<PanelWidget> {
   @override
   void initState() {
     super.initState();
+
+    log("pref.getString(PrefKey.userId) = ${pref.getString(PrefKey.userId)}");
+    log("pref.getString(PrefKey.userName) = ${pref.getString(PrefKey.userName)}");
   }
 
   DateTime _parseEndingDateTime() {
@@ -176,9 +183,20 @@ class _PanelWidgetState extends State<PanelWidget> {
                                   decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       image: DecorationImage(
-                                          image: NetworkImage(widget
-                                              .bidsData[index].user!.img
-                                              .toString()))),
+                                          image: widget.bidsData[index].user ==
+                                                      null ||
+                                                  widget.bidsData[index].user!
+                                                          .img ==
+                                                      '' ||
+                                                  widget.bidsData[index].user!
+                                                          .img ==
+                                                      null
+                                              ? const AssetImage(
+                                                  'assets/images/profile.png')
+                                              : NetworkImage(widget
+                                                      .bidsData[index].user!.img
+                                                      .toString())
+                                                  as ImageProvider)),
                                 ),
                                 const SizedBox(
                                   width: 10,
@@ -188,8 +206,17 @@ class _PanelWidgetState extends State<PanelWidget> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       AppText.appText(
-                                          widget.bidsData[index].user!.name
-                                              .toString(),
+                                          widget.bidsData[index].user == null ||
+                                                  widget.bidsData[index].user!
+                                                          .name ==
+                                                      null ||
+                                                  widget.bidsData[index].user!
+                                                          .name ==
+                                                      ''
+                                              ? '${pref.getString(PrefKey.userName)}'
+                                              : widget
+                                                  .bidsData[index].user!.name
+                                                  .toString(),
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
                                           textColor: AppTheme.textColor00),
@@ -245,7 +272,7 @@ class _PanelWidgetState extends State<PanelWidget> {
                   Row(
                     children: List.generate(
                       widget.bidsData.length >= 4 ? 4 : widget.bidsData.length,
-                          (index) => SizedBox(
+                      (index) => SizedBox(
                         height: 20,
                         width: 20,
                         child: CircleAvatar(
@@ -257,8 +284,6 @@ class _PanelWidgetState extends State<PanelWidget> {
                       ),
                     ),
                   ),
-
-
                   const SizedBox(
                     width: 5,
                   ),
@@ -300,14 +325,14 @@ class _PanelWidgetState extends State<PanelWidget> {
                   fontWeight: FontWeight.w700,
                   textColor: AppTheme.textColor00),
               highestBidUser == null
-                      ? AppText.appText("0",
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                          textColor: AppTheme.textColor00)
-                      : AppText.appText("$highestBidUser",
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                          textColor: AppTheme.textColor00),
+                  ? AppText.appText("0",
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      textColor: AppTheme.textColor00)
+                  : AppText.appText("$highestBidUser",
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      textColor: AppTheme.textColor00),
               const SizedBox(
                 height: 10,
               ),
