@@ -4,7 +4,6 @@ import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -19,22 +18,19 @@ import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
-import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
-import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/chat_model.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
-import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 class OfferChatScreen extends StatefulWidget {
   final String? userImgUrl;
-  final bool? isOffer;
-  final dynamic offerPrice;
-  final dynamic recieverId;
+  bool? isOffer;
+  dynamic offerPrice;
+  dynamic recieverId;
   final String? title;
-  const OfferChatScreen(
+  OfferChatScreen(
       {super.key,
       this.isOffer,
       this.offerPrice,
@@ -66,39 +62,47 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
   void initState() {
     // dio = AppDio(context);
     logger.init();
-    getUserDetail();
+    userId = int.parse(pref.getString(PrefKey.userId)!);
+
     _priceController.text = "\$ 60";
 
     chatModel = Provider.of<ChatProvider>(context, listen: false).data!;
 
     if (chatModel != null) {
-      if (userId != chatModel!.data.participant1.id) {
-        nextUserId = chatModel!.data.participant1.id;
-        nextUserName = chatModel!.data.participant1.name;
+      if (userId != chatModel!.data!.participant1.id) {
+        nextUserId = chatModel!.data!.participant1.id;
+        nextUserName = chatModel!.data!.participant1.name;
       } else {
-        nextUserId = chatModel!.data.participant2.id;
-        nextUserName = chatModel!.data.participant2.name;
+        nextUserId = chatModel!.data!.participant2.id;
+        nextUserName = chatModel!.data!.participant2.name;
       }
     }
     conversation = Provider.of<ChatProvider>(context, listen: false)
         .data!
-        .data
-        .conversation;
+        .data!
+        .conversation!;
+    conversation.forEach((element) {
+      if (element.offer != null) {
+        // if (element.offer!.sellerId != userId) {
+        widget.isOffer = true;
+        widget.offerPrice = element.offer!.offerPrice ?? "0";
+        _priceController.text = widget.offerPrice.toString();
+
+        return;
+        // }
+
+        //  offerImage = element.offer!.;
+      }
+    });
 
     super.initState();
-  }
-
-  getUserDetail() async {
-    // SharedPreferences pref = await SharedPreferences.getInstance();
-    setState(() {
-      var id = pref.getString(PrefKey.userId);
-      userId = int.parse(id!);
-    });
   }
 
   List<Conversation> conversation = [];
 
   bool isSending = false;
+
+  bool offerLoading = false;
   @override
   Widget build(BuildContext context) {
     final open = Provider.of<NotifyProvider>(context);
@@ -166,7 +170,8 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceEvenly,
                                     children: [
-                                      AppText.appText("Sent you a offer",
+                                      AppText.appText(
+                                          "${widget.title} Sent you a offer",
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
                                           textColor: const Color(0xff2A2A2F)),
@@ -182,7 +187,9 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             offerButtons(
-                                                onTap: () {},
+                                                onTap: () {
+                                                  rejectOfferHandler();
+                                                },
                                                 txt: "Reject Offer"),
                                             offerButtons(
                                                 onTap: () {},
@@ -226,19 +233,26 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                                               padding:
                                                   const EdgeInsets.symmetric(
                                                       horizontal: 20.0),
-                                              child: AppButton.appButton(
-                                                  "Send Offer", onTap: () {
-                                                push(context,
-                                                    const OfferChatScreen());
-                                              },
-                                                  height: 50,
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 14,
-                                                  radius: 32.0,
-                                                  backgroundColor:
-                                                      AppTheme.appColor,
-                                                  textColor:
-                                                      AppTheme.whiteColor),
+                                              child: offerLoading
+                                                  ? Center(
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                      color: AppTheme.appColor,
+                                                    ))
+                                                  : AppButton.appButton(
+                                                      "Send Offer", onTap: () {
+                                                      // push(
+                                                      //     context, OfferChatScreen());
+                                                    },
+                                                      height: 50,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontSize: 14,
+                                                      radius: 32.0,
+                                                      backgroundColor:
+                                                          AppTheme.appColor,
+                                                      textColor:
+                                                          AppTheme.whiteColor),
                                             ),
                                     ],
                                   ),
@@ -250,11 +264,14 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                               child: Container(
                                 height: 64,
                                 width: 64,
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   image: DecorationImage(
-                                      image: AssetImage(
-                                          "assets/images/auction1.png"),
+                                      image: widget.userImgUrl != null
+                                          ? NetworkImage(widget.userImgUrl!)
+                                          : const AssetImage(
+                                                  "assets/images/user.png")
+                                              as ImageProvider,
                                       fit: BoxFit.fill),
                                 ),
                               ),
@@ -640,6 +657,8 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     //   return false;
     // }
   }
+
+  void rejectOfferHandler() {}
 }
 
 class CallButtonWidget extends StatelessWidget {

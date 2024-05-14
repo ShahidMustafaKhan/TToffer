@@ -195,10 +195,10 @@ class ChatApiProvider extends ChangeNotifier {
 
       Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
       String? receiverImg;
-      if (recieverId == model.data.participant1.id) {
-        receiverImg = model.data.participant1.img;
+      if (recieverId == model.data!.participant1.id) {
+        receiverImg = model.data!.participant1.img;
       } else {
-        receiverImg = model.data.participant2.img;
+        receiverImg = model.data!.participant2.img;
       }
 
       push(
