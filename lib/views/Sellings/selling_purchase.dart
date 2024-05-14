@@ -321,10 +321,14 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
-                              child: Image.network(
-                                data[index].photo![0].src,
-                                fit: BoxFit.cover,
-                              ),
+                              child: data[index].photo == null ||
+                                  data[index].photo!.isEmpty ||
+                                  data[index].photo![0].src == null
+                                  ?Image.asset('assets/images/gallery.png')
+                                  : Image.network(
+                                      data[index].photo![0].src,
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                           ),
                           const SizedBox(

@@ -180,56 +180,66 @@ class _PostScreenState extends State<PostScreen> {
                             },
                           ),
                         ),
-              widget.selling != null && imageProvider.imagePaths.isEmpty
-                  ? Wrap(
+              widget.selling == null && imageProvider.imagePaths.isEmpty
+                  ? (widget.selling!.photo == null || widget.selling!.photo!.isEmpty || widget.selling!.photo![0].src.isEmpty)
+                  ? const SizedBox.shrink()
+                  : Wrap(
+                children: [
+                  for (var l in widget.selling!.photo!)
+                    l.src.isEmpty
+                        ? const SizedBox()
+                        : Stack(
                       children: [
-                        for (var l in widget.selling!.photo!)
-                          Stack(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 20.0, horizontal: 8),
-                                child: Container(
-                                  height: 100,
-                                  width: 100,
-                                  decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                          image: NetworkImage(l.src.toString()),
-                                          fit: BoxFit.cover),
-                                      borderRadius: BorderRadius.circular(10)),
-                                ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 20.0, horizontal: 8),
+                          child: Container(
+                            height: 100,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage(l.src.toString()),
+                                fit: BoxFit.cover,
                               ),
-                              Positioned(
-                                right: 1,
-                                top: 1,
-                                child: InkWell(
-                                  onTap: () async {
-                                    await ImageDeleteService()
-                                        .imageDeleteService(
-                                            context: context,
-                                            id: l.id,
-                                            productId: l.productId);
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 1,
+                          top: 1,
+                          child: InkWell(
+                            onTap: () async {
+                              await ImageDeleteService().imageDeleteService(
+                                context: context,
+                                id: l.id,
+                                productId: l.productId,
+                              );
 
-                                    apiProvider.getAuctionProducts(
-                                      dio: dio,
-                                      context: context,
-                                    );
-                                  },
-                                  child: const Card(
-                                    child: Icon(Icons.close),
-                                  ),
-                                ),
-                              )
-                            ],
-                          )
+                              await apiProvider.getAuctionProducts(
+                                dio: dio,
+                                context: context,
+                              );
+                            },
+                            child: const Card(
+                              child: Icon(Icons.close),
+                            ),
+                          ),
+                        ),
                       ],
-                    )
+                    ),
+                ],
+              )
                   : widget.selling != null
-                      ? const SizedBox.shrink()
-                      : AppText.appText("Add your cover photo first",
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          textColor: AppTheme.textColor),
+                  ? const SizedBox.shrink()
+                  : AppText.appText(
+                "Add your cover photo first",
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                textColor: AppTheme.textColor,
+              ),
+
+
               LableTextField(
                 labelTxt: "Title",
                 hintTxt: "Title",
