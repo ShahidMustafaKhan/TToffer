@@ -15,7 +15,7 @@ class UserInfoService {
     try {
       var res = await customGetRequest.httpGetRequest(url: 'user/info/$id');
 
-      if (res['success'] == true) {
+      if (res['data'] != null || res['success'] == true) {
         UserInfoModel userInfoModel = UserInfoModel.fromJson(res);
 
         Provider.of<ProfileInfoProvider>(context, listen: false)

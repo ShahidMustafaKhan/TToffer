@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
@@ -9,11 +10,15 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/custom_requests/bids_service.dart';
 import 'package:tt_offer/models/bids_model.dart';
 import 'package:tt_offer/models/common_model.dart';
+import 'package:tt_offer/providers/bids_provider.dart';
 import 'package:tt_offer/utils/utils.dart';
 
 Future showLogOutALert(
     BuildContext context, var price, var productId, var userId, var id) {
   bool loading = false;
+
+  final bidProvider = Provider.of<BidsProvider>(context, listen: false).bids;
+
   return showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -80,6 +85,15 @@ Future showLogOutALert(
 
                           await BidsService()
                               .getBidsService(context: context, productId: id);
+
+                          bidProvider.add(BidsData(
+                            id: id,
+                            userId: int.parse(userId.toString()),
+                            productId: productId,
+                            price: int.parse(price.toString()),
+                            createdAt: DateTime.now().toIso8601String(),
+                            updatedAt: DateTime.now().toIso8601String(),
+                          ));
 
                           setStatess(() {});
 
