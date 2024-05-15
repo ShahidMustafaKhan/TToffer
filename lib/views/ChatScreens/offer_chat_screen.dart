@@ -84,7 +84,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
         .data!
         .conversation!;
     conversation.forEach((element) {
-      if (element.offer != null) {
+      if (element.offer != null && element.offer?.status == null) {
         // if (element.offer!.sellerId != userId) {
         widget.isOffer = true;
         widget.offerPrice = element.offer!.offerPrice ?? "0";
@@ -121,11 +121,14 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
   String? buyerId;
   String productImg = '';
   String offerResponcePersonName = '';
+  var chatApiProvider;
+  var open;
 
   bool offerLoading = false;
   @override
   Widget build(BuildContext context) {
-    final open = Provider.of<NotifyProvider>(context);
+    chatApiProvider = Provider.of<ChatApiProvider>(context);
+    open = Provider.of<NotifyProvider>(context);
     // final chatApi = Provider.of<ChatApiProvider>(context);
 
     // log("chatApi data = ${chatApi.conversationData}");
@@ -263,6 +266,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                                                     ))
                                                   : AppButton.appButton(
                                                       "Send Offer", onTap: () {
+                                                      sendOffer();
                                                       // push(
                                                       //     context, OfferChatScreen());
                                                     },
@@ -679,7 +683,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     // }
   }
 
-  Future<void> rejectOfferHandler() async {
+  Future<bool> rejectOfferHandler() async {
     Map body = {
       "product_id": productId,
       "seller_id": sellerId,
@@ -696,6 +700,12 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     log("responce in rejectOfferHandler = $responce");
 
     showSnackBar(context, responce["message"]);
+
+    if (responce["success"] == true) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future<void> acceptOfferHandler() async {
@@ -720,6 +730,57 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     setState(() {
       offerLoading = true;
     });
+  }
+
+  Future<void> sendOffer() async {
+    bool isRejected = await rejectOfferHandler();
+    open.openclose();
+
+    if (isRejected) {
+      var responce = await chatApiProvider.makeOffer(
+          dio: dio,
+          context: context,
+          productId: productId,
+          sellerId: sellerId,
+          buyerId: int.parse(buyerId!),
+          offerPrice: int.parse(_priceController.text.trim()));
+
+      if (responce['success'] == true) {
+        widget.isOffer = false;
+        setState(() {});
+        // pushReplacement(
+        //     context,
+        //     OfferChatScreen(
+        //       isOffer: false,
+        //       userImgUrl: widget.userImgUrl,
+        //       title: widget.title,
+        //     ));
+      }
+
+      // Map<String, dynamic> params = {
+      //   "product_id": productId,
+      //   "seller_id": sellerId,
+      //   "buyer_id": buyerId,
+      //   "offer_price": _priceController.text.trim(),
+      // };
+
+      // var response = await dio.post(path: AppUrls.makeOffer, data: params);
+      // var responseData = response.data;
+
+      // if (responseData['success'] == true) {
+      //   showSnackBar(context, "Offer placed Successfully");
+
+      //   pushReplacement(
+      //       context,
+      //       OfferChatScreen(
+      //         isOffer: false,
+      //         userImgUrl: widget.userImgUrl,
+      //         title: widget.title,
+      //       ));
+      // } else {
+      //   showSnackBar(context, "Offer could not be placed");
+      // }
+    }
   }
 }
 

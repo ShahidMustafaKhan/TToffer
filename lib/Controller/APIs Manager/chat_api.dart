@@ -47,7 +47,7 @@ class ChatApiProvider extends ChangeNotifier {
       var responseData = response.data;
 
       if (responseData['success'] == true) {
-        showSnackBar(context, "Offer Made placed Successfully");
+        showSnackBar(context, "Offer placed Successfully");
         notifyListeners();
       }
 
