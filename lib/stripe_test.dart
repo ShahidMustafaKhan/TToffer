@@ -11,64 +11,28 @@ class PaymentScreen extends StatefulWidget {
 class _PaymentScreenState extends State<PaymentScreen> {
   CardFieldInputDetails? _cardDetails;
   bool _validCard = false;
-  CardEditController? controller;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Payment")),
-        body: Column(
-          children: [
-            CardField(
-              controller: controller,
-              decoration: InputDecoration(
-                labelText: 'Card Number',
-                border: OutlineInputBorder(),
-              ),
-              onCardChanged: (card) {
-                setState(() {
-                  _cardDetails = card;
-                  _validCard = card!.complete;
-                });
-              },
-            ),
-            SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: CardField(
-                    controller: controller,
-                    decoration: InputDecoration(
-                      labelText: 'Expiration Date',
-                      border: OutlineInputBorder(),
-                    ),
-                    onCardChanged: (card) {
-                      setState(() {
-                        _cardDetails = card;
-                        _validCard = card!.complete;
-                      });
-                    },
-                  ),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: CardField(
-                    controller: controller,
-                    decoration: InputDecoration(
-                      labelText: 'CVV',
-                      border: OutlineInputBorder(),
-                    ),
-                    onCardChanged: (card) {
-                      setState(() {
-                        _cardDetails = card;
-                        _validCard = card!.complete;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ));
+      appBar: AppBar(title: Text("Payment")),
+      body: Column(
+        children: [
+          CardField(
+            onCardChanged: (card) {
+              setState(() {
+                _cardDetails = card;
+                _validCard = card!.complete;
+              });
+            },
+          ),
+          ElevatedButton(
+            onPressed: _validCard ? _handlePayment : null,
+            child: Text('Save Card'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _handlePayment() async {
