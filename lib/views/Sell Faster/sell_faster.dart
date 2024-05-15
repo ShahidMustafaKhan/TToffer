@@ -132,6 +132,7 @@ class _SellFasterState extends State<SellFaster> {
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 textColor: AppTheme.appColor),
+              
           ],
         ),
       ),
