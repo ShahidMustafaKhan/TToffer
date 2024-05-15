@@ -71,6 +71,7 @@ Future showLogOutALert(
                           setStatess(() {
                             loading = true;
                           });
+
                           Map<String, dynamic> body = {
                             "user_id": userId,
                             "product_id": productId,
@@ -79,34 +80,45 @@ Future showLogOutALert(
 
                           print('bodyyy--->${body}');
 
-                          // AppDio dio = AppDio(context);
-                          var response = await AppDio(context)
-                              .post(path: AppUrls.placeBid, data: body);
+                          try {
+                            var response = await AppDio(context)
+                                .post(path: AppUrls.placeBid, data: body);
 
-                          await BidsService()
-                              .getBidsService(context: context, productId: id);
+                            if (response.statusCode == 200) {
+                              var responseData = response.data;
 
-                          bidProvider.add(BidsData(
-                            id: id,
-                            userId: int.parse(userId.toString()),
-                            productId: productId,
-                            price: int.parse(price.toString()),
-                            createdAt: DateTime.now().toIso8601String(),
-                            updatedAt: DateTime.now().toIso8601String(),
-                          ));
+                              await BidsService().getBidsService(
+                                  context: context, productId: id);
 
-                          setStatess(() {});
+                              if (responseData['message'] ==
+                                  'You can not place bid on your product!') {
+                                showSnackBar(context,
+                                    'You can not place bid on your product!');
+                              } else {
+                                bidProvider.add(BidsData(
+                                  id: id,
+                                  userId: int.parse(userId.toString()),
+                                  productId: productId,
+                                  price: int.parse(price.toString()),
+                                  createdAt: DateTime.now().toIso8601String(),
+                                  updatedAt: DateTime.now().toIso8601String(),
+                                ));
+                              }
 
-                          log("response in bid post = ${response.data}");
+                              log("response in bid post = ${response.data}");
 
-                          // CommonModel model =
-                          //     CommonModel.fromJson(response.data);
-
-                          showSnackBar(context, response.data["message"]);
-
-                          setStatess(() {
-                            loading = false;
-                          });
+                              showSnackBar(context, responseData["message"]);
+                            } else {
+                              showSnackBar(context,
+                                  'Failed to place bid. Please try again.');
+                            }
+                          } catch (e) {
+                            showSnackBar(context, 'An error occurred: $e');
+                          } finally {
+                            setStatess(() {
+                              loading = false;
+                            });
+                          }
 
                           Navigator.of(context).pop();
                         },

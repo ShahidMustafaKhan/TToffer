@@ -99,8 +99,12 @@ class _SearchPageState extends State<SearchPage> {
                           onTap: () {
                             if (l.auctionPrice == null) {
                               getFeatureProductDetail(productId: l.id);
+                              print('auctionId--->${l.id}');
+                              print('auctionId--->${l.id}');
                             } else {
                               getAuctionProductDetail(productId: l.id);
+                              print('auctionId--->${l.id}');
+
                               // push(
                               //     context,
                               //     AuctionInfoScreen(
@@ -193,18 +197,21 @@ class _SearchPageState extends State<SearchPage> {
                           const SizedBox(
                             height: 20,
                           ),
-                        Expanded(
-                          child: AppButton.appButton("Bid Now", onTap: () {
-                            getAuctionProductDetail(productId: l.id);
-                          },
-                              height: 32,
-                              width: 161,
-                              radius: 16.0,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              backgroundColor: AppTheme.appColor,
-                              textColor: AppTheme.whiteColor),
-                        )
+                        if (l.auctionPrice == null)
+                          const SizedBox()
+                        else
+                          Expanded(
+                            child: AppButton.appButton("Bid Now", onTap: () {
+                              getAuctionProductDetail(productId: l.id);
+                            },
+                                height: 32,
+                                width: 161,
+                                radius: 16.0,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                backgroundColor: AppTheme.appColor,
+                                textColor: AppTheme.whiteColor),
+                          )
                       ],
                     ),
                   ),

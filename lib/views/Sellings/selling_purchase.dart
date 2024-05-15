@@ -417,10 +417,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                         widget.ischeck == 1
                                             ? "Sell faster"
                                             : widget.ischeck == 2
-                                                ? getItemStatus(
-                                                    data[index].status ?? 1)
-                                                : getItemStatus(
-                                                    data[index].status ?? 1),
+                                                ? ';':widget.ischeck==3?'Ready to sale':'',
                                         fontSize: 12,
                                         fontWeight: FontWeight.w400,
                                         textColor: AppTheme.appColor),
