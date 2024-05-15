@@ -95,6 +95,9 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
         offerId = element.offerId.toString();
         sellerId = element.offer!.sellerId.toString();
         buyerId = element.offer!.buyerId.toString();
+        productImg = element.product!.photo![0].src ?? "";
+
+        // offerResponcePersonName=element.
 
         return;
         // }
@@ -116,6 +119,8 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
   String? offerId;
   String? sellerId;
   String? buyerId;
+  String productImg = '';
+  String offerResponcePersonName = '';
 
   bool offerLoading = false;
   @override
@@ -186,7 +191,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                                         MainAxisAlignment.spaceEvenly,
                                     children: [
                                       AppText.appText(
-                                          "${widget.title} Sent you a offer",
+                                          "${widget.title} sent you a offer",
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
                                           textColor: const Color(0xff2A2A2F)),
@@ -284,11 +289,10 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   image: DecorationImage(
-                                      image: widget.userImgUrl != null
-                                          ? NetworkImage(widget.userImgUrl!)
-                                          : const AssetImage(
-                                                  "assets/images/user.png")
-                                              as ImageProvider,
+                                      image: NetworkImage(productImg),
+                                      // : const AssetImage(
+                                      //         "assets/images/user.png")
+                                      //     as ImageProvider,
                                       fit: BoxFit.fill),
                                 ),
                               ),
