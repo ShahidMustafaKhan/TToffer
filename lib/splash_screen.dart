@@ -4,6 +4,7 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/on_boarding_screen.dart';
 
 import 'stripe_test.dart';
+import 'views/BottomNavigation/navigation_bar.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -18,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     Future.delayed(const Duration(seconds: 2), () {
-      pushReplacement(context, PaymentScreen());
+      pushReplacement(context, OnBoardScreen());
     });
   }
 

@@ -119,8 +119,8 @@ class _MyAppState extends State<MyApp> {
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         title: 'TT Offer',
-        // home: const SplashScreen(),
-        home:  CardHomeScreen(),
+        home: const SplashScreen(),
+        // home:  CardHomeScreen(),
       ),
     );
   }

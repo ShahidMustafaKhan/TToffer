@@ -17,8 +17,10 @@ class SellFasterStripeService {
         'number_of_days': nod,
         'amount': amount,
         'currency': currency,
-        'token': '4242424242424242',
+        'token': token,
       };
+
+      print('body--->${body}');
 
       Map<String, dynamic> res = await CustomPostRequest()
           .httpPostRequest(url: 'sell-faster', body: body);
