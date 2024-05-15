@@ -318,8 +318,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                         width: 80,
                         decoration: BoxDecoration(
                             image: DecorationImage(
-                                image: NetworkImage(
-                                    widget.detailResponse['user']['img']),
+                                image:widget.detailResponse['user']['img']==null?AssetImage('assets/images/profile.png'): NetworkImage(
+                                    widget.detailResponse['user']['img'])as ImageProvider<Object>,
                                 fit: BoxFit.cover),
                             color: AppTheme.text09,
                             borderRadius: BorderRadius.circular(16)),
