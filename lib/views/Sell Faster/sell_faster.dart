@@ -1,6 +1,7 @@
 import 'dart:convert';
+import 'dart:developer';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -141,43 +142,72 @@ class _SellFasterState extends State<SellFaster> {
   Map<String, dynamic>? paymentIntentData;
 
   Future<void> makePayment(String amount, String? days) async {
-    try {
-      paymentIntentData = await createPaymentIntent(
-          double.parse(amount).round().toString(),
-          'USD'); //json.decode(response.body);
-      // print('Response body==>${response.body.toString()}');
-      await Stripe.instance
-          .initPaymentSheet(
-              paymentSheetParameters: SetupPaymentSheetParameters(
-                  paymentIntentClientSecret:
-                      paymentIntentData!['client_secret'],
-                  // primaryButtonLabel: 'Google',
-                  allowsDelayedPaymentMethods: true,
-                  appearance: const PaymentSheetAppearance(
-                      primaryButton: PaymentSheetPrimaryButtonAppearance()),
-                  // applePay: const PaymentSheetApplePay(
-                  //     merchantCountryCode: 'PK',
-                  //     cartItems: [],
-                  //     buttonType: PlatformButtonType.checkout),
-                  // googlePay: const PaymentSheetGooglePay(
-                  //     merchantCountryCode: 'PK',
-                  //     testEnv: true,
-                  //     buttonType: PlatformButtonType.checkout),
-                  style: ThemeMode.system,
-                  // appearance: PaymentSheetAppearance(
-                  //     colors: PaymentSheetAppearanceColors(
-                  //         primary: Colors.black,
-                  //         background: Colors.orange[100])),
-                  // merchantCountryCode: 'US',
-                  merchantDisplayName: 'ANNIE'))
-          .then((value) {});
+    // await StripePlatform.instance
+    //     .createToken(CreateTokenParams.card(params: CardTokenParams(
 
-      ///now finally display payment sheeet
-      await displayPaymentSheet();
-      fasterProductHandler(days, amount, 'USD');
-    } catch (e, s) {
-      print('exception:$e$s');
-    }
+    //     )));
+
+    var secretkey = await createPaymentIntent("500", "usd");
+
+    StripePlatform.instance.collectBankAccountToken(
+      clientSecret: secretkey['client_secret'],
+    );
+
+    // final cardDetails = CardDetails(
+    //   number: '4242424242424242',
+    //   expirationMonth: 5,
+    //   expirationYear: 2024,
+    //   cvc: '314',
+    // );
+    final TokenData tokenData = await Stripe.instance.createToken(
+      const CreateTokenParams.bankAccount(
+          params: BankAccountTokenParams(
+              accountNumber: "000123456789",
+              type: TokenType.BankAccount,
+              accountHolderName: "John Doe",
+              routingNumber: "110000000",
+              accountHolderType: BankAccountHolderType.Individual,
+              country: "US",
+              currency: "usd")),
+    );
+    log("tokenData = $tokenData ");
+    // try {
+    //   paymentIntentData = await createPaymentIntent(
+    //       double.parse(amount).round().toString(),
+    //       'USD'); //json.decode(response.body);
+    //   // print('Response body==>${response.body.toString()}');
+    //   await Stripe.instance
+    //       .initPaymentSheet(
+    //           paymentSheetParameters: SetupPaymentSheetParameters(
+    //               paymentIntentClientSecret:
+    //                   paymentIntentData!['client_secret'],
+    //               // primaryButtonLabel: 'Google',
+    //               allowsDelayedPaymentMethods: true,
+    //               appearance: const PaymentSheetAppearance(
+    //                   primaryButton: PaymentSheetPrimaryButtonAppearance()),
+    //               // applePay: const PaymentSheetApplePay(
+    //               //     merchantCountryCode: 'PK',
+    //               //     cartItems: [],
+    //               //     buttonType: PlatformButtonType.checkout),
+    //               // googlePay: const PaymentSheetGooglePay(
+    //               //     merchantCountryCode: 'PK',
+    //               //     testEnv: true,
+    //               //     buttonType: PlatformButtonType.checkout),
+    //               style: ThemeMode.system,
+    //               // appearance: PaymentSheetAppearance(
+    //               //     colors: PaymentSheetAppearanceColors(
+    //               //         primary: Colors.black,
+    //               //         background: Colors.orange[100])),
+    //               // merchantCountryCode: 'US',
+    //               merchantDisplayName: 'ANNIE'))
+    //       .then((value) {});
+
+    //   ///now finally display payment sheeet
+    //   await displayPaymentSheet();
+    //   fasterProductHandler(days, amount, 'USD');
+    // } catch (e, s) {
+    //   print('exception:$e$s');
+    // }
   }
 
   displayPaymentSheet() async {
