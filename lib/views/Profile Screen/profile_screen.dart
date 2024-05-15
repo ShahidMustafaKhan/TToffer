@@ -194,12 +194,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                   txt: "Purchases & Sales",
                   img: "assets/images/receipt.png"),
-              customRow(
-                  onTap: () {
-                    push(context, const PaymentScreen());
-                  },
-                  txt: "Payment & Deposit method",
-                  img: "assets/images/payment.png"),
+              // customRow(
+              //     onTap: () {
+              //       push(context, const PaymentScreen());
+              //     },
+              //     txt: "Payment & Deposit method",
+              //     img: "assets/images/payment.png"),
               const CustomDivider(),
               headingText(txt: "Save"),
               customRow(
@@ -228,7 +228,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   img: "assets/images/boostPlus.png"),
               customRow(
                   onTap: () {
-                    push(context, const CustomLinkScreen());
+                    push(
+                        context,
+                        CustomLinkScreen(
+                          link: profileApi.profileData['custom_link'] ?? '',
+                        ));
                   },
                   txt: "Custom Profile Link",
                   img: "assets/images/link.png"),

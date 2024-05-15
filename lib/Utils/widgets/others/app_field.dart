@@ -33,7 +33,7 @@ class CustomAppFormField extends StatefulWidget {
   final TextStyle? hintStyle;
   final TextStyle? style;
   final double? radius;
-  final  TextStyle?  errorStyle;
+  final TextStyle? errorStyle;
   final errorBorder;
   final focusedErrorBorder;
   final cPadding;
@@ -54,7 +54,7 @@ class CustomAppFormField extends StatefulWidget {
     this.onEditingComplete,
     this.onFieldSubmitted,
     this.cursorHeight,
-    this.textAlign = TextAlign.start, 
+    this.textAlign = TextAlign.start,
     this.prefix,
     this.suffix,
     this.prefixIcon,
@@ -95,6 +95,7 @@ class _CustomAppFormFieldState extends State<CustomAppFormField> {
           color: AppTheme.white,
           borderRadius: BorderRadius.circular(widget.radius ?? 10)),
       child: TextFormField(
+        // enabled: false,
         onFieldSubmitted: (widget.onFieldSubmitted),
         style:
             TextStyle(fontSize: widget.fontsize, fontWeight: widget.fontweight),

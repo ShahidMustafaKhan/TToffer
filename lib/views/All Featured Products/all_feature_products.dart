@@ -8,6 +8,8 @@ import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
+import 'package:tt_offer/Utils/widgets/textField_lable.dart';
+import 'package:tt_offer/views/All%20Aucton%20Products/all_auction_procucts.dart';
 import 'package:tt_offer/views/All%20Featured%20Products/feature_container.dart';
 import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
 import 'package:tt_offer/config/app_urls.dart';
@@ -29,6 +31,7 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
   var catId;
   var subCatId;
   bool isLoading = false;
+
   @override
   void initState() {
     dio = AppDio(context);
@@ -111,7 +114,9 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                     customRow(
                       img: "assets/images/filter.png",
                       txt: "Filter",
-                      onTap: () {},
+                      onTap: () {
+                        _showFilterBottomSheet(context);
+                      },
                     ),
                   ],
                 ),
@@ -469,4 +474,216 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
       });
     }
   }
+
+  void _showFilterBottomSheet(BuildContext context) {
+    final apiProvider =
+        Provider.of<ProductsApiProvider>(context, listen: false);
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              // height: MediaQuery.of(context).size.height,
+              decoration: BoxDecoration(
+                  color: AppTheme.whiteColor,
+                  borderRadius: BorderRadius.circular(30)),
+
+              child: Padding(
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: AppText.appText(
+                            "Filter",
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        AppText.appText(
+                          'Sort by',
+                          fontWeight: FontWeight.w800,
+                        ),
+                        const SizedBox(height: 8),
+                        customDropdown(Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: DropdownButton(
+                              hint: AppText.appText(
+                                sorting,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              underline: const SizedBox(),
+                              icon: const SizedBox(),
+                              isExpanded: true,
+                              items: filter.map((e) {
+                                return DropdownMenuItem(
+                                    onTap: () {
+                                      setState(() {
+                                        sorting = e;
+                                      });
+                                    },
+                                    value: e,
+                                    child: Text(e));
+                              }).toList(),
+                              onChanged: (_) {}),
+                        )),
+
+                        const SizedBox(height: 20),
+
+                        AppText.appText(
+                          'Filter ads by',
+                          fontWeight: FontWeight.w800,
+                        ),
+                        const SizedBox(height: 8),
+                        customDropdown(Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: DropdownButton(
+                              hint: AppText.appText(
+                                isUrgent,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              underline: const SizedBox(),
+                              icon: const SizedBox(),
+                              isExpanded: true,
+                              items: urgent.map((e) {
+                                return DropdownMenuItem(
+                                    onTap: () {
+                                      setState(() {
+                                        isUrgent = e;
+                                      });
+                                    },
+                                    value: e,
+                                    child: Text(e));
+                              }).toList(),
+                              onChanged: (_) {}),
+                        )),
+                        const SizedBox(height: 20),
+
+                        AppText.appText(
+                          'Sort by min to max price',
+                          fontWeight: FontWeight.w800,
+                        ),
+
+                        Row(
+                          children: [
+                            Expanded(
+                                child: lableFields(
+                                    controller: minPrice,
+                                    hintText: 'Min Price')),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Expanded(
+                                child: lableFields(
+                                    controller: maxPrice,
+                                    hintText: 'High Price'))
+                          ],
+                        ),
+
+                        AppText.appText(
+                          'Filter by distance',
+                          fontWeight: FontWeight.w800,
+                        ),
+
+                        SizedBox(
+                          width: double.infinity,
+                          child: Stack(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12.0),
+                                child: Slider(
+                                  activeColor: AppTheme.appColor,
+                                  value: sliderValue,
+                                  min: 0,
+                                  max: 100,
+                                  onChanged: (val) {
+                                    setState(() {
+                                      sliderValue = val;
+                                    });
+                                  },
+                                ),
+                              ),
+                              Positioned(
+                                key: tooltipKey,
+                                left: (sliderValue / 100) * 300 - 20,
+                                // Adjust position based on slider value and width
+                                bottom: 40,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0, vertical: 4.0),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.appColor,
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
+                                  child: Text(
+                                    sliderValue.toStringAsFixed(0),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //   children: [
+                        //     customLocationRow(txt1: "City", txt2: "New York"),
+                        //     customLocationRow(txt1: "State", txt2: "California"),
+                        //     customLocationRow(txt1: "Zip", txt2: "3254"),
+                        //   ],
+                        // ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).then((value) {
+      apiProvider.getAuctionFiltterProducts(
+          dio: dio,
+          context: context,
+          maxPrice: maxPrice.text.trim(),
+          minPrice: minPrice.text.trim(),
+          sortBy: sorting,
+          isUrgent: isUrgent);
+    });
+  }
+
+  Widget lableFields({lableTtxt, controller, hintText}) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 0.0),
+      child: Column(
+        children: [
+          LableTextField(
+            // labelTxt: lableTtxt == null ? '' : "$lableTtxt",
+            lableColor: AppTheme.hintTextColor,
+            hintTxt: hintText,
+            controller: controller,
+          ),
+          // const CustomDivider(),
+        ],
+      ),
+    );
+  }
+
+  TextEditingController minPrice = TextEditingController();
+  TextEditingController maxPrice = TextEditingController();
 }

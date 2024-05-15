@@ -431,7 +431,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
 
   String getFormattedTimestamp() {
     String timestampStr = "2024-04-06T00:52:00.000000Z";
-    DateTime timestamp = DateTime.parse(timestampStr);
+    DateTime timestamp = DateTime.parse(widget.detailResponse["created_at"]);
     DateTime convertedTime = timestamp.toLocal();
     String formattedTimestamp =
         DateFormat('yyyy-MM-dd   hh:mm a').format(convertedTime);

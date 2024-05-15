@@ -212,11 +212,10 @@ class _SellFasterState extends State<SellFaster> {
   displayPaymentSheet() async {
     try {
       await Stripe.instance.presentPaymentSheet().then((newValue) async {
-        print('payment intent' + paymentIntentData!['id'].toString());
-        print(
-            'payment intent' + paymentIntentData!['client_secret'].toString());
-        print('payment intent' + paymentIntentData!['amount'].toString());
-        print('payment intent' + paymentIntentData.toString());
+        print('payment intent${paymentIntentData!['id']}');
+        print('payment intent${paymentIntentData!['client_secret']}');
+        print('payment intent${paymentIntentData!['amount']}');
+        print('payment intent$paymentIntentData');
         //orderPlaceApi(paymentIntentData!['id'].toString());
 
         setState(() {});

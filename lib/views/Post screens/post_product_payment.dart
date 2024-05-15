@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Card;
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Controller/image_provider.dart';
@@ -198,22 +198,29 @@ class _PostProductPaymentState extends State<PostProductPayment> {
 
   displayPaymentSheet() async {
     try {
-      await Stripe.instance.presentPaymentSheet().then((newValue) async {
-        print('payment intent' + paymentIntentData!['id'].toString());
-        print(
-            'payment intent' + paymentIntentData!['client_secret'].toString());
-        print('payment intent' + paymentIntentData!['amount'].toString());
-        print('payment intent' + paymentIntentData.toString());
-        //orderPlaceApi(paymentIntentData!['id'].toString());
+      // StripePlatform.instance.createPaymentMethod(PaymentMethodParams.card(
+      //     paymentMethodData:
+      //     PaymentMethodData(billingDetails: BillingDetails(),shippingDetails: ShippingDetails())));
 
-        setState(() {});
+      // PaymentMethod paymentMethod =PaymentMethod( card: Card(last4: ), sepaDebit: SepaDebit());
 
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Payment Successful")));
-        paymentIntentData = null;
-      }).onError((error, stackTrace) {
-        print('Exception/DISPLAYPAYMENTSHEET==> $error $stackTrace');
-      });
+
+
+      // await Stripe.instance.presentPaymentSheet().then((newValue) async {
+      //   print('payment intent${paymentIntentData!['id']}');
+      //   print('payment intent${paymentIntentData!['client_secret']}');
+      //   print('payment intent${paymentIntentData!['amount']}');
+      //   print('payment intent$paymentIntentData');
+      //   //orderPlaceApi(paymentIntentData!['id'].toString());
+      //
+      //   setState(() {});
+      //
+      //   ScaffoldMessenger.of(context)
+      //       .showSnackBar(const SnackBar(content: Text("Payment Successful")));
+      //   paymentIntentData = null;
+      // }).onError((error, stackTrace) {
+      //   print('Exception/DISPLAYPAYMENTSHEET==> $error $stackTrace');
+      // });
     } on StripeException catch (e) {
       print('Exception/DISPLAYPAYMENTSHEET==> $e');
       showDialog(

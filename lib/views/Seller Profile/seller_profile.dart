@@ -126,9 +126,12 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                             if (l.auctionPrice == null) {
                                               getFeatureProductDetail(
                                                   productId: l.id);
+                                              print('featureId--->${l.id}');
                                             } else {
                                               getAuctionProductDetail(
                                                   productId: l.id);
+                                              print('auctionId--->${l.id}');
+
                                               // push(
                                               //     context,
                                               //     AuctionInfoScreen(
@@ -230,21 +233,24 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                           const SizedBox(
                                             height: 20,
                                           ),
-                                        Expanded(
-                                          child: AppButton.appButton("Bid Now",
-                                              onTap: () {
-                                            getAuctionProductDetail(
-                                                productId: l.id);
-                                          },
-                                              height: 32,
-                                              width: 161,
-                                              radius: 16.0,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              backgroundColor:
-                                                  AppTheme.appColor,
-                                              textColor: AppTheme.whiteColor),
-                                        )
+                                        if (l.auctionPrice != null)
+                                          Expanded(
+                                            child: AppButton.appButton(
+                                                "Bid Now", onTap: () {
+                                              getAuctionProductDetail(
+                                                  productId: l.id);
+                                            },
+                                                height: 32,
+                                                width: 161,
+                                                radius: 16.0,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                backgroundColor:
+                                                    AppTheme.appColor,
+                                                textColor: AppTheme.whiteColor),
+                                          )
+                                        else
+                                          SizedBox()
                                       ],
                                     ),
                                   ),
@@ -318,8 +324,12 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                         width: 80,
                         decoration: BoxDecoration(
                             image: DecorationImage(
-                                image:widget.detailResponse['user']['img']==null?AssetImage('assets/images/profile.png'): NetworkImage(
-                                    widget.detailResponse['user']['img'])as ImageProvider<Object>,
+                                image: widget.detailResponse['user']['img'] ==
+                                        null
+                                    ? const AssetImage(
+                                        'assets/images/profile.png')
+                                    : NetworkImage(widget.detailResponse['user']
+                                        ['img']) as ImageProvider<Object>,
                                 fit: BoxFit.cover),
                             color: AppTheme.text09,
                             borderRadius: BorderRadius.circular(16)),
