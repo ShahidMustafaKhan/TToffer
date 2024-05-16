@@ -69,7 +69,7 @@ class Selling {
   String? condition;
   dynamic makeAndModel;
   dynamic mileage;
-  String? color;
+  dynamic color;
   String? brand;
   dynamic model;
   String? edition;
@@ -77,12 +77,12 @@ class Selling {
   dynamic fixPrice;
   dynamic firmOnPrice;
   dynamic auctionPrice;
-  String? startingDate;
+  dynamic startingDate;
   String? startingTime;
-  String? endingDate;
-  String? endingTime;
-  String? sellToUs;
-  String? location;
+  dynamic endingDate;
+  dynamic endingTime;
+  dynamic sellToUs;
+  dynamic location;
   dynamic status;
   DateTime? createdAt;
   DateTime? updatedAt;
@@ -378,7 +378,7 @@ class User {
   String provider;
   int? providerId;
   int? providerToken;
-  int? code;
+  String? code;
   dynamic emailVerifiedAt;
   dynamic phoneVerifiedAt;
   dynamic imageVerifiedAt;
