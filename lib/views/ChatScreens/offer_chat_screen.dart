@@ -84,7 +84,9 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
         .data!
         .conversation!;
     conversation.forEach((element) {
-      if (element.offer != null && element.offer?.status == null) {
+      if (element.offer != null &&
+          element.offer?.status == null &&
+          element.senderId != userId) {
         // if (element.offer!.sellerId != userId) {
         widget.isOffer = true;
         widget.offerPrice = element.offer!.offerPrice ?? "0";
@@ -735,27 +737,47 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
   Future<void> sendOffer() async {
     bool isRejected = await rejectOfferHandler();
     open.openclose();
+    widget.isOffer = false;
 
     if (isRejected) {
-      var responce = await chatApiProvider.makeOffer(
+      setState(() {
+        isSending = true;
+      });
+      bool isSent = await sendMessage(
           dio: dio,
           context: context,
-          productId: productId,
-          sellerId: sellerId,
-          buyerId: int.parse(buyerId!),
-          offerPrice: int.parse(_priceController.text.trim()));
+          image: pickedImage,
+          senderId: userId,
+          recieverId: widget.recieverId,
+          title: widget.title,
+          message:
+              "Unfortunately, the seller has canceled the offer. They've proposed a new price ${_priceController.text.trim()}. If you are still interested then make a new offer of ${_priceController.text.trim()}");
 
-      if (responce['success'] == true) {
-        widget.isOffer = false;
-        setState(() {});
-        // pushReplacement(
-        //     context,
-        //     OfferChatScreen(
-        //       isOffer: false,
-        //       userImgUrl: widget.userImgUrl,
-        //       title: widget.title,
-        //     ));
+      setState(() {
+        isSending = false;
+      });
+      if (isSent) {
+        _priceController.clear();
       }
+      // var responce = await chatApiProvider.makeOffer(
+      //     dio: dio,
+      //     context: context,
+      //     productId: productId,
+      //     sellerId: sellerId,
+      //     buyerId: int.parse(buyerId!),
+      //     offerPrice: int.parse(_priceController.text.trim()));
+
+      // if (responce['success'] == true) {
+      //   widget.isOffer = false;
+      //   setState(() {});
+      // pushReplacement(
+      //     context,
+      //     OfferChatScreen(
+      //       isOffer: false,
+      //       userImgUrl: widget.userImgUrl,
+      //       title: widget.title,
+      //     ));
+      // }
 
       // Map<String, dynamic> params = {
       //   "product_id": productId,

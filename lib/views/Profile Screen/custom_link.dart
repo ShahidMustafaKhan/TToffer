@@ -21,15 +21,13 @@ class _CustomLinkScreenState extends State<CustomLinkScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _linkController.text = 'ttoffer.com/profile${widget.link!}';
+    _linkController.text = 'ttoffer.com/profile/${widget.link!}';
   }
 
   void _copyText() {
     if (_linkController.text.isNotEmpty) {
-      Clipboard.setData(
-          ClipboardData(text: _linkController.text));
+      Clipboard.setData(ClipboardData(text: _linkController.text));
       showSnackBar(context, 'Link copied');
     } else {
       showSnackBar(context, 'No link to copy');
@@ -53,7 +51,8 @@ class _CustomLinkScreenState extends State<CustomLinkScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: AppText.appText("Enter your custom shareable link",
+                  child: AppText.appText(
+                      "This is your profile link. You can copy by clicking on this", //Enter your custom shareable link
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       textColor: AppTheme.text09),
@@ -71,6 +70,19 @@ class _CustomLinkScreenState extends State<CustomLinkScreen> {
                 ),
                 const SizedBox(
                   height: 20,
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40.0),
+                  child: AppButton.appButton("Copy Profile Link",
+                      onTap: _copyText,
+                      border: false,
+                      height: 53,
+                      radius: 32.0,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      backgroundColor: AppTheme.disableColor,
+                      textColor: AppTheme.whiteColor),
                 ),
                 // RichText(
                 //   text: TextSpan(

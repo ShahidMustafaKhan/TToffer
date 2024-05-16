@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dialogs/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,8 +39,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     setState(() {
       loader = true;
     });
-    await UserInfoService()
-        .userInfoService(context: context, id: widget.detailResponse['id']);
+    await UserInfoService().userInfoService(
+        context: context, id: widget.detailResponse['user_id']);
     setState(() {
       loader = false;
     });
@@ -49,8 +51,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    log("widget.detailResponse = ${widget.detailResponse}");
     getUserProduct();
   }
 
