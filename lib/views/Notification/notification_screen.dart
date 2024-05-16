@@ -105,13 +105,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
         title: const Text('Notifications'),
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: InkWell(
-            onTap: () {
-              checks.first = false;
-              showCheck = !showCheck;
-              setState(() {});
-            },
-            child: const Center(child: Text('Clear'))),
+        // leading: InkWell(
+        //     onTap: () {
+        //       checks.first = false;
+        //       showCheck = !showCheck;
+        //       setState(() {});
+        //     },
+        //     child: const Center(child: Text('Clear'))),
         actions: [
           checks.isNotEmpty // Check if 'checks' is not empty
               ? checks.first == false // Check the first element if not empty

@@ -30,13 +30,13 @@ class NotificationModel {
 class NotificationData {
   int? id;
   int? userId;
-  String? text;
-  String? type;
-  String? typeId;
-  String? status;
-  String? createdAt;
-  String? updatedAt;
-  String? deletedAt;
+  dynamic text;
+  dynamic type;
+  dynamic typeId;
+  dynamic status;
+  dynamic createdAt;
+  dynamic updatedAt;
+  dynamic deletedAt;
   User? user;
 
   NotificationData(
