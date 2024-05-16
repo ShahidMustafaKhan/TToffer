@@ -15,6 +15,7 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/chat_model.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
+import 'package:tt_offer/views/Auction%20Info/full_image_page.dart';
 import 'package:tt_offer/views/Auction%20Info/make_offer_screen.dart';
 import 'package:tt_offer/views/ChatScreens/offer_chat_screen.dart';
 import 'package:tt_offer/views/Seller%20Profile/seller_profile.dart';
@@ -469,9 +470,18 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                               itemBuilder: (BuildContext context, int index) {
                                 return SizedBox(
                                   height: 300,
-                                  child: Image.network(
-                                    "${widget.detailResponse["photo"][index]["src"]}",
-                                    fit: BoxFit.fill,
+                                  child: InkWell(
+                                    onTap: () {
+                                      push(
+                                          context,
+                                          FullImagePage(
+                                              detailResponse:
+                                                  widget.detailResponse));
+                                    },
+                                    child: Image.network(
+                                      "${widget.detailResponse["photo"][index]["src"]}",
+                                      fit: BoxFit.fill,
+                                    ),
                                   ),
                                 );
                               },

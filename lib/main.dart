@@ -30,6 +30,8 @@ import 'package:tt_offer/views/Authentication%20screens/GoogleSignIn/google_sign
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
+import 'time_screen.dart';
+
 String? title;
 String? imagePath;
 
@@ -120,6 +122,7 @@ class _MyAppState extends State<MyApp> {
         debugShowCheckedModeBanner: false,
         title: 'TT Offer',
         home: const SplashScreen(),
+        // home:  TimeScreen(),
         // home:  CardHomeScreen(),
       ),
     );

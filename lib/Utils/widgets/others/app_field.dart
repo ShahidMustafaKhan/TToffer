@@ -30,6 +30,7 @@ class CustomAppFormField extends StatefulWidget {
   final Color? hintTextColor;
   final int? maxline;
   final texAlign;
+  bool? enable;
   final TextStyle? hintStyle;
   final TextStyle? style;
   final double? radius;
@@ -39,7 +40,7 @@ class CustomAppFormField extends StatefulWidget {
   final cPadding;
   final type;
 
-  const CustomAppFormField({
+   CustomAppFormField({
     Key? key,
     this.containerBorderCondition = false,
     required this.texthint,
@@ -48,6 +49,7 @@ class CustomAppFormField extends StatefulWidget {
     this.height,
     this.width,
     this.obscureText = false,
+    this.enable = true,
     this.onChanged,
     this.onTap,
     this.onTapOutside,
@@ -95,7 +97,7 @@ class _CustomAppFormFieldState extends State<CustomAppFormField> {
           color: AppTheme.white,
           borderRadius: BorderRadius.circular(widget.radius ?? 10)),
       child: TextFormField(
-        // enabled: false,
+        enabled: widget.enable,
         onFieldSubmitted: (widget.onFieldSubmitted),
         style:
             TextStyle(fontSize: widget.fontsize, fontWeight: widget.fontweight),

@@ -231,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     push(
                         context,
                         CustomLinkScreen(
-                          link: profileApi.profileData['custom_link'] ?? '',
+                          link: profileApi.profileData['username'] ?? '',
                         ));
                   },
                   txt: "Custom Profile Link",

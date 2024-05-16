@@ -10,7 +10,7 @@ import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 class CustomLinkScreen extends StatefulWidget {
   String? link;
 
-  CustomLinkScreen({this.link});
+  CustomLinkScreen({super.key, this.link});
 
   @override
   State<CustomLinkScreen> createState() => _CustomLinkScreenState();
@@ -23,12 +23,13 @@ class _CustomLinkScreenState extends State<CustomLinkScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _linkController.text = widget.link!;
+    _linkController.text = 'ttoffer.com/profile${widget.link!}';
   }
 
   void _copyText() {
     if (_linkController.text.isNotEmpty) {
-      Clipboard.setData(ClipboardData(text: _linkController.text));
+      Clipboard.setData(
+          ClipboardData(text: _linkController.text));
       showSnackBar(context, 'Link copied');
     } else {
       showSnackBar(context, 'No link to copy');
@@ -60,6 +61,7 @@ class _CustomLinkScreenState extends State<CustomLinkScreen> {
                 InkWell(
                   onTap: _copyText,
                   child: CustomAppFormField(
+                    enable: false,
                     texthint: "ttoffer.com/profile/your profile name",
                     controller: _linkController,
                     borderColor: AppTheme.borderColor,
