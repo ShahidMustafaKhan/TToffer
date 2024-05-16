@@ -17,7 +17,6 @@ import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/custom_requests/custom_get_request.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/firebase_options.dart';
-import 'package:tt_offer/example_card_field.dart';
 import 'package:tt_offer/providers/bids_provider.dart';
 import 'package:tt_offer/providers/chat_list_provider.dart';
 import 'package:tt_offer/providers/chat_provider.dart';

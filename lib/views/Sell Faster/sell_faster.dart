@@ -12,8 +12,8 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/custom_requests/sell-faster_stripe_api.dart';
-import 'package:tt_offer/example_card_field.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
+import 'package:tt_offer/stripe_payment_screen.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
 import 'package:http/http.dart' as http;
 
@@ -111,11 +111,10 @@ class _SellFasterState extends State<SellFaster> {
                               push(
                                   context,
                                   CardHomeScreen(
-                                    selling: widget.selling,
-                                    amount: sellFastData[index].amount,
-                                    currency: 'USD',
-                                    day: sellFastData[index].boostDays
-                                  ));
+                                      selling: widget.selling,
+                                      amount: sellFastData[index].amount,
+                                      currency: 'USD',
+                                      day: sellFastData[index].boostDays));
 
                               // makePayment(sellFastData[index].amount.toString(),
                               //     sellFastData[index].boostDays);
