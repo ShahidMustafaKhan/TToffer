@@ -66,7 +66,9 @@ class _CardHomeScreenState extends State<CardHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar1(title: 'Subscription',),
+      appBar: const CustomAppBar1(
+        title: 'Subscription',
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -82,13 +84,16 @@ class _CardHomeScreenState extends State<CardHomeScreen> {
                       borderRadius: 10,
                       backgroundColor: Colors.white,
                       borderColor: Colors.black,
+                      textColor: Colors.black,
                       borderWidth: 1),
                 ),
-               loading?CircularProgressIndicator(color: AppTheme.appColor): AppButton.appButton('Pay',
-                    backgroundColor: AppTheme.appColor,
-                    height: 50,
-            
-                    textColor: Colors.white, onTap: _handlePayPress),
+                loading
+                    ? CircularProgressIndicator(color: AppTheme.appColor)
+                    : AppButton.appButton('Pay',
+                        backgroundColor: AppTheme.appColor,
+                        height: 50,
+                        textColor: Colors.white,
+                        onTap: _handlePayPress),
               ],
             ),
           ),
