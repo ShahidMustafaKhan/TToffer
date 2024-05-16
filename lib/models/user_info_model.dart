@@ -26,10 +26,10 @@ class Data {
   int? id;
   String? name;
   String? src;
-  String? provider;
+  dynamic provider;
   dynamic providerId;
   dynamic providerToken;
-  String? code;
+  dynamic code;
   dynamic emailVerifiedAt;
   dynamic emailCode;
   dynamic phoneVerifiedAt;
@@ -39,14 +39,14 @@ class Data {
   dynamic phone;
   dynamic shareAbleLink;
   String? img;
-  int? status;
+  dynamic status;
   dynamic location;
   dynamic customLink;
   dynamic isTrueYou;
-  String? createdAt;
-  String? updatedAt;
-  int? totalReview;
-  int? reviewPercentage;
+  dynamic createdAt;
+  dynamic updatedAt;
+  dynamic totalReview;
+  dynamic reviewPercentage;
   List<ProductsDataInfo>? products;
 
   Data(
@@ -146,30 +146,30 @@ class ProductsDataInfo {
   int? id;
   int? userId;
   String? title;
-  String? slug;
+  dynamic slug;
   String? description;
   int? categoryId;
   int? subCategoryId;
   String? condition;
   String? makeAndModel;
-  String? mileage;
-  String? color;
-  String? brand;
-  String? model;
-  String? edition;
-  String? authenticity;
+  dynamic mileage;
+  dynamic color;
+  dynamic brand;
+  dynamic model;
+  dynamic edition;
+  dynamic authenticity;
   int? fixPrice;
   int? firmOnPrice;
   int? auctionPrice;
-  String? startingDate;
-  String? startingTime;
+  dynamic startingDate;
+  dynamic startingTime;
   String? endingDate;
   String? endingTime;
-  String? sellToUs;
-  String? location;
+  dynamic sellToUs;
+  dynamic location;
   int? status;
-  String? createdAt;
-  String? updatedAt;
+  dynamic createdAt;
+  dynamic updatedAt;
   int? isUrgent;
   int? totalReview;
   int? reviewPercentage;
@@ -347,8 +347,8 @@ class User {
   String? name;
   String? src;
   String? provider;
-  dynamic providerId;
-  dynamic providerToken;
+  int? providerId;
+  int? providerToken;
   String? code;
   dynamic emailVerifiedAt;
   dynamic emailCode;
@@ -453,13 +453,13 @@ class User {
 
 class Category {
   int? id;
-  String? name;
-  String? slug;
-  String? color;
-  String? image;
+  dynamic name;
+  dynamic slug;
+  dynamic color;
+  dynamic image;
   int? status;
-  String? createdAt;
-  String? updatedAt;
+  dynamic createdAt;
+  dynamic updatedAt;
 
   Category(
       {this.id,
@@ -529,8 +529,8 @@ class Photo {
   int? id;
   int? productId;
   String? src;
-  String? createdAt;
-  String? updatedAt;
+  dynamic createdAt;
+  dynamic updatedAt;
 
   Photo({this.id, this.productId, this.src, this.createdAt, this.updatedAt});
 

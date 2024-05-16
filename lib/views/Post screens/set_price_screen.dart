@@ -61,12 +61,12 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
 
       try {
         // Parse startingDate and endingDate strings
-        startDate = dateFormat.parse(widget.selling!.startingDate);
-        endDate = dateFormat.parse(widget.selling!.endingDate);
+        startDate = dateFormat.parse(widget.selling!.startingDate!);
+        endDate = dateFormat.parse(widget.selling!.endingDate!);
 
         // Assuming startingTime and endingTime are in "HH:mm" format
-        startTime = DateFormat('HH:mm').parse(widget.selling!.startingTime);
-        endTime = DateFormat('HH:mm').parse(widget.selling!.endingTime);
+        startTime = DateFormat('HH:mm').parse(widget.selling!.startingTime!);
+        endTime = DateFormat('HH:mm').parse(widget.selling!.endingTime!);
       } catch (e) {
         print('Error parsing dates: $e');
         // Handle parsing errors here

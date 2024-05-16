@@ -163,7 +163,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                                       child: InkWell(
                                         onTap: () {
                                           markArchived(
-                                              widget.selling.id, setStatess);
+                                              widget.selling.id!, setStatess);
                                         },
                                         child: AppText.appText("Archive",
                                             fontSize: 14,

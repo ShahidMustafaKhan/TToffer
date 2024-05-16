@@ -59,30 +59,30 @@ class Data {
 }
 
 class Selling {
-  dynamic id;
-  dynamic userId;
+  int? id;
+  int? userId;
   String title;
-  String? slug;
+  dynamic slug;
   String description;
   dynamic categoryId;
   dynamic subCategoryId;
   String? condition;
   dynamic makeAndModel;
   dynamic mileage;
-  dynamic color;
-  dynamic brand;
+  String? color;
+  String? brand;
   dynamic model;
-  dynamic edition;
+  String? edition;
   dynamic authenticity;
   dynamic fixPrice;
   dynamic firmOnPrice;
   dynamic auctionPrice;
-  dynamic startingDate;
-  dynamic startingTime;
-  dynamic endingDate;
-  dynamic endingTime;
-  dynamic sellToUs;
-  dynamic location;
+  String? startingDate;
+  String? startingTime;
+  String? endingDate;
+  String? endingTime;
+  String? sellToUs;
+  String? location;
   dynamic status;
   DateTime? createdAt;
   DateTime? updatedAt;
@@ -147,34 +147,34 @@ class Selling {
         title: json["title"] ?? '',
         slug: json["slug"] ?? '',
         description: json["description"] ?? '',
-        categoryId: json["category_id"] ?? '',
-        subCategoryId: json["sub_category_id"] ?? '',
+        categoryId: json["category_id"] ,
+        subCategoryId: json["sub_category_id"],
         condition: json["condition"] ?? '',
         makeAndModel: json["make_and_model"],
-        mileage: json["mileage"] ?? '',
+        mileage: json["mileage"] ,
         color: json["color"] ?? '',
         brand: json["brand"],
         model: json["model"],
         edition: json["edition"],
         authenticity: json["authenticity"],
         fixPrice: json["fix_price"],
-        firmOnPrice: json["firm_on_price"] ?? '',
-        auctionPrice: json["auction_price"] ?? '',
-        startingDate: json["starting_date"] ?? '',
-        startingTime: json["starting_time"] ?? '',
+        firmOnPrice: json["firm_on_price"] ,
+        auctionPrice: json["auction_price"] ,
+        startingDate: json["starting_date"] ,
+        startingTime: json["starting_time"] ,
         endingDate: json["ending_date"] ?? '',
         endingTime: json["ending_time"] ?? '',
         sellToUs: json["sell_to_us"] ?? '',
         location: json["location"] ?? '',
-        status: json["status"] ?? '',
+        status: json["status"] ,
         createdAt: DateTime.parse(json["created_at"] ?? ''),
         updatedAt: DateTime.parse(json["updated_at"] ?? ''),
-        isUrgent: json["is_urgent"] ?? '',
-        totalReview: json["total_review"] ?? '',
-        reviewPercentage: json["review_percentage"] ?? '',
-        isArchived: json["is_archived"] ?? '',
-        isSold: json["is_sold"] ?? '',
-        soldToUserId: json["sold_to_user_id"] ?? '',
+        isUrgent: json["is_urgent"] ,
+        totalReview: json["total_review"],
+        reviewPercentage: json["review_percentage"] ,
+        isArchived: json["is_archived"] ,
+        isSold: json["is_sold"],
+        soldToUserId: json["sold_to_user_id"] ,
         user: User.fromJson(json["user"]),
         category: json["category"] == null
             ? null
@@ -376,9 +376,9 @@ class User {
   String name;
   String src;
   String provider;
-  dynamic providerId;
-  dynamic providerToken;
-  String code;
+  int? providerId;
+  int? providerToken;
+  int? code;
   dynamic emailVerifiedAt;
   dynamic phoneVerifiedAt;
   dynamic imageVerifiedAt;
@@ -478,29 +478,29 @@ class User {
   // String toRawJson() => json.encode(toJson());
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-        id: json["id"] ?? '',
-        name: json["name"] ?? '',
-        src: json["src"] ?? '',
-        provider: json["provider"] ?? '',
-        providerId: json["provider_id"] ?? '',
-        providerToken: json["provider_token"] ?? '',
-        code: json["code"] ?? '',
-        emailVerifiedAt: json["email_verified_at"] ?? '',
-        phoneVerifiedAt: json["phone_verified_at"] ?? '',
-        imageVerifiedAt: json["image_verified_at"] ?? '',
-        username: json["username"] ?? '',
+        id: json["id"] ,
+        name: json["name"] ,
+        src: json["src"] ,
+        provider: json["provider"] ,
+        providerId: json["provider_id"] ,
+        providerToken: json["provider_token"] ,
+        code: json["code"] ,
+        emailVerifiedAt: json["email_verified_at"],
+        phoneVerifiedAt: json["phone_verified_at"] ,
+        imageVerifiedAt: json["image_verified_at"] ,
+        username: json["username"] ,
         email: json["email"] ?? '',
         phone: json["phone"] ?? '',
         shareAbleLink: json["share_able_link"] ?? '',
         img: json["img"] ?? '',
-        status: json["status"] ?? '',
+        status: json["status"] ,
         location: json["location"] ?? '',
         customLink: json["custom_link"] ?? '',
-        isTrueYou: json["is_true_you"] ?? '',
+        isTrueYou: json["is_true_you"] ,
         createdAt: DateTime.parse(json["created_at"] ?? ''),
         updatedAt: DateTime.parse(json["updated_at"] ?? ''),
         totalReview: json["total_review"] ?? '',
-        reviewPercentage: json["review_percentage"] ?? '',
+        reviewPercentage: json["review_percentage"] ,
       );
 
   Map<String, dynamic> toJson() => {

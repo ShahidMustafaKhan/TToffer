@@ -46,7 +46,7 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
     logger.init();
 
     if (widget.selling != null) {
-      _locationController.text = widget.selling!.location;
+      _locationController.text = widget.selling!.location!;
     }
 
     // print('location--->${widget.selling!.location??''}');
