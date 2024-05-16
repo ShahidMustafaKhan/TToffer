@@ -142,7 +142,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             const EmailVerificationScreen());
                                       }
                                     : null,
-                                txt: "Email Verified",
+                                txt: profileApi
+                                            .profileData["email_verified_at"] ==
+                                        null
+                                    ? "Email not Verified"
+                                    : "Email Verified",
                                 img: "assets/images/sms.png",
                                 color: profileApi
                                             .profileData["email_verified_at"] ==
@@ -150,13 +154,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? Colors.red
                                     : null),
                             verifiedContainer(
-                                txt: "Image Verified",
                                 img: "assets/images/gallery.png",
                                 color: profileApi
                                             .profileData["image_verified_at"] ==
                                         null
                                     ? Colors.red
-                                    : null),
+                                    : null,
+                                txt: profileApi
+                                            .profileData["image_verified_at"] ==
+                                        null
+                                    ? "Image not Verified"
+                                    : "Image Verified"),
                             verifiedContainer(
                                 onTap: profileApi
                                             .profileData["phone_verified_at"] ==
@@ -165,7 +173,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         push(context, PhoneVerifyScreen());
                                       }
                                     : null,
-                                txt: "Phone Verified",
+                                txt: profileApi
+                                            .profileData["image_verified_at"] ==
+                                        null
+                                    ? "Phone not Verified"
+                                    : "Phone Verified",
                                 img: "assets/images/call.png",
                                 color: profileApi
                                             .profileData["phone_verified_at"] ==
@@ -258,7 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20.0),
       child: SizedBox(
-        height: 80,
+        height: 90,
         width: 48,
         child: InkWell(
           onTap: (onTap),
@@ -289,6 +301,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     fontWeight: FontWeight.w500,
                     textColor: AppTheme.txt1B20),
               ),
+              if (!txt.contains("not"))
+                const SizedBox(
+                  width: 20,
+                ),
             ],
           ),
         ),
