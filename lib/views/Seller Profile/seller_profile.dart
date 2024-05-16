@@ -203,8 +203,9 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                               fontWeight: FontWeight.w500,
                                               textColor: AppTheme.textColor),
                                         ),
+
                                         AppText.appText(
-                                            "\$${l.auctionPrice ?? l.fixPrice}",
+                                            "${l.fixPrice != null ? '\$' : ''}${l.auctionPrice ?? l.fixPrice ?? ''}",
                                             fontSize: 14,
                                             fontWeight: FontWeight.w700,
                                             textColor: AppTheme.textColor),
@@ -252,7 +253,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                                 textColor: AppTheme.whiteColor),
                                           )
                                         else
-                                          SizedBox()
+                                          const SizedBox()
                                       ],
                                     ),
                                   ),
