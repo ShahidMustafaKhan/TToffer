@@ -51,7 +51,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
   Stripe.publishableKey =
-      "pk_test_51JUUldDdNsnMpgdhSlxjCo0yQBGHy9RsTQojb3YENwH5llfYiEmqqFjkc6SmsSQpLb9BH40OKQb0fwTlfifqJhFd00Cy7xTNwd";
+      "pk_test_51O7mVXJayAXqf3Vq8gnj64IGw9woyYdaSUTgkdh07uYy22MN6qg8VEMzJZvhdV4HnANed3rqsN4crMBBy6CkH8eo00u6HHRwj0";
+  //my "pk_test_51JUUldDdNsnMpgdhSlxjCo0yQBGHy9RsTQojb3YENwH5llfYiEmqqFjkc6SmsSQpLb9BH40OKQb0fwTlfifqJhFd00Cy7xTNwd";
   await Stripe.instance.applySettings();
   ZegoUIKit().initLog().then((value) {
     ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(

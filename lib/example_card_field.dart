@@ -5,6 +5,7 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/custom_requests/sell-faster_stripe_api.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
+import 'package:tt_offer/utils/utils.dart';
 
 class CardHomeScreen extends StatefulWidget {
   Selling? selling;
@@ -28,19 +29,27 @@ class _CardHomeScreenState extends State<CardHomeScreen> {
   void _handlePayPress() async {
     if (_formKey.currentState?.validate() == true && _card != null) {
       try {
-        final tokenData = await Stripe.instance.createPaymentMethod(
-          params: const PaymentMethodParams.card(
-            paymentMethodData: PaymentMethodData(),
-          ),
-        );
-        print('Token generated: ${tokenData.id}');
+        TokenData data =
+            await Stripe.instance.createToken(const CreateTokenParams.card(
+                params: CardTokenParams(
+          currency: "usd",
+        )));
+
+        // final tokenData = await Stripe.instance.createPaymentMethod(
+        //   params: const PaymentMethodParams.card(
+        //     paymentMethodData: PaymentMethodData(),
+        //   ),
+        // );
+        print('Token generated: ${data.id}');
 
         await fasterProductHandler(
-            widget.day!, widget.amount!, widget.currency!, tokenData.id);
+            widget.day!, widget.amount!, widget.currency!, data.id);
 
         // You can send this token to your backend server to process the payment
       } catch (e) {
         print('Error: $e');
+
+        showSnackBar(context, "Something went wrong");
       }
     }
   }

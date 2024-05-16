@@ -26,6 +26,8 @@ class SellFasterStripeService {
           .httpPostRequest(url: 'sell-faster', body: body);
 
       if (res['success'] == true) {
+        showSnackBar(context, res['message']);
+
         return true; // Success
       } else {
         showSnackBar(context, res['error']);
