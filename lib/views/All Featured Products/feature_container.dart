@@ -118,7 +118,7 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                     color: AppTheme.textColor,
                     size: 20,
                   ),
-                  Container(
+                  SizedBox(
                     width: 50,
                     child: AppText.appText(
                       "${widget.data["location"]}",
@@ -133,6 +133,7 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
               SizedBox(
                 width: 100,
                 child: AppText.appText(
+                  overflow: TextOverflow.ellipsis,
                   timeDifference,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
