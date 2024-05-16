@@ -7,20 +7,20 @@ import 'package:tt_offer/custom_requests/sell-faster_stripe_api.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/utils/utils.dart';
 
-class CardHomeScreen extends StatefulWidget {
+class StripePaymentScreen extends StatefulWidget {
   Selling? selling;
   String? amount;
   String? currency;
   String? day;
 
-  CardHomeScreen(
+  StripePaymentScreen(
       {super.key, this.selling, this.amount, this.day, this.currency});
 
   @override
-  _CardHomeScreenState createState() => _CardHomeScreenState();
+  _StripePaymentScreenState createState() => _StripePaymentScreenState();
 }
 
-class _CardHomeScreenState extends State<CardHomeScreen> {
+class _StripePaymentScreenState extends State<StripePaymentScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   CardFieldInputDetails? _card;
 

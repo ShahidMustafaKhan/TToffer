@@ -9,11 +9,13 @@ import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
+import 'package:tt_offer/stripe_payment_screen.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
 import 'package:tt_offer/views/Post%20screens/post_product_payment.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
+import 'package:tt_offer/views/Sell%20Faster/sell_faster.dart';
 
 class PostLocationScreen extends StatefulWidget {
   final productId;
@@ -190,18 +192,25 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
         });
       } else if (response.statusCode == responseCode200) {
         setState(() {
-          pushReplacement(
-              context,
-              PostProductPayment(
-                amount: widget.amount,
-                productId: widget.selling == null
-                    ? widget.productId
-                    : widget.selling!.id,
-                title: widget.title,
-                selling: widget.selling,
-              ));
           _isLoading = false;
         });
+        showSnackBar(context, responseData["msg"]);
+        widget.selling ??= Selling.fromJson(responseData);
+        pushReplacement(
+            context,
+            SellFaster(
+              selling: widget.selling!,
+            ));
+        // pushReplacement(
+        //     context,
+        //     PostProductPayment(
+        //       amount: widget.amount,
+        //       productId: widget.selling == null
+        //           ? widget.productId
+        //           : widget.selling!.id,
+        //       title: widget.title,
+        //       selling: widget.selling,
+        //     ));
       }
     } catch (e) {
       print("Something went Wrong ${e}");

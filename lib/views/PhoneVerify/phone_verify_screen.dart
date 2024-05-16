@@ -10,6 +10,7 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/custom_requests/update_account_service.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class PhoneVerifyScreen extends StatefulWidget {
   @override
@@ -142,6 +143,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
                         ? CircularProgressIndicator(color: AppTheme.appColor)
                         : AppButton.appButton('Sign In',
                             height: 50,
+                            textColor: Colors.white,
                             backgroundColor: AppTheme.appColor,
                             onTap: signInWithPhoneNumber)
                     // ElevatedButton(onPressed: phoneVerifyHandler, child: Text('sddsad'))
@@ -183,13 +185,12 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
                     // ),
                     const Spacer(),
                     loading
-                        ? CircularProgressIndicator(
-                            color: AppTheme.appColor)
+                        ? CircularProgressIndicator(color: AppTheme.appColor)
                         : AppButton.appButton('Verify Phone Number',
+                            textColor: Colors.white,
                             backgroundColor: AppTheme.appColor,
-                        height: 50,
-
-                        onTap: verifyPhoneNumber),
+                            height: 50,
+                            onTap: verifyPhoneNumber),
                   ],
                 ),
         ),

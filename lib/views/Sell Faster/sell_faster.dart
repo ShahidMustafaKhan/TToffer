@@ -110,7 +110,7 @@ class _SellFasterState extends State<SellFaster> {
                                 onTap: () async {
                               push(
                                   context,
-                                  CardHomeScreen(
+                                  StripePaymentScreen(
                                       selling: widget.selling,
                                       amount: sellFastData[index].amount,
                                       currency: 'USD',

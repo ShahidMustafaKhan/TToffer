@@ -88,6 +88,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
           element.offer?.status == null &&
           element.senderId != userId) {
         // if (element.offer!.sellerId != userId) {
+        log("widget.isOffer is set to true");
         widget.isOffer = true;
         widget.offerPrice = element.offer!.offerPrice ?? "0";
         _priceController.text = widget.offerPrice.toString();
@@ -704,6 +705,11 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
     showSnackBar(context, responce["message"]);
 
     if (responce["success"] == true) {
+      log("offer should be closed in rejectOfferHandler");
+
+      setState(() {
+        widget.isOffer = false;
+      });
       return true;
     } else {
       return false;
@@ -726,6 +732,13 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
 
     log("responce in acceptOfferHandler = $responce");
     showSnackBar(context, responce["message"]);
+
+    if (responce["success"] == true) {
+      log("offer should be closed in acceptOfferHandler");
+      setState(() {
+        widget.isOffer = false;
+      });
+    }
   }
 
   void makeCustomOfferHandler() {
