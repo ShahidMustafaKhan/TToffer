@@ -78,40 +78,35 @@ Future showLogOutALert(
                             "price": price
                           };
 
-                          print('bodyyy--->${body}');
+                          print('body--->${body}');
 
                           try {
                             var response = await AppDio(context)
                                 .post(path: AppUrls.placeBid, data: body);
 
-                            if (response.statusCode == 200) {
-                              var responseData = response.data;
+                            // if (response.statusCode == 200) {
+                            var responseData = response.data;
 
+                            if (responseData['success'] == false) {
+                              showSnackBar(context, responseData['message']);
+                            } else {
                               await BidsService().getBidsService(
-                                  context: context, productId: id);
+                                  context: context, productId: productId);
 
-                              if (responseData['message'] ==
-                                  'You can not place bid on your product!') {
-                                showSnackBar(context,
-                                    'You can not place bid on your product!');
-                              } else {
-                                bidProvider.add(BidsData(
-                                  id: id,
-                                  userId: int.parse(userId.toString()),
-                                  productId: productId,
-                                  price: int.parse(price.toString()),
-                                  createdAt: DateTime.now().toIso8601String(),
-                                  updatedAt: DateTime.now().toIso8601String(),
-                                ));
-                              }
-
-                              log("response in bid post = ${response.data}");
+                              bidProvider.add(BidsData(
+                                id: id,
+                                userId: int.parse(userId.toString()),
+                                productId: productId,
+                                price: int.parse(price.toString()),
+                                createdAt: DateTime.now().toIso8601String(),
+                                updatedAt: DateTime.now().toIso8601String(),
+                              ));
 
                               showSnackBar(context, responseData["message"]);
-                            } else {
-                              showSnackBar(context,
-                                  'Failed to place bid. Please try again.');
                             }
+
+                            log("response in bid post = ${response.data}");
+                            // }
                           } catch (e) {
                             showSnackBar(context, 'An error occurred: $e');
                           } finally {

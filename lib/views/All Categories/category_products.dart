@@ -48,64 +48,66 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
         title: "${widget.catNAme}",
         leading: true,
       ),
-      body: Column(
-        children: [
-          selectOption(),
-          if (selectedOption == "Auction")
-            apiProvider.isLoading == true
-                ? LoadingDialog()
-                : Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        mainAxisSpacing: 30,
-                        crossAxisSpacing: 20,
-                        crossAxisCount: 2,
-                        childAspectRatio: screenWidth / (3.8 * 200),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            selectOption(),
+            if (selectedOption == "Auction")
+              apiProvider.isLoading == true
+                  ? LoadingDialog()
+                  : Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: GridView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          mainAxisSpacing: 30,
+                          crossAxisSpacing: 20,
+                          crossAxisCount: 2,
+                          childAspectRatio: screenWidth / (3.8 * 200),
+                        ),
+                        shrinkWrap: true,
+                        itemCount: apiProvider.allauctionProductsData.length,
+                        itemBuilder: (context, int index) {
+                          return GestureDetector(
+                              onTap: () {
+                                getAuctionProductDetail(apiProvider
+                                    .allauctionProductsData[index]["id"]);
+                              },
+                              child: AuctionProductContainer(
+                                data: apiProvider.allauctionProductsData[index],
+                              ));
+                        },
                       ),
-                      shrinkWrap: true,
-                      itemCount: apiProvider.allauctionProductsData.length,
-                      itemBuilder: (context, int index) {
-                        return GestureDetector(
-                            onTap: () {
-                              getAuctionProductDetail(apiProvider
-                                  .allauctionProductsData[index]["id"]);
-                            },
-                            child: AuctionProductContainer(
-                              data: apiProvider.allauctionProductsData[index],
-                            ));
-                      },
                     ),
-                  ),
-          if (selectedOption == "Featured")
-            apiProvider.isLoading == true
-                ? LoadingDialog()
-                : Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        mainAxisSpacing: 30,
-                        crossAxisSpacing: 20,
-                        crossAxisCount: 2,
-                        childAspectRatio: screenWidth / (2.6 * 220),
+            if (selectedOption == "Featured")
+              apiProvider.isLoading == true
+                  ? LoadingDialog()
+                  : Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: GridView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          mainAxisSpacing: 30,
+                          crossAxisSpacing: 20,
+                          crossAxisCount: 2,
+                          childAspectRatio: screenWidth / (2.6 * 220),
+                        ),
+                        shrinkWrap: true,
+                        itemCount: apiProvider.allfeatureProductsData.length,
+                        itemBuilder: (context, int index) {
+                          return GestureDetector(
+                              onTap: () {
+                                getFeatureProductDetail(apiProvider
+                                    .allfeatureProductsData[index]["id"]);
+                              },
+                              child: FeatureProductContainer(
+                                data: apiProvider.allfeatureProductsData[index],
+                              ));
+                        },
                       ),
-                      shrinkWrap: true,
-                      itemCount: apiProvider.allfeatureProductsData.length,
-                      itemBuilder: (context, int index) {
-                        return GestureDetector(
-                            onTap: () {
-                              getFeatureProductDetail(apiProvider
-                                  .allfeatureProductsData[index]["id"]);
-                            },
-                            child: FeatureProductContainer(
-                              data: apiProvider.allfeatureProductsData[index],
-                            ));
-                      },
                     ),
-                  ),
-        ],
+          ],
+        ),
       ),
     );
   }

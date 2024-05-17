@@ -1,8 +1,11 @@
 import 'dart:developer';
 
 import 'package:dialogs/dialogs.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/listview_container.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
@@ -33,7 +36,12 @@ class SellerProfileScreen extends StatefulWidget {
 class _SellerProfileScreenState extends State<SellerProfileScreen> {
   List<ProductsDataInfo> data = [];
 
+  List<ProductsDataInfo> auction = [];
+  List<ProductsDataInfo> feature = [];
+
   bool loader = false;
+
+  String timeDifference = ''; // Store the calculated time difference
 
   getUserProduct() async {
     setState(() {
@@ -45,8 +53,22 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
       loader = false;
     });
     data = Provider.of<ProfileInfoProvider>(context, listen: false).data;
-    print('datat000-->${data}');
-    setState(() {});
+    print('data --> $data');
+
+    // Clear the lists before adding data to them
+    feature.clear();
+    auction.clear();
+
+    // Calculate time difference and add to appropriate list
+    data.forEach((element) {
+      if (element.firmOnPrice == null) {
+        auction.add(element);
+      } else if (element.auctionPrice == null) {
+        feature.add(element);
+      }
+    });
+
+    setState(() {}); // Update the UI after adding data to lists
   }
 
   @override
@@ -54,6 +76,24 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     super.initState();
     log("widget.detailResponse = ${widget.detailResponse}");
     getUserProduct();
+  }
+
+  String calculateTimeDifference(DateTime dateTime) {
+    DateTime currentDateTime = DateTime.now();
+    Duration difference = currentDateTime.difference(dateTime);
+    int days = difference.inDays;
+    int hours =
+        difference.inHours.remainder(24); // Get hours within the current day
+    int minutes = difference.inMinutes
+        .remainder(60); // Get minutes within the current hour
+
+    if (days > 0) {
+      return '$days ${days == 1 ? 'day' : 'days'} $hours ${hours == 1 ? 'hour' : 'hours'} $minutes ${minutes == 1 ? 'minute' : 'minutes'}';
+    } else if (hours > 0) {
+      return '$hours ${hours == 1 ? 'hour' : 'hours'} $minutes ${minutes == 1 ? 'minute' : 'minutes'}';
+    } else {
+      return '$minutes ${minutes == 1 ? 'minute' : 'minutes'}';
+    }
   }
 
   @override
@@ -100,6 +140,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                         img: "assets/images/verify1.png"),
                   ],
                 ),
+                selectOption(),
                 const SizedBox(height: 10),
                 loader == true
                     ? Center(
@@ -108,138 +149,165 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                       ))
                     : data.isEmpty
                         ? const Center(child: Text('No product found'))
-                        : Wrap(
-                            children: [
-                              for (var l in data)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 4),
-                                  child: SizedBox(
-                                    height: 325,
-                                    width: getWidth(context) * .43,
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        InkWell(
-                                          onTap: () {
-                                            if (l.auctionPrice == null) {
-                                              getFeatureProductDetail(
-                                                  productId: l.id);
-                                              print('featureId--->${l.id}');
-                                            } else {
-                                              getAuctionProductDetail(
-                                                  productId: l.id);
-                                              print('auctionId--->${l.id}');
-
-                                              // push(
-                                              //     context,
-                                              //     AuctionInfoScreen(
-                                              //       detailResponse: l,
-                                              //     ));
-                                            }
-                                          },
-                                          child: Container(
-                                            height: 210,
-                                            width: 161,
-                                            decoration: BoxDecoration(
-                                                color: AppTheme.hintTextColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(14),
-                                                image: l.photo!.isNotEmpty
-                                                    ? DecorationImage(
-                                                        image: NetworkImage(
-                                                            "${l.photo![0].src}"),
-                                                        fit: BoxFit.fill)
-                                                    : null),
-                                            child: GestureDetector(
+                        : selectedOption == "Auction"
+                            ? Wrap(
+                                children: [
+                                  for (var l in selectedOption == 'Auction'
+                                      ? auction
+                                      : feature)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0, horizontal: 4),
+                                      child: SizedBox(
+                                        width:
+                                            MediaQuery.sizeOf(context).width /
+                                                2.5,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            InkWell(
                                               onTap: () {
-                                                // widget.data["wishlist"].isNotEmpty
-                                                //     ? removeFavourite(
-                                                //         wishId: widget.data["wishlist"][0]
-                                                //             ["id"])
-                                                //     : addToFavourite();
+                                                if (l.auctionPrice == null) {
+                                                  getFeatureProductDetail(
+                                                      productId: l.id);
+                                                  print('featureId--->${l.id}');
+                                                } else {
+                                                  getAuctionProductDetail(
+                                                      productId: l.id);
+                                                  print('auctionId--->${l.id}');
+
+                                                  // push(
+                                                  //     context,
+                                                  //     AuctionInfoScreen(
+                                                  //       detailResponse: l,
+                                                  //     ));
+                                                }
                                               },
-                                              child: Align(
-                                                alignment: Alignment.topRight,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 15, right: 10.0),
-                                                  child: Container(
-                                                      height: 25,
-                                                      width: 25,
-                                                      decoration: BoxDecoration(
-                                                          shape:
-                                                              BoxShape.circle,
-                                                          color: AppTheme
-                                                              .whiteColor),
-                                                      child: l.wishlist == null
-                                                          ? Icon(
-                                                              Icons
-                                                                  .favorite_border,
-                                                              size: 13,
+                                              child: Container(
+                                                height: 210,
+                                                width: 161,
+                                                decoration: BoxDecoration(
+                                                    color:
+                                                        AppTheme.hintTextColor,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            14),
+                                                    image: l.photo!.isNotEmpty
+                                                        ? DecorationImage(
+                                                            image: NetworkImage(
+                                                                "${l.photo![0].src}"),
+                                                            fit: BoxFit.fill)
+                                                        : null),
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    // widget.data["wishlist"].isNotEmpty
+                                                    //     ? removeFavourite(
+                                                    //         wishId: widget.data["wishlist"][0]
+                                                    //             ["id"])
+                                                    //     : addToFavourite();
+                                                  },
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.topRight,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 15,
+                                                              right: 10.0),
+                                                      child: Container(
+                                                          height: 25,
+                                                          width: 25,
+                                                          decoration: BoxDecoration(
+                                                              shape: BoxShape
+                                                                  .circle,
                                                               color: AppTheme
-                                                                  .textColor,
-                                                            )
-                                                          : Icon(
-                                                              size: 13,
-                                                              Icons
-                                                                  .favorite_sharp,
-                                                              color: AppTheme
-                                                                  .appColor,
-                                                            )),
+                                                                  .whiteColor),
+                                                          child:
+                                                              l.wishlist == null
+                                                                  ? Icon(
+                                                                      Icons
+                                                                          .favorite_border,
+                                                                      size: 13,
+                                                                      color: AppTheme
+                                                                          .textColor,
+                                                                    )
+                                                                  : Icon(
+                                                                      size: 13,
+                                                                      Icons
+                                                                          .favorite_sharp,
+                                                                      color: AppTheme
+                                                                          .appColor,
+                                                                    )),
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                        Container(
-                                          height: 40.5,
-                                          child: AppText.appText("${l.title}",
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              textColor: AppTheme.textColor),
-                                        ),
+                                            SizedBox(height: 10),
+                                            SizedBox(
+                                              width: 130,
+                                              child: AppText.appText(
+                                                  "${l.title}",
+                                                  fontSize: 14,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  fontWeight: FontWeight.w500,
+                                                  textColor:
+                                                      AppTheme.textColor),
+                                            ),
 
-                                        AppText.appText(
-                                            "${l.fixPrice != null ? '\$' : ''}${l.auctionPrice ?? l.fixPrice ?? ''}",
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700,
-                                            textColor: AppTheme.textColor),
-                                        // Row(
-                                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        //   children: [
-                                        //     AppText.appText("Time Left:",
-                                        //         fontSize: 12,
-                                        //         fontWeight: FontWeight.w700,
-                                        //         textColor: AppTheme.textColor),
-                                        //     // SizedBox(
-                                        //     //   width: 80,
-                                        //     //   child: AppText.appText(getTimeLeftString(),
-                                        //     //       fontSize: 12,
-                                        //     //       overflow: TextOverflow.ellipsis,
-                                        //     //       fontWeight: FontWeight.w600,
-                                        //     //       textColor: AppTheme.appColor),
-                                        //     // ),
-                                        //   ],
-                                        // ),
+                                            SizedBox(height: 8),
 
-                                        if (l.auctionPrice == null)
-                                          const SizedBox(
-                                            height: 30,
-                                          ),
+                                            AppText.appText(
+                                                "${l.fixPrice != null ? '\$' : ''}${l.auctionPrice ?? l.fixPrice ?? ''}",
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w700,
+                                                textColor: AppTheme.textColor),
+                                            // Row(
+                                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            //   children: [
+                                            //     AppText.appText("Time Left:",
+                                            //         fontSize: 12,
+                                            //         fontWeight: FontWeight.w700,
+                                            //         textColor: AppTheme.textColor),
+                                            //     // SizedBox(
+                                            //     //   width: 80,
+                                            //     //   child: AppText.appText(getTimeLeftString(),
+                                            //     //       fontSize: 12,
+                                            //     //       overflow: TextOverflow.ellipsis,
+                                            //     //       fontWeight: FontWeight.w600,
+                                            //     //       textColor: AppTheme.appColor),
+                                            //     // ),
+                                            //   ],
+                                            // ),
 
-                                        if (l.auctionPrice != null)
-                                          const SizedBox(
-                                            height: 20,
-                                          ),
-                                        if (l.auctionPrice != null)
-                                          Expanded(
-                                            child: AppButton.appButton(
-                                                "Bid Now", onTap: () {
+                                            SizedBox(height: l.endingTime==null?0:8),
+                                            l.endingTime==null?SizedBox.shrink(): Row(
+                                              children: [
+                                                Text('Time Left'),
+                                                const Spacer(),
+                                                SizedBox(
+                                                  width: 100,
+                                                  child: AppText.appText(
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    l.endingTime.toString(),
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w600,
+                                                    textColor:
+                                                        AppTheme.appColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+
+                                            SizedBox(height: l.endingTime==null?0:8),
+
+                                            AppButton.appButton("Bid Now",
+                                                onTap: () {
                                               getAuctionProductDetail(
                                                   productId: l.id);
                                             },
@@ -250,16 +318,170 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                                 fontWeight: FontWeight.w500,
                                                 backgroundColor:
                                                     AppTheme.appColor,
-                                                textColor: AppTheme.whiteColor),
-                                          )
-                                        else
-                                          const SizedBox()
-                                      ],
-                                    ),
-                                  ),
-                                )
-                            ],
-                          ),
+                                                textColor: AppTheme.whiteColor)
+                                            // else
+                                            //   const SizedBox()
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                ],
+                              )
+                            : Wrap(
+                                children: [
+                                  for (var l in selectedOption == 'Auction'
+                                      ? auction
+                                      : feature)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0, horizontal: 4),
+                                      child: SizedBox(
+                                        width:
+                                            MediaQuery.sizeOf(context).width /
+                                                2.4,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            InkWell(
+                                              onTap: () {
+                                                if (l.auctionPrice == null) {
+                                                  getFeatureProductDetail(
+                                                      productId: l.id);
+                                                  print('featureId--->${l.id}');
+                                                } else {
+                                                  getAuctionProductDetail(
+                                                      productId: l.id);
+                                                  print('auctionId--->${l.id}');
+
+                                                  // push(
+                                                  //     context,
+                                                  //     AuctionInfoScreen(
+                                                  //       detailResponse: l,
+                                                  //     ));
+                                                }
+                                              },
+                                              child: Container(
+                                                height: 210,
+                                                width: 161,
+                                                decoration: BoxDecoration(
+                                                    color:
+                                                        AppTheme.hintTextColor,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            14),
+                                                    image: l.photo!.isNotEmpty
+                                                        ? DecorationImage(
+                                                            image: NetworkImage(
+                                                                "${l.photo![0].src}"),
+                                                            fit: BoxFit.fill)
+                                                        : null),
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    // widget.data["wishlist"].isNotEmpty
+                                                    //     ? removeFavourite(
+                                                    //         wishId: widget.data["wishlist"][0]
+                                                    //             ["id"])
+                                                    //     : addToFavourite();
+                                                  },
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.topRight,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 15,
+                                                              right: 10.0),
+                                                      child: Container(
+                                                          height: 25,
+                                                          width: 25,
+                                                          decoration: BoxDecoration(
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                              color: AppTheme
+                                                                  .whiteColor),
+                                                          child:
+                                                              l.wishlist == null
+                                                                  ? Icon(
+                                                                      Icons
+                                                                          .favorite_border,
+                                                                      size: 13,
+                                                                      color: AppTheme
+                                                                          .textColor,
+                                                                    )
+                                                                  : Icon(
+                                                                      size: 13,
+                                                                      Icons
+                                                                          .favorite_sharp,
+                                                                      color: AppTheme
+                                                                          .appColor,
+                                                                    )),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            SizedBox(
+                                              width: 100,
+                                              child: AppText.appText(
+                                                  "${l.title}",
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  textColor:
+                                                      AppTheme.textColor),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            AppText.appText(
+                                                "${l.fixPrice != null ? '\$' : ''}${l.auctionPrice ?? l.fixPrice ?? ''}",
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w700,
+                                                textColor: AppTheme.textColor),
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.location_on_outlined,
+                                                  color: AppTheme.textColor,
+                                                  size: 20,
+                                                ),
+                                                SizedBox(
+                                                  width: 50,
+                                                  child: AppText.appText(
+                                                    "${l.location}",
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w400,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    textColor:
+                                                        AppTheme.textColor,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  width: 100,
+                                                  child: AppText.appText(
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    calculateTimeDifference(
+                                                        DateTime.parse(
+                                                            l.createdAt)),
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w600,
+                                                    textColor:
+                                                        AppTheme.appColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                ],
+                              ),
               ],
             ),
           ),
@@ -525,5 +747,96 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
         pr.dismiss();
       });
     }
+  }
+
+  String selectedOption = 'Auction';
+
+  Widget selectOption() {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
+      child: GestureDetector(
+        onTapDown: (TapDownDetails details) {
+          double tapPosition = details.localPosition.dx;
+          if (tapPosition < screenWidth * 0.45) {
+            setState(() {
+              if (selectedOption != 'Auction') {
+                // final apiProvider =
+                // Provider.of<ProductsApiProvider>(context, listen: false);
+                // apiProvider.getAuctionProducts(
+                //     dio: dio, context: context, cateId: widget.catId);
+              }
+              selectedOption = 'Auction';
+            });
+          } else if (tapPosition < screenWidth * 0.9) {
+            setState(() {
+              if (selectedOption == 'Auction') {
+                // final apiProvider =
+                // Provider.of<ProductsApiProvider>(context, listen: false);
+                // apiProvider.getFeatureProducts(
+                //     dio: dio, context: context, cateId: widget.catId);
+              }
+              selectedOption = 'Featured';
+            });
+          }
+        },
+        child: Container(
+          height: 40,
+          width: screenWidth,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100),
+              border: Border.all(color: const Color(0xffEDEDED))),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xffEDEDED)),
+                    borderRadius: const BorderRadius.horizontal(
+                        left: Radius.circular(100)),
+                    color: selectedOption == 'Auction'
+                        ? AppTheme.appColor // Change color when selected
+                        : Colors.transparent,
+                  ),
+                  child: Text(
+                    'Auction',
+                    style: TextStyle(
+                      color: selectedOption == 'Auction'
+                          ? Colors.white // Change text color when selected
+                          : Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xffEDEDED)),
+                    borderRadius: const BorderRadius.horizontal(
+                        right: Radius.circular(100)),
+                    color: selectedOption == 'Featured'
+                        ? AppTheme.appColor // Change color when selected
+                        : Colors.transparent,
+                  ),
+                  child: Text(
+                    'Featured',
+                    style: TextStyle(
+                      color: selectedOption == 'Featured'
+                          ? Colors.white // Change text color when selected
+                          : Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
