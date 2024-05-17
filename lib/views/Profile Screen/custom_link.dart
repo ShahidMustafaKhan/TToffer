@@ -81,7 +81,7 @@ class _CustomLinkScreenState extends State<CustomLinkScreen> {
                       radius: 32.0,
                       fontWeight: FontWeight.w500,
                       fontSize: 14,
-                      backgroundColor: AppTheme.disableColor,
+                      backgroundColor: AppTheme.appColor,
                       textColor: AppTheme.whiteColor),
                 ),
                 // RichText(
