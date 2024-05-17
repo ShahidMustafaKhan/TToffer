@@ -58,85 +58,91 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: _isLoading == true
-            ? LoadingDialog()
-            : AppButton.appButton("Next", onTap: () {
-                enterLocation();
-              },
-                height: 53,
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-                radius: 32.0,
-                backgroundColor: AppTheme.appColor,
-                textColor: AppTheme.whiteColor),
-      ),
-      backgroundColor: AppTheme.whiteColor,
-      appBar: CustomAppBar1(
-        title: "Finish",
-        actionOntap: () {
-          pushUntil(context, const BottomNavView());
-        },
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 20,
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: StepsIndicator(
-                  conColor1: AppTheme.appColor,
-                  circleColor1: AppTheme.appColor,
-                  circleColor2: AppTheme.appColor,
-                  conColor2: AppTheme.appColor,
-                  conColor3: AppTheme.appColor,
-                  circleColor3: AppTheme.appColor,
-                  circleColor4: AppTheme.appColor,
+    return WillPopScope(
+      onWillPop: () async {
+        pushReplacement(context, BottomNavView());
+        return false; // Return false to indicate that the route should not be popped
+      },
+      child: Scaffold(
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: _isLoading == true
+              ? LoadingDialog()
+              : AppButton.appButton("Next", onTap: () {
+                  enterLocation();
+                },
+                  height: 53,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  radius: 32.0,
+                  backgroundColor: AppTheme.appColor,
+                  textColor: AppTheme.whiteColor),
+        ),
+        backgroundColor: AppTheme.whiteColor,
+        appBar: CustomAppBar1(
+          title: "Finish",
+          actionOntap: () {
+            pushUntil(context, const BottomNavView());
+          },
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  height: 20,
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              const CustomDivider(),
-              const SizedBox(
-                height: 20,
-              ),
-              LableTextField(
-                labelTxt: "Set a Location (Required)",
-                hintTxt: "Set a location",
-                controller: _locationController,
-              ),
-              Image.asset("assets/images/shipping.png"),
-              const SizedBox(
-                height: 20,
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: AppText.appText("Ship, ship, Hooray! ",
-                    fontSize: 16,
-                    textAlign: TextAlign.center,
-                    fontWeight: FontWeight.w700,
-                    textColor: AppTheme.blackColor),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Container(
-                child: AppText.appText(
-                    "Accelerate the sale of your item by making it available to millions of buyers across the country.",
-                    fontSize: 12,
-                    textAlign: TextAlign.center,
-                    fontWeight: FontWeight.w400,
-                    textColor: AppTheme.blackColor),
-              ),
-            ],
+                Align(
+                  alignment: Alignment.center,
+                  child: StepsIndicator(
+                    conColor1: AppTheme.appColor,
+                    circleColor1: AppTheme.appColor,
+                    circleColor2: AppTheme.appColor,
+                    conColor2: AppTheme.appColor,
+                    conColor3: AppTheme.appColor,
+                    circleColor3: AppTheme.appColor,
+                    circleColor4: AppTheme.appColor,
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                const CustomDivider(),
+                const SizedBox(
+                  height: 20,
+                ),
+                LableTextField(
+                  labelTxt: "Set a Location (Required)",
+                  hintTxt: "Set a location",
+                  controller: _locationController,
+                ),
+                Image.asset("assets/images/shipping.png"),
+                const SizedBox(
+                  height: 20,
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: AppText.appText("Ship, ship, Hooray! ",
+                      fontSize: 16,
+                      textAlign: TextAlign.center,
+                      fontWeight: FontWeight.w700,
+                      textColor: AppTheme.blackColor),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Container(
+                  child: AppText.appText(
+                      "Accelerate the sale of your item by making it available to millions of buyers across the country.",
+                      fontSize: 12,
+                      textAlign: TextAlign.center,
+                      fontWeight: FontWeight.w400,
+                      textColor: AppTheme.blackColor),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -214,7 +220,7 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
       }
     } catch (e) {
       print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
+      // showSnackBar(context, "Something went Wrong.");
       setState(() {
         _isLoading = false;
       });

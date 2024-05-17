@@ -21,6 +21,7 @@ import 'package:tt_offer/providers/bids_provider.dart';
 import 'package:tt_offer/providers/chat_list_provider.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
 import 'package:tt_offer/providers/notification_provider.dart';
+import 'package:tt_offer/providers/payment_fee_provider.dart';
 import 'package:tt_offer/providers/profile_info_provider.dart';
 import 'package:tt_offer/providers/search_provider.dart';
 import 'package:tt_offer/providers/selling_purchase_provider.dart';
@@ -37,12 +38,18 @@ String? location;
 bool isAlready = false;
 bool isRegister = false;
 
+
+int? firstTimeProductId;
 UserCredential? userCredential;
 
 late SharedPreferences pref;
 late CustomPostRequest customPostRequest;
 late CustomGetRequest customGetRequest;
 late AppDio dio;
+
+bool?  navigate;
+
+bool?updateCharge;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -114,6 +121,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => SearchProvider()),
         ChangeNotifierProvider(create: (_) => BidsProvider()),
         ChangeNotifierProvider(create: (_) => ProfileInfoProvider()),
+        ChangeNotifierProvider(create: (_) => PaymentFeeProvider()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,

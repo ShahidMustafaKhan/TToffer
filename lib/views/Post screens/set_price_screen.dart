@@ -10,6 +10,8 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
+import 'package:tt_offer/custom_requests/payment_status_service.dart';
+import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/enter_location_screen.dart';
@@ -48,9 +50,13 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
 
   @override
   void initState() {
+
+    firstTimeProductId=widget.productId;
     _priceController.text = "60";
     dio = AppDio(context);
     logger.init();
+
+
 
     // Define a DateFormat with the expected date format
     DateFormat dateFormat = DateFormat('MM-dd-yyyy');
@@ -76,6 +82,11 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     super.initState();
   }
 
+  getPaymentStatus() async {
+    await PaymentStatusService()
+        .paymentStatusService(context: context, selling: widget.selling);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,7 +94,8 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
         padding: const EdgeInsets.all(20.0),
         child: _isLoading == true
             ? LoadingDialog()
-            : AppButton.appButton("Next", onTap: () {
+            : AppButton.appButton("Next", onTap: () async {
+                await getPaymentStatus();
                 addProducrPrice();
               },
                 height: 53,
@@ -590,7 +602,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     );
   }
 
-  void addProducrPrice() async {
+  addProducrPrice() async {
     setState(() {
       _isLoading = true;
     });
@@ -666,16 +678,19 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
         });
       } else if (response.statusCode == responseCode200) {
         setState(() {
-          pushReplacement(
-              context,
-              PostLocationScreen(
-                selling: widget.selling,
-                productId: widget.selling == null
-                    ? widget.productId
-                    : widget.selling!.id,
-                amount: int.parse(_priceController.text),
-                title: widget.title,
-              ));
+          if (navigate == false) {
+            print('newMabigaassa---->${navigate}');
+            pushReplacement(
+                context,
+                PostLocationScreen(
+                  selling: widget.selling,
+                  productId: widget.selling == null
+                      ? widget.productId
+                      : widget.selling!.id,
+                  amount: int.parse(_priceController.text),
+                  title: widget.title,
+                ));
+          }
           _isLoading = false;
         });
       }
