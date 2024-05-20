@@ -5,6 +5,7 @@ import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
+import 'package:tt_offer/views/PhoneVerify/phone_verify_screen.dart';
 import 'package:tt_offer/views/Profile%20Screen/Account%20Settigs/account_info_edit.dart';
 
 class AccountSettingScreen extends StatefulWidget {
@@ -52,12 +53,12 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
                     onTap: () {
                       push(
                           context,
-                          AccountEditInfoScreen(
-                            userName: false,
-                            title: "Phone Number",
-                            lable: "Your Number",
-                            infoText: "${profileApi.profileData["phone"]}",
-                          ));
+                          PhoneVerifyScreen(
+                              // userName: false,
+                              // title: "Phone Number",
+                              // lable: "Your Number",
+                              // infoText: "${profileApi.profileData["phone"]}",
+                              ));
                     },
                     img: "assets/images/call.png",
                     txt: "${profileApi.profileData["phone"]}"),
