@@ -75,7 +75,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
         codeSent: codeSent,
         codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
       );
-      print('otp---->${otpField}');
+      print('otp---->$otpField');
       setState(() {
         otpField =
             true; // Set otpField to true only when verification is completed
@@ -85,7 +85,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
         loading = false;
       });
     } catch (err) {
-      print('err--->${err}');
+      print('err--->$err');
       // Show snackbar for other errors
       showSnackbar('Error occurred: $err');
     }

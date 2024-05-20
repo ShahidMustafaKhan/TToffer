@@ -16,6 +16,7 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/custom_requests/custom_get_request.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
+import 'package:tt_offer/custom_requests/firebase_messaging_service.dart';
 import 'package:tt_offer/firebase_options.dart';
 import 'package:tt_offer/providers/bids_provider.dart';
 import 'package:tt_offer/providers/chat_list_provider.dart';
@@ -38,7 +39,6 @@ String? location;
 bool isAlready = false;
 bool isRegister = false;
 
-
 int? firstTimeProductId;
 UserCredential? userCredential;
 
@@ -47,9 +47,9 @@ late CustomPostRequest customPostRequest;
 late CustomGetRequest customGetRequest;
 late AppDio dio;
 
-bool?  navigate;
+bool? navigate;
 
-bool?updateCharge;
+bool? updateCharge;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -76,6 +76,8 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FirebaseMessagingService().initialize();
 
   pref = await SharedPreferences.getInstance();
   customPostRequest = CustomPostRequest();
