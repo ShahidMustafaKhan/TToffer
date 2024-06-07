@@ -235,6 +235,7 @@ class _LandingScreenState extends State<LandingScreen> {
                             context,
                             AllCategories(
                               data: apiProvider.catagoryData,
+                              isList: false,
                             ));
                       }),
                   apiProvider.catagoryData == null
@@ -242,7 +243,7 @@ class _LandingScreenState extends State<LandingScreen> {
                           child: AppText.appText("Loading...."),
                         )
                       : SizedBox(
-                          height: 80,
+                          height: 90,
                           width: screenWidth,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
@@ -273,6 +274,7 @@ class _LandingScreenState extends State<LandingScreen> {
                                             "${apiProvider.catagoryData[index]["image"]}",
                                         txt:
                                             "${apiProvider.catagoryData[index]["name"]}",
+                                        isList: true,
                                       ),
                                     ),
                                     if (index ==
@@ -309,7 +311,7 @@ class _LandingScreenState extends State<LandingScreen> {
                                   "No Auction Product Added Yet"),
                             )
                           : SizedBox(
-                              height: 330,
+                              height: 310,
                               width: screenWidth,
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
@@ -359,43 +361,45 @@ class _LandingScreenState extends State<LandingScreen> {
                       txt2: "View All",
                       txt3:
                           "Act fast! These featured products won't last long."),
-                  apiProvider.allfeatureProductsData == null
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20.0),
-                          child: Center(
-                            child: AppText.appText("Loading..."),
+                  if (apiProvider.allfeatureProductsData == null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20.0),
+                      child: Center(
+                        child: AppText.appText("Loading..."),
+                      ),
+                    )
+                  else
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: SizedBox(
+                        child: GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            mainAxisSpacing: 30,
+                            crossAxisSpacing: 20,
+                            crossAxisCount: 2,
+                            childAspectRatio: screenWidth / (2.6 * 250),
                           ),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: GridView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              mainAxisSpacing: 30,
-                              crossAxisSpacing: 20,
-                              crossAxisCount: 2,
-                              childAspectRatio: screenWidth / (2.6 * 220),
-                            ),
-                            shrinkWrap: true,
-                            itemCount:
-                                apiProvider.allfeatureProductsData.length > 4
-                                    ? 4
-                                    : apiProvider.allfeatureProductsData.length,
-                            itemBuilder: (context, int index) {
-                              return GestureDetector(
-                                  onTap: () {
-                                    getFeatureProductDetail(
-                                        productId: apiProvider
-                                                .allfeatureProductsData[index]
-                                            ["id"]);
-                                  },
-                                  child: FeatureProductContainer(
-                                      data: apiProvider
-                                          .allfeatureProductsData[index]));
-                            },
-                          ),
+                          shrinkWrap: true,
+                          itemCount:
+                              apiProvider.allfeatureProductsData.length > 4
+                                  ? 4
+                                  : apiProvider.allfeatureProductsData.length,
+                          itemBuilder: (context, int index) {
+                            return GestureDetector(
+                                onTap: () {
+                                  getFeatureProductDetail(
+                                      productId: apiProvider
+                                          .allfeatureProductsData[index]["id"]);
+                                },
+                                child: FeatureProductContainer(
+                                    data: apiProvider
+                                        .allfeatureProductsData[index]));
+                          },
                         ),
+                      ),
+                    ),
                 ],
               )
             ],

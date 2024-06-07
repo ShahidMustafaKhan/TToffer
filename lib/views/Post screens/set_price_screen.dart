@@ -52,6 +52,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
   void initState() {
 
     firstTimeProductId=widget.productId;
+    firstTimeProductId=widget.productId;
     _priceController.text = "60";
     dio = AppDio(context);
     logger.init();

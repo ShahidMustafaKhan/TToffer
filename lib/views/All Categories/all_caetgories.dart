@@ -12,7 +12,9 @@ import '../../utils/utils.dart';
 class AllCategories extends StatefulWidget {
   final data;
 
-  const AllCategories({super.key, this.data});
+  bool isList;
+
+  AllCategories({super.key, this.data, required this.isList});
 
   @override
   State<AllCategories> createState() => _AllCategoriesState();
@@ -26,37 +28,36 @@ class _AllCategoriesState extends State<AllCategories> {
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
       appBar: const CustomAppBar1(
-        title: "Categories",
+        title: "All Categories",
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: GridView.builder(
-          itemCount: widget.data.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            mainAxisSpacing: 30,
-            crossAxisSpacing: 20,
-            crossAxisCount: 4,
-          ),
-          itemBuilder: (context, index) {
-            Color color = Color(int.parse(
-                widget.data[index]["color"].replaceFirst('#', '0xFF')));
-            return InkWell(
-              onTap: () {
-                push(
-                    context,
-                    CatagoryProductScreen(
-                      catId: apiProvider.catagoryData[index]["id"],
-                      catNAme: "${apiProvider.catagoryData[index]["name"]}",
-                    ));
-              },
-              child: CatagoryContainer(
-                color: color,
-                img: "${widget.data[index]["image"]}",
-                txt: "${widget.data[index]["name"]}",
-              ),
-            );
-          },
-        ),
+      body: ListView.builder(
+        itemCount: widget.data.length,
+        // gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        //   mainAxisSpacing: 30,
+        //   crossAxisSpacing: 20,
+        //   crossAxisCount: 4,
+        // ),
+        shrinkWrap: true,
+        itemBuilder: (context, index) {
+          Color color = Color(
+              int.parse(widget.data[index]["color"].replaceFirst('#', '0xFF')));
+          return InkWell(
+            onTap: () {
+              push(
+                  context,
+                  CatagoryProductScreen(
+                    catId: apiProvider.catagoryData[index]["id"],
+                    catNAme: "${apiProvider.catagoryData[index]["name"]}",
+                  ));
+            },
+            child: CatagoryContainer(
+              color: color,
+              img: "${widget.data[index]["image"]}",
+              txt: "${widget.data[index]["name"]}",
+              isList: widget.isList,
+            ),
+          );
+        },
       ),
     );
   }
