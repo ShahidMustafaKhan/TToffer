@@ -4,10 +4,12 @@ import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
+import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/views/All%20Categories/catagory_container.dart';
 import 'package:tt_offer/views/All%20Categories/category_products.dart';
 
 import '../../utils/utils.dart';
+import 'sub_categories_screen.dart';
 
 class AllCategories extends StatefulWidget {
   final data;
@@ -21,9 +23,22 @@ class AllCategories extends StatefulWidget {
 }
 
 class _AllCategoriesState extends State<AllCategories> {
+  handler() async {
+    await BlockedUserServices().getBlockedUser(context: context);
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    handler();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final apiProvider = Provider.of<ProductsApiProvider>(context);
+    // final apiProvider = Provider.of<ProductsApiProvider>(context);
+    final apiProvider = Provider.of<CategoryProvider>(context);
 
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
@@ -31,7 +46,8 @@ class _AllCategoriesState extends State<AllCategories> {
         title: "All Categories",
       ),
       body: ListView.builder(
-        itemCount: widget.data.length,
+        // itemCount: widget.data.length,
+        itemCount: apiProvider.category.length,
         // gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         //   mainAxisSpacing: 30,
         //   crossAxisSpacing: 20,
@@ -39,24 +55,46 @@ class _AllCategoriesState extends State<AllCategories> {
         // ),
         shrinkWrap: true,
         itemBuilder: (context, index) {
-          Color color = Color(
-              int.parse(widget.data[index]["color"].replaceFirst('#', '0xFF')));
+          // Color color = Color(
+          //     int.parse(widget.data[index]["color"].replaceFirst('#', '0xFF')));
           return InkWell(
-            onTap: () {
-              push(
-                  context,
-                  CatagoryProductScreen(
-                    catId: apiProvider.catagoryData[index]["id"],
-                    catNAme: "${apiProvider.catagoryData[index]["name"]}",
-                  ));
-            },
-            child: CatagoryContainer(
-              color: color,
-              img: "${widget.data[index]["image"]}",
-              txt: "${widget.data[index]["name"]}",
-              isList: widget.isList,
-            ),
-          );
+              onTap: () {
+                // push(
+                //     context,
+                //     CatagoryProductScreen(
+                //       // catId: apiProvider.catagoryData[index]["id"],
+                //       catNAme: "${apiProvider.category[index].title}",
+                //     ));
+
+                push(
+                    context,
+                    SubCategoriesScreen(
+                      title: apiProvider.category[index].title,
+                      id: apiProvider.category[index].id,
+                    ));
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (index == 4)
+                    const Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
+                      child: Text(
+                        'Others',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
+                      ),
+                    ),
+                  CatagoryContainer(
+                    color: apiProvider.category[index].color,
+                    img: apiProvider.category[index].image,
+                    txt: apiProvider.category[index].title,
+                    isList: widget.isList,
+                  ),
+                ],
+              ));
         },
       ),
     );

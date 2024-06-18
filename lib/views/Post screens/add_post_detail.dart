@@ -1,4 +1,7 @@
+// ignore_for_file: prefer_typing_uninitialized_variables
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -11,6 +14,7 @@ import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/main.dart';
+import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
@@ -65,6 +69,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         _selectedSubCategory = widget.selling!.subCategory!.name ?? '';
         subCatagoryId = widget.selling!.subCategoryId ?? '';
       }
+
       _selectedCondition = widget.selling!.condition ?? '';
       _modelController.text = widget.selling!.model ?? '';
       _millageController.text = widget.selling!.mileage ?? '';
@@ -81,90 +86,95 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   @override
   Widget build(BuildContext context) {
     print("object$_selectedCategory");
-    return Scaffold(
-      appBar: CustomAppBar1(
-        title: "Detail",
-        action: true,
-        img: "assets/images/cross.png",
-        actionOntap: () {
-          pushUntil(context, const BottomNavView());
-        },
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 20,
-              ),
-              StepsIndicator(
-                conColor1: AppTheme.appColor,
-                circleColor1: AppTheme.appColor,
-                circleColor2: AppTheme.appColor,
-                conColor2: AppTheme.appColor,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              customRow(
+    return Consumer<CategoryProvider>(builder: (context, catgory, _) {
+      return Scaffold(
+        appBar: CustomAppBar1(
+          title: "Detail",
+          action: true,
+          img: "assets/images/cross.png",
+          actionOntap: () {
+            pushUntil(context, const BottomNavView());
+          },
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 20,
+                ),
+                StepsIndicator(
+                  conColor1: AppTheme.appColor,
+                  circleColor1: AppTheme.appColor,
+                  circleColor2: AppTheme.appColor,
+                  conColor2: AppTheme.appColor,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                customRow(
+                    onTap: () {
+                      _showCategoryBottomSheet(context);
+                    },
+                    title: "Category(required)",
+                    selectText: _selectedCategory),
+                customRow(
                   onTap: () {
-                    _showCategoryBottomSheet(context);
+                    _showSubCategoryBottomSheet(context);
                   },
-                  title: "Category(required)",
-                  selectText: _selectedCategory),
-              customRow(
-                onTap: () {
-                  _showSubCategoryBottomSheet(context);
-                },
-                title: "Sub-category(optional)",
-                selectText: _selectedSubCategory,
-              ),
-              customRow(
-                onTap: () {
-                  _showConditionBottomSheet(context);
-                },
-                title: "Condition (required)",
-                selectText: _selectedCondition,
-              ),
-              lableFields(
-                  lableTtxt: "Year, Make & Model(Optional)",
-                  controller: _modelYearController),
-              lableFields(
-                  lableTtxt: "Mileage (Optional)",
-                  controller: _millageController),
-              lableFields(
-                  lableTtxt: "Color (optional)", controller: _colorController),
-              lableFields(
-                  lableTtxt: "Brand (optional)", controller: _brandController),
-              lableFields(
-                  lableTtxt: "Model (optional)", controller: _modelController),
-              lableFields(
-                  lableTtxt: "Edition (optional)",
-                  controller: _editionController),
-              lableFields(
-                  lableTtxt: "Authenticity (optional)",
-                  controller: _authenticityController),
-              _isLoading == true
-                  ? LoadingDialog()
-                  : Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 40.0),
-                      child: AppButton.appButton("Next", onTap: () {
-                        print("object $catagoryId  $subCatagoryId");
-                        addProductDetail();
-                      },
-                          height: 53,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
-                          radius: 32.0,
-                          backgroundColor: AppTheme.appColor,
-                          textColor: AppTheme.whiteColor),
-                    )
-            ],
+                  title: "Sub-category(optional)",
+                  selectText: _selectedSubCategory,
+                ),
+                customRow(
+                  onTap: () {
+                    _showConditionBottomSheet(context);
+                  },
+                  title: "Condition (required)",
+                  selectText: _selectedCondition,
+                ),
+                lableFields(
+                    lableTtxt: "Year, Make & Model(Optional)",
+                    controller: _modelYearController),
+                lableFields(
+                    lableTtxt: "Mileage (Optional)",
+                    controller: _millageController),
+                lableFields(
+                    lableTtxt: "Color (optional)",
+                    controller: _colorController),
+                lableFields(
+                    lableTtxt: "Brand (optional)",
+                    controller: _brandController),
+                lableFields(
+                    lableTtxt: "Model (optional)",
+                    controller: _modelController),
+                lableFields(
+                    lableTtxt: "Edition (optional)",
+                    controller: _editionController),
+                lableFields(
+                    lableTtxt: "Authenticity (optional)",
+                    controller: _authenticityController),
+                _isLoading == true
+                    ? LoadingDialog()
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40.0),
+                        child: AppButton.appButton("Next", onTap: () {
+                          print("object $catagoryId  $subCatagoryId");
+                          addProductDetail();
+                        },
+                            height: 53,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                            radius: 32.0,
+                            backgroundColor: AppTheme.appColor,
+                            textColor: AppTheme.whiteColor),
+                      )
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget lableFields({lableTtxt, controller}) {

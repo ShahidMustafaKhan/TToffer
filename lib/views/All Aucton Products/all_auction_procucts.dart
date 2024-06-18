@@ -135,8 +135,8 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
                     child: GridView.builder(
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        mainAxisSpacing: 30,
-                        crossAxisSpacing: 20,
+                        mainAxisSpacing: 20,
+                        crossAxisSpacing: 10,
                         crossAxisCount: 2,
                         childAspectRatio: screenWidth / (3.8 * 200),
                       ),

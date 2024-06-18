@@ -15,6 +15,7 @@ import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/custom_requests/search_service.dart';
 import 'package:tt_offer/main.dart';
+import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/models/selling_serach_model.dart';
 import 'package:tt_offer/providers/search_provider.dart';
@@ -66,6 +67,8 @@ class _LandingScreenState extends State<LandingScreen> {
   void initState() {
     // getLocation();
 
+    handler();
+
     dio = AppDio(context);
     logger.init();
     final profileApi = Provider.of<ProfileApiProvider>(context, listen: false);
@@ -107,6 +110,10 @@ class _LandingScreenState extends State<LandingScreen> {
   }
 
   List<SearchData> provider = [];
+
+  handler() async {
+    await BlockedUserServices().getBlockedUser(context: context);
+  }
 
   void searchHandler(BuildContext context) async {
     showDialog(
@@ -151,6 +158,8 @@ class _LandingScreenState extends State<LandingScreen> {
       // Handle the case where profileData is null
     }
 
+    final apiProvider1 = Provider.of<CategoryProvider>(context);
+
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
       appBar: CustomAppBar(context: context),
@@ -177,7 +186,7 @@ class _LandingScreenState extends State<LandingScreen> {
                     height: 17,
                     color: AppTheme.textColor,
                   ),
-                  texthint: "Search",
+                  texthint: "What are you looking for",
                   controller: _searchController,
                 ),
               ),
@@ -238,20 +247,21 @@ class _LandingScreenState extends State<LandingScreen> {
                               isList: false,
                             ));
                       }),
-                  apiProvider.catagoryData == null
-                      ? Center(
-                          child: AppText.appText("Loading...."),
-                        )
-                      : SizedBox(
-                          height: 90,
+                  // apiProvider.catagoryData == null
+                  //     ? Center(
+                  //         child: AppText.appText("Loading...."),
+                  //       )
+                  //     :
+                  SizedBox(
+                          height: 100,
                           width: screenWidth,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: 6,
+                            itemCount: 5,
                             itemBuilder: (context, index) {
-                              Color color = Color(int.parse(apiProvider
-                                  .catagoryData[index]["color"]
-                                  .replaceFirst('#', '0xFF')));
+                              // Color color = Color(int.parse(apiProvider
+                              //     .catagoryData[index]["color"]
+                              //     .replaceFirst('#', '0xFF')));
 
                               return Padding(
                                 padding: const EdgeInsets.only(left: 20.0),
@@ -269,25 +279,28 @@ class _LandingScreenState extends State<LandingScreen> {
                                             ));
                                       },
                                       child: CatagoryContainer(
-                                        color: color,
-                                        img:
-                                            "${apiProvider.catagoryData[index]["image"]}",
-                                        txt:
-                                            "${apiProvider.catagoryData[index]["name"]}",
+                                        color:
+                                            apiProvider1.category[index].color,
+                                        img: apiProvider1.category[index].image,
+                                        txt: apiProvider1.category[index].title,
                                         isList: true,
                                       ),
                                     ),
-                                    if (index ==
-                                        apiProvider.catagoryData.length - 1)
-                                      const SizedBox(
-                                        width: 20,
-                                      )
+                                    // if (index ==
+                                    //     apiProvider.catagoryData.length - 1)
+                                    //   const SizedBox(
+                                    //     width: 20,
+                                    //   )
                                   ],
                                 ),
                               );
                             },
                           ),
                         ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Image.asset('assets/images/divide.png'),
                   const SizedBox(
                     height: 20,
                   ),
@@ -376,8 +389,8 @@ class _LandingScreenState extends State<LandingScreen> {
                           physics: const NeverScrollableScrollPhysics(),
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
-                            mainAxisSpacing: 30,
-                            crossAxisSpacing: 20,
+                            mainAxisSpacing: 25,
+                            crossAxisSpacing: 8,
                             crossAxisCount: 2,
                             childAspectRatio: screenWidth / (2.6 * 250),
                           ),

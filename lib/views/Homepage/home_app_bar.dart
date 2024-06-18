@@ -19,13 +19,18 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 25.0, top: 40, right: 25),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Image.asset(
-            "assets/images/logo1.png",
-            height: 40,
-            width: 120,
+            "assets/images/Frame.png",
+            // height: 40,
+            width: 50,
+          ), Image.asset(
+            "assets/images/title.png",
+            // height: 40,
+            width: 100,
           ),
+          Spacer(),
           SizedBox(
             // width: 100,
             child: Row(

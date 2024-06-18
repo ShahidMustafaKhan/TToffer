@@ -20,25 +20,30 @@ class _CatagoryContainerState extends State<CatagoryContainer> {
   @override
   Widget build(BuildContext context) {
     return widget.isList == true
-        ? Container(
-            height: 77,
-            width: 77,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14), color: widget.color),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.network(
+        ? Column(
+            children: [
+              Container(
+                height: 60,
+                width: 60,
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: widget.color),
+                child: Image.asset(
                   widget.img,
                   height: 32,
                   width: 32,
                 ),
-                AppText.appText(widget.txt,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w400,
-                    textColor: AppTheme.textColor),
-              ],
-            ),
+              ),
+              const SizedBox(height: 4),
+              AppText.appText(
+                  widget.txt == 'Property for Sale'
+                      ? 'Property\n for Sale'
+                      : widget.txt == 'Property for Rent'
+                          ? 'Property\n for Rent'
+                          : widget.txt,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  textColor: AppTheme.textColor),
+            ],
           )
         : Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -51,7 +56,7 @@ class _CatagoryContainerState extends State<CatagoryContainer> {
                 width: 20,
               ),
               title: AppText.appText(widget.txt,
-                  fontSize: 10,
+                  fontSize: 15,
                   fontWeight: FontWeight.w400,
                   textColor: AppTheme.textColor),
               leading: Container(
@@ -59,7 +64,7 @@ class _CatagoryContainerState extends State<CatagoryContainer> {
                 width: 50,
                 decoration:
                     BoxDecoration(shape: BoxShape.circle, color: widget.color),
-                child: Image.network(
+                child: Image.asset(
                   widget.img,
                   height: 32,
                   width: 32,

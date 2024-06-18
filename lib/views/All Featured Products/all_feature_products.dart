@@ -130,9 +130,9 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         mainAxisSpacing: 30,
-                        crossAxisSpacing: 20,
+                        crossAxisSpacing: 8,
                         crossAxisCount: 2,
-                        childAspectRatio: screenWidth / (2.6 * 220),
+                        childAspectRatio: screenWidth / (2.6 * 252),
                       ),
                       shrinkWrap: true,
                       itemCount: apiProvider.allfeatureProductsData.length,

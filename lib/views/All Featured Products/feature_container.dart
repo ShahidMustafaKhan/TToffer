@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/auction_container.dart';
@@ -50,7 +52,7 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: AppTheme.appColor)),
       height: 245,
-      width: 150,
+      width: 180,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -116,12 +118,14 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
             ),
 
             const SizedBox(height: 3),
-            Row(
-              children: [
-                ImageText(txt: '2012', image: 'calender.png'),
-                ImageText(txt: '4500Km', image: 'road.png'),
-                ImageText(txt: 'Petrol', image: 'petrol.png'),
-              ],
+            Expanded(
+              child: Row(
+                children: [
+                  ImageText(txt: '2012', image: 'calender.png'),
+                  ImageText(txt: '4500Km', image: 'road.png'),
+                  Expanded(child: ImageText(txt: 'Petrol', image: 'petrol.png')),
+                ],
+              ),
             ),
             const SizedBox(height: 3),
 

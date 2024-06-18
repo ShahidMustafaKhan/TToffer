@@ -54,7 +54,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 child: Align(
                     alignment: Alignment.center,
                     child: Image.asset(
-                      "assets/images/profileDetail.png",
+                      "assets/images/newRegister.png",
                       height: 142,
                       width: 146,
                     )),

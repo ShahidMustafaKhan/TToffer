@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -18,6 +19,8 @@ import 'package:tt_offer/custom_requests/custom_get_request.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/custom_requests/firebase_messaging_service.dart';
 import 'package:tt_offer/firebase_options.dart';
+import 'package:tt_offer/models/category_model.dart';
+import 'package:tt_offer/models/sub_categories_model.dart';
 import 'package:tt_offer/providers/bids_provider.dart';
 import 'package:tt_offer/providers/chat_list_provider.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
@@ -53,7 +56,18 @@ bool? updateCharge;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
+
 Future<void> main() async {
+  HttpOverrides.global = MyHttpOverrides();
+
   WidgetsFlutterBinding.ensureInitialized();
   ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
   Stripe.publishableKey =
@@ -124,6 +138,8 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => BidsProvider()),
         ChangeNotifierProvider(create: (_) => ProfileInfoProvider()),
         ChangeNotifierProvider(create: (_) => PaymentFeeProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => SubCategoriesProvider()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,

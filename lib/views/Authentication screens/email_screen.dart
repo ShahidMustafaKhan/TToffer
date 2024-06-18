@@ -54,7 +54,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                 child: Align(
                     alignment: Alignment.center,
                     child: Image.asset(
-                      "assets/images/email.png",
+                      "assets/images/newLogin.png",
                       height: 165,
                       width: 201,
                     )),

@@ -116,10 +116,9 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
             ),
             const SizedBox(height: 12),
             AppText.appText("\$${widget.data["auction_price"]}",
-                fontSize: 20,
+                fontSize: 17,
                 fontWeight: FontWeight.w700,
                 textColor: AppTheme.textColor),
-            const SizedBox(height: 5),
 
             SizedBox(
               // height: 40,
@@ -130,8 +129,8 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
                   fontWeight: FontWeight.w500,
                   textColor: AppTheme.textColor),
             ),
+            const SizedBox(height: 5),
 
-            const SizedBox(height: 3),
             Row(
               children: [
                 ImageText(txt: '2012', image: 'calender.png'),
@@ -187,18 +186,16 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
             //   ],
             // ),
             const SizedBox(height: 10),
-            Expanded(
-              child: AppButton.appButton("Bid Now", onTap: () {
-                getAuctionProductDetail(productId: widget.data["id"]);
-              },
-                  height: 50,
-                  width: 161,
-                  radius: 16.0,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  backgroundColor: AppTheme.appColor,
-                  textColor: AppTheme.whiteColor),
-            ),
+            AppButton.appButton("Bid Now", onTap: () {
+              getAuctionProductDetail(productId: widget.data["id"]);
+            },
+                height: 35,
+                width: 161,
+                radius: 16.0,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                backgroundColor: AppTheme.appColor,
+                textColor: AppTheme.whiteColor),
             const SizedBox(height: 10),
           ],
         ),
@@ -440,7 +437,7 @@ class _ImageTextState extends State<ImageText> {
       children: [
         Image.asset('assets/images/${widget.image}'),
         SizedBox(width: widget.image == 'calender.png' ? 5 : 5),
-        AppText.appText(widget.txt!, fontSize: 10, textColor: Colors.black54),
+        AppText.appText(widget.txt!, fontSize: 8.5, textColor: Colors.black54),
         const SizedBox(width: 6)
       ],
     );
