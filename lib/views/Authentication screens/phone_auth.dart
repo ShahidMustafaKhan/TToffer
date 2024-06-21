@@ -56,7 +56,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 child: Align(
                     alignment: Alignment.center,
                     child: Image.asset(
-                      "assets/images/phoneAuth.png",
+                      "assets/images/newLogin.png",
                       height: 165,
                       width: 201,
                     )),

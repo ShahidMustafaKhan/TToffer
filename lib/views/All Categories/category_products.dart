@@ -16,6 +16,7 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 class CatagoryProductScreen extends StatefulWidget {
   final catId;
   final String? catNAme;
+
   const CatagoryProductScreen({super.key, this.catId, this.catNAme});
 
   @override
@@ -27,6 +28,7 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
   late AppDio dio;
   AppLogger logger = AppLogger();
   bool isLoading = false;
+
   @override
   void initState() {
     dio = AppDio(context);
@@ -90,7 +92,7 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
                           mainAxisSpacing: 30,
                           crossAxisSpacing: 20,
                           crossAxisCount: 2,
-                          childAspectRatio: screenWidth / (2.6 * 220),
+                          childAspectRatio: screenWidth / (2.6 * 230),
                         ),
                         shrinkWrap: true,
                         itemCount: apiProvider.allfeatureProductsData.length,

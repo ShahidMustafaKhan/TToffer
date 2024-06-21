@@ -50,7 +50,7 @@ class _ForgotEmailPassState extends State<ForgotEmailPass> {
                 child: Align(
                     alignment: Alignment.center,
                     child: Image.asset(
-                      "assets/images/email.png",
+                      "assets/images/newLogin.png",
                       height: 165,
                       width: 201,
                     )),
