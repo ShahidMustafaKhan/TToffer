@@ -63,7 +63,7 @@ class BlockedUserServices {
         },
         {
           "id": 8,
-          "title": "Service",
+          "title": "Services",
           "image": paint,
           "color": const Color(0xffFFC8BC),
         },

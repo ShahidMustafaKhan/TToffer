@@ -132,7 +132,7 @@ class _BottomNavViewState extends State<BottomNavView> {
           floatingActionButtonLocation:
               FloatingActionButtonLocation.miniCenterDocked,
           floatingActionButton: Padding(
-            padding: const EdgeInsets.only(top: 30.0),
+            padding: const EdgeInsets.only(top: 45.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -153,6 +153,8 @@ class _BottomNavViewState extends State<BottomNavView> {
             ),
           ),
           bottomNavigationBar: BottomAppBar(
+            elevation: 0,
+            color: Colors.white,
             surfaceTintColor: Colors.white,
             padding: const EdgeInsets.all(0),
             child: Row(
@@ -196,7 +198,7 @@ class _BottomNavViewState extends State<BottomNavView> {
                 BottomNavBarCard(
                   image1: 'assets/images/profile-1.png',
                   image2: 'assets/images/profile-2.png',
-                  title: 'Home',
+                  title: 'Accounts',
                   changes: selectedIndex == 3 ? true : false,
                   onTap: () {
                     _onItemTapped(3);
