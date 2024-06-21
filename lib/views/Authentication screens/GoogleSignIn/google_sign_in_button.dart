@@ -28,7 +28,6 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     myDio = AppDio(context);
