@@ -16,6 +16,7 @@ import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
+import 'package:tt_offer/models/sub_categories_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
 import 'package:tt_offer/views/Post%20screens/set_price_screen.dart';
@@ -35,8 +36,12 @@ class PostDetailScreen extends StatefulWidget {
 }
 
 class _PostDetailScreenState extends State<PostDetailScreen> {
-  String _selectedCategory = "";
-  String _selectedSubCategory = "";
+  subCategoriesHandler() async {
+    await SubCategoriesService().subCategoriesService(context: context);
+  }
+
+  String? _selectedCategory;
+  String? _selectedSubCategory;
   String _selectedCondition = "";
   var catagoryId;
   var subCatagoryId;
@@ -80,13 +85,96 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       _modelYearController.text = widget.selling!.makeAndModel ?? '';
     }
 
+    subCategoriesHandler();
+
     super.initState();
   }
+
+  List<CategoryModel> catModel = [];
+  List<SubCategoriesModel> subCatModel = [];
+
+  List<String> makeModel = ['Audi', 'BMW', 'Corolla'];
+  List<String> year = ['2021', '2000', '2001'];
+  List<String> condition = [
+    "New",
+    "Good",
+    "Open Box",
+    "Refurnished",
+    "For Part or Not Working"
+  ];
+  List<String> priceRange = ["Under\$10,000"];
+  List<String> mileage = ['Under 10,000 miles'];
+  List<String> fuelType = ['Diesel', 'Petrol'];
+  List<String> color = ['White', 'Black', 'Red'];
+  List<String> location = ['America'];
+
+  bool owner = false;
+  bool dealer = false;
+
+  String? typeProperty;
+  String? bedrooms;
+  String? area;
+  String? yearBuilt;
+  String? features;
+  String? amenities;
+
+  List<String> typePropertyList = ['Apartment'];
+  List<String> bedroomList = ['1 Bedroom'];
+  List<String> areaSizeList = ['1,000 sqft'];
+  List<String> yearBuiltList = ['2020'];
+  List<String> featuresList = ['Apartment'];
+  List<String> amenitiesList = ['Apartment'];
+
+  String? brand;
+  String? storage;
+
+  List<String> brandList = ['Apple'];
+  List<String> storageList = ['32GB'];
+
+  String? engineCapacity;
+  String? model;
+
+  List<String> engineList = ['50cc'];
+  List<String> modelList = ['Yamaha R1'];
+
+  String? car;
+
+  List<String> carList = ['Corolla'];
+
+  //Jobs
+
+  String? jobType;
+  String? experience;
+  String? education;
+  String? salary;
+  String? salaryPeriod;
+  String? companyName;
+  String? possitionType;
+  String? careerLevel;
+
+  List<String> jobTypeList = ['Graphic Design'];
+  List<String> experienceList = ['Freshie'];
+  List<String> educationList = ['Intermediate'];
+  List<String> salaryList = ["\$30,000"];
+  List<String> salaryPeriodList = ['Monthly'];
+  List<String> companyNameList = ['DevSinc'];
+  List<String> possitionTypeList = ['Full Time'];
+  List<String> careerLevelList = ['Mid - Senior Level'];
+
+  String? age;
+  String? breed;
+
+  List<String> ageList = ['1 year'];
+  List<String> breedList = ['Husky'];
 
   @override
   Widget build(BuildContext context) {
     print("object$_selectedCategory");
-    return Consumer<CategoryProvider>(builder: (context, catgory, _) {
+    return Consumer2<CategoryProvider, SubCategoriesProvider>(
+        builder: (context, category, subCat, _) {
+      catModel = category.category;
+      subCatModel = subCat.subCategories;
+
       return Scaffold(
         appBar: CustomAppBar1(
           title: "Detail",
@@ -113,47 +201,427 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 const SizedBox(
                   height: 20,
                 ),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    customCheckBox(owner, (val) {
+                      owner = val!;
+                      setState(() {});
+                    }, 'Owner'),
+                    customCheckBox(dealer, (val) {
+                      dealer = val!;
+                      setState(() {});
+                    }, 'Dealer'),
+                  ],
+                ),
+
                 customRow(
                     onTap: () {
                       _showCategoryBottomSheet(context);
                     },
                     title: "Category(required)",
-                    selectText: _selectedCategory),
-                customRow(
-                  onTap: () {
-                    _showSubCategoryBottomSheet(context);
-                  },
-                  title: "Sub-category(optional)",
-                  selectText: _selectedSubCategory,
-                ),
-                customRow(
-                  onTap: () {
-                    _showConditionBottomSheet(context);
-                  },
-                  title: "Condition (required)",
-                  selectText: _selectedCondition,
-                ),
-                lableFields(
-                    lableTtxt: "Year, Make & Model(Optional)",
-                    controller: _modelYearController),
-                lableFields(
-                    lableTtxt: "Mileage (Optional)",
-                    controller: _millageController),
-                lableFields(
-                    lableTtxt: "Color (optional)",
-                    controller: _colorController),
-                lableFields(
-                    lableTtxt: "Brand (optional)",
-                    controller: _brandController),
-                lableFields(
-                    lableTtxt: "Model (optional)",
-                    controller: _modelController),
-                lableFields(
-                    lableTtxt: "Edition (optional)",
-                    controller: _editionController),
-                lableFields(
-                    lableTtxt: "Authenticity (optional)",
-                    controller: _authenticityController),
+                    selectText: _selectedCategory ?? 'Select Category'),
+
+                _selectedCategory == 'Animals'
+                    ? Column(
+                        children: [
+                          customRow(
+                              onTap: () {
+                                makeSubCategoriesBottom(context);
+                              },
+                              title: 'Subcategories',
+                              selectText: _selectedSubCategory ??
+                                  'Select Subcategories'),
+                          customRow(
+                              onTap: () {
+                                makeAgeTypeBottom(context);
+                              },
+                              title: 'Age',
+                              selectText: age ?? 'Select Age'),
+                          customRow(
+                              onTap: () {
+                                priceRangeBottom(context);
+                              },
+                              title: 'Price',
+                              selectText: priceRangeSelect ?? 'Select Price'),
+                          customRow(
+                              onTap: () {
+                                makeBreedTypeBottom(context);
+                              },
+                              title: 'Breed',
+                              selectText: breed ?? 'Select Breed'),
+                          customRow(
+                              onTap: () {
+                                locationTypeBottom(context);
+                              },
+                              title: 'Location',
+                              selectText: locationSelect ?? 'Select Location'),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+
+                _selectedCategory == 'Job'
+                    ? Column(
+                        children: [
+                          customRow(
+                              onTap: () {
+                                makeJobTypeBottom(context);
+                              },
+                              title: 'Type',
+                              selectText: jobType ?? 'Select Job Type'),
+                          customRow(
+                              onTap: () {
+                                makeExperienceBottom(context);
+                              },
+                              title: 'Experience',
+                              selectText: experience ?? 'Select Experience'),
+                          customRow(
+                              onTap: () {
+                                makeEducationBottom(context);
+                              },
+                              title: 'Education',
+                              selectText: education ?? 'Select Education'),
+                          customRow(
+                              onTap: () {
+                                makeSalaryBottom(context);
+                              },
+                              title: 'Salary',
+                              selectText: salary ?? 'Select Salary'),
+                          customRow(
+                              onTap: () {
+                                makeSalaryPeriodBottom(context);
+                              },
+                              title: 'Salary Period',
+                              selectText:
+                                  salaryPeriod ?? 'Select Salary Period'),
+                          customRow(
+                              onTap: () {
+                                makeCompanyNameBottom(context);
+                              },
+                              title: 'Company Name',
+                              selectText: companyName ?? 'Select Company Name'),
+                          customRow(
+                              onTap: () {
+                                makePossitionTypeBottom(context);
+                              },
+                              title: 'Position Type',
+                              selectText: jobType ?? 'Select Position Type'),
+                          customRow(
+                              onTap: () {
+                                makeCarrieLevelBottom(context);
+                              },
+                              title: 'Carrie Level',
+                              selectText: careerLevel ?? 'Select Carrie Level'),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+
+                _selectedCategory == 'Services'
+                    ? Column(
+                        children: [
+                          customRow(
+                              onTap: () {
+                                makeSubCategoriesBottom(context);
+                              },
+                              title: 'Subcategories',
+                              selectText: _selectedSubCategory ??
+                                  'Select Subcategories'),
+                          customRow(
+                              onTap: () {
+                                conditionBottom(context);
+                              },
+                              title: 'Condition',
+                              selectText:
+                                  conditionSelect ?? 'Select Condition'),
+                          customRow(
+                              onTap: () {
+                                priceRangeBottom(context);
+                              },
+                              title: 'Price',
+                              selectText: priceRangeSelect ?? 'Select Price'),
+                          customRow(
+                              onTap: () {
+                                makeCarBottom(context);
+                              },
+                              title: 'Car',
+                              selectText: car ?? 'Select Car'),
+                          customRow(
+                              onTap: () {
+                                locationTypeBottom(context);
+                              },
+                              title: 'Location',
+                              selectText: locationSelect ?? 'Select Location'),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+
+                _selectedCategory == 'Bike'
+                    ? Column(
+                        children: [
+                          customRow(
+                              onTap: () {
+                                makeSubCategoriesBottom(context);
+                              },
+                              title: 'Subcategories',
+                              selectText: _selectedSubCategory ??
+                                  'Select Subcategories'),
+                          customRow(
+                              onTap: () {
+                                makeEngineCapacityBottom(context);
+                              },
+                              title: 'Engine Capacity',
+                              selectText: engineCapacity ?? 'Select Capacity'),
+                          customRow(
+                              onTap: () {
+                                priceRangeBottom(context);
+                              },
+                              title: 'Price',
+                              selectText: priceRangeSelect ?? 'Select Price'),
+                          customRow(
+                              onTap: () {
+                                makeBikeModelBottom(context);
+                              },
+                              title: 'Model',
+                              selectText: model ?? 'Select Model'),
+                          customRow(
+                              onTap: () {
+                                locationTypeBottom(context);
+                              },
+                              title: 'Location',
+                              selectText: locationSelect ?? 'Select Location'),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+
+                _selectedCategory == 'Mobiles'
+                    ? Column(
+                        children: [
+                          customRow(
+                              onTap: () {
+                                makeBrandBottom(context);
+                              },
+                              title: 'Brand',
+                              selectText: brand ?? 'Select Brand'),
+                          customRow(
+                              onTap: () {
+                                conditionBottom(context);
+                              },
+                              title: 'Condition',
+                              selectText:
+                                  conditionSelect ?? 'Select Condition'),
+                          customRow(
+                              onTap: () {
+                                priceRangeBottom(context);
+                              },
+                              title: 'Price',
+                              selectText: priceRangeSelect ?? 'Select Price'),
+                          customRow(
+                              onTap: () {
+                                makeStorageBottom(context);
+                              },
+                              title: 'Storage Capacity',
+                              selectText: storage ?? 'Select Storage'),
+                          customRow(
+                              onTap: () {
+                                colorTypeBottom(context);
+                              },
+                              title: 'Color',
+                              selectText: colorSelect ?? 'Select Color'),
+                          customRow(
+                              onTap: () {
+                                locationTypeBottom(context);
+                              },
+                              title: 'Location',
+                              selectText: typeProperty ?? 'Select Location'),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+
+                _selectedCategory == 'Property for Sale' ||
+                        _selectedCategory == 'Property for Rent'
+                    ? Column(children: [
+                        customRow(
+                            onTap: () {
+                              makeTypeBottom(context);
+                            },
+                            title: 'Type',
+                            selectText: typeProperty ?? 'Select Property Type'),
+                        customRow(
+                            onTap: () {
+                              makeBedroomBottom(context);
+                            },
+                            title: 'Bedrooms',
+                            selectText: bedrooms ?? 'Select Bedrooms'),
+                        customRow(
+                            onTap: () {
+                              priceRangeBottom(context);
+                            },
+                            title: 'Price',
+                            selectText: priceRangeSelect ?? 'Select Price'),
+                        customRow(
+                            onTap: () {
+                              areaBottom(context);
+                            },
+                            title: 'Area/Size',
+                            selectText: area ?? 'Select Area'),
+                        customRow(
+                            onTap: () {
+                              makeYearBottom(context);
+                            },
+                            title: 'Year Built',
+                            selectText: yearBuilt ?? 'Select Year Built'),
+                        customRow(
+                            onTap: () {
+                              makeFeaturesBottom(context);
+                            },
+                            title: 'Features',
+                            selectText: features ?? 'Select Features'),
+                        customRow(
+                            onTap: () {
+                              makeAmenitiesBottom(context);
+                            },
+                            title: 'Amenities',
+                            selectText: amenities ?? 'Select Amenities'),
+                        customRow(
+                            onTap: () {
+                              locationTypeBottom(context);
+                            },
+                            title: 'Location',
+                            selectText: locationSelect ?? 'Select Location'),
+                      ])
+                    : const SizedBox.shrink(),
+
+                _selectedCategory != 'Vehicles'
+                    ? const SizedBox.shrink()
+                    : Column(
+                        children: [
+                          _selectedCategory == null
+                              ? const SizedBox.shrink()
+                              : customRow(
+                                  onTap: () {
+                                    // _showCategoryBottomSheet(context);
+
+                                    makeModelBottom(context);
+                                  },
+                                  title: _selectedCategory == 'Vehicles'
+                                      ? "Make And Model:"
+                                      : "",
+                                  selectText:
+                                      selectMakeModel ?? 'Select Model'),
+                          _selectedCategory == null
+                              ? const SizedBox.shrink()
+                              : customRow(
+                                  onTap: () {
+                                    yearBottom(context);
+                                  },
+                                  title: _selectedCategory == 'Vehicles'
+                                      ? "Year"
+                                      : "",
+                                  selectText: yearModel ?? 'Select Year'),
+                          _selectedCategory == null
+                              ? const SizedBox.shrink()
+                              : customRow(
+                                  onTap: () {
+                                    conditionBottom(context);
+                                  },
+                                  title: _selectedCategory == 'Vehicles'
+                                      ? "Condition"
+                                      : "",
+                                  selectText:
+                                      conditionSelect ?? 'Select Condition'),
+                          _selectedCategory == null
+                              ? const SizedBox.shrink()
+                              : customRow(
+                                  onTap: () {
+                                    priceRangeBottom(context);
+                                  },
+                                  title: _selectedCategory == 'Vehicles'
+                                      ? "Price Range"
+                                      : "",
+                                  selectText:
+                                      priceRangeSelect ?? 'Select Price Range'),
+                          _selectedCategory == null
+                              ? const SizedBox.shrink()
+                              : customRow(
+                                  onTap: () {
+                                    mileageBottom(context);
+                                  },
+                                  title: _selectedCategory == 'Vehicles'
+                                      ? "Mileage"
+                                      : "",
+                                  selectText:
+                                      mileAgeSelect ?? 'Select Mileage'),
+                          _selectedCategory == null
+                              ? const SizedBox.shrink()
+                              : customRow(
+                                  onTap: () {
+                                    fuelTypeBottom(context);
+                                  },
+                                  title: _selectedCategory == 'Vehicles'
+                                      ? "Fuel Type"
+                                      : "",
+                                  selectText:
+                                      fuelTypeSelect ?? 'Select Fuel Type'),
+                          _selectedCategory == null
+                              ? const SizedBox.shrink()
+                              : customRow(
+                                  onTap: () {
+                                    colorTypeBottom(context);
+                                  },
+                                  title: _selectedCategory == 'Vehicles'
+                                      ? "Color"
+                                      : "",
+                                  selectText: colorSelect ?? 'Select Color'),
+                          _selectedCategory == null
+                              ? const SizedBox.shrink()
+                              : customRow(
+                                  onTap: () {
+                                    locationTypeBottom(context);
+                                  },
+                                  title: _selectedCategory == 'Vehicles'
+                                      ? "Location"
+                                      : "",
+                                  selectText:
+                                      locationSelect ?? 'Select Location'),
+                        ],
+                      ),
+                // customRow(
+                //   onTap: () {
+                //     _showSubCategoryBottomSheet(context);
+                //   },
+                //   title: "Sub-category(optional)",
+                //   selectText: _selectedSubCategory,
+                // ),
+                // customRow(
+                //   onTap: () {
+                //     _showConditionBottomSheet(context);
+                //   },
+                //   title: "Condition (required)",
+                //   selectText: _selectedCondition,
+                // ),
+                // lableFields(
+                //     lableTtxt: "Year, Make & Model(Optional)",
+                //     controller: _modelYearController),
+                // lableFields(
+                //     lableTtxt: "Mileage (Optional)",
+                //     controller: _millageController),
+                // lableFields(
+                //     lableTtxt: "Color (optional)",
+                //     controller: _colorController),
+                // lableFields(
+                //     lableTtxt: "Brand (optional)",
+                //     controller: _brandController),
+                // lableFields(
+                //     lableTtxt: "Model (optional)",
+                //     controller: _modelController),
+                // lableFields(
+                //     lableTtxt: "Edition (optional)",
+                //     controller: _editionController),
+                // lableFields(
+                //     lableTtxt: "Authenticity (optional)",
+                //     controller: _authenticityController),
                 _isLoading == true
                     ? LoadingDialog()
                     : Padding(
@@ -286,10 +754,514 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     });
   }
 
+  //animals
+
+  Widget _ageType() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: ageList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: age == ageList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      age = ageList[index];
+                    } else {
+                      age = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(ageList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _breedType() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: breedList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: breed == breedList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      breed = breedList[index];
+                    } else {
+                      breed = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(breedList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  //JobListData
+
+  Widget _jobType() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: jobTypeList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: jobType == jobTypeList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      jobType = jobTypeList[index];
+                    } else {
+                      jobType = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(jobTypeList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _experience() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: experienceList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: experience == experienceList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      experience = experienceList[index];
+                    } else {
+                      experience = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(experienceList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _education() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: educationList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: education == educationList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      education = educationList[index];
+                    } else {
+                      education = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(educationList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _salary() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: salaryList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: salary == salaryList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      salary = salaryList[index];
+                    } else {
+                      salary = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(salaryList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _salaryPeriod() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: salaryPeriodList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: salaryPeriod == salaryPeriodList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      salaryPeriod = salaryPeriodList[index];
+                    } else {
+                      salaryPeriod = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(salaryPeriodList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _companyName() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: companyNameList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: companyName == companyNameList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      companyName = companyNameList[index];
+                    } else {
+                      companyName = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(companyNameList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _possitiontype() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: possitionTypeList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: possitionType == possitionTypeList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      possitionType = possitionTypeList[index];
+                    } else {
+                      possitionType = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(possitionTypeList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _careerLevel() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: careerLevelList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: careerLevel == careerLevelList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      careerLevel = careerLevelList[index];
+                    } else {
+                      careerLevel = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(careerLevelList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  //servicesData
+  Widget _services() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: carList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: car == carList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      car = carList[index];
+                    } else {
+                      car = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(carList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  // bikeData
+
+  Widget _engineCapacity() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: engineList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: engineCapacity == engineList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      engineCapacity = engineList[index];
+                    } else {
+                      engineCapacity = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(engineList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _model() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: modelList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: model == modelList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      model = modelList[index];
+                    } else {
+                      model = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(modelList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  //SubCategories
+
+  Widget _buildSubCategoryList() {
+    return StatefulBuilder(builder: (context, setstse) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: subCatModel.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+
+                // value: _selectedCategory == catagoryData[index]["name"],
+                value: _selectedSubCategory == subCatModel[index].title,
+                onChanged: (bool? value) {
+                  setstse(() {
+                    if (value != null && value) {
+                      // _selectedCategory = catagoryData[index]["name"];
+                      _selectedSubCategory = subCatModel[index].title!;
+                      catagoryId = subCatModel[index].id;
+                    } else {
+                      _selectedSubCategory = "";
+                    }
+                  });
+                },
+              ),
+              AppText.appText(subCatModel[index].title!,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  //Categories
   Widget _buildCategoryList(StateSetter setState) {
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: catagoryData.length,
+      itemCount: catModel.length,
       itemBuilder: (context, index) {
         return Row(
           children: [
@@ -298,19 +1270,21 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   borderRadius: BorderRadius.circular(20)),
               checkColor: AppTheme.whiteColor,
               activeColor: AppTheme.appColor,
-              value: _selectedCategory == catagoryData[index]["name"],
+              // value: _selectedCategory == catagoryData[index]["name"],
+              value: _selectedCategory == catModel[index].title,
               onChanged: (bool? value) {
                 setState(() {
                   if (value != null && value) {
-                    _selectedCategory = catagoryData[index]["name"];
-                    catagoryId = catagoryData[index]["id"];
+                    // _selectedCategory = catagoryData[index]["name"];
+                    _selectedCategory = catModel[index].title!;
+                    catagoryId = catModel[index].id;
                   } else {
                     _selectedCategory = "";
                   }
                 });
               },
             ),
-            AppText.appText(catagoryData[index]["name"],
+            AppText.appText(catModel[index].title!,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
                 textColor: AppTheme.textColor),
@@ -320,8 +1294,756 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     );
   }
 
-  /////////////////////////////   Subcategory bottom sheet ///////////////////////
-  void _showSubCategoryBottomSheet(BuildContext context) {
+  //mobiles
+
+  Widget _brand() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: brandList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: brand == brandList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      brand = brandList[index];
+                    } else {
+                      typeProperty = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(brandList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+//
+  Widget _storage() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: storageList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: storage == storageList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      storage = storageList[index];
+                    } else {
+                      storage = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(storageList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _propertyType() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: typePropertyList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: typeProperty == typePropertyList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      typeProperty = makeModel[index];
+                    } else {
+                      typeProperty = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(typePropertyList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _bedrooms() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: bedroomList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: bedrooms == bedroomList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      bedrooms = bedroomList[index];
+                    } else {
+                      bedrooms = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(bedroomList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _area() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: areaSizeList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: area == areaSizeList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      area = areaSizeList[index];
+                    } else {
+                      area = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(areaSizeList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _yearBuilt() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: yearBuiltList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: yearBuilt == yearBuiltList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      yearBuilt = yearBuiltList[index];
+                    } else {
+                      yearBuilt = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(yearBuiltList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _features() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: featuresList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: features == featuresList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      features = featuresList[index];
+                    } else {
+                      features = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(featuresList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _amenities() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: amenitiesList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: amenities == amenitiesList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      amenities = amenitiesList[index];
+                    } else {
+                      amenities = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(amenitiesList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  //makeModel
+
+  String? selectMakeModel;
+
+  Widget _makeModel() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: makeModel.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: selectMakeModel == makeModel[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      selectMakeModel = makeModel[index];
+                    } else {
+                      selectMakeModel = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(makeModel[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  //yearModel
+
+  String? yearModel;
+
+  Widget _yearModel() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: year.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: yearModel == year[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      yearModel = year[index];
+                    } else {
+                      yearModel = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(year[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  //conditionModel
+
+  String? conditionSelect;
+
+  Widget _condition() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: condition.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: conditionSelect == condition[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      conditionSelect = condition[index];
+                    } else {
+                      conditionSelect = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(condition[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  String? priceRangeSelect;
+
+  Widget _priceRange() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: priceRange.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: priceRangeSelect == priceRange[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      priceRangeSelect = priceRange[index];
+                    } else {
+                      priceRangeSelect = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(priceRange[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  String? fuelTypeSelect;
+
+  Widget _fuelType() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: fuelType.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: fuelTypeSelect == fuelType[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      fuelTypeSelect = fuelType[index];
+                    } else {
+                      fuelTypeSelect = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(fuelType[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  String? mileAgeSelect;
+
+  Widget _mileage() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: mileage.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: mileAgeSelect == mileage[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      mileAgeSelect = mileage[index];
+                    } else {
+                      mileAgeSelect = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(mileage[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  String? colorSelect;
+
+  Widget _colorBottom() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: color.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: colorSelect == color[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      colorSelect = color[index];
+                    } else {
+                      colorSelect = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(color[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  String? locationSelect;
+
+  Widget _locationBottom(StateSetter setState) {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: mileage.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: locationSelect == location[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      locationSelect = location[index];
+                    } else {
+                      locationSelect = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(location[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  //animals
+
+  void makeAgeTypeBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Age', _searchController, _ageType(), age ?? '');
+  }
+
+  void makeBreedTypeBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Breed', _searchController, _breedType(), breed ?? '');
+  }
+
+  //JobsData
+
+  void makeJobTypeBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Job Type', _searchController, _jobType(), jobType ?? '');
+  }
+
+  void makeExperienceBottom(BuildContext context) {
+    return customBottomSheet(context, 'Experience', _searchController,
+        _experience(), experience ?? '');
+  }
+
+  void makeEducationBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Education', _searchController, _education(), education ?? '');
+  }
+
+  void makeSalaryBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Salary', _searchController, _salary(), salary ?? '');
+  }
+
+  void makeSalaryPeriodBottom(BuildContext context) {
+    return customBottomSheet(context, 'Salary Period', _searchController,
+        _salaryPeriod(), salaryPeriod ?? '');
+  }
+
+  void makeCompanyNameBottom(BuildContext context) {
+    return customBottomSheet(context, 'Company Name', _searchController,
+        _companyName(), companyName ?? '');
+  }
+
+  void makePossitionTypeBottom(BuildContext context) {
+    return customBottomSheet(context, 'Position Type', _searchController,
+        _possitiontype(), possitionType ?? '');
+  }
+
+  void makeCarrieLevelBottom(BuildContext context) {
+    return customBottomSheet(context, 'Carrier Level', _searchController,
+        _careerLevel(), careerLevel ?? '');
+  }
+
+  //servicesData
+  void makeCarBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Car', _searchController, _services(), car ?? '');
+  }
+
+  //bikeData
+
+  void makeEngineCapacityBottom(BuildContext context) {
+    return customBottomSheet(context, 'Engine Capacity', _searchController,
+        _engineCapacity(), engineCapacity ?? '');
+  }
+
+  void makeBikeModelBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Model', _searchController, _model(), model ?? '');
+  }
+
+  //subCategoriuesData
+
+  void makeSubCategoriesBottom(BuildContext context) {
+    return customBottomSheet(context, 'Subcategories', _searchController,
+        _buildSubCategoryList(), _selectedSubCategory ?? '');
+  }
+
+  // mobileData
+
+  void makeBrandBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Brand', _searchController, _brand(), brand ?? '');
+  }
+
+  void makeStorageBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Storage', _searchController, _storage(), storage ?? '');
+  }
+
+  //properties Data
+
+  void makeTypeBottom(BuildContext context) {
+    return customBottomSheet(context, 'Property Type', _searchController,
+        _propertyType(), typeProperty ?? '');
+  }
+
+  void makeBedroomBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Bedrooms', _searchController, _bedrooms(), bedrooms ?? '');
+  }
+
+  void areaBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Area', _searchController, _area(), area ?? '');
+  }
+
+  void makeYearBottom(BuildContext context) {
+    return customBottomSheet(context, 'Year Built', _searchController,
+        _yearBuilt(), yearBuilt ?? '');
+  }
+
+  void makeFeaturesBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Features', _searchController, _features(), features ?? '');
+  }
+
+  void makeAmenitiesBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Amenities', _searchController, _amenities(), amenities ?? '');
+  }
+
+  void makeModelBottom(BuildContext context) {
+    return customBottomSheet(context, 'Make and Model ', _searchController,
+        _makeModel(), selectMakeModel ?? '');
+  }
+
+  void yearBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Year', _searchController, _yearModel(), yearModel ?? '');
+  }
+
+  void conditionBottom(BuildContext context) {
+    return customBottomSheet(context, 'Condition', _searchController,
+        _condition(), conditionSelect ?? '');
+  }
+
+  void priceRangeBottom(BuildContext context) {
+    return customBottomSheet(context, 'Price Range', _searchController,
+        _priceRange(), priceRangeSelect ?? '');
+  }
+
+  void mileageBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Mileage', _searchController, _mileage(), mileAgeSelect ?? '');
+  }
+
+  void fuelTypeBottom(BuildContext context) {
+    return customBottomSheet(context, 'Fuel Type', _searchController,
+        _fuelType(), fuelTypeSelect ?? '');
+  }
+
+  void colorTypeBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Color', _searchController, _colorBottom(), colorSelect ?? '');
+  }
+
+  void locationTypeBottom(BuildContext context) {
+    return customBottomSheet(context, 'Location', _searchController,
+        _locationBottom(setState), locationSelect ?? '');
+  }
+
+  void customBottomSheet(BuildContext context, String? title,
+      TextEditingController controller, Widget? child, String selectedValue) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -339,7 +2061,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   Align(
                     alignment: Alignment.center,
                     child: AppText.appText(
-                      "Sub Categories",
+                      title!,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -353,12 +2075,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       color: AppTheme.textColor,
                     ),
                     texthint: "Search",
-                    controller: _searchController,
+                    controller: controller,
                   ),
                   const SizedBox(height: 16),
-                  Expanded(
-                    child: _buildSubCategoryList(setState),
-                  ),
+                  Expanded(child: child!),
                 ],
               ),
             );
@@ -367,137 +2087,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       },
     ).then((value) {
       setState(() {
-        _selectedSubCategory = _selectedSubCategory;
+        selectedValue = selectedValue;
       });
     });
-  }
-
-  Widget _buildSubCategoryList(StateSetter setState) {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: subCatagoryData.length,
-      itemBuilder: (context, index) {
-        return Row(
-          children: [
-            Checkbox(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              checkColor: AppTheme.whiteColor,
-              activeColor: AppTheme.appColor,
-              value: _selectedSubCategory == subCatagoryData[index]["name"],
-              onChanged: (bool? value) {
-                setState(() {
-                  if (value != null && value) {
-                    _selectedSubCategory = subCatagoryData[index]["name"];
-                    subCatagoryId = subCatagoryData[index]["id"];
-                    print('subbbbb----->${subCatagoryId}');
-                  } else {
-                    _selectedSubCategory = "";
-                  }
-                });
-              },
-            ),
-            AppText.appText(subCatagoryData[index]["name"],
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                textColor: AppTheme.textColor),
-          ],
-        );
-      },
-    );
-  }
-
-  /////////////////////////////  Condition bottom sheet ///////////////////////
-  void _showConditionBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Container(
-              decoration: BoxDecoration(
-                  color: AppTheme.whiteColor,
-                  borderRadius: BorderRadius.circular(30)),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: AppText.appText(
-                      "Condition",
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  CustomAppFormField(
-                    radius: 15.0,
-                    prefixIcon: Image.asset(
-                      "assets/images/search.png",
-                      height: 17,
-                      color: AppTheme.textColor,
-                    ),
-                    texthint: "Search",
-                    controller: _searchController,
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: _buildConditionList(setState),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    ).then((value) {
-      setState(() {
-        _selectedCondition = _selectedCondition;
-      });
-    });
-  }
-
-  Widget _buildConditionList(StateSetter setState) {
-    List<String> conditions = [
-      "New",
-      "Good",
-      "Open Box",
-      "Refurnished",
-      "For Part or Not Working"
-    ];
-
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: conditions.length,
-      itemBuilder: (context, index) {
-        return Row(
-          children: [
-            Checkbox(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              checkColor: AppTheme.whiteColor,
-              activeColor: AppTheme.appColor,
-              value: _selectedCondition == conditions[index],
-              onChanged: (bool? value) {
-                setState(() {
-                  if (value != null && value) {
-                    _selectedCondition = conditions[index];
-                  } else {
-                    _selectedCondition = "";
-                  }
-                });
-              },
-            ),
-            AppText.appText(conditions[index],
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                textColor: AppTheme.textColor),
-          ],
-        );
-      },
-    );
   }
 
   void getCatagories({search}) async {
@@ -630,16 +2222,18 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     Map<String, dynamic> params = {
       "category_id": "${widget.selling == null ? catagoryId : catagoryId}",
       "product_id": "${widget.productId}",
-      "condition": _selectedCondition,
+      "condition": conditionSelect,
       "sub_category_id": "$subCatagoryId",
-      "make_and_model": _modelYearController.text,
+      "make_and_model": selectMakeModel,
       "mileage": _millageController.text,
-      "color": _colorController.text,
-      "brand": _brandController.text,
-      "model": _modelController.text,
+      "color": colorSelect,
+      "brand": selectMakeModel,
+      "model": selectMakeModel,
       "edition": _editionController.text,
       "authenticity": _authenticityController.text,
     };
+
+    print('addPostParams--->${params}');
     try {
       response = await dio.post(
           path: widget.selling != null
@@ -726,4 +2320,212 @@ class ImageDeleteService {
       return false;
     }
   }
+}
+
+// void _showSubCategoryBottomSheet(BuildContext context) {
+//   showModalBottomSheet(
+//     context: context,
+//     builder: (BuildContext context) {
+//       return StatefulBuilder(
+//         builder: (BuildContext context, StateSetter setState) {
+//           return Container(
+//             decoration: BoxDecoration(
+//                 color: AppTheme.whiteColor,
+//                 borderRadius: BorderRadius.circular(30)),
+//             padding: const EdgeInsets.all(16),
+//             child: Column(
+//               mainAxisSize: MainAxisSize.min,
+//               crossAxisAlignment: CrossAxisAlignment.stretch,
+//               children: [
+//                 Align(
+//                   alignment: Alignment.center,
+//                   child: AppText.appText(
+//                     "Sub Categories",
+//                     fontSize: 20,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 const SizedBox(height: 16),
+//                 CustomAppFormField(
+//                   radius: 15.0,
+//                   prefixIcon: Image.asset(
+//                     "assets/images/search.png",
+//                     height: 17,
+//                     color: AppTheme.textColor,
+//                   ),
+//                   texthint: "Search",
+//                   controller: _searchController,
+//                 ),
+//                 const SizedBox(height: 16),
+//                 Expanded(
+//                   child: _buildSubCategoryList(setState),
+//                 ),
+//               ],
+//             ),
+//           );
+//         },
+//       );
+//     },
+//   ).then((value) {
+//     setState(() {
+//       _selectedSubCategory = _selectedSubCategory;
+//     });
+//   });
+// }
+//
+// Widget _buildSubCategoryList(StateSetter setState) {
+//   return ListView.builder(
+//     shrinkWrap: true,
+//     itemCount: subCatagoryData.length,
+//     itemBuilder: (context, index) {
+//       return Row(
+//         children: [
+//           Checkbox(
+//             shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(20)),
+//             checkColor: AppTheme.whiteColor,
+//             activeColor: AppTheme.appColor,
+//             value: _selectedSubCategory == subCatagoryData[index]["name"],
+//             onChanged: (bool? value) {
+//               setState(() {
+//                 if (value != null && value) {
+//                   _selectedSubCategory = subCatagoryData[index]["name"];
+//                   subCatagoryId = subCatagoryData[index]["id"];
+//                   print('subbbbb----->${subCatagoryId}');
+//                 } else {
+//                   _selectedSubCategory = "";
+//                 }
+//               });
+//             },
+//           ),
+//           AppText.appText(subCatagoryData[index]["name"],
+//               fontSize: 16,
+//               fontWeight: FontWeight.w500,
+//               textColor: AppTheme.textColor),
+//         ],
+//       );
+//     },
+//   );
+// }
+//
+// /////////////////////////////  Condition bottom sheet ///////////////////////
+// void _showConditionBottomSheet(BuildContext context) {
+//   showModalBottomSheet(
+//     context: context,
+//     builder: (BuildContext context) {
+//       return StatefulBuilder(
+//         builder: (BuildContext context, StateSetter setState) {
+//           return Container(
+//             decoration: BoxDecoration(
+//                 color: AppTheme.whiteColor,
+//                 borderRadius: BorderRadius.circular(30)),
+//             padding: const EdgeInsets.all(16),
+//             child: Column(
+//               mainAxisSize: MainAxisSize.min,
+//               crossAxisAlignment: CrossAxisAlignment.stretch,
+//               children: [
+//                 Align(
+//                   alignment: Alignment.center,
+//                   child: AppText.appText(
+//                     "Condition",
+//                     fontSize: 20,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 const SizedBox(height: 16),
+//                 CustomAppFormField(
+//                   radius: 15.0,
+//                   prefixIcon: Image.asset(
+//                     "assets/images/search.png",
+//                     height: 17,
+//                     color: AppTheme.textColor,
+//                   ),
+//                   texthint: "Search",
+//                   controller: _searchController,
+//                 ),
+//                 const SizedBox(height: 16),
+//                 Expanded(
+//                   child: _buildConditionList(setState),
+//                 ),
+//               ],
+//             ),
+//           );
+//         },
+//       );
+//     },
+//   ).then((value) {
+//     setState(() {
+//       _selectedCondition = _selectedCondition;
+//     });
+//   });
+// }
+//
+// Widget _buildConditionList(StateSetter setState) {
+//   List<String> conditions = [
+//     "New",
+//     "Good",
+//     "Open Box",
+//     "Refurnished",
+//     "For Part or Not Working"
+//   ];
+//
+//   return ListView.builder(
+//     shrinkWrap: true,
+//     itemCount: conditions.length,
+//     itemBuilder: (context, index) {
+//       return Row(
+//         children: [
+//           Checkbox(
+//             shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(20)),
+//             checkColor: AppTheme.whiteColor,
+//             activeColor: AppTheme.appColor,
+//             value: _selectedCondition == conditions[index],
+//             onChanged: (bool? value) {
+//               setState(() {
+//                 if (value != null && value) {
+//                   _selectedCondition = conditions[index];
+//                 } else {
+//                   _selectedCondition = "";
+//                 }
+//               });
+//             },
+//           ),
+//           AppText.appText(conditions[index],
+//               fontSize: 16,
+//               fontWeight: FontWeight.w500,
+//               textColor: AppTheme.textColor),
+//         ],
+//       );
+//     },
+//   );
+// }
+
+Widget customCheckBox(bool val, Function(bool?)? onChanged, String? title) {
+  return SizedBox(
+    // width: 10,
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      // crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Checkbox(
+          fillColor: MaterialStateProperty.resolveWith<Color>(
+              (Set<MaterialState> states) {
+            if (states.contains(MaterialState.disabled)) {
+              return Colors.transparent;
+            }
+            if (states.contains(MaterialState.selected)) {
+              return AppTheme.appColor;
+            }
+            return Colors.transparent; // Default color
+          }),
+          value: val,
+          onChanged: onChanged,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+        ),
+        const SizedBox(width: 5),
+        AppText.appText(title!)
+      ],
+    ),
+  );
 }

@@ -54,6 +54,9 @@ class _LandingScreenState extends State<LandingScreen> {
     "assets/images/sliderImg.png",
     "assets/images/sliderImg.png",
   ];
+  static const List<String> newBannerImage = [
+    "assets/images/newBanner.png",
+  ];
   late AppDio dio;
   AppLogger logger = AppLogger();
 
@@ -193,228 +196,258 @@ class _LandingScreenState extends State<LandingScreen> {
               const SizedBox(
                 height: 20,
               ),
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: CarouselSlider(
-                      options: CarouselOptions(
-                        aspectRatio: 16 / 9,
-                        viewportFraction: 1,
-                        initialPage: 0,
-                        enableInfiniteScroll: true,
-                        reverse: false,
-                        autoPlay: true,
-                        autoPlayInterval: const Duration(seconds: 3),
-                        autoPlayAnimationDuration:
-                            const Duration(milliseconds: 800),
-                        autoPlayCurve: Curves.fastOutSlowIn,
-                        enlargeCenterPage: true,
-                        scrollDirection: Axis.horizontal,
-                      ),
-                      items: _imagePaths.map((String imagePath) {
-                        return Builder(
-                          builder: (BuildContext context) {
-                            return Container(
-                              height: 154,
-                              width: screenWidth,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  image: DecorationImage(
-                                    image: AssetImage(
-                                      imagePath,
-                                    ),
-                                    fit: BoxFit.cover,
-                                  )),
-                            );
-                          },
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: CarouselSlider(
+                  options: CarouselOptions(
+                    aspectRatio: 16 / 9,
+                    viewportFraction: 1,
+                    initialPage: 0,
+                    enableInfiniteScroll: true,
+                    reverse: false,
+                    autoPlay: true,
+                    autoPlayInterval: const Duration(seconds: 3),
+                    autoPlayAnimationDuration:
+                        const Duration(milliseconds: 800),
+                    autoPlayCurve: Curves.fastOutSlowIn,
+                    enlargeCenterPage: true,
+                    scrollDirection: Axis.horizontal,
+                  ),
+                  items: _imagePaths.map((String imagePath) {
+                    return Builder(
+                      builder: (BuildContext context) {
+                        return Container(
+                          height: 154,
+                          width: screenWidth,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              image: DecorationImage(
+                                image: AssetImage(
+                                  imagePath,
+                                ),
+                                fit: BoxFit.cover,
+                              )),
                         );
-                      }).toList(),
-                    ),
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: CarouselSlider(
+                  options: CarouselOptions(
+                    aspectRatio: 16 / 9,
+                    viewportFraction: 1,
+                    initialPage: 0,
+                    enableInfiniteScroll: true,
+                    reverse: false,
+                    autoPlay: false,
+                    autoPlayInterval: const Duration(seconds: 3),
+                    autoPlayAnimationDuration:
+                        const Duration(milliseconds: 800),
+                    autoPlayCurve: Curves.fastOutSlowIn,
+                    enlargeCenterPage: true,
+                    scrollDirection: Axis.horizontal,
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  customRow(
-                      txt1: "Categories",
-                      txt2: "View All",
-                      txt3: "",
-                      onTap: () {
-                        push(
-                            context,
-                            AllCategories(
-                              data: apiProvider.catagoryData,
-                              isList: false,
-                            ));
-                      }),
-                  // apiProvider.catagoryData == null
-                  //     ? Center(
-                  //         child: AppText.appText("Loading...."),
-                  //       )
-                  //     :
-                  SizedBox(
-                          height: 100,
+                  items: newBannerImage.map((String imagePath) {
+                    return Builder(
+                      builder: (BuildContext context) {
+                        return Container(
+                          height: 154,
+                          width: screenWidth,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              image: DecorationImage(
+                                image: AssetImage(
+                                  imagePath,
+                                ),
+                                fit: BoxFit.cover,
+                              )),
+                        );
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              customRow(
+                  txt1: "Categories",
+                  txt2: "View All",
+                  txt3: "",
+                  onTap: () {
+                    push(
+                        context,
+                        AllCategories(
+                          data: apiProvider.catagoryData,
+                          isList: false,
+                        ));
+                  }),
+              // apiProvider.catagoryData == null
+              //     ? Center(
+              //         child: AppText.appText("Loading...."),
+              //       )
+              //     :
+              SizedBox(
+                height: 100,
+                width: screenWidth,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 5,
+                  itemBuilder: (context, index) {
+                    // Color color = Color(int.parse(apiProvider
+                    //     .catagoryData[index]["color"]
+                    //     .replaceFirst('#', '0xFF')));
+
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 20.0),
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              push(
+                                  context,
+                                  CatagoryProductScreen(
+                                    catId: apiProvider.catagoryData[index]
+                                        ["id"],
+                                    catNAme:
+                                        "${apiProvider.catagoryData[index]["name"]}",
+                                  ));
+                            },
+                            child: CatagoryContainer(
+                              color: apiProvider1.category[index].color,
+                              img: apiProvider1.category[index].image,
+                              txt: apiProvider1.category[index].title,
+                              isList: true,
+                            ),
+                          ),
+                          // if (index ==
+                          //     apiProvider.catagoryData.length - 1)
+                          //   const SizedBox(
+                          //     width: 20,
+                          //   )
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Image.asset('assets/images/divide.png'),
+              const SizedBox(
+                height: 20,
+              ),
+              customRow(
+                  onTap: () {
+                    push(context, const ViewAllAuctionProducts());
+                  },
+                  txt1: "Auction Products",
+                  txt2: "View All",
+                  txt3: "Hurry up! The auction is ending soon."),
+              const SizedBox(
+                height: 20,
+              ),
+              apiProvider.allauctionProductsData == null
+                  ? Center(
+                      child: AppText.appText("Loading...."),
+                    )
+                  : apiProvider.allauctionProductsData.isEmpty
+                      ? Center(
+                          child:
+                              AppText.appText("No Auction Product Added Yet"),
+                        )
+                      : SizedBox(
+                          height: 310,
                           width: screenWidth,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: 5,
+                            itemCount:
+                                apiProvider.allauctionProductsData.length > 4
+                                    ? 4
+                                    : apiProvider.allauctionProductsData.length,
                             itemBuilder: (context, index) {
-                              // Color color = Color(int.parse(apiProvider
-                              //     .catagoryData[index]["color"]
-                              //     .replaceFirst('#', '0xFF')));
-
                               return Padding(
                                 padding: const EdgeInsets.only(left: 20.0),
                                 child: Row(
                                   children: [
                                     GestureDetector(
-                                      onTap: () {
-                                        push(
-                                            context,
-                                            CatagoryProductScreen(
-                                              catId: apiProvider
-                                                  .catagoryData[index]["id"],
-                                              catNAme:
-                                                  "${apiProvider.catagoryData[index]["name"]}",
-                                            ));
-                                      },
-                                      child: CatagoryContainer(
-                                        color:
-                                            apiProvider1.category[index].color,
-                                        img: apiProvider1.category[index].image,
-                                        txt: apiProvider1.category[index].title,
-                                        isList: true,
-                                      ),
-                                    ),
-                                    // if (index ==
-                                    //     apiProvider.catagoryData.length - 1)
-                                    //   const SizedBox(
-                                    //     width: 20,
-                                    //   )
+                                        onTap: () {
+                                          getAuctionProductDetail(
+                                              productId: apiProvider
+                                                      .allauctionProductsData[
+                                                  index]["id"]);
+                                        },
+                                        child: AuctionProductContainer(
+                                          data: apiProvider
+                                              .allauctionProductsData[index],
+                                        )),
+                                    if (index ==
+                                        apiProvider
+                                                .allauctionProductsData.length -
+                                            1)
+                                      const SizedBox(
+                                        width: 20,
+                                      )
                                   ],
                                 ),
                               );
                             },
                           ),
                         ),
-                  const SizedBox(
-                    height: 20,
+              const SizedBox(
+                height: 20,
+              ),
+              customRow(
+                  onTap: () {
+                    push(context, const ViewFeaturedProducts());
+                  },
+                  txt1: "Feature Products",
+                  txt2: "View All",
+                  txt3: "Act fast! These featured products won't last long."),
+              if (apiProvider.allfeatureProductsData == null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: Center(
+                    child: AppText.appText("Loading..."),
                   ),
-                  Image.asset('assets/images/divide.png'),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  customRow(
-                      onTap: () {
-                        push(context, const ViewAllAuctionProducts());
-                      },
-                      txt1: "Auction Products",
-                      txt2: "View All",
-                      txt3: "Hurry up! The auction is ending soon."),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  apiProvider.allauctionProductsData == null
-                      ? Center(
-                          child: AppText.appText("Loading...."),
-                        )
-                      : apiProvider.allauctionProductsData.isEmpty
-                          ? Center(
-                              child: AppText.appText(
-                                  "No Auction Product Added Yet"),
-                            )
-                          : SizedBox(
-                              height: 310,
-                              width: screenWidth,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: apiProvider
-                                            .allauctionProductsData.length >
-                                        4
-                                    ? 4
-                                    : apiProvider.allauctionProductsData.length,
-                                itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(left: 20.0),
-                                    child: Row(
-                                      children: [
-                                        GestureDetector(
-                                            onTap: () {
-                                              getAuctionProductDetail(
-                                                  productId: apiProvider
-                                                          .allauctionProductsData[
-                                                      index]["id"]);
-                                            },
-                                            child: AuctionProductContainer(
-                                              data: apiProvider
-                                                      .allauctionProductsData[
-                                                  index],
-                                            )),
-                                        if (index ==
-                                            apiProvider.allauctionProductsData
-                                                    .length -
-                                                1)
-                                          const SizedBox(
-                                            width: 20,
-                                          )
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  customRow(
-                      onTap: () {
-                        push(context, const ViewFeaturedProducts());
-                      },
-                      txt1: "Feature Products",
-                      txt2: "View All",
-                      txt3:
-                          "Act fast! These featured products won't last long."),
-                  if (apiProvider.allfeatureProductsData == null)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: Center(
-                        child: AppText.appText("Loading..."),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: SizedBox(
+                    child: GridView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        mainAxisSpacing: 25,
+                        crossAxisSpacing: 8,
+                        crossAxisCount: 2,
+                        childAspectRatio: screenWidth / (2.6 * 250),
                       ),
-                    )
-                  else
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: SizedBox(
-                        child: GridView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            mainAxisSpacing: 25,
-                            crossAxisSpacing: 8,
-                            crossAxisCount: 2,
-                            childAspectRatio: screenWidth / (2.6 * 250),
-                          ),
-                          shrinkWrap: true,
-                          itemCount:
-                              apiProvider.allfeatureProductsData.length > 4
-                                  ? 4
-                                  : apiProvider.allfeatureProductsData.length,
-                          itemBuilder: (context, int index) {
-                            return GestureDetector(
-                                onTap: () {
-                                  getFeatureProductDetail(
-                                      productId: apiProvider
-                                          .allfeatureProductsData[index]["id"]);
-                                },
-                                child: FeatureProductContainer(
-                                    data: apiProvider
-                                        .allfeatureProductsData[index]));
-                          },
-                        ),
-                      ),
+                      shrinkWrap: true,
+                      itemCount: apiProvider.allfeatureProductsData.length > 4
+                          ? 4
+                          : apiProvider.allfeatureProductsData.length,
+                      itemBuilder: (context, int index) {
+                        return GestureDetector(
+                            onTap: () {
+                              getFeatureProductDetail(
+                                  productId: apiProvider
+                                      .allfeatureProductsData[index]["id"]);
+                            },
+                            child: FeatureProductContainer(
+                                data:
+                                    apiProvider.allfeatureProductsData[index]));
+                      },
                     ),
-                ],
-              )
+                  ),
+                )
             ],
           ),
         ),

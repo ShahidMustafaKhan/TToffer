@@ -85,7 +85,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       Row(
                         children: [
                           CircleAvatar(
-                            backgroundColor: Colors.transparent,
+                            backgroundColor: Colors.red.shade100,
                             backgroundImage:
                                 getImageUrl(chatList[index]) != null
                                     ? NetworkImage(getImageUrl(chatList[index]))
