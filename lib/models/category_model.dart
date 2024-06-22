@@ -78,6 +78,21 @@ class BlockedUserServices {
           "title": "Animals",
           "image": animal,
           "color": const Color(0xffEAFFAE),
+        },   {
+          "id": 12,
+          "title": "Furniture and home decor",
+          "image": animal,
+          "color": const Color(0xff00ecff),
+        },   {
+          "id": 13,
+          "title": "Fashion (dress) and beauty",
+          "image": animal,
+          "color": const Color(0xff45FF84),
+        },   {
+          "id": 14,
+          "title": "Kids",
+          "image": animal,
+          "color": const Color(0xffEF25B7),
         }
       ],
     };
@@ -108,3 +123,6 @@ String tractor = 'assets/images/tracter.png';
 String paint = 'assets/images/paint.png';
 String suite = 'assets/images/suite.png';
 String animal = 'assets/images/hen.png';
+String fashion = 'assets/images/fashion.png';
+String furniture = 'assets/images/furniture.png';
+String kids = 'assets/images/kids.png';
