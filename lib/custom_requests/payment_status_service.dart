@@ -19,7 +19,7 @@ class PaymentStatusService {
     try {
       var res = await customGetRequest.httpGetRequest(url: 'payment-status');
 
-      if (res['success'] == true && res["data"]["value"] == "1") {
+      if (res['success'] == true && res["data"]["value"] == "0") {
         navigate = true;
         print('object--->${navigate}');
         push(
@@ -34,7 +34,7 @@ class PaymentStatusService {
                 : StripePaymentChargeScreen(
                     selling: selling,
                   ));
-      } else if (res['success'] == true && res["data"]["value"] == "0") {
+      } else if (res['success'] == true && res["data"]["value"] == "1") {
         navigate = false;
         return false;
       }
