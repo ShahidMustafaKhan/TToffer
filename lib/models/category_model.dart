@@ -81,17 +81,17 @@ class BlockedUserServices {
         },   {
           "id": 12,
           "title": "Furniture and home decor",
-          "image": animal,
+          "image": furniture,
           "color": const Color(0xff00ecff),
         },   {
           "id": 13,
           "title": "Fashion (dress) and beauty",
-          "image": animal,
+          "image": fashion,
           "color": const Color(0xff45FF84),
         },   {
           "id": 14,
           "title": "Kids",
-          "image": animal,
+          "image": kids,
           "color": const Color(0xffEF25B7),
         }
       ],

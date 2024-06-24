@@ -132,38 +132,27 @@ class _BottomNavViewState extends State<BottomNavView> {
           floatingActionButtonLocation:
               FloatingActionButtonLocation.miniCenterDocked,
           floatingActionButton: Padding(
-            padding: const EdgeInsets.only(top: 35.0),
-            child: Stack(
-              // overflow: Overflow.visible,
-              alignment: const FractionalOffset(.5, 1.0),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                            color: Colors.green,
-                            width: 5,
-                            style: BorderStyle.solid)),
-                    child: FloatingActionButton(
-                      backgroundColor: Colors.green,
-                      // notchMargin: 24.0,
-                      onPressed: () {
+            padding: const EdgeInsets.only(top: 37.0),
+            child: Container(
+              decoration: const BoxDecoration(color: Colors.white),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  InkWell(
+                      onTap: () {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => PostScreen()));
                       },
-                      child: const Icon(
-                        Icons.add,
-                        size: 30,
-                        color: Colors.white,
-                      ),
-                    ),
+                      child: Image.asset('assets/images/add.png')),
+                  const SizedBox(height: 3),
+                  const Text(
+                    'SELL',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           bottomNavigationBar: BottomAppBar(

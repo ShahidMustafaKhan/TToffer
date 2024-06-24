@@ -167,6 +167,20 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   List<String> ageList = ['1 year'];
   List<String> breedList = ['Husky'];
 
+  String? furnitureType;
+
+  List<String> furnitureList = ['1 seater'];
+
+  String? kids;
+
+  List<String> kidsList = ['Doll'];
+
+  String? fabric;
+  String? suitType;
+
+  List<String> fabricList = ['Cotton'];
+  List<String> suitTypeList = ['Tuxedo'];
+
   @override
   Widget build(BuildContext context) {
     print("object$_selectedCategory");
@@ -223,6 +237,121 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     },
                     title: "Category(required)",
                     selectText: _selectedCategory ?? 'Select Category'),
+
+                _selectedCategory == 'Fashion (dress) and beauty'
+                    ? Column(
+                        children: [
+                          customRow(
+                              onTap: () {
+                                makeSubCategoriesBottom(context);
+                              },
+                              title: 'Subcategories',
+                              selectText: _selectedSubCategory ??
+                                  'Select Subcategories'),
+                          customRow(
+                              onTap: () {
+                                makeFabricTypeBottom(context);
+                              },
+                              title: 'Fabric',
+                              selectText: fabric ?? 'Select Fabric'),
+                          customRow(
+                              onTap: () {
+                                priceRangeBottom(context);
+                              },
+                              title: 'Price',
+                              selectText: priceRangeSelect ?? 'Select Price'),
+                          customRow(
+                              onTap: () {
+                                makeSuitTypeTypeBottom(context);
+                              },
+                              title: 'Suit Type',
+                              selectText: suitType ?? 'Select Suit Type'),
+                          customRow(
+                              onTap: () {
+                                locationTypeBottom(context);
+                              },
+                              title: 'Location',
+                              selectText: locationSelect ?? 'Select Location'),
+                        ],
+                      )
+                    : SizedBox.shrink(),
+
+                _selectedCategory == 'Kids'
+                    ? Column(
+                        children: [
+                          customRow(
+                              onTap: () {
+                                makeSubCategoriesBottom(context);
+                              },
+                              title: 'Subcategories',
+                              selectText: _selectedSubCategory ??
+                                  'Select Subcategories'),
+                          customRow(
+                              onTap: () {
+                                conditionBottom(context);
+                              },
+                              title: 'Condition',
+                              selectText:
+                                  conditionSelect ?? 'Select Condition'),
+                          customRow(
+                              onTap: () {
+                                priceRangeBottom(context);
+                              },
+                              title: 'Price',
+                              selectText: priceRangeSelect ?? 'Select Price'),
+                          customRow(
+                              onTap: () {
+                                makeKidsTypeBottom(context);
+                              },
+                              title: 'Toy',
+                              selectText: kids ?? 'Select Toy'),
+                          customRow(
+                              onTap: () {
+                                locationTypeBottom(context);
+                              },
+                              title: 'Location',
+                              selectText: locationSelect ?? 'Select Location'),
+                        ],
+                      )
+                    : SizedBox.shrink(),
+
+                _selectedCategory == 'Furniture and home decor'
+                    ? Column(
+                        children: [
+                          customRow(
+                              onTap: () {
+                                makeFurnitureTypeBottom(context);
+                              },
+                              title: 'Choose Type',
+                              selectText: furnitureType ?? 'Select Type'),
+                          customRow(
+                              onTap: () {
+                                conditionBottom(context);
+                              },
+                              title: 'Condition',
+                              selectText:
+                                  conditionSelect ?? 'Select Condition'),
+                          customRow(
+                              onTap: () {
+                                priceRangeBottom(context);
+                              },
+                              title: 'Price',
+                              selectText: priceRangeSelect ?? 'Select Price'),
+                          customRow(
+                              onTap: () {
+                                colorTypeBottom(context);
+                              },
+                              title: 'Color',
+                              selectText: colorSelect ?? 'Select Color'),
+                          customRow(
+                              onTap: () {
+                                locationTypeBottom(context);
+                              },
+                              title: 'Location',
+                              selectText: locationSelect ?? 'Select Location'),
+                        ],
+                      )
+                    : SizedBox.shrink(),
 
                 _selectedCategory == 'Animals'
                     ? Column(
@@ -754,7 +883,42 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     });
   }
 
-  //animals
+  Widget _kidsData() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: kidsList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: kids == kidsList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      kids = kidsList[index];
+                    } else {
+                      kids = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(kidsList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  //furniture
 
   Widget _ageType() {
     return StatefulBuilder(builder: (context, setStatee) {
@@ -781,6 +945,43 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 },
               ),
               AppText.appText(ageList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  //animals
+
+  Widget _seaterType() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: furnitureList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: furnitureType == furnitureList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      furnitureType = furnitureList[index];
+                    } else {
+                      furnitureType = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(furnitureList[index],
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   textColor: AppTheme.textColor),
@@ -1171,6 +1372,78 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 },
               ),
               AppText.appText(engineList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  //suits
+
+  Widget _fabric() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: fabricList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: fabric == fabricList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      fabric = fabricList[index];
+                    } else {
+                      fabric = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(fabricList[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _suitType() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: suitTypeList.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: suitType == suitTypeList[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      suitType = suitTypeList[index];
+                    } else {
+                      suitType = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(suitTypeList[index],
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   textColor: AppTheme.textColor),
@@ -1877,6 +2150,29 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         },
       );
     });
+  }
+
+  void makeFabricTypeBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Choose Fabric', _searchController, _fabric(), fabric ?? '');
+  }
+
+  void makeSuitTypeTypeBottom(BuildContext context) {
+    return customBottomSheet(context, 'Choose Suit Type', _searchController,
+        _suitType(), suitType ?? '');
+  }
+
+  //furniture
+
+  void makeFurnitureTypeBottom(BuildContext context) {
+    return customBottomSheet(context, 'Choose Type', _searchController,
+        _seaterType(), furnitureType ?? '');
+  }
+
+  //kids
+  void makeKidsTypeBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Choose Toy', _searchController, _kidsData(), kids ?? '');
   }
 
   //animals
