@@ -132,27 +132,31 @@ class _BottomNavViewState extends State<BottomNavView> {
           floatingActionButtonLocation:
               FloatingActionButtonLocation.miniCenterDocked,
           floatingActionButton: Padding(
-            padding: const EdgeInsets.only(top: 37.0),
-            child: Container(
-              decoration: const BoxDecoration(color: Colors.white),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => PostScreen()));
-                      },
-                      child: Image.asset('assets/images/add.png')),
-                  const SizedBox(height: 3),
-                  const Text(
-                    'SELL',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
+            padding: const EdgeInsets.only(top: 40.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => PostScreen()));
+                  },
+                  child: Container(
+                      decoration: const BoxDecoration(
+                          color: Colors.green, shape: BoxShape.circle),
+                      child: const Padding(
+                        padding: EdgeInsets.all(13.0),
+                        child: Icon(
+                          Icons.add,
+                          shadows: [Shadow(color: Colors.white,offset: Offset(1, 1))],
+                          color: Colors.white,
+                          size: 23,
+                        ),
+                      )),
+                ),
+                const SizedBox(height: 5),
+                 Text('SELL',style: TextStyle(color: AppTheme.appColor,fontWeight: FontWeight.w600),)
+              ],
             ),
           ),
           bottomNavigationBar: BottomAppBar(
@@ -184,7 +188,7 @@ class _BottomNavViewState extends State<BottomNavView> {
                   },
                 ),
                 const Spacer(
-                  flex: 5,
+                  flex: 10,
                 ),
                 BottomNavBarCard(
                   image1: 'assets/images/tag-1.png',

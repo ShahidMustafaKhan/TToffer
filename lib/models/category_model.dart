@@ -51,15 +51,21 @@ class BlockedUserServices {
         },
         {
           "id": 5,
+          "title": "Electronic & Appliance",
+          "image": cam,
+          "color": const Color(0xffEDFFC1),
+        },
+        {
+          "id": 6,
           "title": "Bike",
           "image": bike,
           "color": const Color(0xffFFC656),
         },
         {
           "id": 7,
-          "title": "Business, Industrial",
-          "image": tractor,
-          "color": const Color(0xff9CBA45),
+          "title": "Job",
+          "image": suite,
+          "color": const Color(0xffFFE8BB),
         },
         {
           "id": 8,
@@ -68,28 +74,25 @@ class BlockedUserServices {
           "color": const Color(0xffFFC8BC),
         },
         {
-          "id": 10,
-          "title": "Job",
-          "image": suite,
-          "color": const Color(0xffFFE8BB),
-        },
-        {
-          "id": 11,
+          "id": 9,
           "title": "Animals",
           "image": animal,
           "color": const Color(0xffEAFFAE),
-        },   {
-          "id": 12,
+        },
+        {
+          "id": 10,
           "title": "Furniture and home decor",
           "image": furniture,
           "color": const Color(0xff00ecff),
-        },   {
-          "id": 13,
+        },
+        {
+          "id": 11,
           "title": "Fashion (dress) and beauty",
           "image": fashion,
           "color": const Color(0xff45FF84),
-        },   {
-          "id": 14,
+        },
+        {
+          "id": 12,
           "title": "Kids",
           "image": kids,
           "color": const Color(0xffEF25B7),
@@ -118,7 +121,7 @@ String hut = 'assets/images/hut.png';
 String car = 'assets/images/car.png';
 String rent = 'assets/images/rent.png';
 String cam = 'assets/images/cam.png';
-String bike = 'assets/images/motor.png';
+String bike = 'assets/images/newBike.png';
 String tractor = 'assets/images/tracter.png';
 String paint = 'assets/images/paint.png';
 String suite = 'assets/images/suite.png';

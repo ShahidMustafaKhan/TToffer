@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -162,22 +163,52 @@ class _PostScreenState extends State<PostScreen> {
                             shrinkWrap: true,
                             itemCount: imageProvider.imagePaths.length,
                             itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 10.0, bottom: 10),
-                                child: Container(
-                                  height: 100,
-                                  width: 100,
-                                  decoration: BoxDecoration(
-                                      color: AppTheme.hintTextColor,
-                                      borderRadius: BorderRadius.circular(8),
-                                      image: DecorationImage(
-                                          image: FileImage(
-                                            File(imageProvider
-                                                .imagePaths[index]),
-                                          ) as ImageProvider,
-                                          fit: BoxFit.fill)),
-                                ),
+                              return Stack(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 10.0,
+                                        bottom: 10,
+                                        top: 10,
+                                        right: 5),
+                                    child: Container(
+                                      height: 120,
+                                      width: 100,
+                                      decoration: BoxDecoration(
+                                          color: AppTheme.hintTextColor,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          image: DecorationImage(
+                                              image: FileImage(
+                                                File(imageProvider
+                                                    .imagePaths[index]),
+                                              ) as ImageProvider,
+                                              fit: BoxFit.fill)),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    right: 1,
+                                    top: 1,
+                                    child: InkWell(
+                                      child: Container(
+                                        decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle),
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(3.0),
+                                          child: Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        imageProvider.removeImage(index);
+                                      },
+                                    ),
+                                  )
+                                ],
                               );
                             },
                           ),
@@ -227,7 +258,8 @@ class _PostScreenState extends State<PostScreen> {
                           ),
                       ],
                     )
-                  : widget.selling != null
+                  : widget.selling != null ||
+                          imageProvider.imagePaths.isNotEmpty
                       ? const SizedBox.shrink()
                       : AppText.appText("Add your cover photo first",
                           fontSize: 14,
@@ -266,11 +298,11 @@ class _PostScreenState extends State<PostScreen> {
                           return; // Exit the onTap callback if description is empty
                         }
 
-                        if (_descController.text.length <= 100) {
-                          showSnackBar(context,
-                              "Description must be at least 100 characters");
-                          return; // Exit the onTap callback if description is less than 100 characters
-                        }
+                        // if (_descController.text.length <= 100) {
+                        //   showSnackBar(context,
+                        //       "Description must be at least 100 characters");
+                        //   return; // Exit the onTap callback if description is less than 100 characters
+                        // }
 
                         // If all conditions are met, proceed with adding the product
                         await addProductFirstStep();

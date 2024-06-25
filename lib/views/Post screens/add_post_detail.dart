@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_typing_uninitialized_variables
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
@@ -100,12 +101,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     "Good",
     "Open Box",
     "Refurnished",
-    "For Part or Not Working"
+    // "For Part or Not Working"
   ];
   List<String> priceRange = ["Under\$10,000"];
   List<String> mileage = ['Under 10,000 miles'];
   List<String> fuelType = ['Diesel', 'Petrol'];
-  List<String> color = ['White', 'Black', 'Red'];
+  List<String> color = ['White', 'Black', 'Red', ''];
   List<String> location = ['America'];
 
   bool owner = false;
@@ -119,7 +120,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   String? amenities;
 
   List<String> typePropertyList = ['Apartment'];
-  List<String> bedroomList = ['1 Bedroom'];
+  List<String> bedroomList = ['1','2','3','4','5','6+','Studio'];
   List<String> areaSizeList = ['1,000 sqft'];
   List<String> yearBuiltList = ['2020'];
   List<String> featuresList = ['Apartment'];
@@ -128,8 +129,23 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   String? brand;
   String? storage;
 
-  List<String> brandList = ['Apple'];
-  List<String> storageList = ['32GB'];
+  List<String> brandList = [
+    'Samsung',
+    'Infinix',
+    'Xiaomi',
+    'Motorola',
+    'Huawei',
+    'Apple',
+  ];
+  List<String> storageList = [
+    '32GB',
+    '16GB',
+    '64GB',
+    '128GB',
+    '256GB',
+    '512GB',
+    '1 TB+'
+  ];
 
   String? engineCapacity;
   String? model;
@@ -181,6 +197,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   List<String> fabricList = ['Cotton'];
   List<String> suitTypeList = ['Tuxedo'];
 
+  TextEditingController priceController = TextEditingController();
+  TextEditingController mileAgeController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     print("object$_selectedCategory");
@@ -222,10 +241,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   children: [
                     customCheckBox(owner, (val) {
                       owner = val!;
+                      dealer = false;
                       setState(() {});
                     }, 'Owner'),
                     customCheckBox(dealer, (val) {
                       dealer = val!;
+                      owner = false;
                       setState(() {});
                     }, 'Dealer'),
                   ],
@@ -254,12 +275,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               },
                               title: 'Fabric',
                               selectText: fabric ?? 'Select Fabric'),
-                          customRow(
-                              onTap: () {
-                                priceRangeBottom(context);
-                              },
-                              title: 'Price',
-                              selectText: priceRangeSelect ?? 'Select Price'),
+
+                          PostTextField(
+                              txt: 'Price',
+                              textEditingController: priceController),
+
+                          // customRow(
+                          //     onTap: () {
+                          //       priceRangeBottom(context);
+                          //     },
+                          //     title: 'Price',
+                          //     selectText: priceRangeSelect ?? 'Select Price'),
                           customRow(
                               onTap: () {
                                 makeSuitTypeTypeBottom(context);
@@ -293,12 +319,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               title: 'Condition',
                               selectText:
                                   conditionSelect ?? 'Select Condition'),
-                          customRow(
-                              onTap: () {
-                                priceRangeBottom(context);
-                              },
-                              title: 'Price',
-                              selectText: priceRangeSelect ?? 'Select Price'),
+                          // customRow(
+                          //     onTap: () {
+                          //       priceRangeBottom(context);
+                          //     },
+                          //     title: 'Price',
+                          //     selectText: priceRangeSelect ?? 'Select Price'),
+
+                          PostTextField(
+                              txt: 'Price',
+                              textEditingController: priceController),
+
                           customRow(
                               onTap: () {
                                 makeKidsTypeBottom(context);
@@ -331,12 +362,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               title: 'Condition',
                               selectText:
                                   conditionSelect ?? 'Select Condition'),
-                          customRow(
-                              onTap: () {
-                                priceRangeBottom(context);
-                              },
-                              title: 'Price',
-                              selectText: priceRangeSelect ?? 'Select Price'),
+
+                          PostTextField(
+                              txt: 'Price',
+                              textEditingController: priceController),
+
+                          // customRow(
+                          //     onTap: () {
+                          //       priceRangeBottom(context);
+                          //     },
+                          //     title: 'Price',
+                          //     selectText: priceRangeSelect ?? 'Select Price'),
                           customRow(
                               onTap: () {
                                 colorTypeBottom(context);
@@ -369,12 +405,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               },
                               title: 'Age',
                               selectText: age ?? 'Select Age'),
-                          customRow(
-                              onTap: () {
-                                priceRangeBottom(context);
-                              },
-                              title: 'Price',
-                              selectText: priceRangeSelect ?? 'Select Price'),
+
+                          PostTextField(
+                              txt: 'Price',
+                              textEditingController: priceController),
+
+                          // customRow(
+                          //     onTap: () {
+                          //       priceRangeBottom(context);
+                          //     },
+                          //     title: 'Price',
+                          //     selectText: priceRangeSelect ?? 'Select Price'),
                           customRow(
                               onTap: () {
                                 makeBreedTypeBottom(context);
@@ -464,12 +505,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               title: 'Condition',
                               selectText:
                                   conditionSelect ?? 'Select Condition'),
-                          customRow(
-                              onTap: () {
-                                priceRangeBottom(context);
-                              },
-                              title: 'Price',
-                              selectText: priceRangeSelect ?? 'Select Price'),
+
+                          PostTextField(
+                              txt: 'Price',
+                              textEditingController: priceController),
+
+                          // customRow(
+                          //     onTap: () {
+                          //       priceRangeBottom(context);
+                          //     },
+                          //     title: 'Price',
+                          //     selectText: priceRangeSelect ?? 'Select Price'),
                           customRow(
                               onTap: () {
                                 makeCarBottom(context);
@@ -502,12 +548,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               },
                               title: 'Engine Capacity',
                               selectText: engineCapacity ?? 'Select Capacity'),
-                          customRow(
-                              onTap: () {
-                                priceRangeBottom(context);
-                              },
-                              title: 'Price',
-                              selectText: priceRangeSelect ?? 'Select Price'),
+
+                          PostTextField(
+                              txt: 'Price',
+                              textEditingController: priceController),
+
+                          // customRow(
+                          //     onTap: () {
+                          //       priceRangeBottom(context);
+                          //     },
+                          //     title: 'Price',
+                          //     selectText: priceRangeSelect ?? 'Select Price'),
                           customRow(
                               onTap: () {
                                 makeBikeModelBottom(context);
@@ -540,12 +591,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               title: 'Condition',
                               selectText:
                                   conditionSelect ?? 'Select Condition'),
-                          customRow(
-                              onTap: () {
-                                priceRangeBottom(context);
-                              },
-                              title: 'Price',
-                              selectText: priceRangeSelect ?? 'Select Price'),
+
+                          PostTextField(
+                              txt: 'Price',
+                              textEditingController: priceController),
+
+                          // customRow(
+                          //     onTap: () {
+                          //       priceRangeBottom(context);
+                          //     },
+                          //     title: 'Price',
+                          //     selectText: priceRangeSelect ?? 'Select Price'),
                           customRow(
                               onTap: () {
                                 makeStorageBottom(context);
@@ -583,12 +639,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             },
                             title: 'Bedrooms',
                             selectText: bedrooms ?? 'Select Bedrooms'),
-                        customRow(
-                            onTap: () {
-                              priceRangeBottom(context);
-                            },
-                            title: 'Price',
-                            selectText: priceRangeSelect ?? 'Select Price'),
+
+                        PostTextField(
+                            txt: 'Price',
+                            textEditingController: priceController),
+
+                        // customRow(
+                        //     onTap: () {
+                        //       priceRangeBottom(context);
+                        //     },
+                        //     title: 'Price',
+                        //     selectText: priceRangeSelect ?? 'Select Price'),
                         customRow(
                             onTap: () {
                               areaBottom(context);
@@ -662,26 +723,24 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                       conditionSelect ?? 'Select Condition'),
                           _selectedCategory == null
                               ? const SizedBox.shrink()
-                              : customRow(
-                                  onTap: () {
-                                    priceRangeBottom(context);
-                                  },
-                                  title: _selectedCategory == 'Vehicles'
-                                      ? "Price Range"
-                                      : "",
-                                  selectText:
-                                      priceRangeSelect ?? 'Select Price Range'),
+                              : PostTextField(
+                                  txt: 'Price',
+                                  textEditingController: priceController),
                           _selectedCategory == null
                               ? const SizedBox.shrink()
-                              : customRow(
-                                  onTap: () {
-                                    mileageBottom(context);
-                                  },
-                                  title: _selectedCategory == 'Vehicles'
-                                      ? "Mileage"
-                                      : "",
-                                  selectText:
-                                      mileAgeSelect ?? 'Select Mileage'),
+                              : PostTextField(
+                                  txt: 'Mileage',
+                                  textEditingController: mileAgeController),
+
+                          // customRow(
+                          //         onTap: () {
+                          //           mileageBottom(context);
+                          //         },
+                          //         title: _selectedCategory == 'Vehicles'
+                          //             ? "Mileage"
+                          //             : "",
+                          //         selectText:
+                          //             mileAgeSelect ?? 'Select Mileage'),
                           _selectedCategory == null
                               ? const SizedBox.shrink()
                               : customRow(
@@ -2824,4 +2883,42 @@ Widget customCheckBox(bool val, Function(bool?)? onChanged, String? title) {
       ],
     ),
   );
+}
+
+class PostTextField extends StatefulWidget {
+  String? txt;
+  TextEditingController? textEditingController;
+
+  TextInputType? textInputType;
+
+  PostTextField(
+      {super.key,
+      this.txt,
+      this.textEditingController,
+      this.textInputType = TextInputType.number});
+
+  @override
+  State<PostTextField> createState() => _PostTextFieldState();
+}
+
+class _PostTextFieldState extends State<PostTextField> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        TextField(
+          keyboardType: widget.textInputType,
+          controller: widget.textEditingController,
+          decoration: InputDecoration(
+              labelText: widget.txt,
+              border: InputBorder.none,
+              labelStyle: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.hintTextColor)),
+        ),
+        const CustomDivider()
+      ],
+    );
+  }
 }

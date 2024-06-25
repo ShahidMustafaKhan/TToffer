@@ -25,6 +25,7 @@ import 'package:tt_offer/views/All%20Aucton%20Products/auction_container.dart';
 import 'package:tt_offer/views/All%20Categories/all_caetgories.dart';
 import 'package:tt_offer/views/All%20Categories/catagory_container.dart';
 import 'package:tt_offer/views/All%20Categories/category_products.dart';
+import 'package:tt_offer/views/All%20Categories/sub_categories_screen.dart';
 import 'package:tt_offer/views/All%20Featured%20Products/all_feature_products.dart';
 import 'package:tt_offer/views/All%20Featured%20Products/feature_container.dart';
 import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
@@ -153,6 +154,7 @@ class _LandingScreenState extends State<LandingScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    // final apiProvider = Provider.of<ProductsApiProvider>(context);
     final apiProvider = Provider.of<ProductsApiProvider>(context);
     final profileApi = Provider.of<ProfileApiProvider>(context);
     if (profileApi.profileData != null) {
@@ -298,7 +300,7 @@ class _LandingScreenState extends State<LandingScreen> {
                 width: screenWidth,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: 5,
+                  itemCount: 6,
                   itemBuilder: (context, index) {
                     // Color color = Color(int.parse(apiProvider
                     //     .catagoryData[index]["color"]
@@ -310,14 +312,22 @@ class _LandingScreenState extends State<LandingScreen> {
                         children: [
                           GestureDetector(
                             onTap: () {
+
                               push(
                                   context,
-                                  CatagoryProductScreen(
-                                    catId: apiProvider.catagoryData[index]
-                                        ["id"],
-                                    catNAme:
-                                        "${apiProvider.catagoryData[index]["name"]}",
+                                  SubCategoriesScreen(
+                                    title: apiProvider1.category[index].title,
+                                    id: apiProvider1.category[index].id,
                                   ));
+
+                              // push(
+                              //     context,
+                              //     CatagoryProductScreen(
+                              //       catId: apiProvider.catagoryData[index]
+                              //           ["id"],
+                              //       catNAme:
+                              //           "${apiProvider.catagoryData[index]["name"]}",
+                              //     ));
                             },
                             child: CatagoryContainer(
                               color: apiProvider1.category[index].color,

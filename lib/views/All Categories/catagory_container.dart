@@ -39,8 +39,11 @@ class _CatagoryContainerState extends State<CatagoryContainer> {
                       ? 'Property\n for Sale'
                       : widget.txt == 'Property for Rent'
                           ? 'Property\n for Rent'
-                          : widget.txt,
+                          : widget.txt == 'Electronic & Appliance'
+                              ? 'Electronic\n & Appliance'
+                              : widget.txt,
                   fontSize: 13,
+                  textAlign: TextAlign.center,
                   fontWeight: FontWeight.w600,
                   textColor: AppTheme.textColor),
             ],

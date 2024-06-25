@@ -15,6 +15,11 @@ class ImageNotifyProvider extends ChangeNotifier {
   var vedioPath = "";
   bool isCompressing = false;
 
+  removeImage(int index) {
+    imagePaths.removeAt(index);
+    notifyListeners();
+  }
+
 ////////////////////////////////////////// Image From Camera ///////////////////////////////////////
   ///
 
@@ -48,7 +53,7 @@ class ImageNotifyProvider extends ChangeNotifier {
     for (var pickedFile in pickedFiles) {
       await compressAndAddImage(pickedFile.path);
 
-      newImagePath= pickedFiles.single.path;
+      newImagePath = pickedFiles.single.path;
       notifyListeners();
     }
     isCompressing = false;
