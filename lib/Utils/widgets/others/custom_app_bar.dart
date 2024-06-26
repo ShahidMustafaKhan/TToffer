@@ -6,8 +6,7 @@ import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 
-class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
-  final double preferredHeight = 50.0;
+class CustomAppBar1 extends StatefulWidget implements PreferredSizeWidget {
   final context;
   final title;
   final action;
@@ -21,10 +20,30 @@ class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
       {super.key,
       this.context,
       this.title,
-      this.action,
+      this.action = true,
       this.actionOntap,
       this.img,
       this.leading});
+
+  @override
+  State<CustomAppBar1> createState() => _CustomAppBar1State();
+
+  @override
+  // TODO: implement preferredSize
+  Size get preferredSize => throw UnimplementedError();
+}
+
+class _CustomAppBar1State extends State<CustomAppBar1> {
+  final double preferredHeight = 50.0;
+
+  List<String> data = [
+    'Inappropriate profile picture',
+    'The user is threatening me',
+    'The user is insulting me',
+    'Spam',
+    'Fraud',
+    'Other'
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +55,7 @@ class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
       child: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: leading == false
+        leading: widget.leading == false
             ? const SizedBox.shrink()
             : GestureDetector(
                 onTap: () async {
@@ -58,24 +77,54 @@ class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
                     width: 24,
                   ),
                 )),
-        title: AppText.appText("$title",
+        title: AppText.appText("${widget.title}",
             fontSize: 16,
             fontWeight: FontWeight.w400,
             textColor: const Color(0xff1B2028)),
         centerTitle: true,
         actions: [
-          action == true
-              ? Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: GestureDetector(
-                    onTap: actionOntap,
-                    child: Image.asset(
-                      "${img}",
-                      height: 24,
-                      width: 24,
-                    ),
-                  ),
-                )
+          widget.action == true
+              ? PopupMenuButton(
+                  iconColor: AppTheme.appColor,
+                  // color: AppTheme.appColor,
+                  itemBuilder: (context) {
+                    return [
+                      PopupMenuItem(
+                        child: Text('Report User'),
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) => StatefulBuilder(
+                                      builder: (context, setstates) {
+                                    return AlertDialog(
+                                      content: Column(
+                                        children: [
+                                          // ListView.builder(
+                                          //     itemCount: data.length,
+                                          //     itemBuilder: (context, index) {
+                                          //       return Row(
+                                          //         children: [
+                                          //           Radio(
+                                          //               value: data[index],
+                                          //               groupValue:
+                                          //                   data[index]!,
+                                          //               onChanged: (val) {
+                                          //                 data[index] =
+                                          //                     val.toString();
+                                          //                 setstates(() {});
+                                          //               })
+                                          //         ],
+                                          //       );
+                                          //     })
+                                        ],
+                                      ),
+                                    );
+                                  }));
+                        },
+                      ),
+                      const PopupMenuItem(child: Text('Block User')),
+                    ];
+                  })
               : const SizedBox.shrink()
         ],
       ),
@@ -103,6 +152,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       this.action,
       this.actionOntap,
       this.img});
+
   @override
   Widget build(BuildContext context) {
     return Padding(

@@ -83,10 +83,10 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     super.initState();
   }
 
-  getPaymentStatus() async {
-    await PaymentStatusService()
-        .paymentStatusService(context: context, selling: widget.selling);
-  }
+  // getPaymentStatus() async {
+  //   await PaymentStatusService()
+  //       .paymentStatusService(context: context, selling: widget.selling);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +96,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
         child: _isLoading == true
             ? LoadingDialog()
             : AppButton.appButton("Next", onTap: () async {
-                await getPaymentStatus();
+                // await getPaymentStatus();
                 addProducrPrice();
               },
                 height: 53,
@@ -679,7 +679,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
         });
       } else if (response.statusCode == responseCode200) {
         setState(() {
-          if (navigate == false) {
+          // if (navigate == false) {
             print('newMabigaassa---->${navigate}');
             pushReplacement(
                 context,
@@ -691,7 +691,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
                   amount: int.parse(_priceController.text),
                   title: widget.title,
                 ));
-          }
+          // }
           _isLoading = false;
         });
       }

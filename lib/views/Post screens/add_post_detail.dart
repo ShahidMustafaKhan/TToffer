@@ -41,8 +41,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     await SubCategoriesService().subCategoriesService(context: context);
   }
 
-  String? _selectedCategory;
-  String? _selectedSubCategory;
+  String? _selectedCategory = '';
+  String? _selectedSubCategory = '';
   String _selectedCondition = "";
   var catagoryId;
   var subCatagoryId;
@@ -112,22 +112,22 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   bool owner = false;
   bool dealer = false;
 
-  String? typeProperty;
-  String? bedrooms;
-  String? area;
-  String? yearBuilt;
-  String? features;
-  String? amenities;
+  String? typeProperty = '';
+  String? bedrooms = '';
+  String? area = '';
+  String? yearBuilt = '';
+  String? features = '';
+  String? amenities = '';
 
   List<String> typePropertyList = ['Apartment'];
-  List<String> bedroomList = ['1','2','3','4','5','6+','Studio'];
+  List<String> bedroomList = ['1', '2', '3', '4', '5', '6+', 'Studio'];
   List<String> areaSizeList = ['1,000 sqft'];
   List<String> yearBuiltList = ['2020'];
   List<String> featuresList = ['Apartment'];
   List<String> amenitiesList = ['Apartment'];
 
-  String? brand;
-  String? storage;
+  String? brand = '';
+  String? storage = '';
 
   List<String> brandList = [
     'Samsung',
@@ -147,26 +147,26 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     '1 TB+'
   ];
 
-  String? engineCapacity;
-  String? model;
+  String? engineCapacity = '';
+  String? model = '';
 
   List<String> engineList = ['50cc'];
   List<String> modelList = ['Yamaha R1'];
 
-  String? car;
+  String? car = '';
 
   List<String> carList = ['Corolla'];
 
   //Jobs
 
-  String? jobType;
-  String? experience;
-  String? education;
-  String? salary;
-  String? salaryPeriod;
-  String? companyName;
-  String? possitionType;
-  String? careerLevel;
+  String? jobType = '';
+  String? experience = '';
+  String? education = '';
+  String? salary = '';
+  String? salaryPeriod = '';
+  String? companyName = '';
+  String? possitionType = '';
+  String? careerLevel = '';
 
   List<String> jobTypeList = ['Graphic Design'];
   List<String> experienceList = ['Freshie'];
@@ -177,28 +177,30 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   List<String> possitionTypeList = ['Full Time'];
   List<String> careerLevelList = ['Mid - Senior Level'];
 
-  String? age;
-  String? breed;
+  String? age = '';
+  String? breed = '';
 
   List<String> ageList = ['1 year'];
   List<String> breedList = ['Husky'];
 
-  String? furnitureType;
+  String? furnitureType = '';
 
   List<String> furnitureList = ['1 seater'];
 
-  String? kids;
+  String? kids = '';
 
   List<String> kidsList = ['Doll'];
 
-  String? fabric;
-  String? suitType;
+  String? fabric = '';
+  String? suitType = '';
 
   List<String> fabricList = ['Cotton'];
   List<String> suitTypeList = ['Tuxedo'];
 
   TextEditingController priceController = TextEditingController();
   TextEditingController mileAgeController = TextEditingController();
+
+  String? catId;
 
   @override
   Widget build(BuildContext context) {
@@ -207,6 +209,137 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         builder: (context, category, subCat, _) {
       catModel = category.category;
       subCatModel = subCat.subCategories;
+
+      Map<String, dynamic> mobileJson = {
+        'category_id': catagoryId ?? '',
+        'product_id': widget.productId,
+        'brand': brand ?? '',
+        'condition': conditionSelect ?? '',
+        'price': priceController.text.trim() ?? '',
+        'storage': storage ?? '',
+        'color': colorSelect ?? '',
+        'location': locationSelect ?? '',
+      };
+
+      Map<String, dynamic> propertyForSaleJson = {
+        'category_id': catagoryId ?? '',
+        'product_id': widget.productId,
+        'type': typeProperty ?? '',
+        'bedrooms': bedrooms ?? '',
+        'area': area ?? '',
+        'condition': 'New',
+        'yearBuilt': yearBuilt ?? '',
+        'feature': features ?? '',
+        'Amenities': amenities ?? '',
+        'price': priceController.text.trim() ?? '',
+        'storage': storage ?? '',
+        'location': locationSelect ?? '',
+      };
+
+      Map<String, dynamic> vehiclesJson = {
+        'category_id': catagoryId ?? '',
+        'product_id': widget.productId,
+        'makeAndModel': model ?? '',
+        'year': yearBuilt ?? '',
+        'condition': conditionSelect ?? '',
+        'mileage': mileAgeSelect ?? '',
+        'fuelType': fuelTypeSelect ?? '',
+        'color': colorSelect ?? '',
+        'price': priceController.text.trim() ?? '',
+        'location': locationSelect ?? '',
+      };
+
+      Map<String, dynamic> propertyForRentJson = {
+        'category_id': catagoryId ?? '',
+        'product_id': widget.productId,
+        'type': typeProperty ?? '',
+        'bedrooms': bedrooms ?? '',
+        'area': area ?? '',
+        'condition': 'New',
+        'yearBuilt': yearBuilt ?? '',
+        'feature': features ?? '',
+        'Amenities': amenities ?? '',
+        'price': priceController.text.trim() ?? '',
+        'storage': storage ?? '',
+        'location': locationSelect ?? '',
+      };
+
+      Map<String, dynamic> bikeJson = {
+        'category_id': catagoryId ?? '',
+        'product_id': widget.productId,
+        'subCatId': subCatagoryId ?? '',
+        'condition': 'New',
+        'engineCapacity': engineCapacity ?? '',
+        'model': model ?? '',
+        'price': priceController.text.trim() ?? '',
+        'location': locationSelect ?? '',
+      };
+
+      Map<String, dynamic> jobJson = {
+        'category_id': catagoryId ?? '',
+        'product_id': widget.productId,
+        'type': jobType ?? '',
+        'experience': experience ?? '',
+        'education': education ?? '',
+        'salary': salary ?? '',
+        'condition': 'New',
+        'salaryPeriod': salaryPeriod ?? '',
+        'companyName': companyName ?? '',
+        'possitionType': possitionType ?? '',
+        'carrierLevel': careerLevel ?? '',
+        'location': locationSelect ?? '',
+      };
+
+      Map<String, dynamic> servicesJson = {
+        'category_id': catagoryId ?? '',
+        'product_id': widget.productId,
+        'subcategory': subCatagoryId ?? '',
+        'condition': conditionSelect ?? '',
+        'price': priceController.text.trim() ?? '',
+        'car': car ?? '',
+        'location': locationSelect ?? '',
+      };
+
+      Map<String, dynamic> animalsJson = {
+        'category_id': catagoryId ?? '',
+        'product_id': widget.productId,
+        'condition': 'New',
+        'subcategory': subCatagoryId ?? '',
+        'age': age ?? '',
+        'price': priceController.text.trim() ?? '',
+        'breed': breed ?? '',
+        'location': locationSelect ?? '',
+      };
+      Map<String, dynamic> furnitureJson = {
+        'category_id': catagoryId ?? '',
+        'product_id': widget.productId,
+        'subcategory': subCatagoryId ?? '',
+        'type': furnitureType ?? '',
+        'condition': conditionSelect ?? '',
+        'color': colorSelect ?? '',
+        'price': priceController.text.trim() ?? '',
+        'location': locationSelect ?? '',
+      };
+
+      Map<String, dynamic> fashionJson = {
+        'category_id': catagoryId ?? '',
+        'product_id': widget.productId,
+        'subcategory': subCatagoryId ?? '',
+        'condition': 'New',
+        'fabric': fabric ?? '',
+        'suitType': suitType ?? '',
+        'price': priceController ?? '',
+        'location': locationSelect ?? '',
+      };
+      Map<String, dynamic> kidsJson = {
+        'category_id': catagoryId ?? '',
+        'product_id': widget.productId,
+        'subcategory': subCatagoryId ?? '',
+        'condition': condition ?? '',
+        'toy': kids ?? '',
+        'price': priceController.text.trim() ?? '',
+        'location': locationSelect ?? '',
+      };
 
       return Scaffold(
         appBar: CustomAppBar1(
@@ -619,7 +752,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                 locationTypeBottom(context);
                               },
                               title: 'Location',
-                              selectText: typeProperty ?? 'Select Location'),
+                              selectText: locationSelect ?? 'Select Location'),
                         ],
                       )
                     : const SizedBox.shrink(),
@@ -816,7 +949,34 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 40.0),
                         child: AppButton.appButton("Next", onTap: () {
                           print("object $catagoryId  $subCatagoryId");
-                          addProductDetail();
+                          addProductDetail(_selectedCategory == 'Mobiles'
+                              ? mobileJson
+                              : _selectedCategory == 'Property for Sale'
+                                  ? propertyForSaleJson
+                                  : _selectedCategory == 'Vehicles'
+                                      ? vehiclesJson
+                                      : _selectedCategory == 'Property for Rent'
+                                          ? propertyForRentJson
+                                          : _selectedCategory == 'Bike'
+                                              ? bikeJson
+                                              : _selectedCategory == 'Job'
+                                                  ? jobJson
+                                                  : _selectedCategory ==
+                                                          'Services'
+                                                      ? servicesJson
+                                                      : _selectedCategory ==
+                                                              'Animals'
+                                                          ? animalsJson
+                                                          : _selectedCategory ==
+                                                                  'Furniture and home decor'
+                                                              ? furnitureJson
+                                                              : _selectedCategory ==
+                                                                      'Fashion (dress) and beauty'
+                                                                  ? fashionJson
+                                                                  : _selectedCategory ==
+                                                                          'Kids'
+                                                                      ? kidsJson
+                                                                      : {});
                         },
                             height: 53,
                             fontWeight: FontWeight.w500,
@@ -1716,7 +1876,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 onChanged: (bool? value) {
                   setStatee(() {
                     if (value != null && value) {
-                      typeProperty = makeModel[index];
+                      typeProperty = typePropertyList[index];
                     } else {
                       typeProperty = null;
                     }
@@ -1911,7 +2071,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   //makeModel
 
-  String? selectMakeModel;
+  String? selectMakeModel = '';
 
   Widget _makeModel() {
     return StatefulBuilder(builder: (context, setStatee) {
@@ -1950,7 +2110,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   //yearModel
 
-  String? yearModel;
+  String? yearModel = '';
 
   Widget _yearModel() {
     return StatefulBuilder(builder: (context, setStatee) {
@@ -1989,7 +2149,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   //conditionModel
 
-  String? conditionSelect;
+  String? conditionSelect = '';
 
   Widget _condition() {
     return StatefulBuilder(builder: (context, setStatee) {
@@ -2026,7 +2186,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     });
   }
 
-  String? priceRangeSelect;
+  String? priceRangeSelect = '';
 
   Widget _priceRange() {
     return StatefulBuilder(builder: (context, setStatee) {
@@ -2063,7 +2223,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     });
   }
 
-  String? fuelTypeSelect;
+  String? fuelTypeSelect = '';
 
   Widget _fuelType() {
     return StatefulBuilder(builder: (context, setStatee) {
@@ -2137,7 +2297,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     });
   }
 
-  String? colorSelect;
+  String? colorSelect = '';
 
   Widget _colorBottom() {
     return StatefulBuilder(builder: (context, setStatee) {
@@ -2563,7 +2723,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     }
   }
 
-  void addProductDetail() async {
+  void addProductDetail(Map<String, dynamic> mapData) async {
     setState(() {
       _isLoading = true;
     });
@@ -2588,13 +2748,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       "authenticity": _authenticityController.text,
     };
 
-    print('addPostParams--->${params}');
+    print('addPostParamsNewwewew--->${mapData}');
     try {
       response = await dio.post(
           path: widget.selling != null
               ? AppUrls.updateProductDetail
               : AppUrls.addProductDetail,
-          data: params);
+          data: mapData);
       var responseData = response.data;
       if (response.statusCode == responseCode400) {
         showSnackBar(context, "${responseData["msg"]}");
@@ -2626,6 +2786,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               context,
               SetPostPriceScreen(
                 selling: widget.selling,
+                // productId: widget.productId,
                 productId: widget.productId,
                 title: widget.title,
               ));

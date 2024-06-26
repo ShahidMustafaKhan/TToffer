@@ -101,6 +101,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     return Scaffold(
         backgroundColor: AppTheme.whiteColor,
         appBar: CustomAppBar1(
+
+          action:true,
           title: "${widget.detailResponse["user"]["name"]}'s Profile",
         ),
         body: SingleChildScrollView(
@@ -246,7 +248,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                                 ),
                                               ),
                                             ),
-                                            SizedBox(height: 10),
+                                            const SizedBox(height: 10),
                                             SizedBox(
                                               width: 130,
                                               child: AppText.appText(
@@ -259,7 +261,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                                       AppTheme.textColor),
                                             ),
 
-                                            SizedBox(height: 8),
+                                            const SizedBox(height: 8),
 
                                             AppText.appText(
                                                 "${l.fixPrice != null ? '\$' : ''}${l.auctionPrice ?? l.fixPrice ?? ''}",
@@ -284,27 +286,37 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                             //   ],
                                             // ),
 
-                                            SizedBox(height: l.endingTime==null?0:8),
-                                            l.endingTime==null?SizedBox.shrink(): Row(
-                                              children: [
-                                                Text('Time Left'),
-                                                const Spacer(),
-                                                SizedBox(
-                                                  width: 100,
-                                                  child: AppText.appText(
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    l.endingTime.toString(),
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.w600,
-                                                    textColor:
-                                                        AppTheme.appColor,
+                                            SizedBox(
+                                                height: l.endingTime == null
+                                                    ? 0
+                                                    : 8),
+                                            l.endingTime == null
+                                                ? const SizedBox.shrink()
+                                                : Row(
+                                                    children: [
+                                                      const Text('Time Left'),
+                                                      const Spacer(),
+                                                      SizedBox(
+                                                        width: 100,
+                                                        child: AppText.appText(
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          l.endingTime
+                                                              .toString(),
+                                                          fontSize: 11,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          textColor:
+                                                              AppTheme.appColor,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ),
-                                              ],
-                                            ),
 
-                                            SizedBox(height: l.endingTime==null?0:8),
+                                            SizedBox(
+                                                height: l.endingTime == null
+                                                    ? 0
+                                                    : 8),
 
                                             AppButton.appButton("Bid Now",
                                                 onTap: () {
