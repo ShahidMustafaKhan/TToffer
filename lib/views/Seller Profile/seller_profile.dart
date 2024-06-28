@@ -1,8 +1,11 @@
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:dialogs/dialogs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
@@ -96,7 +99,6 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     }
   }
 
-
   List<String> dataRequest = [
     'Inappropriate profile picture',
     'The user is threatening me',
@@ -106,7 +108,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     'Other'
   ];
 
-  String?  selectData;
+  String? selectData;
 
   @override
   Widget build(BuildContext context) {
@@ -129,6 +131,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                             context: context,
                             builder: (context) {
                               return AlertDialog(
+                                backgroundColor: Colors.white,
+                                surfaceTintColor: AppTheme.white,
                                 title: const Text(
                                   'Do you want to block this user?',
                                   style: TextStyle(fontSize: 16),
@@ -136,21 +140,165 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                 actions: [
                                   TextButton(
                                       onPressed: () {},
-                                      child: const Text('No')),
+                                      child: Text(
+                                        'No',
+                                        style:
+                                            TextStyle(color: AppTheme.appColor),
+                                      )),
                                   TextButton(
                                       onPressed: () {},
-                                      child: const Text('Yes')),
+                                      child: Text('Yes',
+                                          style: TextStyle(
+                                              color: AppTheme.appColor))),
                                 ],
                               );
                             });
                       },
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
+                      padding:
+                          const EdgeInsets.only(right: 60, left: 10, bottom: 0),
+                      value: 2,
+                      child: const Text('Report User'),
+                      onTap: () {
+                        showModalBottomSheet(
+                            backgroundColor: Colors.transparent,
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (context) =>
+                                StatefulBuilder(builder: (context, setstates) {
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                        bottom: MediaQuery.of(context)
+                                            .viewInsets
+                                            .bottom),
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                          borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(20),
+                                              topRight: Radius.circular(20)),
+                                          color: Colors.white),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const SizedBox(height: 10),
+                                              const Padding(
+                                                padding:
+                                                    EdgeInsets.only(left: 25.0),
+                                                child: Text('Report User',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 27)),
+                                              ),
+                                              const SizedBox(height: 15),
+                                              for (int i = 0;
+                                                  i < dataRequest.length;
+                                                  i++)
+                                                Row(
+                                                  children: [
+                                                    Checkbox(
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          20)),
+                                                      value: selectData ==
+                                                          dataRequest[i],
+                                                      onChanged: (val) {
+                                                        selectData =
+                                                            dataRequest[i];
 
-                        padding:
-                            EdgeInsets.only(right: 60, left: 10, bottom: 0),
-                        value: 2,
-                        child: Text('Report User')),
+                                                        setstates(() {});
+                                                      },
+                                                      activeColor:
+                                                          AppTheme.appColor,
+                                                      side: const BorderSide(
+                                                          width: .5),
+                                                    ),
+                                                    const SizedBox(width: 10),
+                                                    AppText.appText(
+                                                        dataRequest[i],
+                                                        fontSize: 16)
+                                                  ],
+                                                ),
+                                              SizedBox(height: 8),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 18.0),
+                                                child: Container(
+                                                  height: 100,
+                                                  decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                          color:
+                                                              Colors.black54),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8)),
+                                                  child: const TextField(
+                                                    decoration: InputDecoration(
+                                                        hintText: 'Comment',
+                                                        border:
+                                                            InputBorder.none,
+                                                        contentPadding:
+                                                            EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        10,
+                                                                    vertical:
+                                                                        7)),
+                                                    maxLines: 5,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(height: 3),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  TextButton(
+                                                    onPressed: () {},
+                                                    child: Text(
+                                                      'Cancel',
+                                                      style: TextStyle(
+                                                          color:
+                                                              AppTheme.appColor,
+                                                          decoration:
+                                                              TextDecoration
+                                                                  .underline),
+                                                    ),
+                                                  ),
+                                                  TextButton(
+                                                      onPressed: () {},
+                                                      child: Text(
+                                                        'Send',
+                                                        style: TextStyle(
+                                                            color: AppTheme
+                                                                .appColor,
+                                                            decoration:
+                                                                TextDecoration
+                                                                    .underline),
+                                                      )),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }));
+                      },
+                    ),
                   ];
                 })
           ],

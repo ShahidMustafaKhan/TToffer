@@ -21,13 +21,10 @@ class _SearchPageLocationState extends State<SearchPageLocation> {
           children: [
             GooglePlaceAutoCompleteTextField(
               textEditingController: controller,
-              googleAPIKey: "AIzaSyAeMHQSxtA784YTtFP8vhydNsvXztzY23w",
+              googleAPIKey: "AIzaSyBZft6faojDE1C5Q-UmMnUS7LLAtUIzDJo",
               inputDecoration: const InputDecoration(),
 
-              // debounceTime: 800 // default 600 ms,
-              // countries: ["in", "fr"], // optional by default null is set
-              // isLatLngRequired: true,
-              // if you required coordinates from place detail
+
               getPlaceDetailWithLatLng: (Prediction prediction) {
                 // this method will return latlng with place detail
                 print("placeDetails${prediction.lng}");

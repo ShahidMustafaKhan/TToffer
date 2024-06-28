@@ -255,7 +255,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       Map<String, dynamic> propertyForRentJson = {
         'category_id': catagoryId ?? '',
         'category_name': _selectedCategory ?? '',
-
         'product_id': widget.productId,
         'type': typeProperty ?? '',
         'bedrooms': bedrooms ?? '',

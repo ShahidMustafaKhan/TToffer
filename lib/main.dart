@@ -30,7 +30,7 @@ import 'package:tt_offer/providers/payment_fee_provider.dart';
 import 'package:tt_offer/providers/profile_info_provider.dart';
 import 'package:tt_offer/providers/search_provider.dart';
 import 'package:tt_offer/providers/selling_purchase_provider.dart';
-import 'package:tt_offer/search_page.dart';
+import 'package:tt_offer/search_location_page.dart';
 import 'package:tt_offer/splash_screen.dart';
 import 'package:tt_offer/views/Authentication%20screens/GoogleSignIn/google_signin_provider.dart';
 import 'package:tt_offer/views/SearchPage/search_page.dart';
