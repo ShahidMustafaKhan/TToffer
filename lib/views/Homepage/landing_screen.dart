@@ -35,8 +35,6 @@ import 'package:tt_offer/views/Homepage/home_app_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/views/SearchPage/search_page.dart';
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
-import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -101,15 +99,6 @@ class _LandingScreenState extends State<LandingScreen> {
 
     log("pref.getString(PrefKey.userId) = ${pref.getString(PrefKey.userId)}");
     log("pref.getString(PrefKey.userName) = ${pref.getString(PrefKey.userName)}");
-    ZegoUIKitPrebuiltCallInvitationService().init(
-      appID: appID,
-      appSign: appSign,
-
-      userID: pref.getString(PrefKey.userId) ?? "0",
-      userName: pref.getString(PrefKey.userName) ?? "",
-      // ringtoneConfig: ZegoCallRingtoneConfig(),
-      plugins: [ZegoUIKitSignalingPlugin()],
-    );
 
     super.initState();
   }
@@ -522,8 +511,6 @@ class _LandingScreenState extends State<LandingScreen> {
     try {
       response = await dio.post(path: AppUrls.getAuctionProducts, data: params);
       var responseData = response.data;
-
-
 
       if (response.statusCode == responseCode400) {
         showSnackBar(context, "${responseData["msg"]}");

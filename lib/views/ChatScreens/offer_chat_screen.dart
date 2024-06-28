@@ -24,7 +24,6 @@ import 'package:tt_offer/models/chat_model.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
 import 'package:tt_offer/utils/widgets/loading_popup.dart';
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class OfferChatScreen extends StatefulWidget {
   final String? userImgUrl;
@@ -140,32 +139,6 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
       appBar: ChatAppBar(
         img: widget.userImgUrl,
         title: widget.title,
-        action: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: SizedBox(
-                width: 30,
-                height: 30,
-                child: Center(
-                  child: CallButtonWidget(
-                    id: nextUserId,
-                    name: nextUserName,
-                  ),
-                )),
-          ),
-
-          // Padding(
-          //   padding: const EdgeInsets.only(right: 20),
-          //   child: GestureDetector(
-          //     onTap: () {},
-          //     child: Image.asset(
-          //       "assets/images/callCalling.png",
-          //       height: 24,
-          //       width: 24,
-          //     ),
-          //   ),
-          // ),
-        ],
       ),
       body: GestureDetector(
         onTap: () {
@@ -816,42 +789,5 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
       //   showSnackBar(context, "Offer could not be placed");
       // }
     }
-  }
-}
-
-class CallButtonWidget extends StatelessWidget {
-  int id;
-  String name;
-  CallButtonWidget({
-    super.key,
-    required this.id,
-    required this.name,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    log("receiver id = $id");
-    log("receiver name = $name");
-    return ZegoSendCallInvitationButton(
-      // key: navigatorKey,
-
-      // borderRadius: 30,
-      iconSize: const Size.fromRadius(15),
-      // buttonSize: Size.fromWidth(20),
-      isVideoCall: false,
-      verticalLayout: true,
-      resourceID: "ttoffer_resource_id",
-      invitees: [
-        ZegoUIKitUser(
-          id: id.toString(),
-          name: name,
-        ),
-
-        // ZegoUIKitUser(
-        //   id: "222",
-        //   name: "ikram",
-        // )
-      ],
-    );
   }
 }

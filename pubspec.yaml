@@ -67,8 +67,8 @@ dependencies:
   intl_phone_number_input: ^0.7.4
   pinput: ^4.0.0
   flutter_stripe: ^10.1.1
-  zego_uikit_prebuilt_call: ^4.9.0
-  zego_uikit_signaling_plugin: ^2.7.6
+  # zego_uikit_prebuilt_call: ^4.9.0
+  # zego_uikit_signaling_plugin: ^2.7.6
   timeago: ^3.6.1
   flutter_local_notifications: ^17.1.2
   firebase_messaging: ^14.9.2
