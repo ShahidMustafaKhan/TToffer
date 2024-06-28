@@ -24,6 +24,7 @@ import 'package:tt_offer/models/chat_model.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
 import 'package:tt_offer/utils/widgets/loading_popup.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OfferChatScreen extends StatefulWidget {
   final String? userImgUrl;
@@ -139,6 +140,25 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
       appBar: ChatAppBar(
         img: widget.userImgUrl,
         title: widget.title,
+        actionOntap: () {
+          log("actionOntap is fired");
+        },
+        action: [
+          InkWell(
+            onTap: () async {
+              var url = Uri.parse("tel:+923414044446");
+
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url);
+              }
+            },
+            child: Image.asset(
+              "assets/images/callCalling.png",
+              height: 24,
+              width: 24,
+            ),
+          )
+        ],
       ),
       body: GestureDetector(
         onTap: () {
