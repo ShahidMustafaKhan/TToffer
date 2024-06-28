@@ -20,6 +20,7 @@ class _SearchPageLocationState extends State<SearchPageLocation> {
         child: Column(
           children: [
             GooglePlaceAutoCompleteTextField(
+
               textEditingController: controller,
               googleAPIKey: "AIzaSyBZft6faojDE1C5Q-UmMnUS7LLAtUIzDJo",
               inputDecoration: const InputDecoration(),

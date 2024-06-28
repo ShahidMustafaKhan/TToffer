@@ -15,8 +15,10 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
+import 'package:tt_offer/custom_requests/bolck_user_service.dart';
 import 'package:tt_offer/custom_requests/user_info_service.dart';
 import 'package:tt_offer/main.dart';
+import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/selling_serach_model.dart';
 import 'package:tt_offer/models/user_info_model.dart';
 import 'package:tt_offer/providers/profile_info_provider.dart';
@@ -110,6 +112,19 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
 
   String? selectData;
 
+  blockUserHandler(bool report, setstaet) async {
+    setstaet(() {
+      loader = true;
+    });
+
+    await BlockdeUserService().blockUserService(
+        context: context, id: widget.detailResponse['user_id'], report: report);
+
+    setstaet(() {
+      loader = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,28 +145,39 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                         showDialog(
                             context: context,
                             builder: (context) {
-                              return AlertDialog(
-                                backgroundColor: Colors.white,
-                                surfaceTintColor: AppTheme.white,
-                                title: const Text(
-                                  'Do you want to block this user?',
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () {},
-                                      child: Text(
-                                        'No',
-                                        style:
-                                            TextStyle(color: AppTheme.appColor),
-                                      )),
-                                  TextButton(
-                                      onPressed: () {},
-                                      child: Text('Yes',
+                              return StatefulBuilder(
+                                  builder: (context, setsts) {
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  surfaceTintColor: AppTheme.white,
+                                  title: const Text(
+                                    'Do you want to block this user?',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () {},
+                                        child: Text(
+                                          'No',
                                           style: TextStyle(
-                                              color: AppTheme.appColor))),
-                                ],
-                              );
+                                              color: AppTheme.appColor),
+                                        )),
+                                    loader
+                                        ? CupertinoActivityIndicator(
+                                            color: AppTheme.appColor,
+                                            animating: true,
+                                            radius: 12,
+                                          )
+                                        : TextButton(
+                                            onPressed: () {
+                                              blockUserHandler(false, setsts);
+                                            },
+                                            child: Text('Yes',
+                                                style: TextStyle(
+                                                    color: AppTheme.appColor))),
+                                  ],
+                                );
+                              });
                             });
                       },
                     ),
@@ -230,7 +256,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                                         fontSize: 16)
                                                   ],
                                                 ),
-                                              SizedBox(height: 8),
+                                              const SizedBox(height: 8),
                                               Padding(
                                                 padding:
                                                     const EdgeInsets.symmetric(
@@ -260,7 +286,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                                   ),
                                                 ),
                                               ),
-                                              SizedBox(height: 3),
+                                              const SizedBox(height: 3),
                                               Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.end,
@@ -277,17 +303,28 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                                                   .underline),
                                                     ),
                                                   ),
-                                                  TextButton(
-                                                      onPressed: () {},
-                                                      child: Text(
-                                                        'Send',
-                                                        style: TextStyle(
-                                                            color: AppTheme
-                                                                .appColor,
-                                                            decoration:
-                                                                TextDecoration
-                                                                    .underline),
-                                                      )),
+                                                  loader
+                                                      ? CupertinoActivityIndicator(
+                                                          color:
+                                                              AppTheme.appColor,
+                                                          animating: true,
+                                                          radius: 12,
+                                                        )
+                                                      : TextButton(
+                                                          onPressed: () {
+                                                            blockUserHandler(
+                                                                true,
+                                                                setstates);
+                                                          },
+                                                          child: Text(
+                                                            'Send',
+                                                            style: TextStyle(
+                                                                color: AppTheme
+                                                                    .appColor,
+                                                                decoration:
+                                                                    TextDecoration
+                                                                        .underline),
+                                                          )),
                                                 ],
                                               )
                                             ],
