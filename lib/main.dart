@@ -34,8 +34,6 @@ import 'package:tt_offer/search_location_page.dart';
 import 'package:tt_offer/splash_screen.dart';
 import 'package:tt_offer/views/Authentication%20screens/GoogleSignIn/google_signin_provider.dart';
 import 'package:tt_offer/views/SearchPage/search_page.dart';
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
-import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 String? title;
 String? imagePath;
@@ -72,23 +70,16 @@ Future<void> main() async {
   HttpOverrides.global = MyHttpOverrides();
 
   WidgetsFlutterBinding.ensureInitialized();
-  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
   Stripe.publishableKey =
       "pk_test_51O7mVXJayAXqf3Vq8gnj64IGw9woyYdaSUTgkdh07uYy22MN6qg8VEMzJZvhdV4HnANed3rqsN4crMBBy6CkH8eo00u6HHRwj0";
   //my "pk_test_51JUUldDdNsnMpgdhSlxjCo0yQBGHy9RsTQojb3YENwH5llfYiEmqqFjkc6SmsSQpLb9BH40OKQb0fwTlfifqJhFd00Cy7xTNwd";
   await Stripe.instance.applySettings();
-  ZegoUIKit().initLog().then((value) {
-    ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
-      [ZegoUIKitSignalingPlugin()],
-    );
-
     Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     ).then((value) {
       log("initializeApp");
       runApp(const MyApp());
     });
-  });
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

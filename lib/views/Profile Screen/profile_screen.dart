@@ -24,7 +24,6 @@ import 'package:tt_offer/views/Profile%20Screen/saved_products.dart';
 import 'package:tt_offer/views/Sellings/selling_purchase.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -109,7 +108,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   SharedPreferences pref =
                       await SharedPreferences.getInstance();
                   pref.clear();
-                  await ZegoUIKitPrebuiltCallInvitationService().uninit();
                   pushUntil(context, const SigInScreen());
                 },
                 child: Image.asset(
