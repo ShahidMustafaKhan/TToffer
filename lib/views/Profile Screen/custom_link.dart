@@ -38,7 +38,7 @@ class _CustomLinkScreenState extends State<CustomLinkScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
-      appBar: const CustomAppBar1(
+      appBar: CustomAppBar1(
         title: "Custom Link",
       ),
       body: Padding(

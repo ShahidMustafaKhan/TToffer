@@ -26,7 +26,7 @@ class _PostingPaymentScreenState extends State<PostingPaymentScreen> {
     print("object${isSelectedList[0]}");
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
-      appBar: const CustomAppBar1(
+      appBar: CustomAppBar1(
         title: "Payment",
       ),
       body: Padding(

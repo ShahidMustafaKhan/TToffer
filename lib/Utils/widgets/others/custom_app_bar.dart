@@ -6,127 +6,67 @@ import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 
-class CustomAppBar1 extends StatefulWidget implements PreferredSizeWidget {
+class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
+  final double preferredHeight = 50.0;
   final context;
   final title;
   final action;
   final actionOntap;
   final img;
+  List<Widget>?widget=[];
+
   final bool? leading;
 
   // Callback function
 
-  const CustomAppBar1(
-      {super.key,
-      this.context,
-      this.title,
-      this.action = true,
-      this.actionOntap,
-      this.img,
-      this.leading});
-
-  @override
-  State<CustomAppBar1> createState() => _CustomAppBar1State();
-
-  @override
-  // TODO: implement preferredSize
-  Size get preferredSize => throw UnimplementedError();
-}
-
-class _CustomAppBar1State extends State<CustomAppBar1> {
-  final double preferredHeight = 50.0;
-
-  List<String> data = [
-    'Inappropriate profile picture',
-    'The user is threatening me',
-    'The user is insulting me',
-    'Spam',
-    'Fraud',
-    'Other'
-  ];
+   CustomAppBar1({super.key,
+    this.context,
+    this.title,
+    this.action,
+    this.actionOntap,
+    this.widget,
+    this.img,
+    this.leading});
 
   @override
   Widget build(BuildContext context) {
     late AppDio dio;
     AppLogger logger = AppLogger();
 
+
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: widget.leading == false
+        leading: leading == false
             ? const SizedBox.shrink()
             : GestureDetector(
-                onTap: () async {
-                  // dio = AppDio(context);
-                  // logger.init();
-                  // final profileApi =
-                  // Provider.of<ProfileApiProvider>(context, listen: false);
-                  // await profileApi.getProfile(
-                  //   dio: dio,
-                  //   context: context,
-                  // );
-                  Navigator.pop(context);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Image.asset(
-                    "assets/images/arrow-left.png",
-                    height: 24,
-                    width: 24,
-                  ),
-                )),
-        title: AppText.appText("${widget.title}",
+            onTap: () async {
+              // dio = AppDio(context);
+              // logger.init();
+              // final profileApi =
+              // Provider.of<ProfileApiProvider>(context, listen: false);
+              // await profileApi.getProfile(
+              //   dio: dio,
+              //   context: context,
+              // );
+              Navigator.pop(context);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Image.asset(
+                "assets/images/arrow-left.png",
+                height: 24,
+                width: 24,
+              ),
+            )),
+        title: AppText.appText("$title",
             fontSize: 16,
             fontWeight: FontWeight.w400,
             textColor: const Color(0xff1B2028)),
         centerTitle: true,
-        actions: [
-          widget.action == true
-              ? PopupMenuButton(
-                  iconColor: AppTheme.appColor,
-                  // color: AppTheme.appColor,
-                  itemBuilder: (context) {
-                    return [
-                      PopupMenuItem(
-                        child: Text('Report User'),
-                        onTap: () {
-                          showDialog(
-                              context: context,
-                              builder: (context) => StatefulBuilder(
-                                      builder: (context, setstates) {
-                                    return AlertDialog(
-                                      content: Column(
-                                        children: [
-                                          // ListView.builder(
-                                          //     itemCount: data.length,
-                                          //     itemBuilder: (context, index) {
-                                          //       return Row(
-                                          //         children: [
-                                          //           Radio(
-                                          //               value: data[index],
-                                          //               groupValue:
-                                          //                   data[index]!,
-                                          //               onChanged: (val) {
-                                          //                 data[index] =
-                                          //                     val.toString();
-                                          //                 setstates(() {});
-                                          //               })
-                                          //         ],
-                                          //       );
-                                          //     })
-                                        ],
-                                      ),
-                                    );
-                                  }));
-                        },
-                      ),
-                      const PopupMenuItem(child: Text('Block User')),
-                    ];
-                  })
-              : const SizedBox.shrink()
-        ],
+        actions: widget
       ),
     );
   }
@@ -145,13 +85,12 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   // Callback function
 
-  const ChatAppBar(
-      {super.key,
-      this.context,
-      this.title,
-      this.action,
-      this.actionOntap,
-      this.img});
+  const ChatAppBar({super.key,
+    this.context,
+    this.title,
+    this.action,
+    this.actionOntap,
+    this.img});
 
   @override
   Widget build(BuildContext context) {

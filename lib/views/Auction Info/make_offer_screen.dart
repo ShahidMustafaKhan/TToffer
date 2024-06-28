@@ -51,7 +51,7 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
     final chatApiProvider = Provider.of<ChatApiProvider>(context);
     final screenSize = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: const CustomAppBar1(
+      appBar:  CustomAppBar1(
         title: "Make Your Offer",
       ),
       body: Padding(

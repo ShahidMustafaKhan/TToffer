@@ -50,7 +50,7 @@ class _AccountEditInfoScreenState extends State<UpdateForgotPassordScreen> {
       },
       child: Scaffold(
         backgroundColor: AppTheme.whiteColor,
-        appBar: const CustomAppBar1(
+        appBar:  CustomAppBar1(
           title: "Change Password",
         ),
         body: Padding(

@@ -80,6 +80,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   late AppDio dio;
   AppLogger logger = AppLogger();
 
+
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -97,12 +99,11 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       },
       child: Scaffold(
         backgroundColor: AppTheme.whiteColor,
-        appBar: const CustomAppBar1(title: 'Email Verification'),
+        appBar: CustomAppBar1(title: 'Email Verification'),
         body: SafeArea(
           child: Center(
             child: otpModel == null || otpModel!.otp == null
                 ? Column(
-
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
@@ -110,7 +111,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                         scale: 1.5,
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15.0, vertical: 5),
                         child: Align(
                           alignment: Alignment.topLeft,
                           child: AppText.appText("Your Email",

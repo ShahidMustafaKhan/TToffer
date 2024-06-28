@@ -21,7 +21,7 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
     final profileApi = Provider.of<ProfileApiProvider>(context);
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
-      appBar: const CustomAppBar1(
+      appBar: CustomAppBar1(
         title: "Account Setting",
       ),
       body: Padding(

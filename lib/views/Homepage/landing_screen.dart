@@ -14,6 +14,7 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/custom_requests/search_service.dart';
+import 'package:tt_offer/detail_model/property_for_sale_model.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
@@ -312,7 +313,6 @@ class _LandingScreenState extends State<LandingScreen> {
                         children: [
                           GestureDetector(
                             onTap: () {
-
                               push(
                                   context,
                                   SubCategoriesScreen(
@@ -522,6 +522,9 @@ class _LandingScreenState extends State<LandingScreen> {
     try {
       response = await dio.post(path: AppUrls.getAuctionProducts, data: params);
       var responseData = response.data;
+
+
+
       if (response.statusCode == responseCode400) {
         showSnackBar(context, "${responseData["msg"]}");
         setState(() {

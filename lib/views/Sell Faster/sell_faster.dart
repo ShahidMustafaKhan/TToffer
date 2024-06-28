@@ -58,7 +58,7 @@ class _SellFasterState extends State<SellFaster> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar1(
+      appBar: CustomAppBar1(
         title: "Sell Faster",
       ),
       body: Padding(

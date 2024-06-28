@@ -15,7 +15,7 @@ class _BoostWorkScreenState extends State<BoostWorkScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar1(
+      appBar: CustomAppBar1(
         title: "Boost My Listing",
       ),
       body: Padding(

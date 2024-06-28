@@ -78,7 +78,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Consumer<SearchProvider>(builder: (context, data, _) {
       return Scaffold(
-        appBar: const CustomAppBar1(title: 'Searched Items'),
+        appBar: CustomAppBar1(title: 'Searched Items'),
         body: SafeArea(
             child: Padding(
           padding: const EdgeInsets.all(8.0),

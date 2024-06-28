@@ -212,6 +212,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       Map<String, dynamic> mobileJson = {
         'category_id': catagoryId ?? '',
+        'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'brand': brand ?? '',
         'condition': conditionSelect ?? '',
@@ -223,6 +224,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       Map<String, dynamic> propertyForSaleJson = {
         'category_id': catagoryId ?? '',
+        'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'type': typeProperty ?? '',
         'bedrooms': bedrooms ?? '',
@@ -238,6 +240,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       Map<String, dynamic> vehiclesJson = {
         'category_id': catagoryId ?? '',
+        'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'makeAndModel': model ?? '',
         'year': yearBuilt ?? '',
@@ -251,6 +254,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       Map<String, dynamic> propertyForRentJson = {
         'category_id': catagoryId ?? '',
+        'category_name': _selectedCategory ?? '',
+
         'product_id': widget.productId,
         'type': typeProperty ?? '',
         'bedrooms': bedrooms ?? '',
@@ -266,6 +271,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       Map<String, dynamic> bikeJson = {
         'category_id': catagoryId ?? '',
+        'category_name': _selectedCategory ?? '',
+
         'product_id': widget.productId,
         'subCatId': subCatagoryId ?? '',
         'condition': 'New',
@@ -277,6 +284,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       Map<String, dynamic> jobJson = {
         'category_id': catagoryId ?? '',
+        'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'type': jobType ?? '',
         'experience': experience ?? '',
@@ -292,6 +300,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       Map<String, dynamic> servicesJson = {
         'category_id': catagoryId ?? '',
+        'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'subcategory': subCatagoryId ?? '',
         'condition': conditionSelect ?? '',
@@ -302,6 +311,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       Map<String, dynamic> animalsJson = {
         'category_id': catagoryId ?? '',
+        'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'condition': 'New',
         'subcategory': subCatagoryId ?? '',
@@ -312,6 +322,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       };
       Map<String, dynamic> furnitureJson = {
         'category_id': catagoryId ?? '',
+        'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'subcategory': subCatagoryId ?? '',
         'type': furnitureType ?? '',
@@ -323,16 +334,18 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       Map<String, dynamic> fashionJson = {
         'category_id': catagoryId ?? '',
+        'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'subcategory': subCatagoryId ?? '',
         'condition': 'New',
         'fabric': fabric ?? '',
         'suitType': suitType ?? '',
-        'price': priceController ?? '',
+        'price': priceController.text ?? '',
         'location': locationSelect ?? '',
       };
       Map<String, dynamic> kidsJson = {
         'category_id': catagoryId ?? '',
+        'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'subcategory': subCatagoryId ?? '',
         'condition': condition ?? '',

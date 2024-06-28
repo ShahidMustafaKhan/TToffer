@@ -15,6 +15,8 @@ import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
+import 'package:tt_offer/detail_model/property_for_sale_model.dart';
+import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/auction_container.dart';
 import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
 
@@ -63,7 +65,7 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
     final apiProvider = Provider.of<ProductsApiProvider>(context);
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
-      appBar: const CustomAppBar1(
+      appBar:  CustomAppBar1(
         title: "Auction Products",
       ),
       body: SingleChildScrollView(
@@ -659,6 +661,12 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
       } else if (response.statusCode == responseCode200) {
         setState(() {
           var detailResponse = responseData["data"];
+
+          // PropertyAttributes propertyAttributes =
+          //     PropertyAttributes.fromJson(detailResponse);
+          //
+          // globalData = propertyAttributes;
+
           push(
               context,
               AuctionInfoScreen(

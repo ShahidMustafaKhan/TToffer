@@ -72,6 +72,7 @@ dependencies:
   timeago: ^3.6.1
   flutter_local_notifications: ^17.1.2
   firebase_messaging: ^14.9.2
+  google_places_flutter: ^2.0.8
 
   
 flutter_icons:

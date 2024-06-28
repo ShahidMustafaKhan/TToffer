@@ -40,7 +40,7 @@ class _PostProductPaymentState extends State<PostProductPayment> {
     final imageProvider = Provider.of<ImageNotifyProvider>(context);
 
     return Scaffold(
-      appBar: const CustomAppBar1(
+      appBar: CustomAppBar1(
         title: "Post Product Payment",
       ),
       body: Padding(

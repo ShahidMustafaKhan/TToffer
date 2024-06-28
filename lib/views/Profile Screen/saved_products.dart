@@ -44,7 +44,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
-      appBar: const CustomAppBar1(
+      appBar: CustomAppBar1(
         title: "Saved items",
       ),
       body: Padding(

@@ -87,7 +87,7 @@ class _StripePaymentChargeScreenState extends State<StripePaymentChargeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar1(
+      appBar: CustomAppBar1(
         title: 'Payment for Product Listing',
       ),
       body: Padding(

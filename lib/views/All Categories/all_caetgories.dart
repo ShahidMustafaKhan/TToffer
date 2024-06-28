@@ -42,7 +42,7 @@ class _AllCategoriesState extends State<AllCategories> {
 
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
-      appBar: const CustomAppBar1(
+      appBar: CustomAppBar1(
         title: "All Categories",
       ),
       body: ListView.builder(

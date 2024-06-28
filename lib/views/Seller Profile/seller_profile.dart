@@ -96,13 +96,65 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     }
   }
 
+
+  List<String> dataRequest = [
+    'Inappropriate profile picture',
+    'The user is threatening me',
+    'The user is insulting me',
+    'Spam',
+    'Fraud',
+    'Other'
+  ];
+
+  String?  selectData;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppTheme.whiteColor,
         appBar: CustomAppBar1(
+          widget: [
+            PopupMenuButton(
+                color: Colors.white,
+                surfaceTintColor: Colors.white,
+                itemBuilder: (context) {
+                  return [
+                    PopupMenuItem(
+                      padding:
+                          const EdgeInsets.only(right: 60, left: 10, bottom: 0),
+                      value: 1,
+                      child: const Text('Block User'),
+                      onTap: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text(
+                                  'Do you want to block this user?',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {},
+                                      child: const Text('No')),
+                                  TextButton(
+                                      onPressed: () {},
+                                      child: const Text('Yes')),
+                                ],
+                              );
+                            });
+                      },
+                    ),
+                    const PopupMenuItem(
 
-          action:true,
+                        padding:
+                            EdgeInsets.only(right: 60, left: 10, bottom: 0),
+                        value: 2,
+                        child: Text('Report User')),
+                  ];
+                })
+          ],
+          action: true,
           title: "${widget.detailResponse["user"]["name"]}'s Profile",
         ),
         body: SingleChildScrollView(

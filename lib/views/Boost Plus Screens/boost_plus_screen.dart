@@ -32,7 +32,7 @@ class _BoostPlusScreenState extends State<BoostPlusScreen> {
             textColor: AppTheme.white,
             radius: 32.0),
       ),
-      appBar: const CustomAppBar1(
+      appBar: CustomAppBar1(
         title: "Boost My Listing",
       ),
       body: Padding(

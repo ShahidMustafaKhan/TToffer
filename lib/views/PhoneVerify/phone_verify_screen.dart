@@ -115,7 +115,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const CustomAppBar1(
+      appBar: CustomAppBar1(
         title: 'Phone Authentication',
       ),
       body: Center(

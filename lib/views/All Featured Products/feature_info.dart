@@ -12,6 +12,7 @@ import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
+import 'package:tt_offer/detail_model/property_for_sale_model.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/chat_model.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
@@ -56,6 +57,22 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
   var userId = pref.getString(PrefKey.userId);
   AppLogger logger = AppLogger();
 
+
+  static List<String> wrapList1 = [];
+
+
+  late FashionAttributes fashionAttributes;
+  late MobileAttributes mobileAttributes;
+  late VehicleAttributes vehicleAttributes;
+  late PropertyAttributes propertyAttributes;
+  late JobAttributes jobAttributes;
+  late BikeAttributes bikeAttributes;
+  late ServicesAttributes servicesAttributes;
+  late KidsAttributes kidsAttributes;
+  late AnimalsAttributes animalsAttributes;
+  late FurnitureAttributes furnitureAttributes;
+
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -73,7 +90,79 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     //   "2/32",
     //   "Original"
     // ];
+
+
+
     super.initState();
+
+
+    final String AttributesJson = widget.detailResponse['attributes'];
+    fashionAttributes = FashionAttributes.fromJson(AttributesJson);
+    mobileAttributes = MobileAttributes.fromJson(AttributesJson);
+    vehicleAttributes = VehicleAttributes.fromJson(AttributesJson);
+    propertyAttributes = PropertyAttributes.fromJson(AttributesJson);
+    jobAttributes = JobAttributes.fromJson(AttributesJson);
+    bikeAttributes = BikeAttributes.fromJson(AttributesJson);
+    servicesAttributes = ServicesAttributes.fromJson(AttributesJson);
+    kidsAttributes = KidsAttributes.fromJson(AttributesJson);
+    animalsAttributes = AnimalsAttributes.fromJson(AttributesJson);
+    furnitureAttributes = FurnitureAttributes.fromJson(AttributesJson);
+
+
+    wrapList1 = [
+      '${animalsAttributes.catName == 'Animals' ? animalsAttributes.age : servicesAttributes.catName == 'Services' ? servicesAttributes.car : jobAttributes.catName == 'Job' ? jobAttributes.companyName : widget.detailResponse["condition"] ?? 'NA'}',
+      (furnitureAttributes.catName == 'Furniture and home decor'
+          ? furnitureAttributes.type
+          : fashionAttributes.catName == 'Fashion (dress) and beauty'
+          ? fashionAttributes.fabric.toString()
+          : fashionAttributes.catName == 'Mobiles'
+          ? mobileAttributes.brand
+          : vehicleAttributes.catName == 'Vehicles'
+          ? vehicleAttributes.FuelType
+          : propertyAttributes.catName == 'Property for Sale' ||
+          propertyAttributes.catName == 'Property for Rent'
+          ? propertyAttributes.type
+          : jobAttributes.catName == 'Job'
+          ? jobAttributes.experience
+          : bikeAttributes.catName == 'Bike'
+          ? bikeAttributes.model
+          : kidsAttributes.catName == 'Kids'
+          ? kidsAttributes.toy
+          : ''),
+      (furnitureAttributes.catName == 'Furniture and home decor'
+          ? furnitureAttributes.color
+          : animalsAttributes.catName == 'Animals'
+          ? animalsAttributes.breed
+          : fashionAttributes.catName == 'Fashion (dress) and beauty'
+          ? fashionAttributes.suitType.toString()
+          : fashionAttributes.catName == 'Mobiles'
+          ? mobileAttributes.storage
+          : vehicleAttributes.catName == 'Vehicles'
+          ? vehicleAttributes.color
+          : propertyAttributes.catName == 'Property for Sale' ||
+          propertyAttributes.catName ==
+              'Property for Rent'
+          ? propertyAttributes.area
+          : jobAttributes.catName == 'Job'
+          ? jobAttributes.salary
+          : bikeAttributes.catName == 'Bike'
+          ? bikeAttributes.engineCapacity
+          : ''),
+      (fashionAttributes.catName == 'Mobiles'
+          ? mobileAttributes.color
+          : propertyAttributes.catName == 'Property for Sale' ||
+          propertyAttributes.catName == 'Property for Rent'
+          ? propertyAttributes.features
+          : jobAttributes.catName == 'Job'
+          ? jobAttributes.type
+          : ''),
+      // '${widget.detailResponse["authenticity"] ?? 'NA'}',
+      // "2/32",
+      // "Original"
+    ];
+
+
+
   }
 
   @override
@@ -90,8 +179,71 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
 
   bool isChatBtnLoading = false;
 
+  List<String> wrapListAd = [];
+
+
   @override
   Widget build(BuildContext context) {
+
+    List<String> wrapList = [
+      animalsAttributes.catName == 'Animals'
+          ? 'Age'
+          : servicesAttributes.catName == 'Services'
+          ? 'Car'
+          : jobAttributes.catName == 'Job'
+          ? 'Company Name'
+          : 'Condition',
+      furnitureAttributes.catName == 'Furniture and home decor'
+          ? "Type"
+          : animalsAttributes.catName == 'Animals'
+          ? 'Breed'
+          : fashionAttributes.catName == 'Fashion (dress) and beauty'
+          ? 'Fabric'
+          : mobileAttributes.catName == 'Mobiles'
+          ? 'Brand'
+          : vehicleAttributes.catName == 'Vehicles'
+          ? 'Fuel Type'
+          : propertyAttributes.catName == 'Property for Sale' ||
+          propertyAttributes.catName ==
+              'Property for Rent'
+          ? 'Type'
+          : jobAttributes.catName == 'Job'
+          ? 'Experience'
+          : bikeAttributes.catName == 'Bike'
+          ? 'Model'
+          : kidsAttributes.catName == 'Kids'
+          ? 'Toys'
+          : '',
+      furnitureAttributes.catName == 'Furniture and home decor'
+          ? "Color"
+          : fashionAttributes.catName == 'Fashion (dress) and beauty'
+          ? 'SuitType'
+          : mobileAttributes.catName == 'Mobiles'
+          ? 'Storage Capacity'
+          : vehicleAttributes.catName == 'Vehicles'
+          ? 'Color'
+          : propertyAttributes.catName == 'Property for Sale' ||
+          propertyAttributes.catName == 'Property for Rent'
+          ? 'Area'
+          : jobAttributes.catName == 'Job'
+          ? 'Salary'
+          : bikeAttributes.catName == 'Bike'
+          ? 'Engine Capacity'
+          : '',
+      mobileAttributes.catName == 'Mobiles'
+          ? "Color"
+          : propertyAttributes.catName == 'Property for Sale' ||
+          propertyAttributes.catName == 'Property for Rent'
+          ? 'Features'
+          : jobAttributes.catName == 'Job'
+          ? 'Job Type'
+          : '',
+      // "Authenticity"
+    ];
+
+    wrapListAd = wrapList;
+
+
     return PopScope(
         canPop: true,
         onPopInvoked: (didPop) {
@@ -331,93 +483,125 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                 decoration: const BoxDecoration(color: Color(0xffEAEAEA)),
               ),
               const SizedBox(width: 5),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(vertical: 20.0),
+              //   child: Align(
+              //     alignment: Alignment.topLeft,
+              //     child: SizedBox(
+              //       width: MediaQuery.sizeOf(context).width / 1.3,
+              //       child: Wrap(
+              //         alignment: WrapAlignment.start,
+              //         spacing: 10,
+              //         runSpacing: 10,
+              //         children: [
+              //           // for (int i = 0; i <= 4; i++)
+              //           widget.detailResponse["condition"] == null
+              //               ? const SizedBox.shrink()
+              //               : const Text(
+              //                   'Condition:',
+              //                   style: TextStyle(fontWeight: FontWeight.w300),
+              //                 ),
+              //           const SizedBox(width: 3),
+              //
+              //           AppText.appText(
+              //               widget.detailResponse["condition"] ?? '',
+              //               fontSize: 12,
+              //               fontWeight: FontWeight.bold,
+              //               textColor: AppTheme.blackColor),
+              //
+              //           const SizedBox(width: 20),
+              //
+              //           widget.detailResponse["brand"] == null
+              //               ? const SizedBox.shrink()
+              //               : const Text(
+              //                   'Brand:',
+              //                   style: TextStyle(fontWeight: FontWeight.w300),
+              //                 ),
+              //           const SizedBox(width: 3),
+              //
+              //           AppText.appText(widget.detailResponse["brand"] ?? '',
+              //               fontSize: 12,
+              //               fontWeight: FontWeight.bold,
+              //               textColor: AppTheme.blackColor),
+              //           const SizedBox(width: 22),
+              //
+              //           widget.detailResponse["model"] == null
+              //               ? const SizedBox.shrink()
+              //               : const Text(
+              //                   'Model:',
+              //                   style: TextStyle(fontWeight: FontWeight.w300),
+              //                 ),
+              //           const SizedBox(width: 5),
+              //
+              //           AppText.appText(widget.detailResponse["model"] ?? '',
+              //               fontSize: 12,
+              //               fontWeight: FontWeight.bold,
+              //               textColor: AppTheme.blackColor),
+              //
+              //           const SizedBox(width: 25),
+              //
+              //           widget.detailResponse["edition"] == null
+              //               ? const SizedBox.shrink()
+              //               : const Text(
+              //                   'Edition:',
+              //                   style: TextStyle(fontWeight: FontWeight.w300),
+              //                 ),
+              //           const SizedBox(width: 4),
+              //
+              //           AppText.appText(widget.detailResponse["edition"] ?? '',
+              //               fontSize: 12,
+              //               fontWeight: FontWeight.bold,
+              //               textColor: AppTheme.blackColor),
+              //           const SizedBox(width: 20),
+              //
+              //           widget.detailResponse["authenticity"] == null
+              //               ? const SizedBox.shrink()
+              //               : const Text(
+              //                   'Authenticity:',
+              //                   style: TextStyle(fontWeight: FontWeight.w300),
+              //                 ),
+              //           AppText.appText(
+              //               widget.detailResponse["authenticity"] ?? '',
+              //               fontSize: 12,
+              //               fontWeight: FontWeight.bold,
+              //               textColor: AppTheme.blackColor),
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              // ),
+
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: SizedBox(
-                    width: MediaQuery.sizeOf(context).width / 1.3,
-                    child: Wrap(
-                      alignment: WrapAlignment.start,
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        // for (int i = 0; i <= 4; i++)
-                        widget.detailResponse["condition"] == null
-                            ? const SizedBox.shrink()
-                            : const Text(
-                                'Condition:',
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                        const SizedBox(width: 3),
-
-                        AppText.appText(
-                            widget.detailResponse["condition"] ?? '',
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            textColor: AppTheme.blackColor),
-
-                        const SizedBox(width: 20),
-
-                        widget.detailResponse["brand"] == null
-                            ? const SizedBox.shrink()
-                            : const Text(
-                                'Brand:',
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                        const SizedBox(width: 3),
-
-                        AppText.appText(widget.detailResponse["brand"] ?? '',
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            textColor: AppTheme.blackColor),
-                        const SizedBox(width: 22),
-
-                        widget.detailResponse["model"] == null
-                            ? const SizedBox.shrink()
-                            : const Text(
-                                'Model:',
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                        const SizedBox(width: 5),
-
-                        AppText.appText(widget.detailResponse["model"] ?? '',
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            textColor: AppTheme.blackColor),
-
-                        const SizedBox(width: 25),
-
-                        widget.detailResponse["edition"] == null
-                            ? const SizedBox.shrink()
-                            : const Text(
-                                'Edition:',
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                        const SizedBox(width: 4),
-
-                        AppText.appText(widget.detailResponse["edition"] ?? '',
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            textColor: AppTheme.blackColor),
-                        const SizedBox(width: 20),
-
-                        widget.detailResponse["authenticity"] == null
-                            ? const SizedBox.shrink()
-                            : const Text(
-                                'Authenticity:',
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                        AppText.appText(
-                            widget.detailResponse["authenticity"] ?? '',
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            textColor: AppTheme.blackColor),
-                      ],
-                    ),
-                  ),
+                child: Wrap(
+                  spacing: 20,
+                  runSpacing: 10,
+                  children: [
+                    for (int i = 0; i <= 3; i++)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Container(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                AppText.appText("${wrapListAd[i]}  ",
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    textColor: AppTheme.lighttextColor),
+                                AppText.appText(wrapList1[i],
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    textColor: AppTheme.textColor),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                  ],
                 ),
               ),
+
               Container(
                 height: 1,
                 width: screenWidth,

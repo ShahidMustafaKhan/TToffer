@@ -26,6 +26,12 @@
         android:label="TT Offer"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <!-- Google API Key -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAeMHQSxtA784YTtFP8vhydNsvXztzY23w"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

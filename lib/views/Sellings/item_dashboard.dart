@@ -100,7 +100,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
             ),
           ),
         ),
-        appBar: const CustomAppBar1(
+        appBar: CustomAppBar1(
           title: "Item DashBoard",
           action: true,
           img: "assets/images/more.png",

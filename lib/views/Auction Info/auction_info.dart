@@ -15,6 +15,7 @@ import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_logout_pop_up.dart';
 import 'package:tt_offer/custom_requests/bids_service.dart';
+import 'package:tt_offer/detail_model/property_for_sale_model.dart';
 import 'package:tt_offer/models/bids_model.dart';
 import 'package:tt_offer/providers/bids_provider.dart';
 import 'package:tt_offer/views/Auction%20Info/full_image_page.dart';
@@ -45,13 +46,6 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     initialPage: 0,
   );
 
-  static const List<String> wrapList = [
-    'Condition',
-    'Brand',
-    'Model',
-    "Edition",
-    "Authenticity"
-  ];
   static const List<String> bidList = [
     "20",
     "40",
@@ -73,8 +67,31 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     getBidsHandler();
   }
 
+  late FashionAttributes fashionAttributes;
+  late MobileAttributes mobileAttributes;
+  late VehicleAttributes vehicleAttributes;
+  late PropertyAttributes propertyAttributes;
+  late JobAttributes jobAttributes;
+  late BikeAttributes bikeAttributes;
+  late ServicesAttributes servicesAttributes;
+  late KidsAttributes kidsAttributes;
+  late AnimalsAttributes animalsAttributes;
+  late FurnitureAttributes furnitureAttributes;
+
   @override
   void initState() {
+    final String AttributesJson = widget.detailResponse['attributes'];
+    fashionAttributes = FashionAttributes.fromJson(AttributesJson);
+    mobileAttributes = MobileAttributes.fromJson(AttributesJson);
+    vehicleAttributes = VehicleAttributes.fromJson(AttributesJson);
+    propertyAttributes = PropertyAttributes.fromJson(AttributesJson);
+    jobAttributes = JobAttributes.fromJson(AttributesJson);
+    bikeAttributes = BikeAttributes.fromJson(AttributesJson);
+    servicesAttributes = ServicesAttributes.fromJson(AttributesJson);
+    kidsAttributes = KidsAttributes.fromJson(AttributesJson);
+    animalsAttributes = AnimalsAttributes.fromJson(AttributesJson);
+    furnitureAttributes = FurnitureAttributes.fromJson(AttributesJson);
+
     dio = AppDio(context);
     logger.init();
     getUserId();
@@ -85,11 +102,53 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
 
     log("productId = $productId");
     wrapList1 = [
-      '${widget.detailResponse["condition"] ?? 'NA'}',
-      '${widget.detailResponse["brand"] ?? 'NA'}',
-      '${widget.detailResponse["model"] ?? 'NA'}',
-      '${widget.detailResponse["color"] ?? 'NA'}',
-      '${widget.detailResponse["authenticity"] ?? 'NA'}',
+      '${animalsAttributes.catName == 'Animals' ? animalsAttributes.age : servicesAttributes.catName == 'Services' ? servicesAttributes.car : jobAttributes.catName == 'Job' ? jobAttributes.companyName : widget.detailResponse["condition"] ?? 'NA'}',
+      (furnitureAttributes.catName == 'Furniture and home decor'
+          ? furnitureAttributes.type
+          : fashionAttributes.catName == 'Fashion (dress) and beauty'
+              ? fashionAttributes.fabric.toString()
+              : fashionAttributes.catName == 'Mobiles'
+                  ? mobileAttributes.brand
+                  : vehicleAttributes.catName == 'Vehicles'
+                      ? vehicleAttributes.FuelType
+                      : propertyAttributes.catName == 'Property for Sale' ||
+                              propertyAttributes.catName == 'Property for Rent'
+                          ? propertyAttributes.type
+                          : jobAttributes.catName == 'Job'
+                              ? jobAttributes.experience
+                              : bikeAttributes.catName == 'Bike'
+                                  ? bikeAttributes.model
+                                  : kidsAttributes.catName == 'Kids'
+                                      ? kidsAttributes.toy
+                                      : ''),
+      (furnitureAttributes.catName == 'Furniture and home decor'
+          ? furnitureAttributes.color
+          : animalsAttributes.catName == 'Animals'
+              ? animalsAttributes.breed
+              : fashionAttributes.catName == 'Fashion (dress) and beauty'
+                  ? fashionAttributes.suitType.toString()
+                  : fashionAttributes.catName == 'Mobiles'
+                      ? mobileAttributes.storage
+                      : vehicleAttributes.catName == 'Vehicles'
+                          ? vehicleAttributes.color
+                          : propertyAttributes.catName == 'Property for Sale' ||
+                                  propertyAttributes.catName ==
+                                      'Property for Rent'
+                              ? propertyAttributes.area
+                              : jobAttributes.catName == 'Job'
+                                  ? jobAttributes.salary
+                                  : bikeAttributes.catName == 'Bike'
+                                      ? bikeAttributes.engineCapacity
+                                      : ''),
+      (fashionAttributes.catName == 'Mobiles'
+          ? mobileAttributes.color
+          : propertyAttributes.catName == 'Property for Sale' ||
+                  propertyAttributes.catName == 'Property for Rent'
+              ? propertyAttributes.features
+              : jobAttributes.catName == 'Job'
+                  ? jobAttributes.type
+                  : ''),
+      // '${widget.detailResponse["authenticity"] ?? 'NA'}',
       // "2/32",
       // "Original"
     ];
@@ -127,7 +186,6 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     bids = Provider.of<BidsProvider>(context, listen: false).bids;
     setState(() {});
 
-
     setState(() {
       loading = false;
     });
@@ -136,9 +194,71 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     setState(() {});
   }
 
+  // PropetyAttributes?propetyAttributes;
+
+  // String?propetyAttributes;
+
+  List<String> wrapListAd = [];
+
   @override
   Widget build(BuildContext context) {
-    final open = Provider.of<NotifyProvider>(context);
+    List<String> wrapList = [
+      animalsAttributes.catName == 'Animals'
+          ? 'Age'
+          : servicesAttributes.catName == 'Services'
+              ? 'Car'
+              : jobAttributes.catName == 'Job'
+                  ? 'Company Name'
+                  : 'Condition',
+      furnitureAttributes.catName == 'Furniture and home decor'
+          ? "Type"
+          : animalsAttributes.catName == 'Animals'
+              ? 'Breed'
+              : fashionAttributes.catName == 'Fashion (dress) and beauty'
+                  ? 'Fabric'
+                  : mobileAttributes.catName == 'Mobiles'
+                      ? 'Brand'
+                      : vehicleAttributes.catName == 'Vehicles'
+                          ? 'Fuel Type'
+                          : propertyAttributes.catName == 'Property for Sale' ||
+                                  propertyAttributes.catName ==
+                                      'Property for Rent'
+                              ? 'Type'
+                              : jobAttributes.catName == 'Job'
+                                  ? 'Experience'
+                                  : bikeAttributes.catName == 'Bike'
+                                      ? 'Model'
+                                      : kidsAttributes.catName == 'Kids'
+                                          ? 'Toys'
+                                          : '',
+      furnitureAttributes.catName == 'Furniture and home decor'
+          ? "Color"
+          : fashionAttributes.catName == 'Fashion (dress) and beauty'
+              ? 'SuitType'
+              : mobileAttributes.catName == 'Mobiles'
+                  ? 'Storage Capacity'
+                  : vehicleAttributes.catName == 'Vehicles'
+                      ? 'Color'
+                      : propertyAttributes.catName == 'Property for Sale' ||
+                              propertyAttributes.catName == 'Property for Rent'
+                          ? 'Area'
+                          : jobAttributes.catName == 'Job'
+                              ? 'Salary'
+                              : bikeAttributes.catName == 'Bike'
+                                  ? 'Engine Capacity'
+                                  : '',
+      mobileAttributes.catName == 'Mobiles'
+          ? "Color"
+          : propertyAttributes.catName == 'Property for Sale' ||
+                  propertyAttributes.catName == 'Property for Rent'
+              ? 'Features'
+              : jobAttributes.catName == 'Job'
+                  ? 'Job Type'
+                  : '',
+      // "Authenticity"
+    ];
+
+    wrapListAd = wrapList;
 
     return PopScope(
       canPop: true,
@@ -476,13 +596,14 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                 width: screenWidth,
                 decoration: const BoxDecoration(color: Color(0xffEAEAEA)),
               ),
+              // Text(propertyAttributes.catName),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
                 child: Wrap(
                   spacing: 20,
                   runSpacing: 10,
                   children: [
-                    for (int i = 0; i <= 4; i++)
+                    for (int i = 0; i <= 3; i++)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
@@ -490,7 +611,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
                               children: [
-                                AppText.appText("${wrapList[i]}  ",
+                                AppText.appText("${wrapListAd[i]}  ",
                                     fontSize: 12,
                                     fontWeight: FontWeight.w400,
                                     textColor: AppTheme.lighttextColor),

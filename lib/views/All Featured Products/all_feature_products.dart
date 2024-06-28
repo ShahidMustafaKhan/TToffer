@@ -57,7 +57,7 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
     final apiProvider = Provider.of<ProductsApiProvider>(context);
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
-      appBar: const CustomAppBar1(
+      appBar:  CustomAppBar1(
         title: "Featured Products",
       ),
       body: SingleChildScrollView(

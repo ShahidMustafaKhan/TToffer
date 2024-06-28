@@ -18,6 +18,7 @@ import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/custom_requests/custom_get_request.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/custom_requests/firebase_messaging_service.dart';
+import 'package:tt_offer/detail_model/property_for_sale_model.dart';
 import 'package:tt_offer/firebase_options.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/sub_categories_model.dart';
@@ -29,8 +30,10 @@ import 'package:tt_offer/providers/payment_fee_provider.dart';
 import 'package:tt_offer/providers/profile_info_provider.dart';
 import 'package:tt_offer/providers/search_provider.dart';
 import 'package:tt_offer/providers/selling_purchase_provider.dart';
+import 'package:tt_offer/search_page.dart';
 import 'package:tt_offer/splash_screen.dart';
 import 'package:tt_offer/views/Authentication%20screens/GoogleSignIn/google_signin_provider.dart';
+import 'package:tt_offer/views/SearchPage/search_page.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
@@ -146,6 +149,7 @@ class _MyAppState extends State<MyApp> {
         debugShowCheckedModeBanner: false,
         title: 'TT Offer',
         home: const SplashScreen(),
+        // home: const SearchPageLocation(),
         // home:  TimeScreen(),
         // home:  CardHomeScreen(),
       ),

@@ -36,7 +36,7 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
-      appBar: const CustomAppBar1(
+      appBar: CustomAppBar1(
         title: "Item Performance",
       ),
       body: Padding(
