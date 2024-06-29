@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/chat_api.dart';
+import 'package:tt_offer/Controller/APIs%20Manager/send_notification_service.dart';
 import 'package:tt_offer/Controller/provider_class.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -24,6 +25,7 @@ import 'package:tt_offer/models/chat_model.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
 import 'package:tt_offer/utils/widgets/loading_popup.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OfferChatScreen extends StatefulWidget {
   final String? userImgUrl;
@@ -139,6 +141,25 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
       appBar: ChatAppBar(
         img: widget.userImgUrl,
         title: widget.title,
+        actionOntap: () {
+          log("actionOntap is fired");
+        },
+        action: [
+          InkWell(
+            onTap: () async {
+              var url = Uri.parse("tel:+923414044446");
+
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url);
+              }
+            },
+            child: Image.asset(
+              "assets/images/callCalling.png",
+              height: 24,
+              width: 24,
+            ),
+          )
+        ],
       ),
       body: GestureDetector(
         onTap: () {
@@ -480,6 +501,13 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                         title: widget.title,
                         message: userMessage);
 
+                    SendNotification.sendNotification(
+                        userId: widget.recieverId.toString(),
+                        text: "You have a new message",
+                        type: "conversation",
+                        typeId: conversation[0].conversationId!.toString(),
+                        status: "unread");
+
                     setState(() {
                       isSending = false;
                     });
@@ -573,6 +601,12 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
       conversation.add(cons);
 
       setState(() {});
+      await SendNotification.sendNotification(
+          userId: recieverId.toString(),
+          text: "You have a new message",
+          type: "conversation",
+          typeId: json['conversationId'].toString(),
+          status: "unread");
     } catch (e) {
       log("exception in file = ${e.toString()}");
     }

@@ -46,11 +46,7 @@ class AppUrls {
   static const String getUserInfoUrl = "user/info";
   static const String rejectOfferrUrl = "reject-offer";
   static const String acceptOfferrUrl = "accept-offer";
+  static const String sendNotificationUrl = "create/notification";
 
-  //
-
-  //
-
-//
   //
 }

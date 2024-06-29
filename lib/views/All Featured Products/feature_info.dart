@@ -57,9 +57,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
   var userId = pref.getString(PrefKey.userId);
   AppLogger logger = AppLogger();
 
-
   static List<String> wrapList1 = [];
-
 
   late FashionAttributes fashionAttributes;
   late MobileAttributes mobileAttributes;
@@ -71,7 +69,6 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
   late KidsAttributes kidsAttributes;
   late AnimalsAttributes animalsAttributes;
   late FurnitureAttributes furnitureAttributes;
-
 
   @override
   void initState() {
@@ -91,10 +88,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     //   "Original"
     // ];
 
-
-
     super.initState();
-
 
     final String AttributesJson = widget.detailResponse['attributes'];
     fashionAttributes = FashionAttributes.fromJson(AttributesJson);
@@ -108,61 +102,57 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     animalsAttributes = AnimalsAttributes.fromJson(AttributesJson);
     furnitureAttributes = FurnitureAttributes.fromJson(AttributesJson);
 
-
     wrapList1 = [
       '${animalsAttributes.catName == 'Animals' ? animalsAttributes.age : servicesAttributes.catName == 'Services' ? servicesAttributes.car : jobAttributes.catName == 'Job' ? jobAttributes.companyName : widget.detailResponse["condition"] ?? 'NA'}',
       (furnitureAttributes.catName == 'Furniture and home decor'
           ? furnitureAttributes.type
           : fashionAttributes.catName == 'Fashion (dress) and beauty'
-          ? fashionAttributes.fabric.toString()
-          : fashionAttributes.catName == 'Mobiles'
-          ? mobileAttributes.brand
-          : vehicleAttributes.catName == 'Vehicles'
-          ? vehicleAttributes.FuelType
-          : propertyAttributes.catName == 'Property for Sale' ||
-          propertyAttributes.catName == 'Property for Rent'
-          ? propertyAttributes.type
-          : jobAttributes.catName == 'Job'
-          ? jobAttributes.experience
-          : bikeAttributes.catName == 'Bike'
-          ? bikeAttributes.model
-          : kidsAttributes.catName == 'Kids'
-          ? kidsAttributes.toy
-          : ''),
+              ? fashionAttributes.fabric.toString()
+              : fashionAttributes.catName == 'Mobiles'
+                  ? mobileAttributes.brand
+                  : vehicleAttributes.catName == 'Vehicles'
+                      ? vehicleAttributes.FuelType
+                      : propertyAttributes.catName == 'Property for Sale' ||
+                              propertyAttributes.catName == 'Property for Rent'
+                          ? propertyAttributes.type
+                          : jobAttributes.catName == 'Job'
+                              ? jobAttributes.experience
+                              : bikeAttributes.catName == 'Bike'
+                                  ? bikeAttributes.model
+                                  : kidsAttributes.catName == 'Kids'
+                                      ? kidsAttributes.toy
+                                      : ''),
       (furnitureAttributes.catName == 'Furniture and home decor'
           ? furnitureAttributes.color
           : animalsAttributes.catName == 'Animals'
-          ? animalsAttributes.breed
-          : fashionAttributes.catName == 'Fashion (dress) and beauty'
-          ? fashionAttributes.suitType.toString()
-          : fashionAttributes.catName == 'Mobiles'
-          ? mobileAttributes.storage
-          : vehicleAttributes.catName == 'Vehicles'
-          ? vehicleAttributes.color
-          : propertyAttributes.catName == 'Property for Sale' ||
-          propertyAttributes.catName ==
-              'Property for Rent'
-          ? propertyAttributes.area
-          : jobAttributes.catName == 'Job'
-          ? jobAttributes.salary
-          : bikeAttributes.catName == 'Bike'
-          ? bikeAttributes.engineCapacity
-          : ''),
+              ? animalsAttributes.breed
+              : fashionAttributes.catName == 'Fashion (dress) and beauty'
+                  ? fashionAttributes.suitType.toString()
+                  : fashionAttributes.catName == 'Mobiles'
+                      ? mobileAttributes.storage
+                      : vehicleAttributes.catName == 'Vehicles'
+                          ? vehicleAttributes.color
+                          : propertyAttributes.catName == 'Property for Sale' ||
+                                  propertyAttributes.catName ==
+                                      'Property for Rent'
+                              ? propertyAttributes.area
+                              : jobAttributes.catName == 'Job'
+                                  ? jobAttributes.salary
+                                  : bikeAttributes.catName == 'Bike'
+                                      ? bikeAttributes.engineCapacity
+                                      : ''),
       (fashionAttributes.catName == 'Mobiles'
           ? mobileAttributes.color
           : propertyAttributes.catName == 'Property for Sale' ||
-          propertyAttributes.catName == 'Property for Rent'
-          ? propertyAttributes.features
-          : jobAttributes.catName == 'Job'
-          ? jobAttributes.type
-          : ''),
+                  propertyAttributes.catName == 'Property for Rent'
+              ? propertyAttributes.features
+              : jobAttributes.catName == 'Job'
+                  ? jobAttributes.type
+                  : ''),
       // '${widget.detailResponse["authenticity"] ?? 'NA'}',
       // "2/32",
       // "Original"
     ];
-
-
-
   }
 
   @override
@@ -181,68 +171,65 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
 
   List<String> wrapListAd = [];
 
-
   @override
   Widget build(BuildContext context) {
-
     List<String> wrapList = [
       animalsAttributes.catName == 'Animals'
           ? 'Age'
           : servicesAttributes.catName == 'Services'
-          ? 'Car'
-          : jobAttributes.catName == 'Job'
-          ? 'Company Name'
-          : 'Condition',
+              ? 'Car'
+              : jobAttributes.catName == 'Job'
+                  ? 'Company Name'
+                  : 'Condition',
       furnitureAttributes.catName == 'Furniture and home decor'
           ? "Type"
           : animalsAttributes.catName == 'Animals'
-          ? 'Breed'
-          : fashionAttributes.catName == 'Fashion (dress) and beauty'
-          ? 'Fabric'
-          : mobileAttributes.catName == 'Mobiles'
-          ? 'Brand'
-          : vehicleAttributes.catName == 'Vehicles'
-          ? 'Fuel Type'
-          : propertyAttributes.catName == 'Property for Sale' ||
-          propertyAttributes.catName ==
-              'Property for Rent'
-          ? 'Type'
-          : jobAttributes.catName == 'Job'
-          ? 'Experience'
-          : bikeAttributes.catName == 'Bike'
-          ? 'Model'
-          : kidsAttributes.catName == 'Kids'
-          ? 'Toys'
-          : '',
+              ? 'Breed'
+              : fashionAttributes.catName == 'Fashion (dress) and beauty'
+                  ? 'Fabric'
+                  : mobileAttributes.catName == 'Mobiles'
+                      ? 'Brand'
+                      : vehicleAttributes.catName == 'Vehicles'
+                          ? 'Fuel Type'
+                          : propertyAttributes.catName == 'Property for Sale' ||
+                                  propertyAttributes.catName ==
+                                      'Property for Rent'
+                              ? 'Type'
+                              : jobAttributes.catName == 'Job'
+                                  ? 'Experience'
+                                  : bikeAttributes.catName == 'Bike'
+                                      ? 'Model'
+                                      : kidsAttributes.catName == 'Kids'
+                                          ? 'Toys'
+                                          : '',
       furnitureAttributes.catName == 'Furniture and home decor'
           ? "Color"
           : fashionAttributes.catName == 'Fashion (dress) and beauty'
-          ? 'SuitType'
-          : mobileAttributes.catName == 'Mobiles'
-          ? 'Storage Capacity'
-          : vehicleAttributes.catName == 'Vehicles'
-          ? 'Color'
-          : propertyAttributes.catName == 'Property for Sale' ||
-          propertyAttributes.catName == 'Property for Rent'
-          ? 'Area'
-          : jobAttributes.catName == 'Job'
-          ? 'Salary'
-          : bikeAttributes.catName == 'Bike'
-          ? 'Engine Capacity'
-          : '',
+              ? 'SuitType'
+              : mobileAttributes.catName == 'Mobiles'
+                  ? 'Storage Capacity'
+                  : vehicleAttributes.catName == 'Vehicles'
+                      ? 'Color'
+                      : propertyAttributes.catName == 'Property for Sale' ||
+                              propertyAttributes.catName == 'Property for Rent'
+                          ? 'Area'
+                          : jobAttributes.catName == 'Job'
+                              ? 'Salary'
+                              : bikeAttributes.catName == 'Bike'
+                                  ? 'Engine Capacity'
+                                  : '',
       mobileAttributes.catName == 'Mobiles'
           ? "Color"
           : propertyAttributes.catName == 'Property for Sale' ||
-          propertyAttributes.catName == 'Property for Rent'
-          ? 'Features'
-          : jobAttributes.catName == 'Job'
-          ? 'Job Type'
-          : '',
+                  propertyAttributes.catName == 'Property for Rent'
+              ? 'Features'
+              : jobAttributes.catName == 'Job'
+                  ? 'Job Type'
+                  : '',
       // "Authenticity"
     ];
 
     wrapListAd = wrapList;
-
 
     return PopScope(
         canPop: true,
@@ -310,13 +297,13 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
 
                 log("widget.detailResponse = ${widget.detailResponse}");
 
-                // push(
-                //     context,
-                //     OfferChatScreen(
-                //       recieverId: widget.detailResponse["user"]["id"],
-                //       title: "${widget.detailResponse["user"]["name"]}",
-                //       isOffer: true,
-                //     ));
+                push(
+                    context,
+                    OfferChatScreen(
+                      recieverId: widget.detailResponse["user"]["id"],
+                      title: "${widget.detailResponse["user"]["name"]}",
+                      isOffer: true,
+                    ));
               },
                   height: 53,
                   width: 150,
