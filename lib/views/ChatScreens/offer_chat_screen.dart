@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/chat_api.dart';
+import 'package:tt_offer/Controller/APIs%20Manager/send_notification_service.dart';
 import 'package:tt_offer/Controller/provider_class.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -500,6 +501,13 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                         title: widget.title,
                         message: userMessage);
 
+                    SendNotification.sendNotification(
+                        userId: widget.recieverId.toString(),
+                        text: "You have a new message",
+                        type: "conversation",
+                        typeId: conversation[0].conversationId!.toString(),
+                        status: "unread");
+
                     setState(() {
                       isSending = false;
                     });
@@ -593,6 +601,12 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
       conversation.add(cons);
 
       setState(() {});
+      await SendNotification.sendNotification(
+          userId: recieverId.toString(),
+          text: "You have a new message",
+          type: "conversation",
+          typeId: json['conversationId'].toString(),
+          status: "unread");
     } catch (e) {
       log("exception in file = ${e.toString()}");
     }
