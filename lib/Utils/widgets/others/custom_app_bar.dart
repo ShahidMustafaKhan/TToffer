@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
+import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
+import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 
 class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
   final double preferredHeight = 50.0;
@@ -13,61 +15,67 @@ class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
   final action;
   final actionOntap;
   final img;
-  List<Widget>?widget=[];
+  bool? selFaster;
+  List<Widget>? widget = [];
 
   final bool? leading;
 
   // Callback function
 
-   CustomAppBar1({super.key,
-    this.context,
-    this.title,
-    this.action,
-    this.actionOntap,
-    this.widget,
-    this.img,
-    this.leading});
+  CustomAppBar1(
+      {super.key,
+      this.context,
+      this.title,
+      this.action,
+      this.selFaster = false,
+      this.actionOntap,
+      this.widget,
+      this.img,
+      this.leading});
 
   @override
   Widget build(BuildContext context) {
     late AppDio dio;
     AppLogger logger = AppLogger();
 
-
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: leading == false
-            ? const SizedBox.shrink()
-            : GestureDetector(
-            onTap: () async {
-              // dio = AppDio(context);
-              // logger.init();
-              // final profileApi =
-              // Provider.of<ProfileApiProvider>(context, listen: false);
-              // await profileApi.getProfile(
-              //   dio: dio,
-              //   context: context,
-              // );
-              Navigator.pop(context);
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Image.asset(
-                "assets/images/arrow-left.png",
-                height: 24,
-                width: 24,
-              ),
-            )),
-        title: AppText.appText("$title",
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            textColor: const Color(0xff1B2028)),
-        centerTitle: true,
-        actions: widget
-      ),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: leading == false
+              ? const SizedBox.shrink()
+              : GestureDetector(
+                  onTap: selFaster == true
+                      ? () {
+                          pushReplacement(context, const BottomNavView());
+                        }
+                      : () async {
+                          // dio = AppDio(context);
+                          // logger.init();
+                          // final profileApi =
+                          // Provider.of<ProfileApiProvider>(context, listen: false);
+                          // await profileApi.getProfile(
+                          //   dio: dio,
+                          //   context: context,
+                          // );
+
+                          Navigator.pop(context);
+                        },
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Image.asset(
+                      "assets/images/arrow-left.png",
+                      height: 24,
+                      width: 24,
+                    ),
+                  )),
+          title: AppText.appText("$title",
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              textColor: const Color(0xff1B2028)),
+          centerTitle: true,
+          actions: widget),
     );
   }
 
@@ -85,12 +93,13 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   // Callback function
 
-  const ChatAppBar({super.key,
-    this.context,
-    this.title,
-    this.action,
-    this.actionOntap,
-    this.img});
+  const ChatAppBar(
+      {super.key,
+      this.context,
+      this.title,
+      this.action,
+      this.actionOntap,
+      this.img});
 
   @override
   Widget build(BuildContext context) {

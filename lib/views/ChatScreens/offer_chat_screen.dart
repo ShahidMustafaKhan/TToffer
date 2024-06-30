@@ -33,6 +33,7 @@ class OfferChatScreen extends StatefulWidget {
   dynamic offerPrice;
   dynamic recieverId;
   final String? title;
+
   OfferChatScreen(
       {super.key,
       this.isOffer,
@@ -53,6 +54,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
   final DatabaseReference secRef =
       FirebaseDatabase.instance.ref().child('Chats');
   XFile? pickedImage;
+
   // late AppDio dio;
   AppLogger logger = AppLogger();
   int? userId;
@@ -129,6 +131,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
   var open;
 
   bool offerLoading = false;
+
   @override
   Widget build(BuildContext context) {
     chatApiProvider = Provider.of<ChatApiProvider>(context);
@@ -502,10 +505,12 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                         message: userMessage);
 
                     SendNotification.sendNotification(
-                        userId: widget.recieverId.toString(),
+                        context: context,
+                        userId: int.parse(widget.recieverId.toString()),
                         text: "You have a new message",
                         type: "conversation",
-                        typeId: conversation[0].conversationId!.toString(),
+                        typeId: int.parse(
+                            conversation[0].conversationId!.toString()),
                         status: "unread");
 
                     setState(() {
@@ -602,10 +607,11 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
 
       setState(() {});
       await SendNotification.sendNotification(
-          userId: recieverId.toString(),
+          context: context,
+          userId: int.parse(recieverId.toString()),
           text: "You have a new message",
           type: "conversation",
-          typeId: json['conversationId'].toString(),
+          typeId: int.parse(conversation[0].conversationId!.toString()),
           status: "unread");
     } catch (e) {
       log("exception in file = ${e.toString()}");

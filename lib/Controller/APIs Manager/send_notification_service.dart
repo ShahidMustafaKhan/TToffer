@@ -1,14 +1,17 @@
 import 'dart:developer';
 
+import 'package:flutter/cupertino.dart';
+import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/main.dart';
 
 class SendNotification {
   static Future<bool> sendNotification({
-    required String userId,
+    required BuildContext context,
+    required int userId,
     required String text,
     required String type,
-    required String typeId,
+    required int typeId,
     required String status,
   }) async {
     try {
@@ -24,6 +27,8 @@ class SendNotification {
 
       if (responce["message"] != null &&
           responce["message"] == "Notification Created Successfully.") {
+        showSnackBar(context, 'Notification Created Successfully');
+
         return true;
       } else {
         return false;

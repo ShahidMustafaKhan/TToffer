@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -16,6 +19,8 @@ import 'package:tt_offer/views/Post%20screens/post_product_payment.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/views/Sell%20Faster/sell_faster.dart';
+
+import '../../providers/selling_purchase_provider.dart';
 
 class PostLocationScreen extends StatefulWidget {
   final productId;
@@ -202,11 +207,17 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
         });
         showSnackBar(context, responseData["msg"]);
         widget.selling ??= Selling.fromJson(responseData);
+
+      await  getSellingProducts(context);
+
+
         pushReplacement(
             context,
             SellFaster(
               selling: widget.selling!,
             ));
+
+
         // pushReplacement(
         //     context,
         //     PostProductPayment(
@@ -225,5 +236,29 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
         _isLoading = false;
       });
     }
+  }
+
+
+   getSellingProducts(context) async {
+    log("getSellingProducts fired");
+
+    var response;
+
+    // try {
+    response = await dio.get(path: AppUrls.sellingScreen);
+    var responseData = response.data;
+    if (response.statusCode == 200) {
+      // sellingData = responseData["sold"];
+      SellingProductsModel model = SellingProductsModel.fromJson(responseData);
+
+      Provider.of<SellingPurchaseProvider>(context, listen: false)
+          .updateData(model: model);
+      // purchaseData = responseData["purchase"];
+      // archieveData = responseData["archive"];
+    }
+    // } catch (e) {
+    //   print("Something went Wrong $e");
+    //   showSnackBar(context, "Something went Wrong.");
+    // }
   }
 }

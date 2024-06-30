@@ -1,6 +1,9 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
+import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
@@ -201,7 +204,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                     );
                   },
                   child: customListview(
-                      img: widget.selling.photo![0].src,
+                      img: widget.selling.photo![0].src.toString(),
                       title: widget.selling.title,
                       subtitle: widget.selling.fixPrice),
                 ),
@@ -428,10 +431,19 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                             "$img",
                             fit: BoxFit.cover,
                           )
-                        : Image.asset(
-                            "$img",
-                            fit: BoxFit.cover,
-                          ),
+                        : Provider.of<ImageNotifyProvider>(context,
+                                        listen: false)
+                                    .newImagePath !=
+                                null
+                            ? Image.file(File(Provider.of<ImageNotifyProvider>(
+                                    context,
+                                    listen: false)
+                                .newImagePath
+                                .toString()))
+                            : Image.asset(
+                                "$img",
+                                fit: BoxFit.cover,
+                              ),
                   ),
                 ),
                 const SizedBox(

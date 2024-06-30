@@ -1,13 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/constants.dart';
+import 'package:tt_offer/main.dart';
 
 import '../../models/selling_products_model.dart';
 
 class ListViewContainer extends StatefulWidget {
   const ListViewContainer({super.key, required this.selling});
+
   final Selling selling;
 
   @override
@@ -37,10 +43,19 @@ class _ListViewContainerState extends State<ListViewContainer> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(16),
-                        child: Image.network(
-                          widget.selling.photo![0].src,
-                          fit: BoxFit.cover,
-                        ),
+                        child: widget.selling.photo != null
+                            ? Image.file(File(
+                                Provider.of<ImageNotifyProvider>(context)
+                                    .newImagePath
+                                    .toString()))
+                            : Image.network(
+                                widget.selling.photo != null &&
+                                        widget.selling.photo!.isNotEmpty
+                                    ? widget.selling.photo![0].src.toString()
+                                    : '',
+                                // Provide a default value or handle the case where photo is empty
+                                fit: BoxFit.cover,
+                              ),
                       ),
                     ),
                     const SizedBox(

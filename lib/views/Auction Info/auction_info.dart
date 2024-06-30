@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
+import 'package:tt_offer/Controller/APIs%20Manager/send_notification_service.dart';
 import 'package:tt_offer/Controller/provider_class.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -390,7 +391,8 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                                 _priceController.text ?? bidList[0],
                                 productId,
                                 userId,
-                                widget.detailResponse['id']);
+                                widget.detailResponse['id'],
+                                widget.detailResponse['user_id']);
                             getAuctionProductDetail();
 
                             print('id--->${productId}');

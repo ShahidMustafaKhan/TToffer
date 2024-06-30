@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tt_offer/Controller/APIs%20Manager/send_notification_service.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
@@ -13,11 +14,22 @@ import 'package:tt_offer/models/common_model.dart';
 import 'package:tt_offer/providers/bids_provider.dart';
 import 'package:tt_offer/utils/utils.dart';
 
-Future showLogOutALert(
-    BuildContext context, var price, var productId, var userId, var id) {
+Future showLogOutALert(BuildContext context, var price, var productId,
+    var userId, var id, var productUserId) {
   bool loading = false;
 
   final bidProvider = Provider.of<BidsProvider>(context, listen: false).bids;
+
+  void sendBidNotification() {
+    SendNotification.sendNotification(
+      context: context,
+      userId: productUserId,
+      text: 'You have received a new Bid',
+      type: 'Bid',
+      typeId: productId,
+      status: 'Bid',
+    );
+  }
 
   return showDialog(
     context: context,
@@ -114,6 +126,8 @@ Future showLogOutALert(
                               loading = false;
                             });
                           }
+
+                          sendBidNotification();
 
                           Navigator.of(context).pop();
                         },
