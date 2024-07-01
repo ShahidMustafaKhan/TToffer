@@ -57,6 +57,7 @@ class ChatListData {
   Receiver? sender;
   Receiver? receiver;
   String? userImage;
+  int? unReadMsgsCount;
   int? block;
 
   ChatListData({
@@ -67,6 +68,7 @@ class ChatListData {
     this.file,
     this.fileName,
     this.fileType,
+    this.unReadMsgsCount,
     this.status,
     this.conversationId,
     this.createdAt,
@@ -136,6 +138,7 @@ class ChatListData {
         sender: Receiver.fromJson(json["sender"]),
         receiver: Receiver.fromJson(json["receiver"]),
         userImage: json["user_image"],
+        unReadMsgsCount: json["unread_message_count"],
         block: json["block"],
       );
 
@@ -156,6 +159,7 @@ class ChatListData {
         "receiver": receiver!.toJson(),
         "user_image": userImage,
         "block": block,
+        "unread_message_count": unReadMsgsCount
       };
 }
 
