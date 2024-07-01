@@ -9,6 +9,7 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
+import 'package:tt_offer/detail_model/property_for_sale_model.dart';
 import 'package:tt_offer/utils/utils.dart';
 import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
 
@@ -59,6 +60,11 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
 
   @override
   Widget build(BuildContext context) {
+    VehicleAttributes vehicleAttributes =
+        VehicleAttributes.fromJson(widget.data['attributes']);
+    PropertyAttributes propertyAttributes =
+        PropertyAttributes.fromJson(widget.data['attributes']);
+
     return Container(
       decoration: BoxDecoration(
           border: Border.all(color: AppTheme.appColor),
@@ -131,13 +137,34 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
             ),
             const SizedBox(height: 5),
 
-            Row(
-              children: [
-                ImageText(txt: '2012', image: 'calender.png'),
-                ImageText(txt: '4500Km', image: 'road.png'),
-                ImageText(txt: 'Petrol', image: 'petrol.png'),
-              ],
-            ),
+            vehicleAttributes.catName == 'Vehicles'
+                ? Row(
+                    children: [
+                      ImageText(
+                          txt: vehicleAttributes.makeModel,
+                          image: 'calender.png'),
+                      ImageText(
+                          txt: vehicleAttributes.mileAge, image: 'road.png'),
+                      ImageText(
+                          txt: vehicleAttributes.FuelType, image: 'petrol.png'),
+                    ],
+                  )
+                : propertyAttributes.catName == 'Property for Sale' ||
+                        propertyAttributes.catName == 'Property for Rent'
+                    ? Row(
+                        children: [
+                          ImageText(
+                              txt: propertyAttributes.bedroom,
+                              image: 'bath.png'),
+                          ImageText(
+                              txt: propertyAttributes.bedroom,
+                              image: 'bed.png'),
+                          ImageText(
+                              txt: propertyAttributes.area,
+                              image: 'family.png'),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
             const SizedBox(height: 3),
 
             // Row(
@@ -435,7 +462,11 @@ class _ImageTextState extends State<ImageText> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Image.asset('assets/images/${widget.image}'),
+        Image.asset(
+          'assets/images/${widget.image}',
+          height: widget.image == 'family.png' ? 10 : 10,
+          width: widget.image == 'family.png' ? 10 : 12,
+        ),
         SizedBox(width: widget.image == 'calender.png' ? 5 : 5),
         AppText.appText(widget.txt!, fontSize: 8.5, textColor: Colors.black54),
         const SizedBox(width: 6)
