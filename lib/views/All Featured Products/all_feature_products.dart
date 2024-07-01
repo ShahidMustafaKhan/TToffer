@@ -9,6 +9,8 @@ import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
+import 'package:tt_offer/models/category_model.dart';
+import 'package:tt_offer/models/sub_categories_model.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/all_auction_procucts.dart';
 import 'package:tt_offer/views/All%20Featured%20Products/feature_container.dart';
 import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
@@ -32,10 +34,33 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
   var subCatId;
   bool isLoading = false;
 
+  List<CategoryModel> catModel = [];
+  List<SubCategoriesModel> subCat = [];
+
+  getCategories() async {
+    await BlockedUserServices().getBlockedUser(context: context);
+
+    catModel = Provider.of<CategoryProvider>(context, listen: false).category;
+
+    setState(() {});
+  }
+
+  getSubCat() async {
+    await SubCategoriesService().subCategoriesService(context: context);
+
+    subCat = Provider.of<SubCategoriesProvider>(context, listen: false)
+        .subCategories;
+
+    setState(() {});
+  }
+
   @override
   void initState() {
     dio = AppDio(context);
     logger.init();
+
+    getCategories();
+    getSubCat();
     final apiProvider =
         Provider.of<ProductsApiProvider>(context, listen: false);
     apiProvider.getFeatureProducts(
@@ -57,7 +82,7 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
     final apiProvider = Provider.of<ProductsApiProvider>(context);
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
-      appBar:  CustomAppBar1(
+      appBar: CustomAppBar1(
         title: "Featured Products",
       ),
       body: SingleChildScrollView(
@@ -154,6 +179,8 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
     );
   }
 
+  int? selectIndex;
+
   Widget customRow({img, txt, Function()? onTap}) {
     return GestureDetector(
       onTap: onTap,
@@ -236,20 +263,19 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
   Widget buildCategoryList(StateSetter setState) {
     final apiProvider =
         Provider.of<ProductsApiProvider>(context, listen: false);
-    isExpanded ??= List.filled(apiProvider.catagoryData.length, false);
+    isExpanded ??= List.filled(catModel.length, false);
 
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: apiProvider.catagoryData.length,
+      itemCount: catModel.length,
       itemBuilder: (context, index) {
         return Padding(
-          padding: const EdgeInsets.only(bottom: 10.0, left: 10, right: 10),
-          child: Column(
-            children: [
+            padding: const EdgeInsets.only(bottom: 10.0, left: 10, right: 10),
+            child: Column(children: [
               GestureDetector(
                 onTap: () {
                   setState(() {
-                    catId = apiProvider.catagoryData[index]["id"];
+                    catId = catModel[index].id;
                     _toggleExpand(index);
                   });
                 },
@@ -258,7 +284,7 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      AppText.appText(apiProvider.catagoryData[index]["name"],
+                      AppText.appText(catModel[index].title.toString(),
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           textColor: const Color(0xff1B2028)),
@@ -271,47 +297,70 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                 ),
               ),
               if (isExpanded![index])
-                for (int i = 0; i < apiProvider.subCatagoryData.length; i++)
-                  if (apiProvider.catagoryData[index]["id"] ==
-                      apiProvider.subCatagoryData[i]["category_id"])
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
-                      child: SizedBox(
-                        height: 30,
-                        child: RadioListTile<int>(
-                          tileColor: AppTheme.appColor,
-                          activeColor: AppTheme.appColor,
-                          title: AppText.appText(
-                              apiProvider.subCatagoryData[i]["name"],
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              textColor: const Color(0xff1B2028)),
-                          value: apiProvider.subCatagoryData[i]["id"],
-                          groupValue: subCatId,
-                          onChanged: (int? value) {
+                ...subCat
+                    .where((sub) => sub.id == catModel[index].id)
+                    .map((sub) => CustomRadioButton(
+                          selectIndex == index && sub.id == catId,
+                          sub.title,
+                          () {
                             setState(() {
-                              subCatId = value;
+                              selectIndex = index;
                             });
                           },
-                        ),
-                      ),
-                    )
-            ],
-          ),
-        );
+                        ))
+                    .toList(),
+            ]));
       },
     );
   }
 
-  void _toggleExpand(int tappedIndex) {
+  // CustomRadioButton(
+  // isSelected: selectIndex == index && sub.id == catId,
+  // txt: sub.title,
+  // onTap: () {
+  // setState(() {
+  // selectIndex = index;
+  // catId = sub.id;
+  // });
+  // }))
+
+  // Padding(
+  // padding: const EdgeInsets.only(bottom: 10.0),
+  // child: SizedBox(
+  // height: 30,
+  // child: RadioListTile<int>(
+  // tileColor: AppTheme.appColor,
+  // sad activeColor: AppTheme.appColor,
+  // title: AppText.appText(sub.title.toString(),
+  // fontSize: 16,
+  // fontWeight: FontWeight.w500,
+  // textColor: const Color(0xff1B2028)),
+  // value: sub.id!,
+  // groupValue: subCat[index].id,
+  // onChanged: (int? value) {
+  // setState(() {
+  // subCat[index].id = value;
+  // });
+  // },
+  // ),
+  // ),
+  // ))
+
+  // void _toggleExpand(int tappedIndex) {
+  //   setState(() {
+  //     for (int i = 0; i < isExpanded!.length; i++) {
+  //       if (i == tappedIndex) {
+  //         isExpanded![i] = !isExpanded![i]; // Toggle the tapped index
+  //       } else {
+  //         isExpanded![i] = false; // Collapse all other indices
+  //       }
+  //     }
+  //   });
+  // }
+
+  void _toggleExpand(int index) {
     setState(() {
-      for (int i = 0; i < isExpanded!.length; i++) {
-        if (i == tappedIndex) {
-          isExpanded![i] = !isExpanded![i]; // Toggle the tapped index
-        } else {
-          isExpanded![i] = false; // Collapse all other indices
-        }
-      }
+      isExpanded![index] = !isExpanded![index];
     });
   }
 
@@ -686,4 +735,39 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
 
   TextEditingController minPrice = TextEditingController();
   TextEditingController maxPrice = TextEditingController();
+}
+
+class CustomRadioButton extends StatefulWidget {
+  bool color;
+  String? txt;
+  Function()? onTap;
+
+  CustomRadioButton(this.color, this.txt, this.onTap);
+
+  @override
+  State<CustomRadioButton> createState() => _CustomRadioButtonState();
+}
+
+class _CustomRadioButtonState extends State<CustomRadioButton> {
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: (widget.onTap),
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              height: 20,
+              width: 20,
+              decoration: BoxDecoration(
+                  color: widget.color ? AppTheme.appColor : Colors.white),
+            ),
+          ),
+          const SizedBox(width: 8),
+          AppText.appText(widget.txt!)
+        ],
+      ),
+    );
+  }
 }

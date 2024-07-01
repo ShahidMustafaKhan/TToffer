@@ -242,10 +242,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         'category_id': catagoryId ?? '',
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
-        'makeAndModel': model ?? '',
-        'year': yearBuilt ?? '',
+        'makeAndModel': selectMakeModel ?? '',
+        'year': yearModel ?? '',
         'condition': conditionSelect ?? '',
-        'mileage': mileAgeSelect ?? '',
+        'mileage': mileAgeController.text.trim() ?? '',
         'fuelType': fuelTypeSelect ?? '',
         'color': colorSelect ?? '',
         'price': priceController.text.trim() ?? '',
@@ -1703,6 +1703,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   setStatee(() {
                     if (value != null && value) {
                       model = modelList[index];
+                      print('model---?${model}');
                     } else {
                       model = null;
                     }
@@ -2255,6 +2256,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   setStatee(() {
                     if (value != null && value) {
                       fuelTypeSelect = fuelType[index];
+
                     } else {
                       fuelTypeSelect = null;
                     }

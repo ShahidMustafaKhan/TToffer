@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
+import 'package:tt_offer/detail_model/property_for_sale_model.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/auction_container.dart';
 
 class FeatureProductContainer extends StatefulWidget {
@@ -47,6 +48,12 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
 
   @override
   Widget build(BuildContext context) {
+
+    VehicleAttributes vehicleAttributes =
+    VehicleAttributes.fromJson(widget.data['attributes']);
+    PropertyAttributes propertyAttributes =
+    PropertyAttributes.fromJson(widget.data['attributes']);
+
     return Container(
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
@@ -119,13 +126,33 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
 
             const SizedBox(height: 3),
             Expanded(
-              child: Row(
+              child: vehicleAttributes.catName == 'Vehicles'
+                  ? Row(
                 children: [
-                  ImageText(txt: '2012', image: 'calender.png'),
-                  ImageText(txt: '4500Km', image: 'road.png'),
-                  Expanded(child: ImageText(txt: 'Petrol', image: 'petrol.png')),
+                  ImageText(
+                      txt: vehicleAttributes.year, image: 'calender.png'),
+                  ImageText(
+                      txt: vehicleAttributes.mileAge, image: 'road.png'),
+                  ImageText(
+                      txt: vehicleAttributes.FuelType, image: 'petrol.png'),
                 ],
-              ),
+              )
+                  : propertyAttributes.catName == 'Property for Sale' ||
+                  propertyAttributes.catName == 'Property for Rent'
+                  ? Row(
+                children: [
+                  ImageText(
+                      txt: propertyAttributes.bedroom,
+                      image: 'bath.png'),
+                  ImageText(
+                      txt: propertyAttributes.bedroom,
+                      image: 'bed.png'),
+                  ImageText(
+                      txt: propertyAttributes.area,
+                      image: 'family.png'),
+                ],
+              )
+                  : const SizedBox.shrink(),
             ),
             const SizedBox(height: 3),
 

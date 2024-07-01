@@ -67,6 +67,7 @@ class MobileAttributes {
 class VehicleAttributes {
   final String categoryId;
   final String catName;
+  String mileAge;
 
   final String makeModel;
 
@@ -81,6 +82,7 @@ class VehicleAttributes {
     required this.makeModel,
     required this.catName,
     required this.year,
+    required this.mileAge,
     required this.color,
     required this.FuelType,
     required this.location,
@@ -94,6 +96,7 @@ class VehicleAttributes {
       categoryId: json['category_id'],
       makeModel: json['makeAndModel'] ?? '',
       catName: json['category_name'] ?? '',
+      mileAge: json['mileage'] ?? '',
       year: json['year'] ?? '',
       color: json['color'] ?? '',
       FuelType: json['fuelType'] ?? '',
