@@ -987,16 +987,34 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
       isLoading = false;
 
       log("responseData for chat in feature info = $response");
+      ChatModel? model;
+      if (response["data"] == []) {
+        model = ChatModel(
+            message: "No chat found",
+            success: false,
+            data: Data(
+              conversation: [],
+              participant1: Participant(
+                id: widget.detailResponse["user"]["id"],
+                name: widget.detailResponse["user"]["name"],
+              ),
+              participant2: Participant(
+                id: int.parse(PrefKey.userId),
+                name: PrefKey.userName,
+              ),
+            ));
+        Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
+      } else {
+        model = ChatModel.fromJson(response);
+        Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
+      }
 
-      ChatModel model = ChatModel.fromJson(response);
-
-      Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
       setState(() {
         isChatBtnLoading = false;
       });
 
       String? receiverImg;
-      if (recieverId == model.data!.participant1!.id) {
+      if (recieverId == model!.data!.participant1!.id) {
         receiverImg = model.data!.participant1!.img;
       } else {
         receiverImg = model.data!.participant2!.img;
