@@ -22,7 +22,7 @@ class _SearchPageLocationState extends State<SearchPageLocation> {
             GooglePlaceAutoCompleteTextField(
 
               textEditingController: controller,
-              googleAPIKey: "AIzaSyBZft6faojDE1C5Q-UmMnUS7LLAtUIzDJo",
+              googleAPIKey: "AIzaSyBDcil7u2GKIEkezpxQay-DnCWpgve1m0s",
               inputDecoration: const InputDecoration(),
 
 

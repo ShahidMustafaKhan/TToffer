@@ -1,0 +1,13 @@
+{
+  "provider": "apple_pay",
+  "data": {
+    "merchantIdentifier": "your.merchant.id",
+    "displayName": "Your Store Name",
+    "merchantCapabilities": ["3DS", "debit", "credit"],
+    "supportedNetworks": ["amex", "visa", "masterCard"],
+    "countryCode": "US",
+    "currencyCode": "USD",
+    "requiredBillingContactFields": ["postalAddress"],
+    "requiredShippingContactFields": ["postalAddress", "phone", "email"]
+  }
+}

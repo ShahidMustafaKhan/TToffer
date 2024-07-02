@@ -92,7 +92,7 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
                           mainAxisSpacing: 30,
                           crossAxisSpacing: 20,
                           crossAxisCount: 2,
-                          childAspectRatio: screenWidth / (2.6 * 230),
+                          childAspectRatio: screenWidth / (2.6 * 265),
                         ),
                         shrinkWrap: true,
                         itemCount: apiProvider.allfeatureProductsData.length,

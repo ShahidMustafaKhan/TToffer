@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/models/sub_categories_model.dart';
+import 'package:tt_offer/views/All%20Categories/category_products.dart';
 
 class SubCategoriesScreen extends StatefulWidget {
   final String? title;
@@ -50,15 +52,25 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: AppText.appText('See all in ${widget.title}',
-                      textColor: Color(0xff1B63D8), fontSize: 16),
+                      textColor: const Color(0xff1B63D8), fontSize: 16),
                 ),
                 for (int i = 0; i < filteredSubCategories.length; i++)
                   Padding(
                       padding: const EdgeInsets.symmetric(
                           vertical: 15.0, horizontal: 10),
-                      child: AppText.appText(
-                          filteredSubCategories[i].title.toString(),
-                          fontSize: 16))
+                      child: InkWell(
+                        onTap: () {
+                          push(
+                              context,
+                              CatagoryProductScreen(
+                                catId: filteredSubCategories[i].id,
+                                catNAme: filteredSubCategories[i].title,
+                              ));
+                        },
+                        child: AppText.appText(
+                            filteredSubCategories[i].title.toString(),
+                            fontSize: 16),
+                      ))
               ],
             ),
           ),
