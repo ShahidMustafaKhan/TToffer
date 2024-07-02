@@ -185,7 +185,7 @@ class ChatApiProvider extends ChangeNotifier {
       isLoading = false;
       conversationData = responseData["data"];
 
-      log("responseData for chat = $responseData");
+      log("responseData for chat in chatapi = $responseData");
 
 // Convert the list of data into ChatData objects
       // List<ChatData> chatDataList =
@@ -195,10 +195,10 @@ class ChatApiProvider extends ChangeNotifier {
 
       Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
       String? receiverImg;
-      if (recieverId == model.data!.participant1.id) {
-        receiverImg = model.data!.participant1.img;
+      if (recieverId == model.data!.participant1!.id) {
+        receiverImg = model.data!.participant1!.img;
       } else {
-        receiverImg = model.data!.participant2.img;
+        receiverImg = model.data!.participant2!.img;
       }
 
       push(

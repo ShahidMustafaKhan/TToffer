@@ -273,9 +273,9 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
               ))
             else
               AppButton.appButton("Chat", onTap: () async {
-                setState(() {
-                  isChatBtnLoading = true;
-                });
+                // setState(() {
+                //   isChatBtnLoading = true;
+                // });
 
                 Map body = {
                   "sender_id": pref.getString(PrefKey.userId),
@@ -986,7 +986,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
       // if (response.statusCode == 200) {
       isLoading = false;
 
-      log("responseData for chat = $response");
+      log("responseData for chat in feature info = $response");
 
       ChatModel model = ChatModel.fromJson(response);
 
@@ -996,10 +996,10 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
       });
 
       String? receiverImg;
-      if (recieverId == model.data!.participant1.id) {
-        receiverImg = model.data!.participant1.img;
+      if (recieverId == model.data!.participant1!.id) {
+        receiverImg = model.data!.participant1!.img;
       } else {
-        receiverImg = model.data!.participant2.img;
+        receiverImg = model.data!.participant2!.img;
       }
       push(
           context,

@@ -13,7 +13,12 @@ class ChatModel {
 
   factory ChatModel.fromJson(Map<String, dynamic> json) => ChatModel(
         success: json["success"],
-        data: Data.fromJson(json["data"]),
+        data: json["data"] == null
+            ? Data(
+                conversation: [],
+                participant1: Participant(),
+                participant2: Participant())
+            : Data.fromJson(json["data"]),
         message: json["message"],
       );
 
@@ -26,13 +31,13 @@ class ChatModel {
 
 class Data {
   List<Conversation>? conversation;
-  Participant participant1;
-  Participant participant2;
+  Participant? participant1;
+  Participant? participant2;
 
   Data({
-    required this.conversation,
-    required this.participant1,
-    required this.participant2,
+    this.conversation,
+    this.participant1,
+    this.participant2,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(

@@ -130,20 +130,23 @@ class _ChatScreenState extends State<ChatScreen> {
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
                               textColor: const Color(0xffA7ACB4)),
-                          // Container(
-                          //   height: 20,
-                          //   width: 20,
-                          //   decoration: BoxDecoration(
-                          //     shape: BoxShape.circle,
-                          //     color: AppTheme.appColor,
-                          //   ),
-                          //   child: Center(
-                          //     child: AppText.appText("1",
-                          //         textColor: AppTheme.whiteColor,
-                          //         fontSize: 12,
-                          //         fontWeight: FontWeight.w400),
-                          //   ),
-                          // )
+                          if (chatList[index].unReadMsgsCount != null &&
+                              chatList[index].unReadMsgsCount != 0)
+                            Container(
+                              height: 20,
+                              width: 20,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppTheme.appColor,
+                              ),
+                              child: Center(
+                                child: AppText.appText(
+                                    chatList[index].unReadMsgsCount.toString(),
+                                    textColor: AppTheme.whiteColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400),
+                              ),
+                            )
                         ],
                       ),
                     ],
