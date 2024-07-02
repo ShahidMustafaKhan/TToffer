@@ -322,9 +322,9 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: data[index].photo == null ||
-                                  data[index].photo!.isEmpty ||
-                                  data[index].photo![0].src == null
-                                  ?Image.asset('assets/images/gallery.png')
+                                      data[index].photo!.isEmpty ||
+                                      data[index].photo![0].src == null
+                                  ? Image.asset('assets/images/gallery.png')
                                   : Image.network(
                                       data[index].photo![0].src,
                                       fit: BoxFit.cover,
@@ -352,53 +352,57 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                               ),
                               widget.ischeck == 2
                                   ? const SizedBox.shrink()
-                                  : const Column(
-                                      children: [
-                                        SizedBox(
-                                          height: 20,
-                                          width: 55,
-                                          child: Stack(
-                                            children: [
-                                              Positioned(
-                                                right: 0,
-                                                child: CircleAvatar(
-                                                  radius: 10,
-                                                  backgroundImage: AssetImage(
-                                                      'assets/images/sp1.png'),
-                                                ),
+                                  : widget.sellingProductsModel!.data!
+                                              .selling![index].viewsCount ==
+                                          ''
+                                      ? const SizedBox.shrink()
+                                      : const Column(
+                                          children: [
+                                            SizedBox(
+                                              height: 20,
+                                              width: 55,
+                                              child: Stack(
+                                                children: [
+                                                  Positioned(
+                                                    right: 0,
+                                                    child: CircleAvatar(
+                                                      radius: 10,
+                                                      backgroundImage: AssetImage(
+                                                          'assets/images/sp1.png'),
+                                                    ),
+                                                  ),
+                                                  Positioned(
+                                                    right: 12,
+                                                    child: CircleAvatar(
+                                                      radius: 10,
+                                                      backgroundImage: AssetImage(
+                                                          'assets/images/sp2.png'),
+                                                    ),
+                                                  ),
+                                                  Positioned(
+                                                    right: 24,
+                                                    child: CircleAvatar(
+                                                      radius: 10,
+                                                      backgroundImage: AssetImage(
+                                                          'assets/images/sp3.png'),
+                                                    ),
+                                                  ),
+                                                  Positioned(
+                                                    right: 36,
+                                                    child: CircleAvatar(
+                                                      radius: 10,
+                                                      backgroundImage: AssetImage(
+                                                          'assets/images/sp4.png'),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                              Positioned(
-                                                right: 12,
-                                                child: CircleAvatar(
-                                                  radius: 10,
-                                                  backgroundImage: AssetImage(
-                                                      'assets/images/sp2.png'),
-                                                ),
-                                              ),
-                                              Positioned(
-                                                right: 24,
-                                                child: CircleAvatar(
-                                                  radius: 10,
-                                                  backgroundImage: AssetImage(
-                                                      'assets/images/sp3.png'),
-                                                ),
-                                              ),
-                                              Positioned(
-                                                right: 36,
-                                                child: CircleAvatar(
-                                                  radius: 10,
-                                                  backgroundImage: AssetImage(
-                                                      'assets/images/sp4.png'),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                                            ),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                          ],
                                         ),
-                                        SizedBox(
-                                          height: 5,
-                                        ),
-                                      ],
-                                    ),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -417,7 +421,10 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                         widget.ischeck == 1
                                             ? "Sell faster"
                                             : widget.ischeck == 2
-                                                ? ';':widget.ischeck==3?'Ready to sale':'',
+                                                ? ';'
+                                                : widget.ischeck == 3
+                                                    ? 'Ready to sale'
+                                                    : '',
                                         fontSize: 12,
                                         fontWeight: FontWeight.w400,
                                         textColor: AppTheme.appColor),
@@ -466,7 +473,8 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                           : Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                AppText.appText("21 View",
+                                AppText.appText(
+                                    "${widget.sellingProductsModel!.data!.selling![index].viewsCount.toString()} View",
                                     fontSize: 12,
                                     fontWeight: FontWeight.w400,
                                     textColor: AppTheme.lighttextColor),

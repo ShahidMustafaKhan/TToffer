@@ -68,7 +68,7 @@ class _PostProductPaymentState extends State<PostProductPayment> {
                                     widget.selling!.photo != null &&
                                     widget.selling!.photo!.isNotEmpty
                                 ? Image.network(
-                                    widget.selling!.photo![0].src,
+                                    widget.selling!.photo![0].src!,
                                     fit: BoxFit.cover,
                                   )
                                 : Image.file(
@@ -203,8 +203,6 @@ class _PostProductPaymentState extends State<PostProductPayment> {
       //     PaymentMethodData(billingDetails: BillingDetails(),shippingDetails: ShippingDetails())));
 
       // PaymentMethod paymentMethod =PaymentMethod( card: Card(last4: ), sepaDebit: SepaDebit());
-
-
 
       // await Stripe.instance.presentPaymentSheet().then((newValue) async {
       //   print('payment intent${paymentIntentData!['id']}');

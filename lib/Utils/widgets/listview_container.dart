@@ -42,21 +42,20 @@ class _ListViewContainerState extends State<ListViewContainer> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: widget.selling.photo != null
-                            ? Image.file(File(
-                                Provider.of<ImageNotifyProvider>(context)
-                                    .newImagePath
-                                    .toString()))
-                            : Image.network(
-                                widget.selling.photo != null &&
-                                        widget.selling.photo!.isNotEmpty
-                                    ? widget.selling.photo![0].src.toString()
-                                    : '',
-                                // Provide a default value or handle the case where photo is empty
-                                fit: BoxFit.cover,
-                              ),
-                      ),
+                          borderRadius: BorderRadius.circular(16),
+                          child: widget.selling.photo != null
+                              ? Image.network(
+                                  widget.selling.photo != null &&
+                                          widget.selling.photo!.isNotEmpty
+                                      ? widget.selling.photo![0].src.toString()
+                                      : widget.selling.photo![0].src.toString(),
+                                  // Provide a default value or handle the case where photo is empty
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.file(File(
+                                  Provider.of<ImageNotifyProvider>(context)
+                                      .newImagePath
+                                      .toString()))),
                     ),
                     const SizedBox(
                       width: 10,
@@ -65,7 +64,7 @@ class _ListViewContainerState extends State<ListViewContainer> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        AppText.appText(widget.selling.title,
+                        AppText.appText(widget.selling.title!,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             textColor: AppTheme.txt1B20),

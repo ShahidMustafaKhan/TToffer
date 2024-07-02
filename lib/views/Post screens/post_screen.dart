@@ -51,9 +51,9 @@ class _PostScreenState extends State<PostScreen> {
     logger.init();
     getUserId();
 
-    if (widget.selling != null) _titleController.text = widget.selling!.title;
+    if (widget.selling != null) _titleController.text = widget.selling!.title!;
     if (widget.selling != null) {
-      _descController.text = widget.selling!.description;
+      _descController.text = widget.selling!.description!;
     }
 
     super.initState();
@@ -242,8 +242,8 @@ class _PostScreenState extends State<PostScreen> {
                                     await ImageDeleteService()
                                         .imageDeleteService(
                                       context: context,
-                                      id: l.id,
-                                      productId: l.productId,
+                                      id: l.id!,
+                                      productId: l.productId!,
                                     );
                                     setState(() {
                                       widget.selling!.photo!.remove(l);

@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:pay/pay.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
@@ -147,36 +150,77 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
                 ],
               ),
             ),
-            if (selectPayment == 'Apple' || selectPayment == 'Google')
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    CustomAppFormField(
-                        texthint: 'Card Name', controller: cardName),
-                    const SizedBox(height: 15),
-                    CustomAppFormField(
-                        texthint: 'Card Number', controller: cardNumber),
-                    const SizedBox(height: 15),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: CustomAppFormField(
-                                texthint: 'mm/yy', controller: month)),
-                        const SizedBox(width: 10),
-                        Expanded(
-                            child: CustomAppFormField(
-                                texthint: 'Last name', controller: cvc)),
-                      ],
-                    ),
-                    const SizedBox(height: 30),
-                    AppButton.appButton('Pay Now',
-                        height: 50, textColor: Colors.white)
-                  ],
+
+
+            ApplePayButton(paymentItems: [
+              PaymentItem(
+                label: 'Total',
+                amount: '10',
+                status: PaymentItemStatus.final_price,
+              ),
+            ],
+              paymentConfigurationAsset: 'apple_pay_config.json',
+              width: 200,
+              height: 60,
+              margin: const EdgeInsets.only(top: 10.0, bottom: 0, left: 4),
+              onPaymentResult: onGooglePayResult,
+              loadingIndicator: const Center(
+                child: CircularProgressIndicator(),
+              ),),
+
+
+            selectPayment=='Google' &&  Platform.isAndroid?   GooglePayButton(
+              // paymentConfiguration: PaymentConfiguration.fromJsonString(
+              //     'defaultApplePayConfigString'),
+              paymentItems: [
+                PaymentItem(
+                  label: 'Total',
+                  amount: '10',
+                  status: PaymentItemStatus.final_price,
                 ),
-              )
-            else
-              const SizedBox.shrink(),
+              ],
+              paymentConfigurationAsset: 'google_pay_configuration.json',
+              width: 200,
+              height: 60,
+              type: GooglePayButtonType.plain,
+              margin: const EdgeInsets.only(top: 10.0, bottom: 0, left: 4),
+              onPaymentResult: onGooglePayResult,
+              loadingIndicator: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ):SizedBox.shrink(),
+
+
+            // if (selectPayment == 'Apple' || selectPayment == 'Google')
+            //   Padding(
+            //     padding: const EdgeInsets.all(8.0),
+            //     child: Column(
+            //       children: [
+            //         CustomAppFormField(
+            //             texthint: 'Card Name', controller: cardName),
+            //         const SizedBox(height: 15),
+            //         CustomAppFormField(
+            //             texthint: 'Card Number', controller: cardNumber),
+            //         const SizedBox(height: 15),
+            //         Row(
+            //           children: [
+            //             Expanded(
+            //                 child: CustomAppFormField(
+            //                     texthint: 'mm/yy', controller: month)),
+            //             const SizedBox(width: 10),
+            //             Expanded(
+            //                 child: CustomAppFormField(
+            //                     texthint: 'Last name', controller: cvc)),
+            //           ],
+            //         ),
+            //         const SizedBox(height: 30),
+            //         AppButton.appButton('Pay Now',
+            //             height: 50, textColor: Colors.white)
+            //       ],
+            //     ),
+            //   )
+            // else
+            //   const SizedBox.shrink(),
             selectPayment == 'Master' || selectPayment == 'Visa'
                 ? Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -214,6 +258,18 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
         ),
       ),
     );
+  }
+
+  void onGooglePayResult(paymentResult) {
+    // Handle the payment result, which contains the payment token
+    print('Payment Result: $paymentResult');
+
+    // Extract the payment token from the result
+    String paymentToken =
+    paymentResult['paymentMethodData']['tokenizationData']['token'];
+    print('Payment Token: $paymentToken');
+
+    // Use the payment token for your backend processing
   }
 }
 

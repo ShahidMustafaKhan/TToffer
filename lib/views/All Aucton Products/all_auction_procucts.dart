@@ -17,7 +17,10 @@ import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/detail_model/property_for_sale_model.dart';
 import 'package:tt_offer/main.dart';
+import 'package:tt_offer/models/category_model.dart';
+import 'package:tt_offer/models/sub_categories_model.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/auction_container.dart';
+import 'package:tt_offer/views/All%20Featured%20Products/all_feature_products.dart';
 import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
 
 class ViewAllAuctionProducts extends StatefulWidget {
@@ -38,8 +41,30 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
   var catId;
   var subCatId;
 
+  List<CategoryModel> catModel = [];
+  List<SubCategoriesModel> subCat = [];
+
+  getCategories() async {
+    await BlockedUserServices().getBlockedUser(context: context);
+
+    catModel = Provider.of<CategoryProvider>(context, listen: false).category;
+
+    setState(() {});
+  }
+
+  getSubCat() async {
+    await SubCategoriesService().subCategoriesService(context: context);
+
+    subCat = Provider.of<SubCategoriesProvider>(context, listen: false)
+        .subCategories;
+
+    setState(() {});
+  }
+
   @override
   void initState() {
+    getCategories();
+    getSubCat();
     dio = AppDio(context);
     logger.init();
     final apiProvider =
@@ -59,13 +84,16 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
     super.initState();
   }
 
+  var catName;
+
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final apiProvider = Provider.of<ProductsApiProvider>(context);
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
-      appBar:  CustomAppBar1(
+      appBar: CustomAppBar1(
         title: "Auction Products",
       ),
       body: SingleChildScrollView(
@@ -162,6 +190,8 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
     );
   }
 
+  Map<int, int> selectedIndexes = {};
+
   Widget customRow({img, txt, Function()? onTap}) {
     return GestureDetector(
       onTap: onTap,
@@ -243,21 +273,21 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
 
   Widget buildCategoryList(StateSetter setState) {
     final apiProvider =
-        Provider.of<ProductsApiProvider>(context, listen: false);
-    isExpanded ??= List.filled(apiProvider.catagoryData.length, false);
+    Provider.of<ProductsApiProvider>(context, listen: false);
+    isExpanded ??= List.filled(catModel.length, false);
 
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: apiProvider.catagoryData.length,
+      itemCount: catModel.length,
       itemBuilder: (context, index) {
         return Padding(
-          padding: const EdgeInsets.only(bottom: 10.0, left: 10, right: 10),
-          child: Column(
-            children: [
+            padding: const EdgeInsets.only(bottom: 10.0, left: 10, right: 10),
+            child: Column(children: [
               GestureDetector(
                 onTap: () {
                   setState(() {
-                    catId = apiProvider.catagoryData[index]["id"];
+                    catId = catModel[index].id;
+                    catName = catModel[index].title;
                     _toggleExpand(index);
                   });
                 },
@@ -266,7 +296,7 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      AppText.appText(apiProvider.catagoryData[index]["name"],
+                      AppText.appText(catModel[index].title.toString(),
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           textColor: const Color(0xff1B2028)),
@@ -279,34 +309,18 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
                 ),
               ),
               if (isExpanded![index])
-                for (int i = 0; i < apiProvider.subCatagoryData.length; i++)
-                  if (apiProvider.catagoryData[index]["id"] ==
-                      apiProvider.subCatagoryData[i]["category_id"])
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
-                      child: SizedBox(
-                        height: 30,
-                        child: RadioListTile<int>(
-                          tileColor: AppTheme.appColor,
-                          activeColor: AppTheme.appColor,
-                          title: AppText.appText(
-                              apiProvider.subCatagoryData[i]["name"],
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              textColor: const Color(0xff1B2028)),
-                          value: apiProvider.subCatagoryData[i]["id"],
-                          groupValue: subCatId,
-                          onChanged: (int? value) {
-                            setState(() {
-                              subCatId = value;
-                            });
-                          },
-                        ),
-                      ),
-                    )
-            ],
-          ),
-        );
+                for (int i = 0; i < subCat.length; i++)
+                  if (catId == subCat[i].id)
+                    CustomRadioButton(selectedIndexes[catModel[index].id] == i,
+                        subCat[i].title, () {
+                          // subCatId = subCat[i].id;
+                          subCatId = subCat[i].title;
+                          print('newSub---->${subCatId}');
+
+                          selectedIndexes[catModel[index].id!] = i;
+                          setState(() {});
+                        })
+            ]));
       },
     );
   }

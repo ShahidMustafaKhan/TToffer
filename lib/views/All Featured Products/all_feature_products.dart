@@ -31,6 +31,7 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
   AppLogger logger = AppLogger();
   List<bool>? isExpanded;
   var catId;
+  var catName;
   var subCatId;
   bool isLoading = false;
 
@@ -179,8 +180,8 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
     );
   }
 
-  int? selectIndex;
-
+  Map<int, int> selectedIndexes =
+      {}; // Map to store selected indexes for each category
   Widget customRow({img, txt, Function()? onTap}) {
     return GestureDetector(
       onTap: onTap,
@@ -253,7 +254,7 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
         subCatId = subCatId;
         if (subCatId != null && catId != null) {
           apiProvider.getFeatureProducts(
-              context: context, dio: dio, subCatId: subCatId, cateId: subCatId);
+              context: context, dio: dio, subCatId: subCatId, cateId: catName);
         }
       });
     });
@@ -276,6 +277,7 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                 onTap: () {
                   setState(() {
                     catId = catModel[index].id;
+                    catName = catModel[index].title;
                     _toggleExpand(index);
                   });
                 },
@@ -297,70 +299,31 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                 ),
               ),
               if (isExpanded![index])
-                ...subCat
-                    .where((sub) => sub.id == catModel[index].id)
-                    .map((sub) => CustomRadioButton(
-                          selectIndex == index && sub.id == catId,
-                          sub.title,
-                          () {
-                            setState(() {
-                              selectIndex = index;
-                            });
-                          },
-                        ))
-                    .toList(),
+                for (int i = 0; i < subCat.length; i++)
+                  if (catId == subCat[i].id)
+                    CustomRadioButton(selectedIndexes[catModel[index].id] == i,
+                        subCat[i].title, () {
+                      // subCatId = subCat[i].id;
+                      subCatId = subCat[i].title;
+                      print('newSub---->${subCatId}');
+
+                      selectedIndexes[catModel[index].id!] = i;
+                      setState(() {});
+                    })
             ]));
       },
     );
   }
 
-  // CustomRadioButton(
-  // isSelected: selectIndex == index && sub.id == catId,
-  // txt: sub.title,
-  // onTap: () {
-  // setState(() {
-  // selectIndex = index;
-  // catId = sub.id;
-  // });
-  // }))
-
-  // Padding(
-  // padding: const EdgeInsets.only(bottom: 10.0),
-  // child: SizedBox(
-  // height: 30,
-  // child: RadioListTile<int>(
-  // tileColor: AppTheme.appColor,
-  // sad activeColor: AppTheme.appColor,
-  // title: AppText.appText(sub.title.toString(),
-  // fontSize: 16,
-  // fontWeight: FontWeight.w500,
-  // textColor: const Color(0xff1B2028)),
-  // value: sub.id!,
-  // groupValue: subCat[index].id,
-  // onChanged: (int? value) {
-  // setState(() {
-  // subCat[index].id = value;
-  // });
-  // },
-  // ),
-  // ),
-  // ))
-
-  // void _toggleExpand(int tappedIndex) {
-  //   setState(() {
-  //     for (int i = 0; i < isExpanded!.length; i++) {
-  //       if (i == tappedIndex) {
-  //         isExpanded![i] = !isExpanded![i]; // Toggle the tapped index
-  //       } else {
-  //         isExpanded![i] = false; // Collapse all other indices
-  //       }
-  //     }
-  //   });
-  // }
-
-  void _toggleExpand(int index) {
+  void _toggleExpand(int tappedIndex) {
     setState(() {
-      isExpanded![index] = !isExpanded![index];
+      for (int i = 0; i < isExpanded!.length; i++) {
+        if (i == tappedIndex) {
+          isExpanded![i] = !isExpanded![i]; // Toggle the tapped index
+        } else {
+          isExpanded![i] = false; // Collapse all other indices
+        }
+      }
     });
   }
 
@@ -758,10 +721,15 @@ class _CustomRadioButtonState extends State<CustomRadioButton> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
-              height: 20,
-              width: 20,
+              height: 17,
+              width: 17,
               decoration: BoxDecoration(
-                  color: widget.color ? AppTheme.appColor : Colors.white),
+                  color: widget.color ? AppTheme.appColor : Colors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                      color: widget.color
+                          ? AppTheme.appColor
+                          : AppTheme.appColor)),
             ),
           ),
           const SizedBox(width: 8),
