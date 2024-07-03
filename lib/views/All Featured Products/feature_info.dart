@@ -171,8 +171,8 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
 
   List<String> wrapListAd = [];
 
-  String? receiverId;
-  String? receiverName;
+  // String? receiverId;
+  // String? receiverName;
 
   @override
   Widget build(BuildContext context) {
@@ -252,8 +252,8 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
   Widget featureBottomCard() {
     log("//-- userId = $userId");
     log("//-- widget.detailResponse user id =${widget.detailResponse["user_id"]} ");
-    receiverId = widget.detailResponse["user"]["id"];
-    receiverName = widget.detailResponse["user"]["name"];
+    // receiverId = widget.detailResponse["user"]["id"];
+    // receiverName = widget.detailResponse["user"]["name"];
     return Card(
       color: Colors.white,
       shape: const RoundedRectangleBorder(
@@ -984,65 +984,67 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     log("conversationId in getConversation= $conversationId");
     log("recieverId in getConversation= $recieverId");
 
-    try {
-      response = await customGetRequest.httpGetRequest(
-          url: "${AppUrls.getConverstaion}$conversationId");
-      // var responseData = response;
-      // if (response.statusCode == 200) {
-      isLoading = false;
+    // try {
+    response = await customGetRequest.httpGetRequest(
+        url: "${AppUrls.getConverstaion}$conversationId");
+    // var responseData = response;
+    // if (response.statusCode == 200) {
+    isLoading = false;
 
-      log("responseData for chat in feature info = $response");
-      ChatModel? model;
-      if (response["data"] == []) {
-        log("widget.detailResponse user id = ${widget.detailResponse["user"]["id"]}");
-        log("widget.detailResponse user name = ${widget.detailResponse["user"]["name"]}");
-        model = ChatModel(
-            message: "No chat found",
-            success: false,
-            data: Data(
-              conversation: [],
-              participant1: Participant(
-                id: widget.detailResponse["user"]["id"],
-                name: widget.detailResponse["user"]["name"],
-              ),
-              participant2: Participant(
-                id: int.parse(PrefKey.userId),
-                name: PrefKey.userName,
-              ),
-            ));
-        Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
-      } else {
-        model = ChatModel.fromJson(response);
-        Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
-      }
-
-      setState(() {
-        isChatBtnLoading = false;
-      });
-
-      String? receiverImg;
-      if (recieverId == model!.data!.participant1!.id) {
-        receiverImg = model.data!.participant1!.img;
-      } else {
-        receiverImg = model.data!.participant2!.img;
-      }
-      push(
-          context,
-          OfferChatScreen(
-            recieverId: recieverId,
-            title: title,
-            userImgUrl: receiverImg,
-            // isOffer: true,
-            // offerPrice: widget.detailResponse["fix_price"],
-            // userImgUrl: widget.detailResponse["user"]["img"],
+    log("responseData for chat in feature info = $response");
+    ChatModel? model;
+    log("response data  = ${response["data"]}");
+    if (response["data"] is List && response["data"].isEmpty) {
+      log("widget.detailResponse user id = ${widget.detailResponse["user"]["id"]}");
+      log("widget.detailResponse user name = ${widget.detailResponse["user"]["name"]}");
+      model = ChatModel(
+          message: "No chat found",
+          success: false,
+          data: Data(
+            conversation: [],
+            participant1: Participant(
+              id: widget.detailResponse["user"]["id"],
+              name: widget.detailResponse["user"]["name"],
+              username: widget.detailResponse["user"]["name"],
+            ),
+            participant2: Participant(
+                id: int.parse(userId!),
+                name: PrefKey.fullName,
+                username: PrefKey.userName),
           ));
-      // }
-    } catch (e) {
-      log("Something went Wrong $e");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        isLoading = false;
-      });
+      Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
+    } else {
+      model = ChatModel.fromJson(response);
+      Provider.of<ChatProvider>(context, listen: false).updateChatData(model);
     }
+
+    setState(() {
+      isChatBtnLoading = false;
+    });
+
+    String? receiverImg;
+    if (recieverId == model.data!.participant1!.id) {
+      receiverImg = model.data!.participant1!.img;
+    } else {
+      receiverImg = model.data!.participant2!.img;
+    }
+    push(
+        context,
+        OfferChatScreen(
+          recieverId: recieverId,
+          title: title,
+          userImgUrl: receiverImg,
+          // isOffer: true,
+          // offerPrice: widget.detailResponse["fix_price"],
+          // userImgUrl: widget.detailResponse["user"]["img"],
+        ));
+    // }
+    // } catch (e) {
+    //   log("Something went Wrong $e");
+    //   showSnackBar(context, "Something went Wrong.");
+    //   setState(() {
+    //     isLoading = false;
+    //   });
+    // }
   }
 }
