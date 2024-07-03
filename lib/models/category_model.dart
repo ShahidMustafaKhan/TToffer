@@ -50,7 +50,7 @@ class BlockedUserServices {
           "color": const Color(0xffEDFFC1),
         },
         {
-          "id": 5,
+          "id": 13,
           "title": "Electronic & Appliance",
           "image": cam,
           "color": const Color(0xffEDFFC1),

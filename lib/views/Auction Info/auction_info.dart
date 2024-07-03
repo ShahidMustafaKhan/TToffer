@@ -106,7 +106,9 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
 
     log("productId = $productId");
     wrapList1 = [
-      '${animalsAttributes.catName == 'Animals' ? animalsAttributes.age : servicesAttributes.catName == 'Services' ? servicesAttributes.car : jobAttributes.catName == 'Job' ? jobAttributes.companyName : widget.detailResponse["condition"] ?? 'NA'}',
+      '${animalsAttributes.catName == 'Animals' ? animalsAttributes.age :
+      servicesAttributes.catName == 'Services' ? servicesAttributes.car : jobAttributes.catName == 'Job'
+          ? jobAttributes.companyName : widget.detailResponse["condition"] ?? 'NA'}',
       (furnitureAttributes.catName == 'Furniture and home decor'
           ? furnitureAttributes.type
           : fashionAttributes.catName == 'Fashion (dress) and beauty'

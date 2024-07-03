@@ -104,9 +104,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     // "For Part or Not Working"
   ];
   List<String> priceRange = ["Under\$10,000"];
-  List<String> mileage = ['Under 10,000 miles'];
-  List<String> fuelType = ['Diesel', 'Petrol'];
-  List<String> color = ['White', 'Black', 'Red', ''];
+  List<String> mileage = ['Under 10,000 miles', ''];
+  List<String> fuelType = ['Diesel', 'Petrol', 'Gas'];
+  List<String> color = ['White', 'Black', 'Red', 'Pink'];
   List<String> location = ['America'];
 
   bool owner = false;
@@ -121,8 +121,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   List<String> typePropertyList = ['Apartment'];
   List<String> bedroomList = ['1', '2', '3', '4', '5', '6+', 'Studio'];
-  List<String> areaSizeList = ['1,000 sqft'];
-  List<String> yearBuiltList = ['2020'];
+  List<String> areaSizeList = ['1,000 sqft', '2,000 sqft', '3,000 sqft'];
+  List<String> yearBuiltList = ['2020', '2021', '2000', '2001', '2005', '2007'];
   List<String> featuresList = ['Apartment'];
   List<String> amenitiesList = ['Apartment'];
 
@@ -150,12 +150,26 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   String? engineCapacity = '';
   String? model = '';
 
-  List<String> engineList = ['50cc'];
-  List<String> modelList = ['Yamaha R1'];
+  List<String> engineList = [
+    '50cc',
+    '60cc',
+    '150cc',
+    '250cc',
+    '500cc',
+    '1000cc'
+  ];
+  List<String> modelList = ['Yamaha R1', 'Honda 125', 'Kawasaki'];
 
   String? car = '';
 
-  List<String> carList = ['Corolla'];
+  List<String> carList = [
+    'Corolla',
+    'Alto',
+    'Honda',
+    'Sonata',
+    'Toyota',
+    'Hyundai'
+  ];
 
   //Jobs
 
@@ -168,33 +182,39 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   String? possitionType = '';
   String? careerLevel = '';
 
-  List<String> jobTypeList = ['Graphic Design'];
-  List<String> experienceList = ['Freshie'];
+  List<String> jobTypeList = [
+    'Graphic Design',
+    'Software Engineer',
+    'Electric Engineer',
+    'Mechanic',
+    'Painter'
+  ];
+  List<String> experienceList = ['Fresh', 'Intermediate'];
   List<String> educationList = ['Intermediate'];
-  List<String> salaryList = ["\$30,000"];
-  List<String> salaryPeriodList = ['Monthly'];
-  List<String> companyNameList = ['DevSinc'];
-  List<String> possitionTypeList = ['Full Time'];
-  List<String> careerLevelList = ['Mid - Senior Level'];
+  List<String> salaryList = ["\$30,000", '\$50,000', '\$60,000'];
+  List<String> salaryPeriodList = ['Monthly', 'Daily', 'Weekly'];
+  List<String> companyNameList = ['DevSinc', 'Systems Limited', 'Neon System'];
+  List<String> possitionTypeList = ['Full Time', 'Half Time'];
+  List<String> careerLevelList = ['Mid - Senior Level', 'Full - Senior Level'];
 
   String? age = '';
   String? breed = '';
 
-  List<String> ageList = ['1 year'];
-  List<String> breedList = ['Husky'];
+  List<String> ageList = ['1 year', '2 year', '3 year', '5 year'];
+  List<String> breedList = ['Husky', 'Bully', 'Pointer'];
 
   String? furnitureType = '';
 
-  List<String> furnitureList = ['1 seater'];
+  List<String> furnitureList = ['1 seater', '2 seater', '3 seater', '4 seater'];
 
   String? kids = '';
 
-  List<String> kidsList = ['Doll'];
+  List<String> kidsList = ['Doll', 'Car'];
 
   String? fabric = '';
   String? suitType = '';
 
-  List<String> fabricList = ['Cotton'];
+  List<String> fabricList = ['Cotton', 'Khadar', 'Washing Ware'];
   List<String> suitTypeList = ['Tuxedo'];
 
   TextEditingController priceController = TextEditingController();

@@ -103,7 +103,7 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  ImageWithRadio(
+                  if(Platform.isIOS)  ImageWithRadio(
                     val: '1',
                     groupValue: selectedValue,
                     image: 'apple1',
@@ -152,7 +152,7 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
             ),
 
 
-            ApplePayButton(paymentItems: [
+            if(Platform.isIOS)   ApplePayButton(paymentItems: const [
               PaymentItem(
                 label: 'Total',
                 amount: '10',
@@ -172,7 +172,7 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
             selectPayment=='Google' &&  Platform.isAndroid?   GooglePayButton(
               // paymentConfiguration: PaymentConfiguration.fromJsonString(
               //     'defaultApplePayConfigString'),
-              paymentItems: [
+              paymentItems: const [
                 PaymentItem(
                   label: 'Total',
                   amount: '10',

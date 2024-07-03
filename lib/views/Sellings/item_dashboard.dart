@@ -20,6 +20,7 @@ import 'package:tt_offer/views/ChatScreens/chat_screen.dart';
 import 'package:tt_offer/views/Post%20screens/post_screen.dart';
 import 'package:tt_offer/views/Sell%20Faster/sell_faster.dart';
 import 'package:tt_offer/views/Sellings/item_performance.dart';
+import 'package:tt_offer/views/Sellings/new_sold_screen.dart';
 import 'package:tt_offer/views/Sellings/selling_purchase.dart';
 
 class ItemDashBoard extends StatefulWidget {
@@ -235,7 +236,12 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                     ),
                     InkWell(
                       onTap: () {
-                        markAsSold(widget.selling.id, context);
+                        push(
+                            context,
+                            NewSoldScreen(
+                              selling: widget.selling,
+                            ));
+
                       },
                       child: customContainer(
                           img: "assets/images/markSold.png",
