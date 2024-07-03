@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class ChatModel {
   bool success;
   Data? data;
@@ -13,12 +11,7 @@ class ChatModel {
 
   factory ChatModel.fromJson(Map<String, dynamic> json) => ChatModel(
         success: json["success"],
-        data: json["data"] == null
-            ? Data(
-                conversation: [],
-                participant1: Participant(),
-                participant2: Participant())
-            : Data.fromJson(json["data"]),
+        data: json["data"] == null ? null : Data.fromJson(json["data"]),
         message: json["message"],
       );
 
