@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class FashionAttributes {
-  final String categoryId;
+  dynamic categoryId;
   final String catName;
   final String fabric;
   final String suitType;
@@ -31,7 +31,7 @@ class FashionAttributes {
 }
 
 class MobileAttributes {
-  final String categoryId;
+  dynamic categoryId;
   final String catName;
 
   final String brand;
@@ -65,7 +65,7 @@ class MobileAttributes {
 }
 
 class VehicleAttributes {
-  final String categoryId;
+  dynamic categoryId;
   final String catName;
   String mileAge;
 
@@ -106,7 +106,7 @@ class VehicleAttributes {
 }
 
 class PropertyAttributes {
-  final String categoryId;
+  dynamic categoryId;
   final String catName;
   final String type;
   final String bedroom;
@@ -142,7 +142,7 @@ class PropertyAttributes {
 }
 
 class JobAttributes {
-  final String categoryId;
+  dynamic categoryId;
   final String catName;
   final String type;
   final String experience;
@@ -178,7 +178,7 @@ class JobAttributes {
 }
 
 class BikeAttributes {
-  final String categoryId;
+  dynamic categoryId;
   final String catName;
   final String engineCapacity;
   final String model;
@@ -208,7 +208,7 @@ class BikeAttributes {
 }
 
 class ServicesAttributes {
-  final String categoryId;
+  dynamic categoryId;
   final String catName;
   final String car;
 
@@ -235,7 +235,7 @@ class ServicesAttributes {
 }
 
 class KidsAttributes {
-  final String categoryId;
+  dynamic categoryId;
   final String catName;
   final String toy;
 
@@ -262,7 +262,7 @@ class KidsAttributes {
 }
 
 class AnimalsAttributes {
-  final String categoryId;
+  dynamic categoryId;
   final String catName;
   final String age;
   final String breed;
@@ -292,7 +292,7 @@ class AnimalsAttributes {
 }
 
 class FurnitureAttributes {
-  final String categoryId;
+  dynamic categoryId;
   final String catName;
   final String type;
   final String price;
