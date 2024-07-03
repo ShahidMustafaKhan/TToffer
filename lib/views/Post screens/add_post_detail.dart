@@ -202,6 +202,19 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   String? catId;
 
+  //ElectronicAmplience
+
+  List<String> electricBrand = [
+    'Dawlence',
+    'Pel',
+    'LG',
+    'Samsung',
+    'Bosch',
+    'Kenmore',
+    'Amana',
+  ];
+  String? selectElectricBrand;
+
   @override
   Widget build(BuildContext context) {
     print("object$_selectedCategory");
@@ -271,7 +284,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       Map<String, dynamic> bikeJson = {
         'category_id': catagoryId ?? '',
         'category_name': _selectedCategory ?? '',
-
         'product_id': widget.productId,
         'subCatId': subCatagoryId ?? '',
         'condition': 'New',
@@ -347,8 +359,18 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'subcategory': subCatagoryId ?? '',
-        'condition': condition ?? '',
+        'condition': conditionSelect ?? '',
         'toy': kids ?? '',
+        'price': priceController.text.trim() ?? '',
+        'location': locationSelect ?? '',
+      };
+
+      Map<String, dynamic> electricApplianceJson = {
+        'category_id': catagoryId ?? '',
+        'category_name': _selectedCategory ?? '',
+        'product_id': widget.productId,
+        'condition': conditionSelect ?? '',
+        'brand': selectElectricBrand ?? '',
         'price': priceController.text.trim() ?? '',
         'location': locationSelect ?? '',
       };
@@ -404,6 +426,42 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     title: "Category(required)",
                     selectText: _selectedCategory ?? 'Select Category'),
 
+                _selectedCategory == 'Electronic & Appliance'
+                    ? Column(
+                        children: [
+                          customRow(
+                              onTap: () {
+                                makeElectricBrand(context);
+                              },
+                              title: 'Brand',
+                              selectText:
+                                  selectElectricBrand ?? 'Select Brand'),
+                          customRow(
+                              onTap: () {
+                                conditionBottom(context);
+                              },
+                              title: 'Condition',
+                              selectText:
+                                  conditionSelect ?? 'Select Condition'),
+                          PostTextField(
+                              txt: 'Price',
+                              textEditingController: priceController),
+                          customRow(
+                              onTap: () {
+                                colorTypeBottom(context);
+                              },
+                              title: 'Color',
+                              selectText: colorSelect ?? 'Select Color'),
+                          customRow(
+                              onTap: () {
+                                locationTypeBottom(context);
+                              },
+                              title: 'Location',
+                              selectText: locationSelect ?? 'Select Location'),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+
                 _selectedCategory == 'Fashion (dress) and beauty'
                     ? Column(
                         children: [
@@ -445,7 +503,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               selectText: locationSelect ?? 'Select Location'),
                         ],
                       )
-                    : SizedBox.shrink(),
+                    : const SizedBox.shrink(),
 
                 _selectedCategory == 'Kids'
                     ? Column(
@@ -489,7 +547,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               selectText: locationSelect ?? 'Select Location'),
                         ],
                       )
-                    : SizedBox.shrink(),
+                    : const SizedBox.shrink(),
 
                 _selectedCategory == 'Furniture and home decor'
                     ? Column(
@@ -532,7 +590,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               selectText: locationSelect ?? 'Select Location'),
                         ],
                       )
-                    : SizedBox.shrink(),
+                    : const SizedBox.shrink(),
 
                 _selectedCategory == 'Animals'
                     ? Column(
@@ -988,7 +1046,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                                                   : _selectedCategory ==
                                                                           'Kids'
                                                                       ? kidsJson
-                                                                      : {});
+                                                                      : _selectedCategory ==
+                                                                              'Electronic & Appliance'
+                                                                          ? electricApplianceJson
+                                                                          : {});
                         },
                             height: 53,
                             fontWeight: FontWeight.w500,
@@ -2082,6 +2143,41 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     });
   }
 
+  Widget _electricBrand() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: electricBrand.length,
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                value: selectElectricBrand == electricBrand[index],
+                onChanged: (bool? value) {
+                  setStatee(() {
+                    if (value != null && value) {
+                      selectElectricBrand = electricBrand[index];
+                    } else {
+                      selectElectricBrand = null;
+                    }
+                  });
+                },
+              ),
+              AppText.appText(electricBrand[index],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          );
+        },
+      );
+    });
+  }
+
   //makeModel
 
   String? selectMakeModel = '';
@@ -2256,7 +2352,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   setStatee(() {
                     if (value != null && value) {
                       fuelTypeSelect = fuelType[index];
-
                     } else {
                       fuelTypeSelect = null;
                     }
@@ -2383,6 +2478,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         },
       );
     });
+  }
+
+  void makeElectricBrand(BuildContext context) {
+    return customBottomSheet(context, 'Brand', _searchController,
+        _electricBrand(), selectElectricBrand ?? '');
   }
 
   void makeFabricTypeBottom(BuildContext context) {

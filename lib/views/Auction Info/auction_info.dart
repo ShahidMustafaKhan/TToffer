@@ -78,6 +78,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
   late KidsAttributes kidsAttributes;
   late AnimalsAttributes animalsAttributes;
   late FurnitureAttributes furnitureAttributes;
+  late ElectronicApplicanceAttributes electronicApplicanceAttributes;
 
   @override
   void initState() {
@@ -92,6 +93,8 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     kidsAttributes = KidsAttributes.fromJson(AttributesJson);
     animalsAttributes = AnimalsAttributes.fromJson(AttributesJson);
     furnitureAttributes = FurnitureAttributes.fromJson(AttributesJson);
+    electronicApplicanceAttributes =
+        ElectronicApplicanceAttributes.fromJson(AttributesJson);
 
     dio = AppDio(context);
     logger.init();
@@ -121,26 +124,33 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                                   ? bikeAttributes.model
                                   : kidsAttributes.catName == 'Kids'
                                       ? kidsAttributes.toy
-                                      : ''),
-      (furnitureAttributes.catName == 'Furniture and home decor'
-          ? furnitureAttributes.color
-          : animalsAttributes.catName == 'Animals'
-              ? animalsAttributes.breed
-              : fashionAttributes.catName == 'Fashion (dress) and beauty'
-                  ? fashionAttributes.suitType.toString()
-                  : fashionAttributes.catName == 'Mobiles'
-                      ? mobileAttributes.storage
-                      : vehicleAttributes.catName == 'Vehicles'
-                          ? vehicleAttributes.color
-                          : propertyAttributes.catName == 'Property for Sale' ||
-                                  propertyAttributes.catName ==
-                                      'Property for Rent'
-                              ? propertyAttributes.area
-                              : jobAttributes.catName == 'Job'
-                                  ? jobAttributes.salary
-                                  : bikeAttributes.catName == 'Bike'
-                                      ? bikeAttributes.engineCapacity
-                                      : ''),
+                                      : electronicApplicanceAttributes
+                                                  .catName ==
+                                              'Electronic & Appliance'
+                                          ? electronicApplicanceAttributes.brand
+                                          : ''),
+      (electronicApplicanceAttributes.catName == 'Electronic & Appliance'
+          ? electronicApplicanceAttributes.color
+          : furnitureAttributes.catName == 'Furniture and home decor'
+              ? furnitureAttributes.color
+              : animalsAttributes.catName == 'Animals'
+                  ? animalsAttributes.breed
+                  : fashionAttributes.catName == 'Fashion (dress) and beauty'
+                      ? fashionAttributes.suitType.toString()
+                      : fashionAttributes.catName == 'Mobiles'
+                          ? mobileAttributes.storage
+                          : vehicleAttributes.catName == 'Vehicles'
+                              ? vehicleAttributes.color
+                              : propertyAttributes.catName ==
+                                          'Property for Sale' ||
+                                      propertyAttributes.catName ==
+                                          'Property for Rent'
+                                  ? propertyAttributes.area
+                                  : jobAttributes.catName == 'Job'
+                                      ? jobAttributes.salary
+                                      : bikeAttributes.catName == 'Bike'
+                                          ? bikeAttributes.engineCapacity
+                                          : ''),
       (fashionAttributes.catName == 'Mobiles'
           ? mobileAttributes.color
           : propertyAttributes.catName == 'Property for Sale' ||
@@ -211,43 +221,49 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
               : jobAttributes.catName == 'Job'
                   ? 'Company Name'
                   : 'Condition',
-      furnitureAttributes.catName == 'Furniture and home decor'
-          ? "Type"
-          : animalsAttributes.catName == 'Animals'
-              ? 'Breed'
+      electronicApplicanceAttributes.catName == 'Electronic & Appliance'
+          ? 'Brand'
+          : furnitureAttributes.catName == 'Furniture and home decor'
+              ? "Type"
+              : animalsAttributes.catName == 'Animals'
+                  ? 'Breed'
+                  : fashionAttributes.catName == 'Fashion (dress) and beauty'
+                      ? 'Fabric'
+                      : mobileAttributes.catName == 'Mobiles'
+                          ? 'Brand'
+                          : vehicleAttributes.catName == 'Vehicles'
+                              ? 'Fuel Type'
+                              : propertyAttributes.catName ==
+                                          'Property for Sale' ||
+                                      propertyAttributes.catName ==
+                                          'Property for Rent'
+                                  ? 'Type'
+                                  : jobAttributes.catName == 'Job'
+                                      ? 'Experience'
+                                      : bikeAttributes.catName == 'Bike'
+                                          ? 'Model'
+                                          : kidsAttributes.catName == 'Kids'
+                                              ? 'Toys'
+                                              : '',
+      electronicApplicanceAttributes.catName == 'Electronic & Appliance'
+          ? 'Color'
+          : furnitureAttributes.catName == 'Furniture and home decor'
+              ? "Color"
               : fashionAttributes.catName == 'Fashion (dress) and beauty'
-                  ? 'Fabric'
+                  ? 'SuitType'
                   : mobileAttributes.catName == 'Mobiles'
-                      ? 'Brand'
+                      ? 'Storage Capacity'
                       : vehicleAttributes.catName == 'Vehicles'
-                          ? 'Fuel Type'
+                          ? 'Color'
                           : propertyAttributes.catName == 'Property for Sale' ||
                                   propertyAttributes.catName ==
                                       'Property for Rent'
-                              ? 'Type'
+                              ? 'Area'
                               : jobAttributes.catName == 'Job'
-                                  ? 'Experience'
+                                  ? 'Salary'
                                   : bikeAttributes.catName == 'Bike'
-                                      ? 'Model'
-                                      : kidsAttributes.catName == 'Kids'
-                                          ? 'Toys'
-                                          : '',
-      furnitureAttributes.catName == 'Furniture and home decor'
-          ? "Color"
-          : fashionAttributes.catName == 'Fashion (dress) and beauty'
-              ? 'SuitType'
-              : mobileAttributes.catName == 'Mobiles'
-                  ? 'Storage Capacity'
-                  : vehicleAttributes.catName == 'Vehicles'
-                      ? 'Color'
-                      : propertyAttributes.catName == 'Property for Sale' ||
-                              propertyAttributes.catName == 'Property for Rent'
-                          ? 'Area'
-                          : jobAttributes.catName == 'Job'
-                              ? 'Salary'
-                              : bikeAttributes.catName == 'Bike'
-                                  ? 'Engine Capacity'
-                                  : '',
+                                      ? 'Engine Capacity'
+                                      : '',
       mobileAttributes.catName == 'Mobiles'
           ? "Color"
           : propertyAttributes.catName == 'Property for Sale' ||

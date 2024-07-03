@@ -323,3 +323,39 @@ class FurnitureAttributes {
     );
   }
 }
+
+class ElectronicApplicanceAttributes {
+  dynamic categoryId;
+  final String catName;
+  final String condition;
+  final String brand;
+  final String price;
+  final String color;
+
+  final String location;
+
+  ElectronicApplicanceAttributes({
+    required this.categoryId,
+    required this.condition,
+    required this.brand,
+    required this.color,
+    required this.catName,
+    required this.price,
+    required this.location,
+  });
+
+  factory ElectronicApplicanceAttributes.fromJson(dynamic json) {
+    if (json is String) {
+      json = jsonDecode(json);
+    }
+    return ElectronicApplicanceAttributes(
+      categoryId: json['category_id'],
+      catName: json['category_name'] ?? '',
+      brand: json['brand'] ?? '',
+      condition: json['condition'] ?? '',
+      price: json['price'] ?? '',
+      color: json['color'] ?? '',
+      location: json['location'] ?? '',
+    );
+  }
+}
