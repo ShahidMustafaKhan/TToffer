@@ -3,7 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
+import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
@@ -12,6 +15,8 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/detail_model/property_for_sale_model.dart';
 import 'package:tt_offer/utils/utils.dart';
 import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
+
+import '../../config/keys/pref_keys.dart';
 
 class AuctionProductContainer extends StatefulWidget {
   final data;
@@ -28,10 +33,41 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
   AppLogger logger = AppLogger();
   bool isLoading = false;
 
+  var userId;
+
+  getUserId() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      userId = pref.getString(PrefKey.userId);
+    });
+  }
+
+  ProductsApiProvider? apiProvider;
+
+
   @override
   void initState() {
     dio = AppDio(context);
     logger.init();
+    getUserId();
+
+     apiProvider =
+    Provider.of<ProductsApiProvider>(context, listen: false);
+    apiProvider!.getCatagories(
+      dio: dio,
+      context: context,
+    );
+    apiProvider!.getAuctionProducts(
+      dio: dio,
+      context: context,
+    );
+    apiProvider!.getFeatureProducts(
+      dio: dio,
+      context: context,
+    );
+
+
+
     super.initState();
   }
 
@@ -65,6 +101,8 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
     PropertyAttributes propertyAttributes =
         PropertyAttributes.fromJson(widget.data['attributes']);
 
+
+
     return Container(
       decoration: BoxDecoration(
           border: Border.all(color: AppTheme.appColor),
@@ -92,9 +130,10 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
                       : null),
               child: GestureDetector(
                 onTap: () {
-                  // widget.data["wishlist"].isNotEmpty
-                  //     ? removeFavourite(wishId: widget.data["wishlist"][0]["id"])
-                  //     : addToFavourite();
+                  widget.data["wishlist"].isNotEmpty
+                      ? removeFavourite(
+                          wishId: widget.data["wishlist"][0]["id"])
+                      : addToFavourite();
                 },
                 child: Align(
                   alignment: Alignment.topRight,
@@ -230,6 +269,133 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
     );
   }
 
+  bool isFav = false;
+
+  //
+  // void addToFavourite() async {
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+  //   var response;
+  //   int responseCode200 = 200; // For successful request.
+  //   int responseCode400 = 400; // For Bad Request.
+  //   int responseCode401 = 401; // For Unauthorized access.
+  //   int responseCode404 = 404; // For For data not found
+  //   int responseCode422 = 422; // For For data not found
+  //   int responseCode500 = 500; // Internal server error.
+  //   Map<String, dynamic> params = {
+  //     "user_id": userId,
+  //     "product_id": widget.data["id"],
+  //   };
+  //   try {
+  //     response = await dio.post(path: AppUrls.adddToFavorite, data: params);
+  //     var responseData = response.data;
+  //     if (response.statusCode == responseCode400) {
+  //       showSnackBar(context, "${responseData["msg"]}");
+  //       setState(() {
+  //         setState(() {
+  //           isLoading = false;
+  //         });
+  //       });
+  //     } else if (response.statusCode == responseCode401) {
+  //       showSnackBar(context, "${responseData["msg"]}");
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //     } else if (response.statusCode == responseCode404) {
+  //       showSnackBar(context, "${responseData["msg"]}");
+  //
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //     } else if (response.statusCode == responseCode500) {
+  //       showSnackBar(context, "${responseData["msg"]}");
+  //
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //     } else if (response.statusCode == responseCode422) {
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //     } else if (response.statusCode == responseCode200) {
+  //       setState(() {
+  //         isLoading = false;
+  //         isFav = true;
+  //         getAuctionProductDetail();
+  //       });
+  //     }
+  //   } catch (e) {
+  //     print("Something went Wrong ${e}");
+  //     showSnackBar(context, "Something went Wrong.");
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   }
+  // }
+  //
+  // void removeFavourite({wishId}) async {
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+  //   var response;
+  //   int responseCode200 = 200; // For successful request.
+  //   int responseCode400 = 400; // For Bad Request.
+  //   int responseCode401 = 401; // For Unauthorized access.
+  //   int responseCode404 = 404; // For For data not found
+  //   int responseCode422 = 422; // For For data not found
+  //   int responseCode500 = 500; // Internal server error.
+  //   Map<String, dynamic> params = {
+  //     "id": wishId,
+  //     // "product_id": widget.detailResponse["id"],
+  //   };
+  //   try {
+  //     response = await dio.post(path: AppUrls.removeFavorite, data: params);
+  //     var responseData = response.data;
+  //     if (response.statusCode == responseCode400) {
+  //       showSnackBar(context, "${responseData["msg"]}");
+  //       setState(() {
+  //         setState(() {
+  //           isLoading = false;
+  //         });
+  //       });
+  //     } else if (response.statusCode == responseCode401) {
+  //       showSnackBar(context, "${responseData["msg"]}");
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //     } else if (response.statusCode == responseCode404) {
+  //       showSnackBar(context, "${responseData["msg"]}");
+  //
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //     } else if (response.statusCode == responseCode500) {
+  //       showSnackBar(context, "${responseData["msg"]}");
+  //
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //     } else if (response.statusCode == responseCode422) {
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //     } else if (response.statusCode == responseCode200) {
+  //       setState(() {
+  //         isLoading = false;
+  //         isFav = true;
+  //         // getAuctionProductDetail();
+  //       });
+  //     }
+  //   } catch (e) {
+  //     print("Something went Wrong ${e}");
+  //     showSnackBar(context, "Something went Wrong.");
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   }
+  // }
+
   void getAuctionProductDetail({productId, limit}) async {
     final ProgressDialog pr = ProgressDialog(
       context: context,
@@ -324,127 +490,137 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
     }
   }
 
-// void addToFavourite() async {
-//   setState(() {
-//     isLoading = true;
-//   });
-//   var response;
-//   int responseCode200 = 200; // For successful request.
-//   int responseCode400 = 400; // For Bad Request.
-//   int responseCode401 = 401; // For Unauthorized access.
-//   int responseCode404 = 404; // For For data not found
-//   int responseCode422 = 422; // For For data not found
-//   int responseCode500 = 500; // Internal server error.
-//   Map<String, dynamic> params = {
-//     "user_id": userId,
-//     "product_id": widget.data["id"],
-//   };
-//   try {
-//     response = await dio.post(path: AppUrls.adddToFavorite, data: params);
-//     var responseData = response.data;
-//     if (response.statusCode == responseCode400) {
-//       showSnackBar(context, "${responseData["msg"]}");
-//       setState(() {
-//         setState(() {
-//           isLoading = false;
-//         });
-//       });
-//     } else if (response.statusCode == responseCode401) {
-//       showSnackBar(context, "${responseData["msg"]}");
-//       setState(() {
-//         isLoading = false;
-//       });
-//     } else if (response.statusCode == responseCode404) {
-//       showSnackBar(context, "${responseData["msg"]}");
+  void addToFavourite() async {
+    setState(() {
+      isLoading = true;
+    });
+    var response;
+    int responseCode200 = 200; // For successful request.
+    int responseCode400 = 400; // For Bad Request.
+    int responseCode401 = 401; // For Unauthorized access.
+    int responseCode404 = 404; // For For data not found
+    int responseCode422 = 422; // For For data not found
+    int responseCode500 = 500; // Internal server error.
+    Map<String, dynamic> params = {
+      "user_id": userId,
+      "product_id": widget.data["id"],
+    };
+    try {
+      response = await dio.post(path: AppUrls.adddToFavorite, data: params);
+      var responseData = response.data;
+      if (response.statusCode == responseCode400) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          setState(() {
+            isLoading = false;
+          });
+        });
+      } else if (response.statusCode == responseCode401) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode404) {
+        showSnackBar(context, "${responseData["msg"]}");
 
-//       setState(() {
-//         isLoading = false;
-//       });
-//     } else if (response.statusCode == responseCode500) {
-//       showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode500) {
+        showSnackBar(context, "${responseData["msg"]}");
 
-//       setState(() {
-//         isLoading = false;
-//       });
-//     } else if (response.statusCode == responseCode422) {
-//       setState(() {
-//         isLoading = false;
-//       });
-//     } else if (response.statusCode == responseCode200) {
-//       setState(() {
-//         isLoading = false;
-//         isFav = true;
-//         getAuctionProductDetail();
-//       });
-//     }
-//   } catch (e) {
-//     print("Something went Wrong ${e}");
-//     showSnackBar(context, "Something went Wrong.");
-//     setState(() {
-//       isLoading = false;
-//     });
-//   }
-// }
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode422) {
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode200) {
+        setState(() {
+          isLoading = false;
+          isFav = true;
 
-// void removeFavourite({wishId}) async {
-//   setState(() {
-//     isLoading = true;
-//   });
-//   var response;
-//   int responseCode200 = 200; // For successful request.
-//   int responseCode400 = 400; // For Bad Request.
-//   int responseCode401 = 401; // For Unauthorized access.
-//   int responseCode404 = 404; // For For data not found
-//   int responseCode422 = 422; // For For data not found
-//   int responseCode500 = 500; // Internal server error.
-//   Map<String, dynamic> params = {
-//     "id": wishId,
-//     // "product_id": widget.detailResponse["id"],
-//   };
-//   try {
-//     response = await dio.post(path: AppUrls.removeFavorite, data: params);
-//     var responseData = response.data;
-//     if (response.statusCode == responseCode400) {
-//       showSnackBar(context, "${responseData["msg"]}");
-//       setState(() {
-//         setState(() {
-//           isLoading = false;
-//         });
-//       });
-//     } else if (response.statusCode == responseCode401) {
-//       showSnackBar(context, "${responseData["msg"]}");
-//       setState(() {
-//         isLoading = false;
-//       });
-//     } else if (response.statusCode == responseCode404) {
-//       showSnackBar(context, "${responseData["msg"]}");
+          apiProvider!.getAuctionProducts(
+            dio: dio,
+            context: context,
+          );
+          // apiProvider.getFeatureProducts(
+          //   dio: dio,
+          //   context: context,
+          // );
 
-//       setState(() {
-//         isLoading = false;
-//       });
-//     } else if (response.statusCode == responseCode500) {
-//       showSnackBar(context, "${responseData["msg"]}");
+          // getAuctionProductDetail();
+        });
+      }
+    } catch (e) {
+      print("Something went Wrong ${e}");
+      showSnackBar(context, "Something went Wrong.");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
-//       setState(() {
-//         isLoading = false;
-//       });
-//     } else if (response.statusCode == responseCode422) {
-//       setState(() {
-//         isLoading = false;
-//       });
-//     } else if (response.statusCode == responseCode200) {
-//       setState(() {
-//         isLoading = false;
-//       });
-//     }
-//   } catch (e) {
-//     print("Something went Wrong ${e}");
-//     showSnackBar(context, "Something went Wrong.");
-//     setState(() {
-//       isLoading = false;
-//     });
-//   }
-// }
+  void removeFavourite({wishId}) async {
+    setState(() {
+      isLoading = true;
+    });
+    var response;
+    int responseCode200 = 200; // For successful request.
+    int responseCode400 = 400; // For Bad Request.
+    int responseCode401 = 401; // For Unauthorized access.
+    int responseCode404 = 404; // For For data not found
+    int responseCode422 = 422; // For For data not found
+    int responseCode500 = 500; // Internal server error.
+    Map<String, dynamic> params = {
+      "id": wishId,
+      // "product_id": widget.detailResponse["id"],
+    };
+    try {
+      response = await dio.post(path: AppUrls.removeFavorite, data: params);
+      var responseData = response.data;
+      if (response.statusCode == responseCode400) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          setState(() {
+            isLoading = false;
+          });
+        });
+      } else if (response.statusCode == responseCode401) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode404) {
+        showSnackBar(context, "${responseData["msg"]}");
+
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode500) {
+        showSnackBar(context, "${responseData["msg"]}");
+
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode422) {
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode200) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Something went Wrong ${e}");
+      showSnackBar(context, "Something went Wrong.");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 }
 
 class ImageText extends StatefulWidget {
