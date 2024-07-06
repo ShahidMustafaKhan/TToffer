@@ -148,7 +148,7 @@ class _SavedItemListViewState extends State<SavedItemListView> {
           color: AppTheme.appColor,
         ),
       );
-    } else if (widget.data.isEmpty) {
+    } else if (widget.data == []) {
       return Center(child: AppText.appText("No Saved Item found"));
     } else {
       return ListView.builder(
@@ -186,7 +186,7 @@ class _SavedItemListViewState extends State<SavedItemListView> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
                                 child: Image.network(
-                                  widget.data[index]["product"]["photo"][index]
+                                  widget.data[index]["product"]["photo"][0]
                                       ["src"],
                                   fit: BoxFit.cover,
                                 ),

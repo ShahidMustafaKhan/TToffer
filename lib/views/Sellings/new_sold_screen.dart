@@ -121,8 +121,8 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                       child: Center(
                         child: InkWell(
                           onTap: () {
-                            push(
-                                context, RatingScreen(selling: widget.selling));
+                            // push(
+                            //     context, RatingScreen(selling: widget.selling));
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -188,7 +188,7 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
 
           // if (responce.statusCode == 200) {
           if (responce["success"] == true) {
-            push(context, RatingScreen(selling: widget.selling));
+            // push(context, RatingScreen(selling: widget.selling));
 
             getSellingProducts(context);
             // Navigator.pop(context);

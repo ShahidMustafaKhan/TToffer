@@ -425,7 +425,7 @@ class _LandingScreenState extends State<LandingScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         mainAxisSpacing: 25,
-                        crossAxisSpacing: 8,
+                        crossAxisSpacing: 19,
                         crossAxisCount: 2,
                         childAspectRatio: screenWidth / (2.6 * 250),
                       ),

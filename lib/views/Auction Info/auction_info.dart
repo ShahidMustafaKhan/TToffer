@@ -106,9 +106,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
 
     log("productId = $productId");
     wrapList1 = [
-      '${animalsAttributes.catName == 'Animals' ? animalsAttributes.age :
-      servicesAttributes.catName == 'Services' ? servicesAttributes.car : jobAttributes.catName == 'Job'
-          ? jobAttributes.companyName : widget.detailResponse["condition"] ?? 'NA'}',
+      '${animalsAttributes.catName == 'Animals' ? animalsAttributes.age : servicesAttributes.catName == 'Services' ? servicesAttributes.car : jobAttributes.catName == 'Job' ? jobAttributes.companyName : widget.detailResponse["condition"] ?? 'NA'}',
       (furnitureAttributes.catName == 'Furniture and home decor'
           ? furnitureAttributes.type
           : fashionAttributes.catName == 'Fashion (dress) and beauty'
@@ -508,8 +506,12 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
                 width: screenWidth,
@@ -522,6 +524,14 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, bottom: 20),
                 child: AppText.appText(getFormattedTimestamp(),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    textColor: AppTheme.blackColor),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0, bottom: 20),
+                child: AppText.appText(
+                    '${widget.detailResponse["user"]["phone"] ?? ''}',
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                     textColor: AppTheme.blackColor),
@@ -611,6 +621,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                   ),
                 ),
               ),
+
               Container(
                 height: 1,
                 width: screenWidth,

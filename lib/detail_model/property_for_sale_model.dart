@@ -2,7 +2,9 @@ import 'dart:convert';
 
 class FashionAttributes {
   dynamic categoryId;
+  dynamic subCategoryId;
   final String catName;
+  final String subCatName;
   final String fabric;
   final String suitType;
 
@@ -10,7 +12,9 @@ class FashionAttributes {
 
   FashionAttributes({
     required this.categoryId,
+    required this.subCategoryId,
     required this.catName,
+    required this.subCatName,
     required this.suitType,
     required this.fabric,
     required this.location,
@@ -23,6 +27,8 @@ class FashionAttributes {
     return FashionAttributes(
       categoryId: json['category_id'],
       catName: json['category_name'] ?? '',
+      subCategoryId: json['subCategoryId'] ?? '',
+      subCatName: json['subCatName'] ?? '',
       suitType: json['suitType'] ?? '',
       fabric: json['fabric'] ?? '',
       location: json['location'] ?? '',
@@ -33,6 +39,7 @@ class FashionAttributes {
 class MobileAttributes {
   dynamic categoryId;
   final String catName;
+  final String condition;
 
   final String brand;
   final String storage;
@@ -44,6 +51,7 @@ class MobileAttributes {
     required this.categoryId,
     required this.brand,
     required this.catName,
+    required this.condition,
     required this.storage,
     required this.color,
     required this.location,
@@ -56,6 +64,7 @@ class MobileAttributes {
     return MobileAttributes(
       categoryId: json['category_id'],
       catName: json['category_name'] ?? '',
+      condition: json['condition'] ?? '',
       brand: json['brand'] ?? '',
       storage: json['storage'] ?? '',
       color: json['color'] ?? '',
@@ -110,8 +119,10 @@ class PropertyAttributes {
   final String catName;
   final String type;
   final String bedroom;
+  final String yearBuilt;
   final String area;
   final String features;
+  final String amenities;
 
   final String location;
 
@@ -119,6 +130,8 @@ class PropertyAttributes {
     required this.categoryId,
     required this.type,
     required this.catName,
+    required this.yearBuilt,
+    required this.amenities,
     required this.area,
     required this.features,
     required this.bedroom,
@@ -133,6 +146,8 @@ class PropertyAttributes {
       categoryId: json['category_id'],
       type: json['type'] ?? '',
       catName: json['category_name'] ?? '',
+      yearBuilt: json['yearBuilt'] ?? '',
+      amenities: json['Amenities'] ?? '',
       area: json['area'] ?? '',
       bedroom: json['bedrooms'] ?? '',
       features: json['feature'] ?? '',
@@ -145,8 +160,12 @@ class JobAttributes {
   dynamic categoryId;
   final String catName;
   final String type;
+  final String education;
   final String experience;
   final String salary;
+  final String salaryPeriod;
+  final String possitionType;
+  final String carrerLevel;
   final String companyName;
 
   final String location;
@@ -155,9 +174,13 @@ class JobAttributes {
     required this.categoryId,
     required this.type,
     required this.catName,
+    required this.education,
     required this.companyName,
+    required this.carrerLevel,
     required this.salary,
+    required this.salaryPeriod,
     required this.experience,
+    required this.possitionType,
     required this.location,
   });
 
@@ -169,6 +192,10 @@ class JobAttributes {
       categoryId: json['category_id'],
       type: json['type'] ?? '',
       catName: json['category_name'] ?? '',
+      education: json['education'] ?? '',
+      salaryPeriod: json['salaryPeriod'] ?? '',
+      carrerLevel: json['carrierLevel'] ?? '',
+      possitionType: json['possitionType'] ?? '',
       salary: json['salary'] ?? '',
       experience: json['experience'] ?? '',
       companyName: json['companyName'] ?? '',
@@ -179,6 +206,8 @@ class JobAttributes {
 
 class BikeAttributes {
   dynamic categoryId;
+  dynamic subCategoryId;
+  String subCategoryName;
   final String catName;
   final String engineCapacity;
   final String model;
@@ -188,6 +217,8 @@ class BikeAttributes {
   BikeAttributes({
     required this.categoryId,
     required this.engineCapacity,
+    required this.subCategoryId,
+    required this.subCategoryName,
     required this.catName,
     required this.model,
     required this.location,
@@ -200,6 +231,8 @@ class BikeAttributes {
     return BikeAttributes(
       categoryId: json['category_id'],
       engineCapacity: json['engineCapacity'] ?? '',
+      subCategoryId: json['subCategoryId'] ?? '',
+      subCategoryName: json['subCategoryName'] ?? '',
       catName: json['category_name'] ?? '',
       model: json['model'] ?? '',
       location: json['location'] ?? '',
@@ -209,13 +242,17 @@ class BikeAttributes {
 
 class ServicesAttributes {
   dynamic categoryId;
+  dynamic subCategoryId;
   final String catName;
+  final String subCategoryName;
   final String car;
 
   final String location;
 
   ServicesAttributes({
     required this.categoryId,
+    required this.subCategoryId,
+    required this.subCategoryName,
     required this.car,
     required this.catName,
     required this.location,
@@ -228,6 +265,8 @@ class ServicesAttributes {
     return ServicesAttributes(
       categoryId: json['category_id'],
       catName: json['category_name'] ?? '',
+      subCategoryId: json['subCategoryId'] ?? '',
+      subCategoryName: json['subCategoryName'] ?? '',
       car: json['car'] ?? '',
       location: json['location'] ?? '',
     );
@@ -236,15 +275,21 @@ class ServicesAttributes {
 
 class KidsAttributes {
   dynamic categoryId;
+  dynamic subCategoryId;
   final String catName;
+  final String subCatName;
+  final String condition;
   final String toy;
 
   final String location;
 
   KidsAttributes({
     required this.categoryId,
+    required this.subCategoryId,
     required this.toy,
     required this.catName,
+    required this.subCatName,
+    required this.condition,
     required this.location,
   });
 
@@ -253,7 +298,10 @@ class KidsAttributes {
       json = jsonDecode(json);
     }
     return KidsAttributes(
-      categoryId: json['category_id'],
+      categoryId: json['category_id'] ?? '',
+      subCategoryId: json['subCatId'] ?? '',
+      subCatName: json['subCatName'] ?? '',
+      condition: json['condition'] ?? '',
       catName: json['category_name'] ?? '',
       toy: json['toy'] ?? '',
       location: json['location'] ?? '',
@@ -263,7 +311,9 @@ class KidsAttributes {
 
 class AnimalsAttributes {
   dynamic categoryId;
+  dynamic subCategoryId;
   final String catName;
+  final String subCatName;
   final String age;
   final String breed;
 
@@ -271,6 +321,8 @@ class AnimalsAttributes {
 
   AnimalsAttributes({
     required this.categoryId,
+    required this.subCategoryId,
+    required this.subCatName,
     required this.age,
     required this.breed,
     required this.catName,
@@ -284,6 +336,8 @@ class AnimalsAttributes {
     return AnimalsAttributes(
       categoryId: json['category_id'],
       catName: json['category_name'] ?? '',
+      subCategoryId: json['subcategoryId'] ?? '',
+      subCatName: json['subCatName'] ?? '',
       age: json['age'] ?? '',
       breed: json['breed'] ?? '',
       location: json['location'] ?? '',
@@ -294,6 +348,7 @@ class AnimalsAttributes {
 class FurnitureAttributes {
   dynamic categoryId;
   final String catName;
+  final String condition;
   final String type;
   final String price;
   final String color;
@@ -303,6 +358,7 @@ class FurnitureAttributes {
   FurnitureAttributes({
     required this.categoryId,
     required this.type,
+    required this.condition,
     required this.color,
     required this.catName,
     required this.price,
@@ -316,6 +372,7 @@ class FurnitureAttributes {
     return FurnitureAttributes(
       categoryId: json['category_id'],
       catName: json['category_name'] ?? '',
+      condition: json['condition'] ?? '',
       type: json['type'] ?? '',
       price: json['price'] ?? '',
       color: json['color'] ?? '',

@@ -1,10 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
+import 'package:tt_offer/config/app_urls.dart';
+import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/detail_model/property_for_sale_model.dart';
+import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/auction_container.dart';
+
+import '../../Utils/utils.dart';
 
 class FeatureProductContainer extends StatefulWidget {
   final data;
@@ -18,10 +26,36 @@ class FeatureProductContainer extends StatefulWidget {
 
 class _FeatureProductContainerState extends State<FeatureProductContainer> {
   String timeDifference = ''; // Store the calculated time difference
+  var userId;
+
+  getUserId() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      userId = pref.getString(PrefKey.userId);
+    });
+  }
+
+  ProductsApiProvider? apiProvider;
 
   @override
   void initState() {
     super.initState();
+
+    apiProvider = Provider.of<ProductsApiProvider>(context, listen: false);
+    apiProvider!.getCatagories(
+      dio: dio,
+      context: context,
+    );
+    apiProvider!.getAuctionProducts(
+      dio: dio,
+      context: context,
+    );
+    apiProvider!.getFeatureProducts(
+      dio: dio,
+      context: context,
+    );
+
+    getUserId();
     // Convert API date to DateTime
     DateTime dateTime = DateTime.parse("${widget.data["created_at"]}");
     // Calculate time difference
@@ -48,11 +82,10 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
 
   @override
   Widget build(BuildContext context) {
-
     VehicleAttributes vehicleAttributes =
-    VehicleAttributes.fromJson(widget.data['attributes']);
+        VehicleAttributes.fromJson(widget.data['attributes']);
     PropertyAttributes propertyAttributes =
-    PropertyAttributes.fromJson(widget.data['attributes']);
+        PropertyAttributes.fromJson(widget.data['attributes']);
 
     return Container(
       decoration: BoxDecoration(
@@ -84,32 +117,40 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                 alignment: Alignment.topRight,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: 25,
-                    width: 25,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppTheme.whiteColor,
+                  child: InkWell(
+                    onTap: () {
+                      widget.data["wishlist"].isNotEmpty
+                          ? removeFavourite(
+                              wishId: widget.data["wishlist"][0]["id"])
+                          : addToFavourite();
+                    },
+                    child: Container(
+                      height: 25,
+                      width: 25,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppTheme.whiteColor,
+                      ),
+                      child: widget.data["wishlist"].isEmpty
+                          ? Icon(
+                              Icons.favorite_border,
+                              size: 13,
+                              color: AppTheme.textColor,
+                            )
+                          : Icon(
+                              size: 13,
+                              Icons.favorite_sharp,
+                              color: AppTheme.appColor,
+                            ),
                     ),
-                    child: widget.data["wishlist"].isEmpty
-                        ? Icon(
-                            Icons.favorite_border,
-                            size: 13,
-                            color: AppTheme.textColor,
-                          )
-                        : Icon(
-                            size: 13,
-                            Icons.favorite_sharp,
-                            color: AppTheme.appColor,
-                          ),
                   ),
                 ),
               ),
             ),
 
             const SizedBox(height: 12),
-            AppText.appText("\$${widget.data["fix_price"]}",
-                fontSize: 20,
+            AppText.appText("AED${widget.data["fix_price"]}",
+                fontSize: 17,
                 fontWeight: FontWeight.w700,
                 textColor: AppTheme.textColor),
             const SizedBox(height: 5),
@@ -128,31 +169,32 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
             Expanded(
               child: vehicleAttributes.catName == 'Vehicles'
                   ? Row(
-                children: [
-                  ImageText(
-                      txt: vehicleAttributes.year, image: 'calender.png'),
-                  ImageText(
-                      txt: vehicleAttributes.mileAge, image: 'road.png'),
-                  ImageText(
-                      txt: vehicleAttributes.FuelType, image: 'petrol.png'),
-                ],
-              )
+                      children: [
+                        ImageText(
+                            txt: vehicleAttributes.year, image: 'calender.png'),
+                        ImageText(
+                            txt: vehicleAttributes.mileAge, image: 'road.png'),
+                        ImageText(
+                            txt: vehicleAttributes.FuelType,
+                            image: 'petrol.png'),
+                      ],
+                    )
                   : propertyAttributes.catName == 'Property for Sale' ||
-                  propertyAttributes.catName == 'Property for Rent'
-                  ? Row(
-                children: [
-                  ImageText(
-                      txt: propertyAttributes.bedroom,
-                      image: 'bath.png'),
-                  ImageText(
-                      txt: propertyAttributes.bedroom,
-                      image: 'bed.png'),
-                  ImageText(
-                      txt: propertyAttributes.area,
-                      image: 'family.png'),
-                ],
-              )
-                  : const SizedBox.shrink(),
+                          propertyAttributes.catName == 'Property for Rent'
+                      ? Row(
+                          children: [
+                            ImageText(
+                                txt: propertyAttributes.bedroom,
+                                image: 'bath.png'),
+                            ImageText(
+                                txt: propertyAttributes.bedroom,
+                                image: 'bed.png'),
+                            ImageText(
+                                txt: propertyAttributes.area,
+                                image: 'family.png'),
+                          ],
+                        )
+                      : const SizedBox.shrink(),
             ),
             const SizedBox(height: 3),
 
@@ -240,5 +282,150 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
         ),
       ),
     );
+  }
+
+  bool isLoading = false;
+  bool isFav = false;
+
+  void addToFavourite() async {
+    setState(() {
+      isLoading = true;
+    });
+    var response;
+    int responseCode200 = 200; // For successful request.
+    int responseCode400 = 400; // For Bad Request.
+    int responseCode401 = 401; // For Unauthorized access.
+    int responseCode404 = 404; // For For data not found
+    int responseCode422 = 422; // For For data not found
+    int responseCode500 = 500; // Internal server error.
+    Map<String, dynamic> params = {
+      "user_id": userId,
+      "product_id": widget.data["id"],
+    };
+    try {
+      response = await dio.post(path: AppUrls.adddToFavorite, data: params);
+      var responseData = response.data;
+      if (response.statusCode == responseCode400) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          setState(() {
+            isLoading = false;
+          });
+        });
+      } else if (response.statusCode == responseCode401) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode404) {
+        showSnackBar(context, "${responseData["msg"]}");
+
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode500) {
+        showSnackBar(context, "${responseData["msg"]}");
+
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode422) {
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode200) {
+        setState(() {
+          isLoading = false;
+          isFav = true;
+
+          apiProvider!.getAuctionProducts(
+            dio: dio,
+            context: context,
+          );
+          apiProvider!.getFeatureProducts(
+            dio: dio,
+            context: context,
+          );
+
+          // getAuctionProductDetail();
+        });
+      }
+    } catch (e) {
+      print("Something went Wrong ${e}");
+      showSnackBar(context, "Something went Wrong.");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void removeFavourite({wishId}) async {
+    setState(() {
+      isLoading = true;
+    });
+    var response;
+    int responseCode200 = 200; // For successful request.
+    int responseCode400 = 400; // For Bad Request.
+    int responseCode401 = 401; // For Unauthorized access.
+    int responseCode404 = 404; // For For data not found
+    int responseCode422 = 422; // For For data not found
+    int responseCode500 = 500; // Internal server error.
+    Map<String, dynamic> params = {
+      "id": wishId,
+      // "product_id": widget.detailResponse["id"],
+    };
+    try {
+      response = await dio.post(path: AppUrls.removeFavorite, data: params);
+
+      var responseData = response.data;
+      apiProvider!.getAuctionProducts(
+        dio: dio,
+        context: context,
+      );
+      apiProvider!.getFeatureProducts(
+        dio: dio,
+        context: context,
+      );
+
+      if (response.statusCode == responseCode400) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          setState(() {
+            isLoading = false;
+          });
+        });
+      } else if (response.statusCode == responseCode401) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode404) {
+        showSnackBar(context, "${responseData["msg"]}");
+
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode500) {
+        showSnackBar(context, "${responseData["msg"]}");
+
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode422) {
+        setState(() {
+          isLoading = false;
+        });
+      } else if (response.statusCode == responseCode200) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Something went Wrong ${e}");
+      showSnackBar(context, "Something went Wrong.");
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 }

@@ -15,6 +15,7 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
+import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/custom_requests/bolck_user_service.dart';
 import 'package:tt_offer/custom_requests/user_info_service.dart';
 import 'package:tt_offer/main.dart';
@@ -111,6 +112,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
   ];
 
   String? selectData;
+
+  int selectIndex = 0;
 
   blockUserHandler(bool report, setstaet) async {
     setstaet(() {
@@ -379,358 +382,431 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                         img: "assets/images/verify1.png"),
                   ],
                 ),
-                selectOption(),
+                // selectOption(),
                 const SizedBox(height: 10),
-                loader == true
-                    ? Center(
-                        child: CircularProgressIndicator(
-                        color: AppTheme.appColor,
-                      ))
-                    : data.isEmpty
-                        ? const Center(child: Text('No product found'))
-                        : selectedOption == "Auction"
-                            ? Wrap(
+
+                Row(
+                  children: [
+                    SellerSelectOption(
+                      select: selectIndex == 0 ? true : false,
+                      onTap: () {
+                        selectIndex = 0;
+                        setState(() {});
+                      },
+                      txt: 'Products',
+                    ),
+                    const Spacer(),
+                    SellerSelectOption(
+                      select: selectIndex == 1 ? true : false,
+                      onTap: () {
+                        selectIndex = 1;
+                        setState(() {});
+                      },
+                      txt: 'Reviews',
+                    )
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+                if (selectIndex == 0)
+                  for (int i = 0; i < data.length; i++)
+                    InkWell(
+                      onTap: () {
+                        if (data[i].auctionPrice == null) {
+                          getFeatureProductDetail(productId: data[i].id);
+                          // print('featureId--->${l.id}');
+                        } else {
+                          getAuctionProductDetail(productId: data[i].id);
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                height: 80,
+                                width: 80,
+                                decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                        image: NetworkImage(
+                                            data[i].photo![0].src.toString()),
+                                        fit: BoxFit.cover)),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: SizedBox(
+                              height: 55,
+                              child: Column(
                                 children: [
-                                  for (var l in selectedOption == 'Auction'
-                                      ? auction
-                                      : feature)
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 8.0, horizontal: 4),
-                                      child: SizedBox(
-                                        width:
-                                            MediaQuery.sizeOf(context).width /
-                                                2.5,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            InkWell(
-                                              onTap: () {
-                                                if (l.auctionPrice == null) {
-                                                  getFeatureProductDetail(
-                                                      productId: l.id);
-                                                  print('featureId--->${l.id}');
-                                                } else {
-                                                  getAuctionProductDetail(
-                                                      productId: l.id);
-                                                  print('auctionId--->${l.id}');
-
-                                                  // push(
-                                                  //     context,
-                                                  //     AuctionInfoScreen(
-                                                  //       detailResponse: l,
-                                                  //     ));
-                                                }
-                                              },
-                                              child: Container(
-                                                height: 210,
-                                                width: 161,
-                                                decoration: BoxDecoration(
-                                                    color:
-                                                        AppTheme.hintTextColor,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            14),
-                                                    image: l.photo!.isNotEmpty
-                                                        ? DecorationImage(
-                                                            image: NetworkImage(
-                                                                "${l.photo![0].src}"),
-                                                            fit: BoxFit.fill)
-                                                        : null),
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    // widget.data["wishlist"].isNotEmpty
-                                                    //     ? removeFavourite(
-                                                    //         wishId: widget.data["wishlist"][0]
-                                                    //             ["id"])
-                                                    //     : addToFavourite();
-                                                  },
-                                                  child: Align(
-                                                    alignment:
-                                                        Alignment.topRight,
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 15,
-                                                              right: 10.0),
-                                                      child: Container(
-                                                          height: 25,
-                                                          width: 25,
-                                                          decoration: BoxDecoration(
-                                                              shape: BoxShape
-                                                                  .circle,
-                                                              color: AppTheme
-                                                                  .whiteColor),
-                                                          child:
-                                                              l.wishlist == null
-                                                                  ? Icon(
-                                                                      Icons
-                                                                          .favorite_border,
-                                                                      size: 13,
-                                                                      color: AppTheme
-                                                                          .textColor,
-                                                                    )
-                                                                  : Icon(
-                                                                      size: 13,
-                                                                      Icons
-                                                                          .favorite_sharp,
-                                                                      color: AppTheme
-                                                                          .appColor,
-                                                                    )),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(height: 10),
-                                            SizedBox(
-                                              width: 130,
-                                              child: AppText.appText(
-                                                  "${l.title}",
-                                                  fontSize: 14,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  fontWeight: FontWeight.w500,
-                                                  textColor:
-                                                      AppTheme.textColor),
-                                            ),
-
-                                            const SizedBox(height: 8),
-
-                                            AppText.appText(
-                                                "${l.fixPrice != null ? '\$' : ''}${l.auctionPrice ?? l.fixPrice ?? ''}",
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w700,
-                                                textColor: AppTheme.textColor),
-                                            // Row(
-                                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            //   children: [
-                                            //     AppText.appText("Time Left:",
-                                            //         fontSize: 12,
-                                            //         fontWeight: FontWeight.w700,
-                                            //         textColor: AppTheme.textColor),
-                                            //     // SizedBox(
-                                            //     //   width: 80,
-                                            //     //   child: AppText.appText(getTimeLeftString(),
-                                            //     //       fontSize: 12,
-                                            //     //       overflow: TextOverflow.ellipsis,
-                                            //     //       fontWeight: FontWeight.w600,
-                                            //     //       textColor: AppTheme.appColor),
-                                            //     // ),
-                                            //   ],
-                                            // ),
-
-                                            SizedBox(
-                                                height: l.endingTime == null
-                                                    ? 0
-                                                    : 8),
-                                            l.endingTime == null
-                                                ? const SizedBox.shrink()
-                                                : Row(
-                                                    children: [
-                                                      const Text('Time Left'),
-                                                      const Spacer(),
-                                                      SizedBox(
-                                                        width: 100,
-                                                        child: AppText.appText(
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          l.endingTime
-                                                              .toString(),
-                                                          fontSize: 11,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          textColor:
-                                                              AppTheme.appColor,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-
-                                            SizedBox(
-                                                height: l.endingTime == null
-                                                    ? 0
-                                                    : 8),
-
-                                            AppButton.appButton("Bid Now",
-                                                onTap: () {
-                                              getAuctionProductDetail(
-                                                  productId: l.id);
-                                            },
-                                                height: 32,
-                                                width: 161,
-                                                radius: 16.0,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                backgroundColor:
-                                                    AppTheme.appColor,
-                                                textColor: AppTheme.whiteColor)
-                                            // else
-                                            //   const SizedBox()
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                ],
-                              )
-                            : Wrap(
-                                children: [
-                                  for (var l in selectedOption == 'Auction'
-                                      ? auction
-                                      : feature)
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 8.0, horizontal: 4),
-                                      child: SizedBox(
-                                        width:
-                                            MediaQuery.sizeOf(context).width /
-                                                2.4,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            InkWell(
-                                              onTap: () {
-                                                if (l.auctionPrice == null) {
-                                                  getFeatureProductDetail(
-                                                      productId: l.id);
-                                                  print('featureId--->${l.id}');
-                                                } else {
-                                                  getAuctionProductDetail(
-                                                      productId: l.id);
-                                                  print('auctionId--->${l.id}');
-
-                                                  // push(
-                                                  //     context,
-                                                  //     AuctionInfoScreen(
-                                                  //       detailResponse: l,
-                                                  //     ));
-                                                }
-                                              },
-                                              child: Container(
-                                                height: 210,
-                                                width: 161,
-                                                decoration: BoxDecoration(
-                                                    color:
-                                                        AppTheme.hintTextColor,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            14),
-                                                    image: l.photo!.isNotEmpty
-                                                        ? DecorationImage(
-                                                            image: NetworkImage(
-                                                                "${l.photo![0].src}"),
-                                                            fit: BoxFit.fill)
-                                                        : null),
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    // widget.data["wishlist"].isNotEmpty
-                                                    //     ? removeFavourite(
-                                                    //         wishId: widget.data["wishlist"][0]
-                                                    //             ["id"])
-                                                    //     : addToFavourite();
-                                                  },
-                                                  child: Align(
-                                                    alignment:
-                                                        Alignment.topRight,
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 15,
-                                                              right: 10.0),
-                                                      child: Container(
-                                                          height: 25,
-                                                          width: 25,
-                                                          decoration: BoxDecoration(
-                                                              shape: BoxShape
-                                                                  .circle,
-                                                              color: AppTheme
-                                                                  .whiteColor),
-                                                          child:
-                                                              l.wishlist == null
-                                                                  ? Icon(
-                                                                      Icons
-                                                                          .favorite_border,
-                                                                      size: 13,
-                                                                      color: AppTheme
-                                                                          .textColor,
-                                                                    )
-                                                                  : Icon(
-                                                                      size: 13,
-                                                                      Icons
-                                                                          .favorite_sharp,
-                                                                      color: AppTheme
-                                                                          .appColor,
-                                                                    )),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            SizedBox(
-                                              width: 100,
-                                              child: AppText.appText(
-                                                  "${l.title}",
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
-                                                  textColor:
-                                                      AppTheme.textColor),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            AppText.appText(
-                                                "${l.fixPrice != null ? '\$' : ''}${l.auctionPrice ?? l.fixPrice ?? ''}",
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w700,
-                                                textColor: AppTheme.textColor),
-                                            Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.location_on_outlined,
-                                                  color: AppTheme.textColor,
-                                                  size: 20,
-                                                ),
-                                                SizedBox(
-                                                  width: 50,
-                                                  child: AppText.appText(
-                                                    "${l.location}",
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w400,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    textColor:
-                                                        AppTheme.textColor,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  width: 100,
-                                                  child: AppText.appText(
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    calculateTimeDifference(
-                                                        DateTime.parse(
-                                                            l.createdAt)),
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.w600,
-                                                    textColor:
-                                                        AppTheme.appColor,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    )
+                                  Text(
+                                    data[i].title.toString(),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 17),
+                                  ),
                                 ],
                               ),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+
+                // loader == true
+                //     ? Center(
+                //         child: CircularProgressIndicator(
+                //         color: AppTheme.appColor,
+                //       ))
+                //     : data.isEmpty
+                //         ? const Center(child: Text('No product found'))
+                //         : selectedOption == "Auction"
+                //             ? Wrap(
+                //                 children: [
+                //                   for (var l in selectedOption == 'Auction'
+                //                       ? auction
+                //                       : feature)
+                //                     Padding(
+                //                       padding: const EdgeInsets.symmetric(
+                //                           vertical: 8.0, horizontal: 4),
+                //                       child: SizedBox(
+                //                         width:
+                //                             MediaQuery.sizeOf(context).width /
+                //                                 2.5,
+                //                         child: Column(
+                //                           mainAxisAlignment:
+                //                               MainAxisAlignment.spaceBetween,
+                //                           crossAxisAlignment:
+                //                               CrossAxisAlignment.start,
+                //                           children: [
+                //                             InkWell(
+                //                               onTap: () {
+                //                                 if (l.auctionPrice == null) {
+                //                                   getFeatureProductDetail(
+                //                                       productId: l.id);
+                //                                   print('featureId--->${l.id}');
+                //                                 } else {
+                //                                   getAuctionProductDetail(
+                //                                       productId: l.id);
+                //                                   print('auctionId--->${l.id}');
+                //
+                //                                   // push(
+                //                                   //     context,
+                //                                   //     AuctionInfoScreen(
+                //                                   //       detailResponse: l,
+                //                                   //     ));
+                //                                 }
+                //                               },
+                //                               child: Container(
+                //                                 height: 210,
+                //                                 width: 161,
+                //                                 decoration: BoxDecoration(
+                //                                     color:
+                //                                         AppTheme.hintTextColor,
+                //                                     borderRadius:
+                //                                         BorderRadius.circular(
+                //                                             14),
+                //                                     image: l.photo!.isNotEmpty
+                //                                         ? DecorationImage(
+                //                                             image: NetworkImage(
+                //                                                 "${l.photo![0].src}"),
+                //                                             fit: BoxFit.fill)
+                //                                         : null),
+                //                                 child: GestureDetector(
+                //                                   onTap: () {
+                //                                     // widget.data["wishlist"].isNotEmpty
+                //                                     //     ? removeFavourite(
+                //                                     //         wishId: widget.data["wishlist"][0]
+                //                                     //             ["id"])
+                //                                     //     : addToFavourite();
+                //                                   },
+                //                                   child: Align(
+                //                                     alignment:
+                //                                         Alignment.topRight,
+                //                                     child: Padding(
+                //                                       padding:
+                //                                           const EdgeInsets.only(
+                //                                               top: 15,
+                //                                               right: 10.0),
+                //                                       child: Container(
+                //                                           height: 25,
+                //                                           width: 25,
+                //                                           decoration: BoxDecoration(
+                //                                               shape: BoxShape
+                //                                                   .circle,
+                //                                               color: AppTheme
+                //                                                   .whiteColor),
+                //                                           child:
+                //                                               l.wishlist == null
+                //                                                   ? Icon(
+                //                                                       Icons
+                //                                                           .favorite_border,
+                //                                                       size: 13,
+                //                                                       color: AppTheme
+                //                                                           .textColor,
+                //                                                     )
+                //                                                   : Icon(
+                //                                                       size: 13,
+                //                                                       Icons
+                //                                                           .favorite_sharp,
+                //                                                       color: AppTheme
+                //                                                           .appColor,
+                //                                                     )),
+                //                                     ),
+                //                                   ),
+                //                                 ),
+                //                               ),
+                //                             ),
+                //                             const SizedBox(height: 10),
+                //                             SizedBox(
+                //                               width: 130,
+                //                               child: AppText.appText(
+                //                                   "${l.title}",
+                //                                   fontSize: 14,
+                //                                   overflow:
+                //                                       TextOverflow.ellipsis,
+                //                                   fontWeight: FontWeight.w500,
+                //                                   textColor:
+                //                                       AppTheme.textColor),
+                //                             ),
+                //
+                //                             const SizedBox(height: 8),
+                //
+                //                             AppText.appText(
+                //                                 "${l.fixPrice != null ? '\$' : ''}${l.auctionPrice ?? l.fixPrice ?? ''}",
+                //                                 fontSize: 14,
+                //                                 fontWeight: FontWeight.w700,
+                //                                 textColor: AppTheme.textColor),
+                //                             // Row(
+                //                             //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //                             //   children: [
+                //                             //     AppText.appText("Time Left:",
+                //                             //         fontSize: 12,
+                //                             //         fontWeight: FontWeight.w700,
+                //                             //         textColor: AppTheme.textColor),
+                //                             //     // SizedBox(
+                //                             //     //   width: 80,
+                //                             //     //   child: AppText.appText(getTimeLeftString(),
+                //                             //     //       fontSize: 12,
+                //                             //     //       overflow: TextOverflow.ellipsis,
+                //                             //     //       fontWeight: FontWeight.w600,
+                //                             //     //       textColor: AppTheme.appColor),
+                //                             //     // ),
+                //                             //   ],
+                //                             // ),
+                //
+                //                             SizedBox(
+                //                                 height: l.endingTime == null
+                //                                     ? 0
+                //                                     : 8),
+                //                             l.endingTime == null
+                //                                 ? const SizedBox.shrink()
+                //                                 : Row(
+                //                                     children: [
+                //                                       const Text('Time Left'),
+                //                                       const Spacer(),
+                //                                       SizedBox(
+                //                                         width: 100,
+                //                                         child: AppText.appText(
+                //                                           overflow: TextOverflow
+                //                                               .ellipsis,
+                //                                           l.endingTime
+                //                                               .toString(),
+                //                                           fontSize: 11,
+                //                                           fontWeight:
+                //                                               FontWeight.w600,
+                //                                           textColor:
+                //                                               AppTheme.appColor,
+                //                                         ),
+                //                                       ),
+                //                                     ],
+                //                                   ),
+                //
+                //                             SizedBox(
+                //                                 height: l.endingTime == null
+                //                                     ? 0
+                //                                     : 8),
+                //
+                //                             AppButton.appButton("Bid Now",
+                //                                 onTap: () {
+                //                               getAuctionProductDetail(
+                //                                   productId: l.id);
+                //                             },
+                //                                 height: 32,
+                //                                 width: 161,
+                //                                 radius: 16.0,
+                //                                 fontSize: 14,
+                //                                 fontWeight: FontWeight.w500,
+                //                                 backgroundColor:
+                //                                     AppTheme.appColor,
+                //                                 textColor: AppTheme.whiteColor)
+                //                             // else
+                //                             //   const SizedBox()
+                //                           ],
+                //                         ),
+                //                       ),
+                //                     )
+                //                 ],
+                //               )
+                //             : Wrap(
+                //                 children: [
+                //                   for (var l in selectedOption == 'Auction'
+                //                       ? auction
+                //                       : feature)
+                //                     Padding(
+                //                       padding: const EdgeInsets.symmetric(
+                //                           vertical: 8.0, horizontal: 4),
+                //                       child: SizedBox(
+                //                         width:
+                //                             MediaQuery.sizeOf(context).width /
+                //                                 2.4,
+                //                         child: Column(
+                //                           mainAxisAlignment:
+                //                               MainAxisAlignment.spaceBetween,
+                //                           crossAxisAlignment:
+                //                               CrossAxisAlignment.start,
+                //                           children: [
+                //                             InkWell(
+                //                               onTap: () {
+                //                                 if (l.auctionPrice == null) {
+                //                                   getFeatureProductDetail(
+                //                                       productId: l.id);
+                //                                   print('featureId--->${l.id}');
+                //                                 } else {
+                //                                   getAuctionProductDetail(
+                //                                       productId: l.id);
+                //                                   print('auctionId--->${l.id}');
+                //
+                //                                   // push(
+                //                                   //     context,
+                //                                   //     AuctionInfoScreen(
+                //                                   //       detailResponse: l,
+                //                                   //     ));
+                //                                 }
+                //                               },
+                //                               child: Container(
+                //                                 height: 210,
+                //                                 width: 161,
+                //                                 decoration: BoxDecoration(
+                //                                     color:
+                //                                         AppTheme.hintTextColor,
+                //                                     borderRadius:
+                //                                         BorderRadius.circular(
+                //                                             14),
+                //                                     image: l.photo!.isNotEmpty
+                //                                         ? DecorationImage(
+                //                                             image: NetworkImage(
+                //                                                 "${l.photo![0].src}"),
+                //                                             fit: BoxFit.fill)
+                //                                         : null),
+                //                                 child: GestureDetector(
+                //                                   onTap: () {
+                //                                     // widget.data["wishlist"].isNotEmpty
+                //                                     //     ? removeFavourite(
+                //                                     //         wishId: widget.data["wishlist"][0]
+                //                                     //             ["id"])
+                //                                     //     : addToFavourite();
+                //                                   },
+                //                                   child: Align(
+                //                                     alignment:
+                //                                         Alignment.topRight,
+                //                                     child: Padding(
+                //                                       padding:
+                //                                           const EdgeInsets.only(
+                //                                               top: 15,
+                //                                               right: 10.0),
+                //                                       child: Container(
+                //                                           height: 25,
+                //                                           width: 25,
+                //                                           decoration: BoxDecoration(
+                //                                               shape: BoxShape
+                //                                                   .circle,
+                //                                               color: AppTheme
+                //                                                   .whiteColor),
+                //                                           child:
+                //                                               l.wishlist == null
+                //                                                   ? Icon(
+                //                                                       Icons
+                //                                                           .favorite_border,
+                //                                                       size: 13,
+                //                                                       color: AppTheme
+                //                                                           .textColor,
+                //                                                     )
+                //                                                   : Icon(
+                //                                                       size: 13,
+                //                                                       Icons
+                //                                                           .favorite_sharp,
+                //                                                       color: AppTheme
+                //                                                           .appColor,
+                //                                                     )),
+                //                                     ),
+                //                                   ),
+                //                                 ),
+                //                               ),
+                //                             ),
+                //                             const SizedBox(height: 5),
+                //                             SizedBox(
+                //                               width: 100,
+                //                               child: AppText.appText(
+                //                                   "${l.title}",
+                //                                   overflow:
+                //                                       TextOverflow.ellipsis,
+                //                                   fontSize: 14,
+                //                                   fontWeight: FontWeight.w500,
+                //                                   textColor:
+                //                                       AppTheme.textColor),
+                //                             ),
+                //                             const SizedBox(height: 5),
+                //                             AppText.appText(
+                //                                 "${l.fixPrice != null ? '\$' : ''}${l.auctionPrice ?? l.fixPrice ?? ''}",
+                //                                 fontSize: 14,
+                //                                 fontWeight: FontWeight.w700,
+                //                                 textColor: AppTheme.textColor),
+                //                             Row(
+                //                               children: [
+                //                                 Icon(
+                //                                   Icons.location_on_outlined,
+                //                                   color: AppTheme.textColor,
+                //                                   size: 20,
+                //                                 ),
+                //                                 SizedBox(
+                //                                   width: 50,
+                //                                   child: AppText.appText(
+                //                                     "${l.location}",
+                //                                     fontSize: 12,
+                //                                     fontWeight: FontWeight.w400,
+                //                                     overflow:
+                //                                         TextOverflow.ellipsis,
+                //                                     textColor:
+                //                                         AppTheme.textColor,
+                //                                   ),
+                //                                 ),
+                //                                 SizedBox(
+                //                                   width: 100,
+                //                                   child: AppText.appText(
+                //                                     overflow:
+                //                                         TextOverflow.ellipsis,
+                //                                     calculateTimeDifference(
+                //                                         DateTime.parse(
+                //                                             l.createdAt)),
+                //                                     fontSize: 11,
+                //                                     fontWeight: FontWeight.w600,
+                //                                     textColor:
+                //                                         AppTheme.appColor,
+                //                                   ),
+                //                                 ),
+                //                               ],
+                //                             ),
+                //                           ],
+                //                         ),
+                //                       ),
+                //                     )
+                //                 ],
+                //               ),
               ],
             ),
           ),
@@ -1085,6 +1161,34 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class SellerSelectOption extends StatefulWidget {
+  String? txt;
+  bool select;
+  Function()? onTap;
+
+  SellerSelectOption({this.txt, this.onTap, required this.select});
+
+  @override
+  State<SellerSelectOption> createState() => _SellerSelectOptionState();
+}
+
+class _SellerSelectOptionState extends State<SellerSelectOption> {
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: (widget.onTap),
+      child: Text(
+        widget.txt!,
+        style: TextStyle(
+            decoration: widget.select ? TextDecoration.underline : null,
+            fontSize: 17,
+            color: AppTheme.appColor,
+            fontWeight: FontWeight.bold),
       ),
     );
   }

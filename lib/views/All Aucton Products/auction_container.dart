@@ -108,7 +108,7 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
           border: Border.all(color: AppTheme.appColor),
           borderRadius: BorderRadius.circular(10)),
       // height: 370,
-      width: 175,
+      width: 180,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Column(
@@ -160,7 +160,7 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
               ),
             ),
             const SizedBox(height: 12),
-            AppText.appText("\$${widget.data["auction_price"]}",
+            AppText.appText("AED${widget.data["auction_price"]}",
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
                 textColor: AppTheme.textColor),
@@ -545,10 +545,10 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
             dio: dio,
             context: context,
           );
-          // apiProvider.getFeatureProducts(
-          //   dio: dio,
-          //   context: context,
-          // );
+          apiProvider!.getFeatureProducts(
+            dio: dio,
+            context: context,
+          );
 
           // getAuctionProductDetail();
         });
@@ -580,6 +580,16 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
     try {
       response = await dio.post(path: AppUrls.removeFavorite, data: params);
       var responseData = response.data;
+
+      apiProvider!.getAuctionProducts(
+        dio: dio,
+        context: context,
+      );
+      apiProvider!.getFeatureProducts(
+        dio: dio,
+        context: context,
+      );
+
       if (response.statusCode == responseCode400) {
         showSnackBar(context, "${responseData["msg"]}");
         setState(() {

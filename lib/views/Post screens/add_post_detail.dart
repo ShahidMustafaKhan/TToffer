@@ -14,6 +14,7 @@ import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
+import 'package:tt_offer/detail_model/property_for_sale_model.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
@@ -60,34 +61,15 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   var catagoryData;
   var subCatagoryData;
 
+  bool _dataInitialized = false; // Flag to prevent reinitialization
+
   @override
   void initState() {
     logger.init();
     getCatagories(search: "");
     getSubCatagories(search: "");
 
-    if (widget.selling != null) {
-      if (widget.selling!.category != null) {
-        _selectedCategory = widget.selling!.category!.name ?? '';
-        catagoryId = widget.selling!.categoryId;
-      }
-      if (widget.selling!.subCategory != null) {
-        _selectedSubCategory = widget.selling!.subCategory!.name ?? '';
-        subCatagoryId = widget.selling!.subCategoryId ?? '';
-      }
-
-      _selectedCondition = widget.selling!.condition ?? '';
-      _modelController.text = widget.selling!.model ?? '';
-      _millageController.text = widget.selling!.mileage ?? '';
-      _colorController.text = widget.selling!.color ?? '';
-      _brandController.text = widget.selling!.brand ?? '';
-      _editionController.text = widget.selling!.edition ?? '';
-      _authenticityController.text = widget.selling!.authenticity ?? '';
-      _modelYearController.text = widget.selling!.makeAndModel ?? '';
-    }
-
     subCategoriesHandler();
-
     super.initState();
   }
 
@@ -96,13 +78,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   List<String> makeModel = ['Audi', 'BMW', 'Corolla'];
   List<String> year = ['2021', '2000', '2001'];
-  List<String> condition = [
-    "New",
-    "Good",
-    "Open Box",
-    "Refurnished",
-    // "For Part or Not Working"
-  ];
+  List<String> condition = ["New", "Good", "Open Box", "Refurnished"];
   List<String> priceRange = ["Under\$10,000"];
   List<String> mileage = ['Under 10,000 miles', ''];
   List<String> fuelType = ['Diesel', 'Petrol', 'Gas'];
@@ -135,7 +111,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     'Xiaomi',
     'Motorola',
     'Huawei',
-    'Apple',
+    'Apple'
   ];
   List<String> storageList = [
     '32GB',
@@ -231,15 +207,118 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     'Samsung',
     'Bosch',
     'Kenmore',
-    'Amana',
+    'Amana'
   ];
   String? selectElectricBrand;
+
+  VehicleAttributes? vehicleAttributes;
+  MobileAttributes? mobileAttributes;
+  FashionAttributes? fashionAttributes;
+  PropertyAttributes? propertyAttributes;
+  JobAttributes? jobAttributes;
+  BikeAttributes? bikeAttributes;
+  ServicesAttributes? servicesAttributes;
+  KidsAttributes? kidsAttributes;
+  AnimalsAttributes? animalsAttributes;
+  FurnitureAttributes? furnitureAttributes;
+  ElectronicApplicanceAttributes? electronicApplicanceAttributes;
 
   @override
   Widget build(BuildContext context) {
     print("object$_selectedCategory");
     return Consumer2<CategoryProvider, SubCategoriesProvider>(
         builder: (context, category, subCat, _) {
+      final parseData = widget.selling?.attributes ?? {};
+
+      if (!_dataInitialized &&
+          subCatModel.isNotEmpty &&
+          widget.selling != null &&
+          parseData != null) {
+        vehicleAttributes = VehicleAttributes.fromJson(parseData);
+        mobileAttributes = MobileAttributes.fromJson(parseData);
+        fashionAttributes = FashionAttributes.fromJson(parseData);
+        propertyAttributes = PropertyAttributes.fromJson(parseData);
+        jobAttributes = JobAttributes.fromJson(parseData);
+        bikeAttributes = BikeAttributes.fromJson(parseData);
+        servicesAttributes = ServicesAttributes.fromJson(parseData);
+        kidsAttributes = KidsAttributes.fromJson(parseData);
+        animalsAttributes = AnimalsAttributes.fromJson(parseData);
+        furnitureAttributes = FurnitureAttributes.fromJson(parseData);
+        electronicApplicanceAttributes =
+            ElectronicApplicanceAttributes.fromJson(parseData);
+
+        _selectedCategory = vehicleAttributes?.catName ?? '';
+        _selectedCategory = mobileAttributes?.catName ?? '';
+        brand = mobileAttributes?.brand ?? '';
+        colorSelect = mobileAttributes!.color;
+        typeProperty = propertyAttributes!.type;
+        conditionSelect = 'New';
+        storage = mobileAttributes?.storage ?? '';
+        _colorController.text = mobileAttributes?.color ?? '';
+        bedrooms = propertyAttributes!.bedroom;
+        area = propertyAttributes!.area;
+        features = propertyAttributes!.features;
+        model = vehicleAttributes!.makeModel;
+        yearBuilt = vehicleAttributes!.year;
+        conditionSelect = 'New';
+        mileAgeSelect = vehicleAttributes!.mileAge;
+        fuelTypeSelect = vehicleAttributes!.FuelType;
+        colorSelect = vehicleAttributes!.color;
+        amenities = propertyAttributes!.amenities;
+        yearBuilt = propertyAttributes!.yearBuilt;
+
+        brand = electronicApplicanceAttributes!.brand;
+        conditionSelect = electronicApplicanceAttributes!.condition;
+        colorSelect = electronicApplicanceAttributes!.color;
+
+        catagoryId = vehicleAttributes!.categoryId;
+        catagoryId = propertyAttributes!.categoryId;
+        catagoryId = mobileAttributes!.categoryId;
+        catagoryId = electronicApplicanceAttributes!.categoryId;
+        catagoryId = bikeAttributes!.categoryId;
+        catagoryId = jobAttributes!.categoryId;
+        catagoryId = servicesAttributes!.categoryId;
+        catagoryId = animalsAttributes!.categoryId;
+        catagoryId = furnitureAttributes!.categoryId;
+        catagoryId = fashionAttributes!.categoryId;
+        catagoryId = kidsAttributes!.categoryId;
+
+        engineCapacity = bikeAttributes!.engineCapacity;
+        model = bikeAttributes!.model;
+        subCatagoryId = bikeAttributes!.subCategoryId;
+        _selectedSubCategory = bikeAttributes!.subCategoryName;
+
+        jobType = jobAttributes!.type;
+        experience = jobAttributes!.experience;
+        salary = jobAttributes!.salary;
+        salaryPeriod = 'Monthly';
+        companyName = jobAttributes!.companyName;
+
+        car = servicesAttributes!.car;
+        subCatagoryId = servicesAttributes!.subCategoryId;
+        _selectedSubCategory = servicesAttributes!.subCategoryName;
+
+        age = animalsAttributes!.age;
+        breed = animalsAttributes!.breed;
+        subCatagoryId = animalsAttributes!.subCategoryId;
+        _selectedSubCategory = animalsAttributes!.subCatName;
+
+        furnitureType = furnitureAttributes!.type;
+        colorSelect = furnitureAttributes!.color;
+
+        fabric = fashionAttributes!.fabric;
+        suitType = fashionAttributes!.suitType;
+        subCatagoryId = fashionAttributes!.subCategoryId;
+        _selectedSubCategory = fashionAttributes!.subCatName;
+
+        kids = kidsAttributes!.toy;
+        subCatagoryId = kidsAttributes!.subCategoryId;
+        _selectedSubCategory = kidsAttributes!.subCatName;
+
+        // Mark data as initialized
+        _dataInitialized = true;
+      }
+
       catModel = category.category;
       subCatModel = subCat.subCategories;
 
@@ -306,6 +385,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'subCatId': subCatagoryId ?? '',
+        'subCatName': _selectedSubCategory ?? '',
         'condition': 'New',
         'engineCapacity': engineCapacity ?? '',
         'model': model ?? '',
@@ -331,6 +411,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       Map<String, dynamic> servicesJson = {
         'category_id': catagoryId ?? '',
+        'subCategoryName': _selectedSubCategory ?? '',
+        'subCategoryId': subCatagoryId ?? '',
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'subcategory': subCatagoryId ?? '',
@@ -342,6 +424,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       Map<String, dynamic> animalsJson = {
         'category_id': catagoryId ?? '',
+        'subCatName': _selectedSubCategory ?? '',
+        'subcategoryId': subCatagoryId ?? '',
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'condition': 'New',
@@ -365,9 +449,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       Map<String, dynamic> fashionJson = {
         'category_id': catagoryId ?? '',
+        'subCatName': _selectedSubCategory ?? '',
+        'category_id': catagoryId ?? '',
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
-        'subcategory': subCatagoryId ?? '',
+        'subCategoryId': subCatagoryId ?? '',
         'condition': 'New',
         'fabric': fabric ?? '',
         'suitType': suitType ?? '',
@@ -376,9 +462,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       };
       Map<String, dynamic> kidsJson = {
         'category_id': catagoryId ?? '',
+        'subCatName': _selectedSubCategory ?? '',
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
-        'subcategory': subCatagoryId ?? '',
+        'subcategoryId': subCatagoryId ?? '',
         'condition': conditionSelect ?? '',
         'toy': kids ?? '',
         'price': priceController.text.trim() ?? '',
@@ -422,22 +509,25 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   height: 20,
                 ),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    customCheckBox(owner, (val) {
-                      owner = val!;
-                      dealer = false;
-                      setState(() {});
-                    }, 'Owner'),
-                    customCheckBox(dealer, (val) {
-                      dealer = val!;
-                      owner = false;
-                      setState(() {});
-                    }, 'Dealer'),
-                  ],
-                ),
+                _selectedCategory == 'Property for Rent' ||
+                        _selectedCategory == 'Property for Sale'
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          customCheckBox(owner, (val) {
+                            owner = val!;
+                            dealer = false;
+                            setState(() {});
+                          }, 'Owner'),
+                          customCheckBox(dealer, (val) {
+                            dealer = val!;
+                            owner = false;
+                            setState(() {});
+                          }, 'Dealer'),
+                        ],
+                      )
+                    : SizedBox.shrink(),
 
                 customRow(
                     onTap: () {
@@ -463,21 +553,21 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               title: 'Condition',
                               selectText:
                                   conditionSelect ?? 'Select Condition'),
-                          PostTextField(
-                              txt: 'Price',
-                              textEditingController: priceController),
+                          // PostTextField(
+                          //     txt: 'Price',
+                          //     textEditingController: priceController),
                           customRow(
                               onTap: () {
                                 colorTypeBottom(context);
                               },
                               title: 'Color',
                               selectText: colorSelect ?? 'Select Color'),
-                          customRow(
-                              onTap: () {
-                                locationTypeBottom(context);
-                              },
-                              title: 'Location',
-                              selectText: locationSelect ?? 'Select Location'),
+                          // customRow(
+                          //     onTap: () {
+                          //       locationTypeBottom(context);
+                          //     },
+                          //     title: 'Location',
+                          //     selectText: locationSelect ?? 'Select Location'),
                         ],
                       )
                     : const SizedBox.shrink(),
@@ -499,10 +589,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               title: 'Fabric',
                               selectText: fabric ?? 'Select Fabric'),
 
-                          PostTextField(
-                              txt: 'Price',
-                              textEditingController: priceController),
-
                           // customRow(
                           //     onTap: () {
                           //       priceRangeBottom(context);
@@ -515,12 +601,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               },
                               title: 'Suit Type',
                               selectText: suitType ?? 'Select Suit Type'),
-                          customRow(
-                              onTap: () {
-                                locationTypeBottom(context);
-                              },
-                              title: 'Location',
-                              selectText: locationSelect ?? 'Select Location'),
                         ],
                       )
                     : const SizedBox.shrink(),
@@ -549,22 +629,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           //     title: 'Price',
                           //     selectText: priceRangeSelect ?? 'Select Price'),
 
-                          PostTextField(
-                              txt: 'Price',
-                              textEditingController: priceController),
-
                           customRow(
                               onTap: () {
                                 makeKidsTypeBottom(context);
                               },
                               title: 'Toy',
                               selectText: kids ?? 'Select Toy'),
-                          customRow(
-                              onTap: () {
-                                locationTypeBottom(context);
-                              },
-                              title: 'Location',
-                              selectText: locationSelect ?? 'Select Location'),
                         ],
                       )
                     : const SizedBox.shrink(),
@@ -586,10 +656,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               selectText:
                                   conditionSelect ?? 'Select Condition'),
 
-                          PostTextField(
-                              txt: 'Price',
-                              textEditingController: priceController),
-
                           // customRow(
                           //     onTap: () {
                           //       priceRangeBottom(context);
@@ -602,12 +668,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               },
                               title: 'Color',
                               selectText: colorSelect ?? 'Select Color'),
-                          customRow(
-                              onTap: () {
-                                locationTypeBottom(context);
-                              },
-                              title: 'Location',
-                              selectText: locationSelect ?? 'Select Location'),
                         ],
                       )
                     : const SizedBox.shrink(),
@@ -629,10 +689,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               title: 'Age',
                               selectText: age ?? 'Select Age'),
 
-                          PostTextField(
-                              txt: 'Price',
-                              textEditingController: priceController),
-
                           // customRow(
                           //     onTap: () {
                           //       priceRangeBottom(context);
@@ -645,12 +701,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               },
                               title: 'Breed',
                               selectText: breed ?? 'Select Breed'),
-                          customRow(
-                              onTap: () {
-                                locationTypeBottom(context);
-                              },
-                              title: 'Location',
-                              selectText: locationSelect ?? 'Select Location'),
+                          // customRow(
+                          //     onTap: () {
+                          //       locationTypeBottom(context);
+                          //     },
+                          //     title: 'Location',
+                          //     selectText: locationSelect ?? 'Select Location'),
                         ],
                       )
                     : const SizedBox.shrink(),
@@ -729,10 +785,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               selectText:
                                   conditionSelect ?? 'Select Condition'),
 
-                          PostTextField(
-                              txt: 'Price',
-                              textEditingController: priceController),
-
                           // customRow(
                           //     onTap: () {
                           //       priceRangeBottom(context);
@@ -745,12 +797,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               },
                               title: 'Car',
                               selectText: car ?? 'Select Car'),
-                          customRow(
-                              onTap: () {
-                                locationTypeBottom(context);
-                              },
-                              title: 'Location',
-                              selectText: locationSelect ?? 'Select Location'),
                         ],
                       )
                     : const SizedBox.shrink(),
@@ -772,10 +818,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               title: 'Engine Capacity',
                               selectText: engineCapacity ?? 'Select Capacity'),
 
-                          PostTextField(
-                              txt: 'Price',
-                              textEditingController: priceController),
-
                           // customRow(
                           //     onTap: () {
                           //       priceRangeBottom(context);
@@ -788,12 +830,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               },
                               title: 'Model',
                               selectText: model ?? 'Select Model'),
-                          customRow(
-                              onTap: () {
-                                locationTypeBottom(context);
-                              },
-                              title: 'Location',
-                              selectText: locationSelect ?? 'Select Location'),
                         ],
                       )
                     : const SizedBox.shrink(),
@@ -815,10 +851,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               selectText:
                                   conditionSelect ?? 'Select Condition'),
 
-                          PostTextField(
-                              txt: 'Price',
-                              textEditingController: priceController),
-
                           // customRow(
                           //     onTap: () {
                           //       priceRangeBottom(context);
@@ -837,12 +869,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               },
                               title: 'Color',
                               selectText: colorSelect ?? 'Select Color'),
-                          customRow(
-                              onTap: () {
-                                locationTypeBottom(context);
-                              },
-                              title: 'Location',
-                              selectText: locationSelect ?? 'Select Location'),
                         ],
                       )
                     : const SizedBox.shrink(),
@@ -862,10 +888,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             },
                             title: 'Bedrooms',
                             selectText: bedrooms ?? 'Select Bedrooms'),
-
-                        PostTextField(
-                            txt: 'Price',
-                            textEditingController: priceController),
 
                         // customRow(
                         //     onTap: () {
@@ -897,12 +919,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             },
                             title: 'Amenities',
                             selectText: amenities ?? 'Select Amenities'),
-                        customRow(
-                            onTap: () {
-                              locationTypeBottom(context);
-                            },
-                            title: 'Location',
-                            selectText: locationSelect ?? 'Select Location'),
                       ])
                     : const SizedBox.shrink(),
 
@@ -944,11 +960,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                       : "",
                                   selectText:
                                       conditionSelect ?? 'Select Condition'),
-                          _selectedCategory == null
-                              ? const SizedBox.shrink()
-                              : PostTextField(
-                                  txt: 'Price',
-                                  textEditingController: priceController),
+
                           _selectedCategory == null
                               ? const SizedBox.shrink()
                               : PostTextField(
@@ -985,17 +997,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                       ? "Color"
                                       : "",
                                   selectText: colorSelect ?? 'Select Color'),
-                          _selectedCategory == null
-                              ? const SizedBox.shrink()
-                              : customRow(
-                                  onTap: () {
-                                    locationTypeBottom(context);
-                                  },
-                                  title: _selectedCategory == 'Vehicles'
-                                      ? "Location"
-                                      : "",
-                                  selectText:
-                                      locationSelect ?? 'Select Location'),
                         ],
                       ),
                 // customRow(
@@ -1804,43 +1805,70 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   //SubCategories
 
-  Widget _buildSubCategoryList() {
-    return StatefulBuilder(builder: (context, setstse) {
-      return ListView.builder(
-        shrinkWrap: true,
-        itemCount: subCatModel.length,
-        itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
+  // Widget _buildSubCategoryList() {
+  //   return StatefulBuilder(
+  //     builder: (context, setState) {
+  //       return Column(
+  //         children:
+  //             subCatModel.where((element) => element.id == catagoryId).map((e) {
+  //           return Padding(
+  //             padding: const EdgeInsets.all(8.0),
+  //             child: Text(
+  //               e.title.toString(),
+  //               // Assuming `e.title` is the data you want to display
+  //               style: TextStyle(fontSize: 16, color: Colors.black),
+  //             ),
+  //           );
+  //         }).toList(),
+  //       );
+  //     },
+  //   );
+  // }
 
-                // value: _selectedCategory == catagoryData[index]["name"],
-                value: _selectedSubCategory == subCatModel[index].title,
-                onChanged: (bool? value) {
-                  setstse(() {
-                    if (value != null && value) {
-                      // _selectedCategory = catagoryData[index]["name"];
-                      _selectedSubCategory = subCatModel[index].title!;
-                      catagoryId = subCatModel[index].id;
-                    } else {
-                      _selectedSubCategory = "";
-                    }
-                  });
-                },
-              ),
-              AppText.appText(subCatModel[index].title!,
+  Widget _buildSubCategoryList() {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        final filteredSubCatModel =
+            subCatModel.where((element) => element.id == catagoryId).toList();
+
+        return ListView.builder(
+          shrinkWrap: true,
+          itemCount: filteredSubCatModel.length,
+          itemBuilder: (context, index) {
+            return Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value:
+                      _selectedSubCategory == filteredSubCatModel[index].title,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      if (value != null && value) {
+                        _selectedSubCategory =
+                            filteredSubCatModel[index].title!;
+                        catagoryId = filteredSubCatModel[index].id;
+                      } else {
+                        _selectedSubCategory = "";
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(
+                  filteredSubCatModel[index].title!,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
-          );
-        },
-      );
-    });
+                  textColor: AppTheme.textColor,
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   //Categories
@@ -1864,6 +1892,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     // _selectedCategory = catagoryData[index]["name"];
                     _selectedCategory = catModel[index].title!;
                     catagoryId = catModel[index].id;
+                    _selectedSubCategory = '';
                   } else {
                     _selectedCategory = "";
                   }
@@ -3029,7 +3058,7 @@ class ImageDeleteService {
 //     itemCount: subCatagoryData.length,
 //     itemBuilder: (context, index) {
 //       return Row(
-//         children: [
+//         children: [t
 //           Checkbox(
 //             shape: RoundedRectangleBorder(
 //                 borderRadius: BorderRadius.circular(20)),

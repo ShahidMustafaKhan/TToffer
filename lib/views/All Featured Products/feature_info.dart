@@ -129,6 +129,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                                               'Electronic & Appliance'
                                           ? electronicApplicanceAttributes.brand
                                           : ''),
+
       (electronicApplicanceAttributes.catName == 'Electronic & Appliance'
           ? electronicApplicanceAttributes.color
           : furnitureAttributes.catName == 'Furniture and home decor'
@@ -159,6 +160,29 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
               : jobAttributes.catName == 'Job'
                   ? jobAttributes.type
                   : ''),
+      propertyAttributes.catName == 'Property for Sale' ||
+              propertyAttributes.catName == 'Property for Rent'
+          ? propertyAttributes.amenities
+          : '',
+      propertyAttributes.catName == 'Property for Sale' ||
+              propertyAttributes.catName == 'Property for Rent'
+          ? '${propertyAttributes.bedroom}BDRM'
+          : '',
+      propertyAttributes.catName == 'Property for Sale' ||
+              propertyAttributes.catName == 'Property for Rent'
+          ? '${propertyAttributes.bedroom}+BA'
+          : '',
+
+      vehicleAttributes.catName == 'Vehicles'
+          ? vehicleAttributes.makeModel
+          : '',
+
+      vehicleAttributes.catName == 'Vehicles' ? vehicleAttributes.year : '',
+      vehicleAttributes.catName == 'Vehicles'
+          ? vehicleAttributes.makeModel
+          : '',
+      vehicleAttributes.catName == 'Vehicles' ? vehicleAttributes.mileAge : '',
+
       // '${widget.detailResponse["authenticity"] ?? 'NA'}',
       // "2/32",
       // "Original"
@@ -184,8 +208,17 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
   // String? receiverId;
   // String? receiverName;
 
+  int? loopLimit;
+
   @override
   Widget build(BuildContext context) {
+    loopLimit = (propertyAttributes.catName == 'Property for Sale' ||
+            propertyAttributes.catName == 'Property for Rent')
+        ? 6
+        : propertyAttributes.catName == 'Vehicles'
+            ? 8
+            : 3;
+
     List<String> wrapList = [
       animalsAttributes.catName == 'Animals'
           ? 'Age'
@@ -245,7 +278,22 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
               : jobAttributes.catName == 'Job'
                   ? 'Job Type'
                   : '',
-      // "Authenticity"
+      propertyAttributes.catName == 'Property for Sale' ||
+              propertyAttributes.catName == 'Property for Rent'
+          ? 'Amenities'
+          : '',
+      propertyAttributes.catName == 'Property for Sale' ||
+              propertyAttributes.catName == 'Property for Rent'
+          ? 'Bedrooms'
+          : '',
+      propertyAttributes.catName == 'Property for Sale' ||
+              propertyAttributes.catName == 'Property for Rent'
+          ? 'Bathrooms'
+          : '',
+      vehicleAttributes.catName == 'Vehicles' ? 'Make' : '',
+      vehicleAttributes.catName == 'Vehicles' ? 'Year' : '',
+      vehicleAttributes.catName == 'Vehicles' ? 'Model' : '',
+      vehicleAttributes.catName == 'Vehicles' ? 'Mileage' : '',
     ];
 
     wrapListAd = wrapList;
@@ -383,6 +431,15 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                       textColor: AppTheme.blackColor),
                 ),
               ),
+
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0, bottom: 20),
+                child: AppText.appText(
+                    '${widget.detailResponse["user"]["phone"] ?? ''}',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    textColor: AppTheme.blackColor),
+              ),
               Container(
                 height: 1,
                 width: screenWidth,
@@ -410,7 +467,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                           AppText.appText(
                               widget.detailResponse["firm_on_price"] == 1
                                   ? "Non Negotiable"
-                                  : "Neg0tiable",
+                                  : "",
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                               textColor: AppTheme.lighttextColor),
@@ -485,6 +542,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                   ),
                 ),
               ),
+
               Container(
                 height: 1,
                 width: screenWidth,
@@ -585,7 +643,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                   spacing: 20,
                   runSpacing: 10,
                   children: [
-                    for (int i = 0; i <= 3; i++)
+                    for (int i = 0; i <= loopLimit!; i++)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
