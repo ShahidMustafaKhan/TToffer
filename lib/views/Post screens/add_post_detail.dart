@@ -1848,6 +1848,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   onChanged: (bool? value) {
                     setState(() {
                       if (value != null && value) {
+                        subCatagoryId = filteredSubCatModel[index].id;
+                        print('subCatagoryId---->${subCatagoryId}');
                         _selectedSubCategory =
                             filteredSubCatModel[index].title!;
                         catagoryId = filteredSubCatModel[index].id;
