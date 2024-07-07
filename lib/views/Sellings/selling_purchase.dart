@@ -287,6 +287,10 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
   @override
   Widget build(BuildContext context) {
     log("data for check ${widget.ischeck} = $data");
+
+    if (data.isEmpty) {
+      return Center(child: const Text("No Relevant Data Found"));
+    }
     return ListView.builder(
       shrinkWrap: true,
       itemCount: data.length,
@@ -473,8 +477,6 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                     InkWell(
                                       onTap: () {
                                         if (widget.ischeck == 1) {
-
-
                                           markAsSold(
                                               data[index].id, context, index);
                                         } else if (widget.ischeck == 3) {
