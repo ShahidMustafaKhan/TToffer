@@ -637,6 +637,28 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
               //   ),
               // ),
 
+              Container(
+                height: 1,
+                width: screenWidth,
+                decoration: const BoxDecoration(color: Color(0xffEAEAEA)),
+              ),
+              propertyAttributes.catName == 'Property for Rent' ||
+                      propertyAttributes.catName == 'Property for Sale'
+                  ? Row(
+                      children: [
+                        Checkbox(
+                          activeColor: Colors.blueAccent,
+                          value: true,
+                          onChanged: (v) {},
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(3)),
+                        ),
+                        AppText.appText('Sell by ${propertyAttributes.owner}',
+                            fontWeight: FontWeight.bold)
+                      ],
+                    )
+                  : const SizedBox.shrink(),
+
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
                 child: Wrap(
@@ -667,12 +689,6 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                   ],
                 ),
               ),
-
-              Container(
-                height: 1,
-                width: screenWidth,
-                decoration: const BoxDecoration(color: Color(0xffEAEAEA)),
-              )
             ],
           ),
         ],

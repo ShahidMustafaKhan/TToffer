@@ -586,7 +586,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               AppText.appText(
                                   "${widget.detailResponse["user"]["name"]}",
                                   fontSize: 12,
@@ -658,11 +658,18 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                   ],
                 ),
               ),
+
+
               Container(
                 height: 1,
                 width: screenWidth,
                 decoration: const BoxDecoration(color: Color(0xffEAEAEA)),
-              )
+              ),
+
+              propertyAttributes.catName == 'Property for Rent' ||
+                  propertyAttributes.catName == 'Property for Sale'
+                  ? Text('Sell by ${propertyAttributes.owner}')
+                  : const SizedBox.shrink(),
             ],
           ),
         ],

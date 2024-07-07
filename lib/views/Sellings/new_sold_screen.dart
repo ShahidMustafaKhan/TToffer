@@ -62,7 +62,7 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                   ),
                   const SizedBox(width: 10),
                   SizedBox(
-                    height: 50,
+                    height: 60,
                     child: Column(
                       children: [
                         AppText.appText(widget.selling.title.toString(),

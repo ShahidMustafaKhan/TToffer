@@ -121,6 +121,7 @@ class PropertyAttributes {
   final String bedroom;
   final String yearBuilt;
   final String area;
+  final String owner;
   final String features;
   final String amenities;
 
@@ -131,6 +132,7 @@ class PropertyAttributes {
     required this.type,
     required this.catName,
     required this.yearBuilt,
+    required this.owner,
     required this.amenities,
     required this.area,
     required this.features,
@@ -147,6 +149,7 @@ class PropertyAttributes {
       type: json['type'] ?? '',
       catName: json['category_name'] ?? '',
       yearBuilt: json['yearBuilt'] ?? '',
+      owner: json['owner'] ?? '',
       amenities: json['Amenities'] ?? '',
       area: json['area'] ?? '',
       bedroom: json['bedrooms'] ?? '',

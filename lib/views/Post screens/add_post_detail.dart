@@ -200,6 +200,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   //ElectronicAmplience
 
+  String? selectDealer;
+
   List<String> electricBrand = [
     'Dawlence',
     'Pel',
@@ -265,7 +267,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         yearBuilt = vehicleAttributes!.year;
         fuelTypeSelect = vehicleAttributes!.FuelType;
         colorSelect = vehicleAttributes!.color;
-        mileAgeController.text=vehicleAttributes!.mileAge;
+        mileAgeController.text = vehicleAttributes!.mileAge;
         amenities = propertyAttributes!.amenities;
         yearBuilt = propertyAttributes!.yearBuilt;
 
@@ -352,6 +354,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         'price': priceController.text.trim() ?? '',
         'storage': storage ?? '',
         'location': locationSelect ?? '',
+        'owner': selectDealer ?? '',
       };
 
       Map<String, dynamic> vehiclesJson = {
@@ -382,6 +385,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         'price': priceController.text.trim() ?? '',
         'storage': storage ?? '',
         'location': locationSelect ?? '',
+        'owner': selectDealer ?? '',
       };
 
       Map<String, dynamic> bikeJson = {
@@ -518,13 +522,24 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          customCheckBox(owner, (val) {
+                          customCheckBox(
+                              propertyAttributes!.owner=='Owner'
+                                  ? true
+                                  : owner, (val) {
                             owner = val!;
                             dealer = false;
+                            selectDealer = 'Owner';
+                            print(selectDealer);
                             setState(() {});
                           }, 'Owner'),
-                          customCheckBox(dealer, (val) {
+                          customCheckBox(
+                              propertyAttributes!.owner=='Dealer'
+                                  ? true
+                                  : dealer, (val) {
                             dealer = val!;
+                            selectDealer = 'Dealer';
+                            print(selectDealer);
+
                             owner = false;
                             setState(() {});
                           }, 'Dealer'),
@@ -1831,8 +1846,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   Widget _buildSubCategoryList() {
     return StatefulBuilder(
       builder: (context, setState) {
-        final filteredSubCatModel =
-            subCatModel.where((element) => element.id == int.parse(catagoryId)).toList();
+        final filteredSubCatModel = subCatModel
+            .where((element) => element.id == int.parse(catagoryId))
+            .toList();
 
         return ListView.builder(
           shrinkWrap: true,
