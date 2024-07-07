@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dialogs/dialogs/progress_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -142,14 +144,20 @@ class _SavedItemListViewState extends State<SavedItemListView> {
 
   @override
   Widget build(BuildContext context) {
+    log("widget.data = ${widget.data}");
     if (widget.data == null) {
       return Center(
         child: CircularProgressIndicator(
           color: AppTheme.appColor,
         ),
       );
-    } else if (widget.data == []) {
-      return Center(child: AppText.appText("No Saved Item found"));
+    }
+    if (widget.data.isEmpty) {
+      return Center(
+          child: AppText.appText(
+        "No Saved Item found",
+        textColor: AppTheme.appColor,
+      ));
     } else {
       return ListView.builder(
         shrinkWrap: true,

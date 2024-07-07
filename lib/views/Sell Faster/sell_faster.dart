@@ -30,7 +30,7 @@ class _SellFasterState extends State<SellFaster> {
   List<SellFasterData> sellFastData = [
     SellFasterData(
         boostDays: "3",
-        amount: "5",
+        amount: "3",
         subscriptionName: "Basic",
         amountInCents: 300),
     SellFasterData(
