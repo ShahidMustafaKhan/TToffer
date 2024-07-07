@@ -429,10 +429,19 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                 height: 80,
                                 width: 80,
                                 decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                        image: NetworkImage(
-                                            data[i].photo![0].src.toString()),
-                                        fit: BoxFit.cover)),
+                                  image: DecorationImage(
+                                    image: (data[i].photo != null &&
+                                            data[i].photo!.isNotEmpty &&
+                                            data[i].photo![0].src != null)
+                                        ? NetworkImage(data[i]
+                                            .photo![0]
+                                            .src
+                                            .toString()) as ImageProvider
+                                        : const AssetImage(
+                                            'assets/images/gallery1.png'),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
                             ),
                           ),

@@ -258,12 +258,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         bedrooms = propertyAttributes!.bedroom;
         area = propertyAttributes!.area;
         features = propertyAttributes!.features;
-        model = vehicleAttributes!.makeModel;
-        yearBuilt = vehicleAttributes!.year;
+        selectMakeModel = vehicleAttributes!.makeModel;
+        yearModel = vehicleAttributes!.year;
         conditionSelect = 'New';
         mileAgeSelect = vehicleAttributes!.mileAge;
+        yearBuilt = vehicleAttributes!.year;
         fuelTypeSelect = vehicleAttributes!.FuelType;
         colorSelect = vehicleAttributes!.color;
+        mileAgeController.text=vehicleAttributes!.mileAge;
         amenities = propertyAttributes!.amenities;
         yearBuilt = propertyAttributes!.yearBuilt;
 
@@ -282,6 +284,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         catagoryId = furnitureAttributes!.categoryId;
         catagoryId = fashionAttributes!.categoryId;
         catagoryId = kidsAttributes!.categoryId;
+
+        print('catCat------>${catagoryId}');
 
         engineCapacity = bikeAttributes!.engineCapacity;
         model = bikeAttributes!.model;
@@ -450,7 +454,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       Map<String, dynamic> fashionJson = {
         'category_id': catagoryId ?? '',
         'subCatName': _selectedSubCategory ?? '',
-        'category_id': catagoryId ?? '',
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'subCategoryId': subCatagoryId ?? '',
@@ -1785,7 +1788,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   setStatee(() {
                     if (value != null && value) {
                       model = modelList[index];
-                      print('model---?${model}');
+                      print('model---?$model');
                     } else {
                       model = null;
                     }
@@ -1829,7 +1832,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     return StatefulBuilder(
       builder: (context, setState) {
         final filteredSubCatModel =
-            subCatModel.where((element) => element.id == catagoryId).toList();
+            subCatModel.where((element) => element.id == int.parse(catagoryId)).toList();
 
         return ListView.builder(
           shrinkWrap: true,
@@ -1849,7 +1852,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     setState(() {
                       if (value != null && value) {
                         subCatagoryId = filteredSubCatModel[index].id;
-                        print('subCatagoryId---->${subCatagoryId}');
+                        print('subCatagoryId---->$subCatagoryId');
                         _selectedSubCategory =
                             filteredSubCatModel[index].title!;
                         catagoryId = filteredSubCatModel[index].id;
@@ -1895,6 +1898,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     _selectedCategory = catModel[index].title!;
                     catagoryId = catModel[index].id;
                     _selectedSubCategory = '';
+
+                    print('catCat------>${catagoryId}');
                   } else {
                     _selectedCategory = "";
                   }
@@ -2913,7 +2918,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       "authenticity": _authenticityController.text,
     };
 
-    print('addPostParamsNewwewew--->${mapData}');
+    print('addPostParamsNewwewew--->$mapData');
     try {
       response = await dio.post(
           path: widget.selling != null

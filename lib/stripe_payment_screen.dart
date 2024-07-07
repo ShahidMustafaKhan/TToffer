@@ -103,17 +103,18 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  if(Platform.isIOS)  ImageWithRadio(
-                    val: '1',
-                    groupValue: selectedValue,
-                    image: 'apple1',
-                    onChanged: (val) {
-                      setState(() {
-                        selectedValue = val;
-                        selectPayment = 'Apple';
-                      });
-                    },
-                  ),
+                  if (Platform.isIOS)
+                    ImageWithRadio(
+                      val: '1',
+                      groupValue: selectedValue,
+                      image: 'apple1',
+                      onChanged: (val) {
+                        setState(() {
+                          selectedValue = val;
+                          selectPayment = 'Apple';
+                        });
+                      },
+                    ),
                   ImageWithRadio(
                     val: '2',
                     groupValue: selectedValue,
@@ -151,45 +152,48 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
               ),
             ),
 
-
-            if(Platform.isIOS)   ApplePayButton(paymentItems: const [
-              PaymentItem(
-                label: 'Total',
-                amount: '10',
-                status: PaymentItemStatus.final_price,
-              ),
-            ],
-              paymentConfigurationAsset: 'apple_pay_config.json',
-              width: 200,
-              height: 60,
-              margin: const EdgeInsets.only(top: 10.0, bottom: 0, left: 4),
-              onPaymentResult: onGooglePayResult,
-              loadingIndicator: const Center(
-                child: CircularProgressIndicator(),
-              ),),
-
-
-            selectPayment=='Google' &&  Platform.isAndroid?   GooglePayButton(
-              // paymentConfiguration: PaymentConfiguration.fromJsonString(
-              //     'defaultApplePayConfigString'),
-              paymentItems: const [
-                PaymentItem(
-                  label: 'Total',
-                  amount: '10',
-                  status: PaymentItemStatus.final_price,
+            if (Platform.isIOS)
+              ApplePayButton(
+                paymentItems: [
+                  PaymentItem(
+                    label: 'Total',
+                    amount: widget.amount!,
+                    status: PaymentItemStatus.final_price,
+                  ),
+                ],
+                paymentConfigurationAsset: 'apple_pay_config.json',
+                width: 200,
+                height: 60,
+                margin: const EdgeInsets.only(top: 10.0, bottom: 0, left: 4),
+                onPaymentResult: onGooglePayResult,
+                loadingIndicator: const Center(
+                  child: CircularProgressIndicator(),
                 ),
-              ],
-              paymentConfigurationAsset: 'google_pay_configuration.json',
-              width: 200,
-              height: 60,
-              type: GooglePayButtonType.plain,
-              margin: const EdgeInsets.only(top: 10.0, bottom: 0, left: 4),
-              onPaymentResult: onGooglePayResult,
-              loadingIndicator: const Center(
-                child: CircularProgressIndicator(),
               ),
-            ):SizedBox.shrink(),
 
+            selectPayment == 'Google' && Platform.isAndroid
+                ? GooglePayButton(
+                    // paymentConfiguration: PaymentConfiguration.fromJsonString(
+                    //     'defaultApplePayConfigString'),
+                    paymentItems: [
+                      PaymentItem(
+                        label: 'Total',
+                        amount: widget.amount!,
+                        status: PaymentItemStatus.final_price,
+                      ),
+                    ],
+                    paymentConfigurationAsset: 'google_pay_configuration.json',
+                    width: 200,
+                    height: 60,
+                    type: GooglePayButtonType.plain,
+                    margin:
+                        const EdgeInsets.only(top: 10.0, bottom: 0, left: 4),
+                    onPaymentResult: onGooglePayResult,
+                    loadingIndicator: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                : SizedBox.shrink(),
 
             // if (selectPayment == 'Apple' || selectPayment == 'Google')
             //   Padding(
@@ -266,7 +270,7 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
 
     // Extract the payment token from the result
     String paymentToken =
-    paymentResult['paymentMethodData']['tokenizationData']['token'];
+        paymentResult['paymentMethodData']['tokenizationData']['token'];
     print('Payment Token: $paymentToken');
 
     // Use the payment token for your backend processing
