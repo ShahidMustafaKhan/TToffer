@@ -416,15 +416,36 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
                   ],
                 ),
               )),
-        Padding(
-          padding: user
-              ? const EdgeInsets.only(right: 20.0)
-              : const EdgeInsets.only(left: 20.0),
-          child: AppText.appText(formatTimestamp(time),
-              fontSize: 10,
-              fontWeight: FontWeight.w400,
-              textColor: AppTheme.lighttextColor),
-        ),
+
+        Row(
+          mainAxisAlignment:
+              user ? MainAxisAlignment.end : MainAxisAlignment.start,
+          children: [
+            const Icon(
+              Icons.done,
+              size: 18,
+              color: Colors.black,
+              // color: Color(0xFF92DEDA),
+            ),
+            const SizedBox(
+              width: 8,
+            ),
+            // Spacer(),
+            AppText.appText(formatTimestamp(time),
+                fontSize: 10,
+                fontWeight: FontWeight.w400,
+                textColor: AppTheme.lighttextColor),
+          ],
+        )
+        // Padding(
+        //   padding: user
+        //       ? const EdgeInsets.only(right: 20.0)
+        //       : const EdgeInsets.only(left: 20.0),
+        //   child: AppText.appText(formatTimestamp(time),
+        //       fontSize: 10,
+        //       fontWeight: FontWeight.w400,
+        //       textColor: AppTheme.lighttextColor),
+        // ),
       ],
     );
   }
