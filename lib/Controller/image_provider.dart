@@ -53,8 +53,8 @@ class ImageNotifyProvider extends ChangeNotifier {
     for (var pickedFile in pickedFiles) {
       await compressAndAddImage(pickedFile.path);
 
-      newImagePath = pickedFiles.single.path;
-      notifyListeners();
+      // newImagePath = pickedFiles.single.path;
+      // notifyListeners();
     }
     isCompressing = false;
     notifyListeners();

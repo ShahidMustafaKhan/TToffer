@@ -12,6 +12,7 @@ import 'package:tt_offer/utils/widgets/custom_loader.dart';
 import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
 import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
 
+import '../../config/dio/app_dio.dart';
 import '../../utils/resources/res/app_theme.dart';
 
 class SearchPage extends StatefulWidget {
@@ -71,8 +72,17 @@ class _SearchPageState extends State<SearchPage> {
   // }
 
   bool isLoading = false;
-
+  late final dio;
   bool isAuctionProduct = false;
+
+
+  @override
+  void initState() {
+    dio = AppDio(context);
+
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

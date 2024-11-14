@@ -5,8 +5,8 @@
     "displayName": "Your Store Name",
     "merchantCapabilities": ["3DS", "debit", "credit"],
     "supportedNetworks": ["amex", "visa", "masterCard"],
-    "countryCode": "US",
-    "currencyCode": "USD",
+    "countryCode": "AE",
+    "currencyCode": "AED",
     "requiredBillingContactFields": ["postalAddress"],
     "requiredShippingContactFields": ["postalAddress", "phone", "email"]
   }

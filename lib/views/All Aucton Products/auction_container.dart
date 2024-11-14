@@ -1,27 +1,30 @@
 import 'package:dialogs/dialogs/progress_dialog.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
+import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/detail_model/property_for_sale_model.dart';
-import 'package:tt_offer/utils/utils.dart';
 import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
 
 import '../../config/keys/pref_keys.dart';
+import '../All Featured Products/feature_container.dart';
 
 class AuctionProductContainer extends StatefulWidget {
-  final data;
+   var data;
 
-  const AuctionProductContainer({super.key, this.data});
+   AuctionProductContainer({super.key, this.data});
 
   @override
   State<AuctionProductContainer> createState() =>
@@ -34,11 +37,15 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
   bool isLoading = false;
 
   var userId;
+  String? authorizationToken;
+
+  late bool wishItem;
 
   getUserId() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
       userId = pref.getString(PrefKey.userId);
+      authorizationToken = pref.getString(PrefKey.authorization);
     });
   }
 
@@ -51,25 +58,52 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
     logger.init();
     getUserId();
 
+
      apiProvider =
     Provider.of<ProductsApiProvider>(context, listen: false);
-    apiProvider!.getCatagories(
-      dio: dio,
-      context: context,
-    );
-    apiProvider!.getAuctionProducts(
-      dio: dio,
-      context: context,
-    );
-    apiProvider!.getFeatureProducts(
-      dio: dio,
-      context: context,
-    );
+
+    if(widget.data!=null && widget.data["wishlist"]!=null) {
+      isFav = widget.data["wishlist"].isNotEmpty
+          ? true
+          : false;
+    }
+    // apiProvider!.getCatagories(
+    //   dio: dio,
+    //   context: context,
+    // );
+    // apiProvider!.getAuctionProducts(
+    //   dio: dio,
+    //   context: context,
+    // );
+    // apiProvider!.getFeatureProducts(
+    //   dio: dio,
+    //   context: context,
+    // );
+    if(widget.data!=null && widget.data["wishlist"]!=null) {
+    wishItem = widget.data["wishlist"].isNotEmpty
+        ? true
+        : false;}
 
 
 
     super.initState();
   }
+
+
+  addOrRemoveWishItem(){
+    wishItem = !wishItem;
+    setState(() {
+
+    });
+  }
+
+  addOrRemoveWishItemFromDB(){
+    widget.data["wishlist"].isNotEmpty
+        ? removeFavourite(
+        wishId: widget.data["wishlist"][0]["id"])
+        : addToFavourite();
+  }
+
 
   DateTime _parseEndingDateTime() {
     String? endingTimeString = widget.data["ending_time"];
@@ -80,10 +114,14 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
 
     if (endingTimeString!.contains("PM") || endingTimeString.contains("AM")) {
       endingTime = DateFormat("h:mm a").parse("${widget.data["ending_time"]}");
-      print(" vkrvlrvm$endingTime");
+      if (kDebugMode) {
+        print(" vkrvlrvm$endingTime");
+      }
     } else {
       endingTime = DateFormat("HH:mm").parse("${widget.data["ending_time"]}");
-      print(" jf3o3jfpfp3fpk$endingTime");
+      if (kDebugMode) {
+        print(" jf3o3jfpfp3fpk$endingTime");
+      }
     }
     return DateTime(
       endingDate.year,
@@ -97,304 +135,289 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
   @override
   Widget build(BuildContext context) {
     VehicleAttributes vehicleAttributes =
-        VehicleAttributes.fromJson(widget.data['attributes']);
+        VehicleAttributes.fromJson(widget.data["attributes"]);
     PropertyAttributes propertyAttributes =
-        PropertyAttributes.fromJson(widget.data['attributes']);
+        PropertyAttributes.fromJson(widget.data["attributes"]);
+        // PropertyAttributes.fromJson(widget.data['attributes']);
+
+
+    final allAuctionProducts = Provider.of<ProductsApiProvider>(context, listen: false).allauctionProductsData;
+
+    final product = allAuctionProducts.firstWhere((item) => item['id'] == widget.data["id"], orElse: () => null);
+
+    widget.data = product;
+
+    if(widget.data!=null && widget.data["wishlist"]!=null) {
+      isFav = widget.data["wishlist"].isNotEmpty
+        ? true
+        : false;
+    }
 
 
 
     return Container(
+      width: 165.w,
       decoration: BoxDecoration(
-          border: Border.all(color: AppTheme.appColor),
-          borderRadius: BorderRadius.circular(10)),
+
+          borderRadius: BorderRadius.circular(8.r)),
       // height: 370,
-      width: 180,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
-            Container(
-              height: 140,
-              width: 161,
-              decoration: BoxDecoration(
-                  color: AppTheme.hintTextColor,
-                  borderRadius: BorderRadius.circular(14),
-                  image: widget.data["photo"].isNotEmpty
-                      ? DecorationImage(
-                          image:
-                              NetworkImage("${widget.data["photo"][0]["src"]}"),
-                          fit: BoxFit.fill)
-                      : null),
-              child: GestureDetector(
-                onTap: () {
-                  widget.data["wishlist"].isNotEmpty
-                      ? removeFavourite(
-                          wishId: widget.data["wishlist"][0]["id"])
-                      : addToFavourite();
-                },
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 15, right: 10.0),
-                    child: Container(
-                        height: 25,
-                        width: 25,
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle, color: AppTheme.whiteColor),
-                        child: widget.data["wishlist"].isEmpty
-                            ? Icon(
-                                Icons.favorite_border,
-                                size: 13,
-                                color: AppTheme.textColor,
-                              )
-                            : Icon(
-                                size: 13,
-                                Icons.favorite_sharp,
-                                color: AppTheme.appColor,
-                              )),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 150.h,
+            decoration: BoxDecoration(
+              color: AppTheme.hintTextColor,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(8),
+                topRight: Radius.circular(8),
+              ),
+              // borderRadius: BorderRadius.circular(8.r),
+              image: widget.data["photo"].isNotEmpty
+                  ? DecorationImage(
+                image:
+                NetworkImage("${widget.data["photo"][0]["src"]}"),
+                fit: BoxFit.fill,
+              )
+                  : null,
+            ),
+            child: Padding(
+              padding : EdgeInsets.only(top: 7.h, bottom: 10.h, left: 0.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if(isProductBoosted(widget.data["booster_end_datetime"]))
+                        Container(
+                          margin: EdgeInsets.only(top: 6.h, left: 8.w),
+                          padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 4.h),
+                          decoration: BoxDecoration(
+                            color: const Color(0xffFFD33C),
+                            borderRadius: BorderRadius.all(Radius.circular(8.r)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15), // Soft black shadow with 15% opacity
+                                offset: const Offset(0, 4),                  // Shadow positioned slightly below the container
+                                blurRadius: 4,                         // Moderate blur for a soft shadow effect
+                                spreadRadius: 0,                       // Slight spread to enhance the visibility
+                              ),
+                            ],
+                          ),
+                          child: AppText.appText('Special Offer', fontSize: 10.sp, fontWeight: FontWeight.w500, textColor: AppTheme.textColor ),
+                        )
+                      else
+                        SizedBox(),
+
+
+                      if(authorizationToken != null)
+                        GestureDetector(
+                          behavior: HitTestBehavior.deferToChild,
+                          onTap: () {
+                            // addOrRemoveWishItem();
+                            addOrRemoveWishItemFromDB();
+                          },
+                          child: Align(
+                            alignment: Alignment.topRight,
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 6.h, right: 8.w),
+                              child: Container(
+                                  height: 23.w,
+                                  width: 23.w,
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle, color: AppTheme.whiteColor),
+                                  child: isFav==false
+                                      ? Icon(
+                                    Icons.favorite_border,
+                                    size: 15.w,
+                                    color: AppTheme.textColor,
+                                  )
+                                      : Icon(
+                                    size: 15.w,
+                                    Icons.favorite_sharp,
+                                    color: Colors.red,
+                                  )),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                ),
+                  CustomPaint(
+                      painter: PriceTagPainter(),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 24, right: 14),
+                        child: AppText.appText(
+                            "AED ${abbreviateNumber(widget.data["auction_price"] ?? '')}",
+                            textColor: Colors.white,
+                            fontSize: 14.sp
+
+                        ),))
+
+                ],
               ),
             ),
-            const SizedBox(height: 12),
-            AppText.appText("AED${widget.data["auction_price"]}",
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                textColor: AppTheme.textColor),
+          ),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(color: AppTheme.borderColorContainer),
+                  right: BorderSide(color: AppTheme.borderColorContainer),
+                  bottom: BorderSide(color: AppTheme.borderColorContainer),
+                ),),
+              child: Column(
+                children: [
+                  const SizedBox(height: 9),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Container(
+                            // decoration : BoxDecoration(border: Border.all(color: Colors.red)),
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 3.h, left: 8, right: 8),
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
 
-            SizedBox(
-              // height: 40,
-              width: MediaQuery.sizeOf(context).width * .4,
-              child: AppText.appText("${widget.data["title"]}",
-                  fontSize: 14,
-                  overflow: TextOverflow.ellipsis,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
+
+                                    SizedBox(
+                                      // height: 40,
+                                      width: MediaQuery.sizeOf(context).width * .4,
+                                      child: AppText.appText("${widget.data["title"]}",
+                                          fontSize: 13,
+                                          overflow: TextOverflow.ellipsis,
+                                          fontWeight: FontWeight.w700,
+                                          textColor: AppTheme.textColor),
+                                    ),
+
+                                    if(propertyAttributes.catName == 'Property for Sale' ||
+                                        propertyAttributes.catName
+                                            == 'Property for Rent' || vehicleAttributes.catName == 'Vehicles')
+                                      vehicleAttributes.catName == 'Vehicles'
+                                          ? Row(
+                                        children: [
+                                          ImageText(
+                                              txt: vehicleAttributes.makeModel,
+                                              image: 'calender.png'),
+                                          ImageText(
+                                              txt: vehicleAttributes.mileAge, image: 'road.png'),
+                                          ImageText(
+                                              txt: vehicleAttributes.FuelType, image: 'petrol.png'),
+                                        ],
+                                      )
+                                          : propertyAttributes.catName == 'Property for Sale' ||
+                                          propertyAttributes.catName == 'Property for Rent'
+                                          ? Row(
+                                        children: [
+                                          ImageText(
+                                              txt: propertyAttributes.bathroom == '' ? "0" : propertyAttributes.bathroom,
+                                              image: 'bath.png'),
+                                          ImageText(
+                                              txt: propertyAttributes.bedroom == '' ? "0" : propertyAttributes.bedroom,
+                                              image: 'bed.png'),
+                                          ImageText(
+                                              txt: propertyAttributes.area == '' ? "0" : propertyAttributes.area,
+                                              image: 'family.png'),
+                                        ],
+                                      )
+                                          : const SizedBox.shrink(),
+
+
+                                    if(propertyAttributes.catName != 'Property for Sale' &&
+                                        propertyAttributes.catName
+                                            != 'Property for Rent' && vehicleAttributes.catName != 'Vehicles')
+                                      SizedBox(
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            AppText.appText("Time Left:",
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w700,
+                                                textColor: AppTheme.yellowColor),
+                                            SizedBox(width: 5.w,),
+                                            Expanded(
+                                              child: SizedBox(
+                                                child: AppText.appText(getTimeLeftString(),
+                                                    fontSize: 11,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    fontWeight: FontWeight.w600,
+                                                    textColor: AppTheme.yellowColor),
+                                              ),
+                                            ),
+
+                                          ],
+                                        ),
+                                      ),
+
+
+
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Image.asset(
+                                          'assets/images/location.png',
+                                          height: 14,
+                                          width: 14,
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Expanded(
+                                          child: AppText.appText(widget.data["location"],
+                                              fontSize: 10,
+                                              overflow: TextOverflow.ellipsis,
+                                              fontWeight: FontWeight.w700,
+                                              textColor: Colors.black45),
+                                        ),
+                                      ],
+                                    ),
+
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 0.w),
+                                      child: AppButton.appButton("Bid Now", onTap: () {
+                                        if(widget.data["user_id"] != userId.toString()){
+                                          getAuctionProductDetail(productId: widget.data["id"]);}
+                                        else{
+                                          showSnackBar(context, 'You can\'t place a bid on your own product.');
+                                        }
+                                      },
+                                          height: 32,
+                                          radius: 16.0,
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.w500,
+                                          backgroundColor: AppTheme.appColor,
+                                          textColor: AppTheme.whiteColor),
+                                    ),
+
+                                  ]),
+                            ),
+                          ),
+                        ),
+            
+
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 6.h),
+                ],
+              ),
             ),
-            const SizedBox(height: 5),
+          )
 
-            vehicleAttributes.catName == 'Vehicles'
-                ? Row(
-                    children: [
-                      ImageText(
-                          txt: vehicleAttributes.makeModel,
-                          image: 'calender.png'),
-                      ImageText(
-                          txt: vehicleAttributes.mileAge, image: 'road.png'),
-                      ImageText(
-                          txt: vehicleAttributes.FuelType, image: 'petrol.png'),
-                    ],
-                  )
-                : propertyAttributes.catName == 'Property for Sale' ||
-                        propertyAttributes.catName == 'Property for Rent'
-                    ? Row(
-                        children: [
-                          ImageText(
-                              txt: propertyAttributes.bedroom,
-                              image: 'bath.png'),
-                          ImageText(
-                              txt: propertyAttributes.bedroom,
-                              image: 'bed.png'),
-                          ImageText(
-                              txt: propertyAttributes.area,
-                              image: 'family.png'),
-                        ],
-                      )
-                    : const SizedBox.shrink(),
-            const SizedBox(height: 3),
 
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //
-            //     AppText.appText("${widget.data["auction"].length} Bid Now",
-            //         fontSize: 12,
-            //         fontWeight: FontWeight.w200,
-            //         textColor: AppTheme.textColor),
-            //   ],
-            // ),
 
-            const SizedBox(height: 4),
-
-            Row(
-              children: [
-                Image.asset(
-                  'assets/images/location.png',
-                  height: 14,
-                  width: 14,
-                ),
-                const SizedBox(width: 5),
-                AppText.appText("${widget.data["location"]}",
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    textColor: Colors.black45),
-              ],
-            ),
-
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //     AppText.appText("Time Left:",
-            //         fontSize: 12,
-            //         fontWeight: FontWeight.w700,
-            //         textColor: AppTheme.textColor),
-            //     SizedBox(
-            //       width: 80,
-            //       child: AppText.appText(getTimeLeftString(),
-            //           fontSize: 12,
-            //           overflow: TextOverflow.ellipsis,
-            //           fontWeight: FontWeight.w600,
-            //           textColor: AppTheme.appColor),
-            //     ),
-            //   ],
-            // ),
-            const SizedBox(height: 10),
-            AppButton.appButton("Bid Now", onTap: () {
-              getAuctionProductDetail(productId: widget.data["id"]);
-            },
-                height: 35,
-                width: 161,
-                radius: 16.0,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                backgroundColor: AppTheme.appColor,
-                textColor: AppTheme.whiteColor),
-            const SizedBox(height: 10),
-          ],
-        ),
+        ],
       ),
     );
   }
 
   bool isFav = false;
 
-  //
-  // void addToFavourite() async {
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-  //   var response;
-  //   int responseCode200 = 200; // For successful request.
-  //   int responseCode400 = 400; // For Bad Request.
-  //   int responseCode401 = 401; // For Unauthorized access.
-  //   int responseCode404 = 404; // For For data not found
-  //   int responseCode422 = 422; // For For data not found
-  //   int responseCode500 = 500; // Internal server error.
-  //   Map<String, dynamic> params = {
-  //     "user_id": userId,
-  //     "product_id": widget.data["id"],
-  //   };
-  //   try {
-  //     response = await dio.post(path: AppUrls.adddToFavorite, data: params);
-  //     var responseData = response.data;
-  //     if (response.statusCode == responseCode400) {
-  //       showSnackBar(context, "${responseData["msg"]}");
-  //       setState(() {
-  //         setState(() {
-  //           isLoading = false;
-  //         });
-  //       });
-  //     } else if (response.statusCode == responseCode401) {
-  //       showSnackBar(context, "${responseData["msg"]}");
-  //       setState(() {
-  //         isLoading = false;
-  //       });
-  //     } else if (response.statusCode == responseCode404) {
-  //       showSnackBar(context, "${responseData["msg"]}");
-  //
-  //       setState(() {
-  //         isLoading = false;
-  //       });
-  //     } else if (response.statusCode == responseCode500) {
-  //       showSnackBar(context, "${responseData["msg"]}");
-  //
-  //       setState(() {
-  //         isLoading = false;
-  //       });
-  //     } else if (response.statusCode == responseCode422) {
-  //       setState(() {
-  //         isLoading = false;
-  //       });
-  //     } else if (response.statusCode == responseCode200) {
-  //       setState(() {
-  //         isLoading = false;
-  //         isFav = true;
-  //         getAuctionProductDetail();
-  //       });
-  //     }
-  //   } catch (e) {
-  //     print("Something went Wrong ${e}");
-  //     showSnackBar(context, "Something went Wrong.");
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
-  //
-  // void removeFavourite({wishId}) async {
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-  //   var response;
-  //   int responseCode200 = 200; // For successful request.
-  //   int responseCode400 = 400; // For Bad Request.
-  //   int responseCode401 = 401; // For Unauthorized access.
-  //   int responseCode404 = 404; // For For data not found
-  //   int responseCode422 = 422; // For For data not found
-  //   int responseCode500 = 500; // Internal server error.
-  //   Map<String, dynamic> params = {
-  //     "id": wishId,
-  //     // "product_id": widget.detailResponse["id"],
-  //   };
-  //   try {
-  //     response = await dio.post(path: AppUrls.removeFavorite, data: params);
-  //     var responseData = response.data;
-  //     if (response.statusCode == responseCode400) {
-  //       showSnackBar(context, "${responseData["msg"]}");
-  //       setState(() {
-  //         setState(() {
-  //           isLoading = false;
-  //         });
-  //       });
-  //     } else if (response.statusCode == responseCode401) {
-  //       showSnackBar(context, "${responseData["msg"]}");
-  //       setState(() {
-  //         isLoading = false;
-  //       });
-  //     } else if (response.statusCode == responseCode404) {
-  //       showSnackBar(context, "${responseData["msg"]}");
-  //
-  //       setState(() {
-  //         isLoading = false;
-  //       });
-  //     } else if (response.statusCode == responseCode500) {
-  //       showSnackBar(context, "${responseData["msg"]}");
-  //
-  //       setState(() {
-  //         isLoading = false;
-  //       });
-  //     } else if (response.statusCode == responseCode422) {
-  //       setState(() {
-  //         isLoading = false;
-  //       });
-  //     } else if (response.statusCode == responseCode200) {
-  //       setState(() {
-  //         isLoading = false;
-  //         isFav = true;
-  //         // getAuctionProductDetail();
-  //       });
-  //     }
-  //   } catch (e) {
-  //     print("Something went Wrong ${e}");
-  //     showSnackBar(context, "Something went Wrong.");
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
 
   void getAuctionProductDetail({productId, limit}) async {
     final ProgressDialog pr = ProgressDialog(
@@ -466,11 +489,16 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
   }
 
   String getTimeLeftString() {
-    DateTime? endTime = _parseEndingDateTime();
+    DateTime? endTime = convertEndTimeToUserTimeZone(_parseEndingDateTime());
 
     if (endTime == null) {
       return 'Invalid date/time';
     }
+
+    if (kDebugMode) {
+      print('endTime $endTime');
+    }
+
 
     Duration timeLeft = endTime.difference(DateTime.now());
 
@@ -481,13 +509,27 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
     if (timeLeft.inHours < 24) {
       int hours = timeLeft.inHours;
       int minutes = timeLeft.inMinutes.remainder(60);
-      return '$hours Hours $minutes Minutes';
+      return '$hours H $minutes M';
     } else {
       int days = timeLeft.inDays;
       int hours = timeLeft.inHours % 24;
       int minutes = timeLeft.inMinutes.remainder(60);
-      return '$days Days $hours Hours $minutes Minutes';
+      return '$days D $hours H $minutes M';
     }
+  }
+
+  DateTime convertEndTimeToUserTimeZone(DateTime endTime) {
+    // Get the user's local time zone offset (e.g., UTC+5)
+    Duration userTimeZoneOffset = DateTime.now().timeZoneOffset;
+
+    // Define the time zone offset for UTC+4 (Dubai time)
+    const dubaiTimeZoneOffset = Duration(hours: 4);
+
+    // Calculate the difference between user time zone and Dubai time zone
+    Duration timeDifference = userTimeZoneOffset - dubaiTimeZoneOffset;
+
+    // Add or subtract the time difference to the endTime
+    return endTime.add(timeDifference);
   }
 
   void addToFavourite() async {
@@ -509,25 +551,25 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
       response = await dio.post(path: AppUrls.adddToFavorite, data: params);
       var responseData = response.data;
       if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
+        showSnackBar(context, "${responseData["msg"] ?? 'Something went wrong'}");
         setState(() {
           setState(() {
             isLoading = false;
           });
         });
       } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
+        showSnackBar(context, "${responseData["msg"] ?? 'Something went wrong'} ");
         setState(() {
           isLoading = false;
         });
       } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
+        showSnackBar(context, "${responseData["msg"] ?? 'Something went wrong'}");
 
         setState(() {
           isLoading = false;
         });
       } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
+        showSnackBar(context, "${responseData["msg"] ?? 'Something went wrong'}");
 
         setState(() {
           isLoading = false;
@@ -540,15 +582,17 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
         setState(() {
           isLoading = false;
           isFav = true;
+          wishItem = true;
+
 
           apiProvider!.getAuctionProducts(
             dio: dio,
             context: context,
           );
-          apiProvider!.getFeatureProducts(
-            dio: dio,
-            context: context,
-          );
+          // apiProvider!.getFeatureProducts(
+          //   dio: dio,
+          //   context: context,
+          // );
 
           // getAuctionProductDetail();
         });
@@ -581,35 +625,31 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
       response = await dio.post(path: AppUrls.removeFavorite, data: params);
       var responseData = response.data;
 
-      apiProvider!.getAuctionProducts(
-        dio: dio,
-        context: context,
-      );
-      apiProvider!.getFeatureProducts(
-        dio: dio,
-        context: context,
-      );
+      // apiProvider!.getFeatureProducts(
+      //   dio: dio,
+      //   context: context,
+      // );
 
       if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
+        showSnackBar(context, "${responseData["msg"] ?? 'Something went wrong'}");
         setState(() {
           setState(() {
             isLoading = false;
           });
         });
       } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
+        showSnackBar(context, "${responseData["msg"] ?? 'Something went wrong'} ");
         setState(() {
           isLoading = false;
         });
       } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
+        showSnackBar(context, "${responseData["msg"] ?? 'Something went wrong'}");
 
         setState(() {
           isLoading = false;
         });
       } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
+        showSnackBar(context, "${responseData["msg"] ?? 'Something went wrong'}");
 
         setState(() {
           isLoading = false;
@@ -621,6 +661,20 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
       } else if (response.statusCode == responseCode200) {
         setState(() {
           isLoading = false;
+          isFav = false;
+          wishItem = false;
+
+
+          apiProvider!.getAuctionProducts(
+            dio: dio,
+            context: context,
+          );
+          // apiProvider!.getFeatureProducts(
+          //   dio: dio,
+          //   context: context,
+          // );
+
+          // getAuctionProductDetail();
         });
       }
     } catch (e) {

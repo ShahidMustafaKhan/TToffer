@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
@@ -28,7 +29,7 @@ class _CustomLinkScreenState extends State<CustomLinkScreen> {
   void _copyText() {
     if (_linkController.text.isNotEmpty) {
       Clipboard.setData(ClipboardData(text: _linkController.text));
-      showSnackBar(context, 'Link copied');
+      showSnackBar(context, 'Link copied', error: false);
     } else {
       showSnackBar(context, 'No link to copy');
     }
@@ -52,7 +53,7 @@ class _CustomLinkScreenState extends State<CustomLinkScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20.0),
                   child: AppText.appText(
-                      "This is your profile link. You can copy by clicking on this", //Enter your custom shareable link
+                      "This is your profile link. You can copy and share it", //Enter your custom shareable link
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       textColor: AppTheme.text09),
@@ -60,6 +61,7 @@ class _CustomLinkScreenState extends State<CustomLinkScreen> {
                 InkWell(
                   onTap: _copyText,
                   child: CustomAppFormField(
+                    height: 38.h,
                     enable: false,
                     texthint: "ttoffer.com/profile/your profile name",
                     controller: _linkController,
@@ -68,12 +70,10 @@ class _CustomLinkScreenState extends State<CustomLinkScreen> {
                     radius: 14.0,
                   ),
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
+
 
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40.0),
+                  padding: const EdgeInsets.symmetric(vertical: 25.0),
                   child: AppButton.appButton("Copy Profile Link",
                       onTap: _copyText,
                       border: false,

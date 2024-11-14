@@ -62,7 +62,7 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
             AppButton.appButton("Get Started", onTap: () {
               // showSnackBar(context, "This is snackbar test");
               if (token != null) {
-                pushReplacement(context, const BottomNavView());
+                pushReplacement(context, const BottomNavView(fromLogin : true));
               } else {
                 pushReplacement(context, const SigInScreen());
               }

@@ -1,6 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
+import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
+
+import '../Utils/widgets/others/congragulations_dialog.dart';
+import '../config/app_urls.dart';
 
 class SellFasterStripeService {
   Future<bool> sellFasterStripeService({
@@ -18,6 +23,7 @@ class SellFasterStripeService {
         'amount': amount,
         'currency': currency,
         'token': token,
+        'save': 0,
       };
 
       print('body--->${body}');
@@ -26,7 +32,13 @@ class SellFasterStripeService {
           .httpPostRequest(url: 'sell-faster', body: body);
 
       if (res['success'] == true) {
-        showSnackBar(context, res['message']);
+        congratulationAlertDialog(
+          title: 'Congratulations!', description: 'Thank you for your purchase! Your product is now live.', context: context, loading: false,
+          onTap: () {
+            pushReplacement(context, const BottomNavView());
+          },
+
+        );
 
         return true; // Success
       } else {
@@ -34,8 +46,64 @@ class SellFasterStripeService {
         return false; // Failure
       }
     } catch (err) {
+      showSnackBar(context, 'something went wrong');
       print(err);
       return false; // Error
     }
   }
+
+  Future<bool> sellFasterGooglePay({
+    required BuildContext context,
+    int? productId,
+    String? nod,
+    String? amount,
+    String? currency,
+    String? token,
+    String? brand,
+    String? lastFour,
+  }) async {
+    try {
+      Map<String, dynamic> body = {
+        'product_id': productId,
+        'number_of_days': nod,
+        'amount': amount,
+        'currency': currency,
+        'token': token,
+        'status': 'success',
+        'brand': brand,
+        "last_four": lastFour
+      };
+
+      print('body--->${body}');
+
+      Map<String, dynamic> res = await CustomPostRequest()
+          .httpPostRequest(url: AppUrls.googlePayPayment, body: body);
+      print(res['success']);
+
+      if (res['success'] == true) {
+        print(res['success']);
+
+        congratulationAlertDialog(
+          title: 'Congratulations', description: 'Thank you for your purchase! Your product is now live.', context: context, loading: false,
+          onTap: () {
+            pushReplacement(context, const BottomNavView());
+          },
+
+        );
+
+        return true; // Success
+      } else {
+        print(res['success']);
+        print(res['success']);
+        print(res['success']);
+        showSnackBar(context, res['message']);
+        return false; // Failure
+      }
+    } catch (err) {
+      print(err);
+      return false; // Error
+    }
+  }
+
+
 }

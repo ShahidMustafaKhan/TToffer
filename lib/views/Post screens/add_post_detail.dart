@@ -2,6 +2,11 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -47,17 +52,20 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   String _selectedCondition = "";
   var catagoryId;
   var subCatagoryId;
+  var subCategory;
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _millageController = TextEditingController();
   final TextEditingController _colorController = TextEditingController();
-  final TextEditingController _modelYearController = TextEditingController();
-  final TextEditingController _modelController = TextEditingController();
-  final TextEditingController _brandController = TextEditingController();
   final TextEditingController _authenticityController = TextEditingController();
   final TextEditingController _editionController = TextEditingController();
+  final TextEditingController _breedController = TextEditingController();
+  final TextEditingController _salaryController = TextEditingController();
+  final TextEditingController _typeController = TextEditingController();
 
   bool _isLoading = false;
   AppLogger logger = AppLogger();
+  late final dio;
+
   var catagoryData;
   var subCatagoryData;
 
@@ -66,8 +74,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   @override
   void initState() {
     logger.init();
-    getCatagories(search: "");
-    getSubCatagories(search: "");
+    dio = AppDio(context);
+
+    // getCatagories(search: "");
+    // getSubCatagories(search: "");
 
     subCategoriesHandler();
     super.initState();
@@ -76,13 +86,95 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   List<CategoryModel> catModel = [];
   List<SubCategoriesModel> subCatModel = [];
 
-  List<String> makeModel = ['Audi', 'BMW', 'Corolla'];
-  List<String> year = ['2021', '2000', '2001'];
-  List<String> condition = ["New", "Good", "Open Box", "Refurnished"];
-  List<String> priceRange = ["Under\$10,000"];
-  List<String> mileage = ['Under 10,000 miles', ''];
-  List<String> fuelType = ['Diesel', 'Petrol', 'Gas'];
-  List<String> color = ['White', 'Black', 'Red', 'Pink'];
+  List<String> makeModel = [
+    'Acura',
+    'Alfa Romeo',
+    'Audi',
+    'BMW',
+    'Buick',
+    'Cadillac',
+    'Chevrolet',
+    'Chrysler',
+    'Citroën',
+    'Dodge',
+    'Fiat',
+    'Ford',
+    'Genesis',
+    'GMC',
+    'Honda',
+    'Hyundai',
+    'Infiniti',
+    'Jaguar',
+    'Jeep',
+    'Kia',
+    'Land Rover',
+    'Lexus',
+    'Lincoln',
+    'Mazda',
+    'Mercedes-Benz',
+    'Mini',
+    'Mitsubishi',
+    'Nissan',
+    'Pagani',
+    'Porsche',
+    'Ram',
+    'Rolls-Royce',
+    'Saab',
+    'Subaru',
+    'Suzuki',
+    'Tesla',
+    'Toyota',
+    'Volkswagen',
+    'Volvo',
+    'Aston Martin',
+    'Bentley',
+    'Bugatti',
+    'Ferrari',
+    'Lamborghini',
+    'Maserati',
+    'McLaren',
+    'Maybach',
+    'Peugeot',
+    'Rivian',
+    'Seat',
+    'Skoda',
+    'Smart',
+    'Tata',
+    'Zenos',
+    'Others'
+  ];
+
+  List<String> condition = ["New", "Good", "Open Box", "Used", "Others"];
+  List<String> priceRange = ["Under\$10,000", "Others"];
+  List<String> mileage = ['Under 10,000 miles', '', "Others"];
+  List<String> fuelType = ['Diesel', 'Petrol', "Others"];
+  List<String> color = [
+    'White',
+    'Black',
+    'Red',
+    'Pink',
+    'Blue',
+    'Green',
+    'Yellow',
+    'Orange',
+    'Purple',
+    'Brown',
+    'Gray',
+    'Cyan',
+    'Magenta',
+    'Lime',
+    'Indigo',
+    'Violet',
+    'Turquoise',
+    'Teal',
+    'Maroon',
+    'Olive',
+    'Navy',
+    'Coral',
+    'Beige',
+    'Lavender'
+    , "Others"
+  ];
   List<String> location = ['America'];
 
   bool owner = false;
@@ -90,20 +182,63 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   String? typeProperty = '';
   String? bedrooms = '';
-  String? area = '';
-  String? yearBuilt = '';
-  String? features = '';
+  TextEditingController area = TextEditingController();
+  List features = [];
   String? amenities = '';
+  String? occupancyStatus = '';
 
-  List<String> typePropertyList = ['Apartment'];
-  List<String> bedroomList = ['1', '2', '3', '4', '5', '6+', 'Studio'];
-  List<String> areaSizeList = ['1,000 sqft', '2,000 sqft', '3,000 sqft'];
-  List<String> yearBuiltList = ['2020', '2021', '2000', '2001', '2005', '2007'];
-  List<String> featuresList = ['Apartment'];
-  List<String> amenitiesList = ['Apartment'];
+  List<String> typePropertyList = ['Apartment', "Others"];
+  List<String> bedroomList = ['Studio','1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12','12+', "Others"];
+  List<String> bedroomHousesList = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12','12+', "Others"];
+  List<String> areaSizeList = ['1,000 sqft', '2,000 sqft', '3,000 sqft', "Others"];
+  List<String> featuresListCustom = [
+    'Servant Quarters',
+    'Drawing Room',
+    'Dining Room',
+    'Kitchen',
+    'Study Room',
+    'Prayer Room',
+    'Powder Room',
+    '24-hour security',
+    'Gym',
+    'Storage Room',
+    'Steam Room',
+    'Guest Room',
+    'Laundry Room',
+    'Home Theater',
+    'Office',
+    'Library',
+    'Wine Cellar',
+    'Basement',
+    'Attic',
+    'Balcony',
+    'Terrace',
+    'Garden',
+    'Swimming Pool',
+    'Garage'
+  ];
+
+  List<String> featuresList = [];
+
+  List<String> featuresListShop = [
+    'Shared Spa',
+    'Shared Gym',
+    'Covered Gym',
+    'View of Water',
+    'View of Landmark',
+    'Conference Room',
+    'Available Furnished',
+    'Available Networked',
+    'Dinning in Building',
+    'Retail in Building'
+  ];
+  List<String> amenitiesList = ['Apartment', "Others"];
+  List<String> occupancyList = ['Vacant', "Tenanted"];
 
   String? brand = '';
   String? storage = '';
+  String? bathroom = '';
+  String? zoneFor = '';
 
   List<String> brandList = [
     'Samsung',
@@ -111,20 +246,19 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     'Xiaomi',
     'Motorola',
     'Huawei',
-    'Apple'
+    'Apple', "Others"
   ];
   List<String> storageList = [
-    '32GB',
     '16GB',
+    '32GB',
     '64GB',
     '128GB',
     '256GB',
     '512GB',
-    '1 TB+'
+    '1 TB+', "Others"
   ];
 
   String? engineCapacity = '';
-  String? model = '';
 
   List<String> engineList = [
     '50cc',
@@ -132,9 +266,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     '150cc',
     '250cc',
     '500cc',
-    '1000cc'
+    '1000cc', "Others"
   ];
-  List<String> modelList = ['Yamaha R1', 'Honda 125', 'Kawasaki'];
+  List<String> modelList = ['Yamaha R1', 'Honda 125', 'Kawasaki', "Others"];
 
   String? car = '';
 
@@ -144,74 +278,517 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     'Honda',
     'Sonata',
     'Toyota',
-    'Hyundai'
+    'Hyundai', "Others"
+  ];
+
+  List<String> bathroomList = [
+    'no bathroom',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+  ];
+
+  List<String> zoneList = [
+    'Shop',
+    'Offices'
   ];
 
   //Jobs
 
   String? jobType = '';
-  String? experience = '';
   String? education = '';
-  String? salary = '';
   String? salaryPeriod = '';
-  String? companyName = '';
+  String? experienceLevel = '';
   String? possitionType = '';
   String? careerLevel = '';
 
-  List<String> jobTypeList = [
-    'Graphic Design',
-    'Software Engineer',
-    'Electric Engineer',
-    'Mechanic',
-    'Painter'
-  ];
-  List<String> experienceList = ['Fresh', 'Intermediate'];
-  List<String> educationList = ['Intermediate'];
-  List<String> salaryList = ["\$30,000", '\$50,000', '\$60,000'];
-  List<String> salaryPeriodList = ['Monthly', 'Daily', 'Weekly'];
-  List<String> companyNameList = ['DevSinc', 'Systems Limited', 'Neon System'];
-  List<String> possitionTypeList = ['Full Time', 'Half Time'];
-  List<String> careerLevelList = ['Mid - Senior Level', 'Full - Senior Level'];
+
+  Map<String, List<String>> jobTypeList = {
+    'Advertising & PR': [
+      'Copywriter',
+      'Graphic Designer',
+      'Public Relations Specialist',
+      'Brand Manager',
+      'Social Media Manager',
+      'Creative Director',
+      'Content Strategist',
+      'SEO Specialist',
+      'Media Buyer',
+      'Event Planner',
+      'Others',
+    ],
+    'Architecture & Interior Design': [
+      'Architect',
+      'Interior Designer',
+      'Landscape Architect',
+      'Urban Planner',
+      'Draftsperson',
+      'Project Manager',
+      'Interior Decorator',
+      'Design Consultant',
+      'CAD Technician',
+      'Construction Manager',
+      'Others',
+    ],
+    'Accounting & Finance': [
+      'Accountant',
+      'Financial Analyst',
+      'Tax Consultant',
+      'Auditor',
+      'Bookkeeper',
+      'Payroll Specialist',
+      'Investment Analyst',
+      'Finance Manager',
+      'Controller',
+      'Accounts Payable Clerk',
+      'Others',
+    ],
+    'Customer Service': [
+      'Customer Support Representative',
+      'Call Center Agent',
+      'Technical Support Specialist',
+      'Customer Success Manager',
+      'Help Desk Coordinator',
+      'Client Service Manager',
+      'Customer Experience Specialist',
+      'Service Desk Analyst',
+      'Billing Specialist',
+      'Account Coordinator',
+      'Others',
+    ],
+    'Domestic Staff': [
+      'Housekeeper',
+      'Cook',
+      'Nanny',
+      'Butler',
+      'Driver',
+      'Gardener',
+      'Personal Assistant',
+      'Maid',
+      'Babysitter',
+      'Elderly Caregiver',
+      'Others',
+    ],
+    'Delivery Riders': [
+      'Bike Courier',
+      'Package Delivery Driver',
+      'Food Delivery Rider',
+      'Freight Handler',
+      'Courier Driver',
+      'Logistics Assistant',
+      'Parcel Delivery Driver',
+      'Amazon Delivery Partner',
+      'Warehouse Associate',
+      'Express Delivery Rider',
+      'Others',
+    ],
+    'Engineering': [
+      'Software Engineer',
+      'Electrical Engineer',
+      'Mechanical Engineer',
+      'Civil Engineer',
+      'Chemical Engineer',
+      'Project Engineer',
+      'Industrial Engineer',
+      'Aerospace Engineer',
+      'Automation Engineer',
+      'Marine Engineer',
+      'Others',
+    ],
+    'Education': [
+      'Teacher',
+      'Tutor',
+      'School Administrator',
+      'Librarian',
+      'Guidance Counselor',
+      'Special Education Teacher',
+      'Curriculum Developer',
+      'Education Consultant',
+      'Researcher',
+      'Academic Advisor',
+      'Others',
+    ],
+    'Security': [
+      'Security Guard',
+      'Security Supervisor',
+      'Loss Prevention Officer',
+      'CCTV Operator',
+      'Bouncer',
+      'Security Manager',
+      'Event Security Staff',
+      'Surveillance Operator',
+      'Firewatch Security Guard',
+      'Armed Security Officer',
+      'Others',
+    ],
+    'Restaurants & Hospitality': [
+      'Waiter',
+      'Chef',
+      'Bartender',
+      'Host/Hostess',
+      'Dishwasher',
+      'Hotel Manager',
+      'Room Service Attendant',
+      'Event Coordinator',
+      'Concierge',
+      'Food Runner',
+      'Others',
+    ],
+    'Real Estate': [
+      'Real Estate Agent',
+      'Property Manager',
+      'Leasing Consultant',
+      'Real Estate Broker',
+      'Real Estate Appraiser',
+      'Real Estate Assistant',
+      'Mortgage Broker',
+      'Real Estate Developer',
+      'Property Inspector',
+      'Title Examiner',
+      'Others',
+    ],
+    'Management & Administration': [
+      'Office Manager',
+      'Administrative Assistant',
+      'Executive Assistant',
+      'Operations Manager',
+      'Facilities Manager',
+      'Administrative Coordinator',
+      'Project Coordinator',
+      'Secretary',
+      'Data Entry Clerk',
+      'Personal Assistant',
+      'Others',
+    ],
+    'Human Resources': [
+      'HR Manager',
+      'Recruiter',
+      'HR Generalist',
+      'Payroll Administrator',
+      'HR Specialist',
+      'Talent Acquisition Specialist',
+      'Compensation Analyst',
+      'Employee Relations Manager',
+      'Benefits Coordinator',
+      'HR Consultant',
+      'Others',
+    ],
+    'IT & Networking': [
+      'Network Engineer',
+      'IT Support Specialist',
+      'Systems Administrator',
+      'Cloud Architect',
+      'IT Consultant',
+      'Network Administrator',
+      'Database Administrator',
+      'Cybersecurity Specialist',
+      'Technical Support Engineer',
+      'DevOps Engineer',
+      'Others',
+    ],
+    'Part time on-site': [
+      'Part-Time Receptionist',
+      'Part-Time Sales Assistant',
+      'Part-Time Warehouse Worker',
+      'Part-Time Barista',
+      'Part-Time Retail Associate',
+      'Part-Time Cashier',
+      'Part-Time Stock Clerk',
+      'Part-Time Delivery Driver',
+      'Part-Time Maintenance Worker',
+      'Part-Time Event Staff',
+      'Others',
+    ],
+    'Part time remote': [
+      'Web Developer',
+      'Mobile App Developer',
+      'UI/UX Designer',
+      'Digital Marketer',
+      'Content Writer',
+      'SEO Specialist',
+      'Social Media Manager',
+      'Virtual Assistant',
+      'Online Tutor',
+      'Data Analyst',
+      'E-commerce Manager',
+      'Customer Support Representative',
+      'Video Editor',
+      'Affiliate Marketer',
+      'Online Consultant',
+      'Copywriter',
+      'Transcriptionist',
+      'Freelance Photographer',
+      'Animator',
+      'Others'
+    ],
+    'Full time remote': [
+      'Web Developer',
+      'Mobile App Developer',
+      'UI/UX Designer',
+      'Digital Marketer',
+      'Content Writer',
+      'SEO Specialist',
+      'Social Media Manager',
+      'Virtual Assistant',
+      'Online Tutor',
+      'Data Analyst',
+      'E-commerce Manager',
+      'Customer Support Representative',
+      'Video Editor',
+      'Affiliate Marketer',
+      'Online Consultant',
+      'Copywriter',
+      'Transcriptionist',
+      'Freelance Photographer',
+      'Animator',
+      'Others'
+    ],
+    'Full time on-site': [
+      'Full-Time Project Manager',
+      'Full-Time Store Manager',
+      'Full-Time Sales Associate',
+      'Full-Time Maintenance Technician',
+      'Full-Time Office Administrator',
+      'Full-Time Construction Worker',
+      'Full-Time Electrician',
+      'Full-Time Marketing Manager',
+      'Full-Time Security Officer',
+      'Full-Time Factory Worker',
+      'Others',
+    ],
+    'Hotel & Tourism': [
+      'Hotel Manager',
+      'Tour Guide',
+      'Front Desk Agent',
+      'Housekeeping Supervisor',
+      'Travel Agent',
+      'Bellhop',
+      'Concierge',
+      'Event Planner',
+      'Resort Manager',
+      'Guest Relations Officer',
+      'Others',
+    ],
+    'Manufacturing': [
+      'Factory Worker',
+      'Assembly Line Worker',
+      'Machine Operator',
+      'Production Supervisor',
+      'Quality Control Inspector',
+      'Manufacturing Technician',
+      'Welder',
+      'Maintenance Technician',
+      'Warehouse Worker',
+      'Forklift Operator',
+      'Others',
+    ],
+    'Medical': [
+      'Doctor',
+      'Nurse',
+      'Pharmacist',
+      'Medical Assistant',
+      'Lab Technician',
+      'Physical Therapist',
+      'Radiologist',
+      'Paramedic',
+      'Dentist',
+      'Surgeon',
+      'Others',
+    ],
+    'Internships': [
+      'Marketing Intern',
+      'Software Engineer Intern',
+      'HR Intern',
+      'Accounting Intern',
+      'Operations Intern',
+      'Design Intern',
+      'Sales Intern',
+      'Finance Intern',
+      'Business Development Intern',
+      'Product Management Intern',
+      'Others',
+    ],
+    'Other Jobs': [
+      'Mechanic',
+      'Painter',
+      'Plumber',
+      'Carpenter',
+      'Electrician',
+      'Gardener',
+      'Cleaner',
+      'Hairdresser',
+      'Makeup Artist',
+      'Others',
+    ],
+    'Sales': [
+      'Sales Executive',
+      'Retail Sales Associate',
+      'Sales Manager',
+      'Inside Sales Representative',
+      'Account Executive',
+      'Business Development Manager',
+      'Territory Sales Manager',
+      'Sales Consultant',
+      'Sales Analyst',
+      'Sales Engineer',
+      'Others',
+    ],
+    'Marketing': [
+      'Marketing Manager',
+      'Social Media Coordinator',
+      'Content Creator',
+      'Brand Manager',
+      'Digital Marketing Specialist',
+      'SEO Manager',
+      'PPC Specialist',
+      'Market Research Analyst',
+      'Email Marketing Manager',
+      'Public Relations Coordinator',
+      'Others',
+    ],
+  };
+
+
+
+
+  List<String> educationList = ['Intermediate', 'High School', 'Bachelor\'s Degree', 'Master\'s Degree', 'PhD', 'Others',];
+  List<String> salaryList = ["\$30,000", '\$50,000', '\$60,000', "Others"];
+  List<String> salaryPeriodList = ['Monthly', 'Daily', 'Weekly', "Others"];
+  List<String> experienceList = ["Entry-level", "Intermediate", "Expert"];
+  List<String> companyNameList = ['DevSinc', 'Systems Limited', 'Neon System', "Others"];
+  List<String> possitionTypeList = ['Full Time', 'Part Time', "Others"];
+  List<String> careerLevelList = ['Mid - Senior Level', 'Full - Senior Level', "Others"];
 
   String? age = '';
-  String? breed = '';
 
-  List<String> ageList = ['1 year', '2 year', '3 year', '5 year'];
-  List<String> breedList = ['Husky', 'Bully', 'Pointer'];
+  List<String> ageList = ['1 year', '2 year', '3 year', '5 year', "Others"];
+  List<String> breedList = ['Husky', 'Bully', 'Pointer', "Others"];
 
   String? furnitureType = '';
 
-  List<String> furnitureList = ['1 seater', '2 seater', '3 seater', '4 seater'];
+  Map<String, List<String>> furnitureList = {
+    'Sofa & Chairs': ['1 seater', '2 seater', '3 seater', '4 seater', 'Others'],
+    'Beds & Wardrobes': ['Single Bed', 'Double Bed', 'Queen Size Bed', 'King Size Bed', 'Wardrobes', 'Others'],
+    'Bathroom & Accessories': ['Bathroom Cabinets', 'Shelves', 'Mirrors', 'Towel Racks', 'Others'],
+    'Tables & Dining': ['Dining Tables', 'Coffee Tables', 'Side Tables', 'Others'],
+    'Home Decoration': ['Wall Art', 'Vases', 'Clocks', 'Candles', 'Others'],
+    'Office Furniture': ['Office Chairs', 'Desks', 'Filing Cabinets', 'Others'],
+    'Garden & Outdoor': ['Garden Chairs', 'Outdoor Tables', 'Lounge Chairs', 'Others'],
+    'Painting & Mirrors': ['Wall Paintings', 'Mirrors', 'Others'],
+    'Curtain & Blinds': ['Curtains', 'Blinds', 'Others'],
+    'Rugs & Carpets': ['Area Rugs', 'Carpets', 'Doormats', 'Others'],
+    'Others': ['Miscellaneous Furniture Items']
+  };
 
-  String? kids = '';
 
-  List<String> kidsList = ['Doll', 'Car'];
+  List<String> kidsList = ['Doll', 'Car', "Others"];
 
   String? fabric = '';
   String? suitType = '';
 
-  List<String> fabricList = ['Cotton', 'Khadar', 'Washing Ware'];
-  List<String> suitTypeList = ['Tuxedo'];
+  String? furnished = '';
+  String? completion = '';
+
+  List<String> fabricList = ['Cotton', 'Khadar', 'Washing Ware', "Others"];
+  List<String> suitTypeList = ['Tuxedo', "Others"];
+
+  List<String> furnishedList = ["Furnished", "Unfurnished"];
+
+  List<String> completionList = ['Off Plan', "Ready", "Others"];
 
   TextEditingController priceController = TextEditingController();
-  TextEditingController mileAgeController = TextEditingController();
+  TextEditingController kilometresController = TextEditingController();
+  TextEditingController toyController = TextEditingController();
+  TextEditingController modelController = TextEditingController();
+  TextEditingController yearBuiltController = TextEditingController();
+  TextEditingController totalClosingFeeController = TextEditingController();
+  TextEditingController annualCommunityFeeController = TextEditingController();
+  TextEditingController developerController = TextEditingController();
+  TextEditingController propertyReferenceController = TextEditingController();
+  TextEditingController buyTransferController = TextEditingController();
+  TextEditingController sellTransferController = TextEditingController();
+  TextEditingController maintenanceFeeController = TextEditingController();
+  TextEditingController occupancyStatusController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController companyNameController = TextEditingController();
+  TextEditingController linkedinProfileController = TextEditingController();
 
   String? catId;
 
   //ElectronicAmplience
 
   String? selectDealer;
+  String? selectJobType = "Hiring";
 
-  List<String> electricBrand = [
-    'Dawlence',
-    'Pel',
-    'LG',
-    'Samsung',
-    'Bosch',
-    'Kenmore',
-    'Amana'
-  ];
+
+
+  Map<String, List<String>> electricBrand = {
+    'Computer & Accessories': [
+      'Dell', 'HP', 'Apple', 'Lenovo', 'Asus', 'Acer', 'MSI', 'Razer', 'Microsoft', 'Logitech', 'Others'
+    ],
+    'Television & Accessories': [
+      'Samsung', 'LG', 'Sony', 'Panasonic', 'TCL', 'Vizio', 'Sharp', 'Hisense', 'Philips', 'Toshiba', 'Others'
+    ],
+    'AC & Coolers': [
+      'Daikin', 'LG', 'Samsung', 'Voltas', 'Blue Star', 'Carrier', 'Hitachi', 'Midea', 'Whirlpool', 'Godrej', 'Others'
+    ],
+    'Generators, UPS & Power Solutions': [
+      'Honda', 'Cummins', 'Generac', 'Schneider', 'Eaton', 'Briggs & Stratton', 'Kohler', 'Yamaha', 'Tata', 'Himoinsa', 'Others'
+    ],
+    'Refrigerators & Freezers': [
+      'Whirlpool', 'LG', 'Samsung', 'Haier', 'Godrej', 'Electrolux', 'Bosch', 'Panasonic', 'Siemens', 'Kelvinator', 'Others'
+    ],
+    'Air Purifiers & Humidifiers': [
+      'Philips', 'Dyson', 'Honeywell', 'Blueair', 'Coway', 'Levoit', 'Sharp', 'Winix', 'GermGuardian', 'Boneco', 'Others'
+    ],
+    'Cameras & Accessories': [
+      'Canon', 'Nikon', 'Sony', 'Fujifilm', 'Panasonic', 'Olympus', 'GoPro', 'Leica', 'Sigma', 'DJI', 'Others'
+    ],
+    'Games & Entertainment': [
+      'Sony', 'Microsoft', 'Nintendo', 'Razer', 'Logitech', 'Corsair', 'SteelSeries', 'Alienware', 'Turtle Beach', 'HyperX', 'Others'
+    ],
+    'Kitchen Appliances': [
+      'Philips', 'Bosch', 'Panasonic', 'Prestige', 'Bajaj', 'KitchenAid', 'Breville', 'Cuisinart', 'Morphy Richards', 'Kenwood', 'Others'
+    ],
+    'Fans': [
+      'Orient', 'Havells', 'Bajaj', 'Usha', 'Crompton', 'V-Guard', 'Lasko', 'Midea', 'Atomberg', 'Westinghouse', 'Others'
+    ],
+    'Video': [
+      'Sony', 'Bose', 'JBL', 'Sennheiser', 'Marshall', 'Klipsch', 'Pioneer', 'Yamaha', 'Denon', 'Harman Kardon', 'Others'
+    ],
+    'Audio': [
+      'Sony', 'Bose', 'JBL', 'Sennheiser', 'Marshall', 'Klipsch', 'Pioneer', 'Yamaha', 'Denon', 'Harman Kardon', 'Others'
+    ],
+    'Washing Machines & Dryers': [
+      'LG', 'Samsung', 'Whirlpool', 'Bosch', 'IFB', 'Haier', 'Panasonic', 'Electrolux', 'Godrej', 'Siemens', 'Others'
+    ],
+    'Microwaves & Ovens': [
+      'LG', 'Samsung', 'Whirlpool', 'Panasonic', 'IFB', 'Sharp', 'Toshiba', 'GE', 'Kenmore', 'Black+Decker', 'Others'
+    ],
+    'Sewing Machines': [
+      'Singer', 'Usha', 'Brother', 'Janome', 'Juki', 'Bernina', 'Elna', 'Pfaff', 'Baby Lock', 'Necchi', 'Others'
+    ],
+    'Water Dispensers': [
+      'Voltas', 'Blue Star', 'Haier', 'Kent', 'Whirlpool', 'AquaGuard', 'Primo', 'Brio', 'Clover', 'Avalon', 'Others'
+    ],
+    'Heater & Geysers': [
+      'Bajaj', 'AO Smith', 'Havells', 'Racold', 'Crompton', 'Venus', 'Usha', 'Kenstar', 'Hindware', 'V-Guard', 'Others'
+    ],
+    'Irons & Steamers': [
+      'Philips', 'Bajaj', 'Morphy Richards', 'Havells', 'Usha', 'Rowenta', 'Tefal', 'Panasonic', 'Black+Decker', 'Singer', 'Others'
+    ],
+    'Other Home Appliances': [
+      'Dyson', 'Panasonic', 'LG', 'Whirlpool', 'Philips', 'Bosch', 'Samsung', 'Electrolux', 'Miele', 'Sharp', 'Others'
+    ],
+  };
+
+
   String? selectElectricBrand;
+
+  bool isBack = false;
 
   VehicleAttributes? vehicleAttributes;
   MobileAttributes? mobileAttributes;
@@ -225,17 +802,62 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   FurnitureAttributes? furnitureAttributes;
   ElectronicApplicanceAttributes? electronicApplicanceAttributes;
 
+
+  final ScrollController _scrollController = ScrollController();
+
+  void _scrollToBottom() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(seconds: 1),
+      curve: Curves.easeOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+
     print("object$_selectedCategory");
     return Consumer2<CategoryProvider, SubCategoriesProvider>(
         builder: (context, category, subCat, _) {
       final parseData = widget.selling?.attributes ?? {};
 
+      if(_selectedCategory=='Mobiles'){
+        if(_selectedSubCategory != 'Accessories') {
+          condition = ["New", "Used", "Open Box", "Refurbished", "Others"];
+        }
+        else{
+          condition = ["New", "Used", "Open Box", "Others"];
+        }
+      }
+      else if(_selectedCategory=="Electronics & Appliance"){
+        condition = ["New", "Used", "Refurbished", "Others"];
+      }
+      else if(_selectedCategory=="Kids"){
+        condition = ["New", "Used", "Open Box", "Others"];
+      }
+      else if(_selectedCategory=="Vehicles"){
+        condition = ["New", "Used", "Others"];
+      }
+      else{
+        condition = ["New", "Used", "Refurbished", "Others"];
+      }
+
+      if(_selectedSubCategory == 'Commercial Space' && zoneFor == 'Shop'){
+        featuresList = featuresListShop;
+      }
+      else{
+        featuresList = featuresListCustom;
+      }
+
+
+
+
+
+      catModel = category.category;
+      subCatModel = subCat.subCategories;
+
       if (!_dataInitialized &&
-          subCatModel.isNotEmpty &&
-          widget.selling != null &&
-          parseData != null) {
+          widget.selling != null) {
         vehicleAttributes = VehicleAttributes.fromJson(parseData);
         mobileAttributes = MobileAttributes.fromJson(parseData);
         fashionAttributes = FashionAttributes.fromJson(parseData);
@@ -249,27 +871,39 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         electronicApplicanceAttributes =
             ElectronicApplicanceAttributes.fromJson(parseData);
 
-        _selectedCategory = vehicleAttributes?.catName ?? '';
-        _selectedCategory = mobileAttributes?.catName ?? '';
+        _selectedCategory = widget.selling?.category!.name!;
+        _selectedSubCategory = widget.selling?.subCategory!.name!;
+
+
         brand = mobileAttributes?.brand ?? '';
         colorSelect = mobileAttributes!.color;
-        typeProperty = propertyAttributes!.type;
+        furnished = propertyAttributes!.furnished;
         conditionSelect = 'New';
         storage = mobileAttributes?.storage ?? '';
         _colorController.text = mobileAttributes?.color ?? '';
         bedrooms = propertyAttributes!.bedroom;
-        area = propertyAttributes!.area;
-        features = propertyAttributes!.features;
+        bathroom = propertyAttributes!.bathroom;
+        zoneFor = propertyAttributes!.zoneFor;
+        totalClosingFeeController.text =  propertyAttributes!.totalClosingFee;
+        annualCommunityFeeController.text = propertyAttributes!.annualCommunityFee;
+        developerController.text = propertyAttributes!.developer;
+        propertyReferenceController.text = propertyAttributes!.propertyReferenceID;
+        buyTransferController.text = propertyAttributes!.buyTransferFee;
+        sellTransferController.text = propertyAttributes!.sellerTransferFee;
+        maintenanceFeeController.text = propertyAttributes!.maintenanceFee;
+        occupancyStatus = propertyAttributes!.occupancyStatus;
+        area.text = propertyAttributes!.area;
+        features = propertyAttributes!.features.split(', ').toList();
         selectMakeModel = vehicleAttributes!.makeModel;
-        yearModel = vehicleAttributes!.year;
+        yearBuiltController.text = vehicleAttributes!.year;
         conditionSelect = 'New';
-        mileAgeSelect = vehicleAttributes!.mileAge;
-        yearBuilt = vehicleAttributes!.year;
+        kilometresController.text = vehicleAttributes!.mileAge;
+        yearBuiltController.text = vehicleAttributes!.year;
         fuelTypeSelect = vehicleAttributes!.FuelType;
         colorSelect = vehicleAttributes!.color;
-        mileAgeController.text = vehicleAttributes!.mileAge;
-        amenities = propertyAttributes!.amenities;
-        yearBuilt = propertyAttributes!.yearBuilt;
+        kilometresController.text = vehicleAttributes!.mileAge;
+        completion = propertyAttributes!.completion;
+        yearBuiltController.text = propertyAttributes!.yearBuilt;
 
         brand = electronicApplicanceAttributes!.brand;
         conditionSelect = electronicApplicanceAttributes!.condition;
@@ -290,46 +924,42 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         print('catCat------>${catagoryId}');
 
         engineCapacity = bikeAttributes!.engineCapacity;
-        model = bikeAttributes!.model;
+        modelController.text = bikeAttributes!.model;
         subCatagoryId = bikeAttributes!.subCategoryId;
-        _selectedSubCategory = bikeAttributes!.subCategoryName;
 
         jobType = jobAttributes!.type;
-        experience = jobAttributes!.experience;
-        salary = jobAttributes!.salary;
+        descriptionController.text = jobAttributes!.description;
+        _salaryController.text = jobAttributes!.salary;
         salaryPeriod = 'Monthly';
-        companyName = jobAttributes!.companyName;
+        companyNameController.text = jobAttributes!.companyName;
 
         car = servicesAttributes!.car;
         subCatagoryId = servicesAttributes!.subCategoryId;
-        _selectedSubCategory = servicesAttributes!.subCategoryName;
 
         age = animalsAttributes!.age;
-        breed = animalsAttributes!.breed;
+        _breedController.text = animalsAttributes!.breed;
         subCatagoryId = animalsAttributes!.subCategoryId;
-        _selectedSubCategory = animalsAttributes!.subCatName;
 
-        furnitureType = furnitureAttributes!.type;
+        _typeController.text = furnitureAttributes!.type;
         colorSelect = furnitureAttributes!.color;
 
         fabric = fashionAttributes!.fabric;
         suitType = fashionAttributes!.suitType;
         subCatagoryId = fashionAttributes!.subCategoryId;
-        _selectedSubCategory = fashionAttributes!.subCatName;
 
-        kids = kidsAttributes!.toy;
+        toyController.text = kidsAttributes!.toy;
         subCatagoryId = kidsAttributes!.subCategoryId;
-        _selectedSubCategory = kidsAttributes!.subCatName;
 
         // Mark data as initialized
         _dataInitialized = true;
       }
 
-      catModel = category.category;
-      subCatModel = subCat.subCategories;
+
 
       Map<String, dynamic> mobileJson = {
         'category_id': catagoryId ?? '',
+        'sub_category_id': subCatagoryId ?? '',
+        'sub_category_name': _selectedSubCategory ?? '',
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'brand': brand ?? '',
@@ -343,88 +973,115 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       Map<String, dynamic> propertyForSaleJson = {
         'category_id': catagoryId ?? '',
         'category_name': _selectedCategory ?? '',
+        'sub_category_id': subCatagoryId ?? '',
+        'sub_category_name': _selectedSubCategory ?? '',
         'product_id': widget.productId,
-        'type': typeProperty ?? '',
         'bedrooms': bedrooms ?? '',
-        'area': area ?? '',
-        'condition': 'New',
-        'yearBuilt': yearBuilt ?? '',
-        'feature': features ?? '',
-        'Amenities': amenities ?? '',
+        'condition': 'Condition' ?? '-',
+        'area': area.text ?? '-',
+        'yearBuilt': yearBuiltController.text ?? '',
+        'feature': features.join(', '),
         'price': priceController.text.trim() ?? '',
         'storage': storage ?? '',
         'location': locationSelect ?? '',
         'owner': selectDealer ?? '',
-      };
-
-      Map<String, dynamic> vehiclesJson = {
-        'category_id': catagoryId ?? '',
-        'category_name': _selectedCategory ?? '',
-        'product_id': widget.productId,
-        'makeAndModel': selectMakeModel ?? '',
-        'year': yearModel ?? '',
-        'condition': conditionSelect ?? '',
-        'mileage': mileAgeController.text.trim() ?? '',
-        'fuelType': fuelTypeSelect ?? '',
-        'color': colorSelect ?? '',
-        'price': priceController.text.trim() ?? '',
-        'location': locationSelect ?? '',
+        'bathroom': bathroom ?? '',
+        'completion':completion ?? '',
+        'totalClosingFee': totalClosingFeeController.text ?? '',
+        'developer': developerController.text ?? '',
+        'annualCommunityFee': annualCommunityFeeController.text ?? '',
+        'propertyReferenceID': propertyReferenceController.text ?? '',
+        'buyTransferFee': buyTransferController.text ?? '',
+        'sellerTransferFee': sellTransferController.text ?? '',
+        'maintenanceFee': maintenanceFeeController.text ?? '',
+        'occupancyStatus': occupancyStatus ?? '',
+        'furnished': furnished ?? '',
+        'zoneFor': zoneFor ?? ''
       };
 
       Map<String, dynamic> propertyForRentJson = {
         'category_id': catagoryId ?? '',
         'category_name': _selectedCategory ?? '',
+        'sub_category_id': subCatagoryId ?? '',
+        'sub_category_name': _selectedSubCategory ?? '',
         'product_id': widget.productId,
-        'type': typeProperty ?? '',
         'bedrooms': bedrooms ?? '',
-        'area': area ?? '',
-        'condition': 'New',
-        'yearBuilt': yearBuilt ?? '',
-        'feature': features ?? '',
-        'Amenities': amenities ?? '',
+        'condition': 'Condition' ?? '',
+        'area': area.text ?? '',
+        'yearBuilt': yearBuiltController.text ?? '',
+        'feature': features.join(', '),
         'price': priceController.text.trim() ?? '',
         'storage': storage ?? '',
         'location': locationSelect ?? '',
         'owner': selectDealer ?? '',
+        'bathroom': bathroom ?? '',
+        'furnished': furnished ?? '',
+        'zoneFor': zoneFor ?? ''
+
+
       };
+
+      Map<String, dynamic> vehiclesJson = {
+        'category_id': catagoryId ?? '',
+        'category_name': _selectedCategory ?? '',
+        'sub_category_id': subCatagoryId ?? '',
+        'subcategory': _selectedCategory ?? '',
+        'sub_category_name': _selectedSubCategory ?? '',
+        'product_id': widget.productId,
+        'makeAndModel': selectMakeModel ?? '',
+        'year': yearBuiltController.text ?? '',
+        'condition': conditionSelect ?? '',
+        'kilometres': kilometresController.text.trim() ?? '',
+        'fuelType': fuelTypeSelect ?? '',
+        'color': colorSelect ?? '',
+        'price': priceController.text.trim() ?? '',
+        'owner': selectDealer ?? '',
+        'location': locationSelect ?? '',
+      };
+
 
       Map<String, dynamic> bikeJson = {
         'category_id': catagoryId ?? '',
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
-        'subCatId': subCatagoryId ?? '',
-        'subCatName': _selectedSubCategory ?? '',
+        'sub_category_id': subCatagoryId ?? '',
+        'sub_category_name': _selectedSubCategory ?? '',
         'condition': 'New',
         'engineCapacity': engineCapacity ?? '',
-        'model': model ?? '',
+        'model': modelController.text ?? '',
         'price': priceController.text.trim() ?? '',
         'location': locationSelect ?? '',
+        'description': descriptionController.text,
       };
 
       Map<String, dynamic> jobJson = {
         'category_id': catagoryId ?? '',
         'category_name': _selectedCategory ?? '',
+        'sub_category_id': subCatagoryId ?? '',
+        'sub_category_name': _selectedSubCategory ?? '',
         'product_id': widget.productId,
         'type': jobType ?? '',
-        'experience': experience ?? '',
+        'description': descriptionController.text ?? '',
         'education': education ?? '',
-        'salary': salary ?? '',
+        'salary': _salaryController.text ?? '',
         'condition': 'New',
         'salaryPeriod': salaryPeriod ?? '',
-        'companyName': companyName ?? '',
-        'possitionType': possitionType ?? '',
-        'carrierLevel': careerLevel ?? '',
+        'companyName': companyNameController.text ?? '',
+        'linkedinProfile': linkedinProfileController.text ?? '',
+        'possitionType' : possitionType ?? '',
+        'experienceLevel' : experienceLevel ?? '',
+        'hireStatus': selectJobType ?? '',
         'location': locationSelect ?? '',
       };
 
       Map<String, dynamic> servicesJson = {
         'category_id': catagoryId ?? '',
-        'subCategoryName': _selectedSubCategory ?? '',
-        'subCategoryId': subCatagoryId ?? '',
+        'sub_category_id': subCatagoryId ?? '',
+        'sub_category_name': _selectedSubCategory ?? '',
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
-        'subcategory': subCatagoryId ?? '',
-        'condition': conditionSelect ?? '',
+        'description': descriptionController.text,
+        'condition': 'Condition',
         'price': priceController.text.trim() ?? '',
         'car': car ?? '',
         'location': locationSelect ?? '',
@@ -432,23 +1089,24 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       Map<String, dynamic> animalsJson = {
         'category_id': catagoryId ?? '',
-        'subCatName': _selectedSubCategory ?? '',
-        'subcategoryId': subCatagoryId ?? '',
+        'sub_category_id': subCatagoryId ?? '',
+        'sub_category_name': _selectedSubCategory ?? '',
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
         'condition': 'New',
-        'subcategory': subCatagoryId ?? '',
         'age': age ?? '',
         'price': priceController.text.trim() ?? '',
-        'breed': breed ?? '',
+        'breed': _breedController.text,
+        'description': descriptionController.text,
         'location': locationSelect ?? '',
       };
       Map<String, dynamic> furnitureJson = {
         'category_id': catagoryId ?? '',
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
-        'subcategory': subCatagoryId ?? '',
-        'type': furnitureType ?? '',
+        'sub_category_id': subCatagoryId ?? '',
+        'sub_category_name': _selectedSubCategory ?? '',
+        'type': _typeController.text ?? '',
         'condition': conditionSelect ?? '',
         'color': colorSelect ?? '',
         'price': priceController.text.trim() ?? '',
@@ -457,24 +1115,23 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       Map<String, dynamic> fashionJson = {
         'category_id': catagoryId ?? '',
-        'subCatName': _selectedSubCategory ?? '',
+        'sub_category_id': subCatagoryId ?? '',
+        'sub_category_name': _selectedSubCategory ?? '',
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
-        'subCategoryId': subCatagoryId ?? '',
-        'condition': 'New',
-        'fabric': fabric ?? '',
-        'suitType': suitType ?? '',
+        'condition': 'Condition',
+        'description': descriptionController.text,
         'price': priceController.text ?? '',
         'location': locationSelect ?? '',
       };
       Map<String, dynamic> kidsJson = {
         'category_id': catagoryId ?? '',
-        'subCatName': _selectedSubCategory ?? '',
+        'sub_category_id': subCatagoryId ?? '',
+        'sub_category_name': _selectedSubCategory ?? '',
         'category_name': _selectedCategory ?? '',
         'product_id': widget.productId,
-        'subcategoryId': subCatagoryId ?? '',
         'condition': conditionSelect ?? '',
-        'toy': kids ?? '',
+        'description': descriptionController.text,
         'price': priceController.text.trim() ?? '',
         'location': locationSelect ?? '',
       };
@@ -482,25 +1139,32 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       Map<String, dynamic> electricApplianceJson = {
         'category_id': catagoryId ?? '',
         'category_name': _selectedCategory ?? '',
+        'sub_category_id': subCatagoryId ?? '',
+        'sub_category_name': _selectedSubCategory ?? '',
         'product_id': widget.productId,
         'condition': conditionSelect ?? '',
         'brand': selectElectricBrand ?? '',
         'price': priceController.text.trim() ?? '',
         'location': locationSelect ?? '',
+        'color': colorSelect ?? '',
       };
 
+
       return Scaffold(
+        resizeToAvoidBottomInset: true,
         appBar: CustomAppBar1(
           title: "Detail",
           action: true,
           img: "assets/images/cross.png",
-          actionOntap: () {
-            pushUntil(context, const BottomNavView());
-          },
+          // actionOntap: () {
+          //   // Navigator.pop(context, {'product_id' : widget.productId});
+          //   // pushUntil(context, const BottomNavView());
+          // },
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: SingleChildScrollView(
+            controller: _scrollController,
             child: Column(
               children: [
                 const SizedBox(
@@ -511,40 +1175,178 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   circleColor1: AppTheme.appColor,
                   circleColor2: AppTheme.appColor,
                   conColor2: AppTheme.appColor,
+                  categoryNameJob: _selectedCategory == 'Jobs',
                 ),
                 const SizedBox(
                   height: 20,
                 ),
 
-                _selectedCategory == 'Property for Rent' ||
-                        _selectedCategory == 'Property for Sale'
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          customCheckBox(
-                              propertyAttributes!.owner=='Owner'
-                                  ? true
-                                  : owner, (val) {
-                            owner = val!;
-                            dealer = false;
-                            selectDealer = 'Owner';
-                            print(selectDealer);
-                            setState(() {});
-                          }, 'Owner'),
-                          customCheckBox(
-                              propertyAttributes!.owner=='Dealer'
-                                  ? true
-                                  : dealer, (val) {
-                            dealer = val!;
-                            selectDealer = 'Dealer';
-                            print(selectDealer);
+                // (_selectedCategory == 'Property for Rent' ||
+                //         _selectedCategory == 'Property for Sale')
+                //     ? Row(
+                //         mainAxisAlignment: MainAxisAlignment.start,
+                //         crossAxisAlignment: CrossAxisAlignment.start,
+                //         children: [
+                //           customCheckBox(
+                //               propertyAttributes!=null ?  propertyAttributes!.owner=='Owner'
+                //                   ? true
+                //                   : owner : owner, (val) {
+                //             owner = val!;
+                //             dealer = false;
+                //             selectDealer = 'Owner';
+                //             print(selectDealer);
+                //             setState(() {});
+                //           }, 'Owner'),
+                //           customCheckBox(
+                //               propertyAttributes!=null ? propertyAttributes!.owner=='Dealer'
+                //                   ? true
+                //                   : dealer :  dealer, (val) {
+                //             dealer = val!;
+                //             selectDealer = 'Dealer';
+                //             print(selectDealer);
+                //
+                //             owner = false;
+                //             setState(() {});
+                //           }, 'Dealer'),
+                //         ],
+                //       )
+                //     : SizedBox.shrink(),
+                //     : SizedBox.shrink(),
 
+
+                (_selectedCategory == 'Property for Rent' ||
+                    _selectedCategory == 'Property for Sale' || _selectedCategory == 'Vehicles' )
+                    ? Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: AppButton.appButton(
+                          "Owner",
+                          height: 35.h,
+                        fontWeight: FontWeight.w500,
+                        padding : EdgeInsets.symmetric(horizontal: 40.w, vertical: 2.h),
+                        fontSize: 15,
+                        radius: 40.0,
+                        backgroundColor: owner == true ? AppTheme.yellowColor : null,
+                        textColor: owner == true ? AppTheme.whiteColor : null,
+                          borderColor:  owner == true ? AppTheme.yellowColor : null,
+                          onTap:(){
+                          owner = true;
+                          dealer = false;
+                          selectDealer = 'Owner';
+                          setState(() {});}
+                      ),
+                    ),
+                    SizedBox(width:18.w),
+                    Expanded(
+                      child: AppButton.appButton(
+                          _selectedCategory == 'Vehicles' ? 'Dealer' : "Agent",
+                          height: 35.h,
+                          padding : EdgeInsets.symmetric(horizontal: 40.w,),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                          radius: 40.0,
+                          borderColor:  dealer == true ? AppTheme.yellowColor : null,
+                          backgroundColor: dealer == true ? AppTheme.yellowColor : null,
+                          textColor: dealer == true ? AppTheme.whiteColor : null,
+                          onTap:(){
+                            dealer = true;
                             owner = false;
-                            setState(() {});
-                          }, 'Dealer'),
-                        ],
+                            selectDealer =  _selectedCategory == 'Vehicles' ? 'Dealer' : 'Agent';
+                            setState(() {});}
                       )
+                      ,
+                    ),
+
+                    // customCheckBox(
+                    //     propertyAttributes!=null ?  propertyAttributes!.owner=='Owner'
+                    //         ? true
+                    //         : owner : owner, (val) {
+                    //   owner = val!;
+                    //   dealer = false;
+                    //   selectDealer = 'Owner';
+                    //   print(selectDealer);
+                    //   setState(() {});
+                    // }, 'Owner'),
+                    // customCheckBox(
+                    //     propertyAttributes!=null ? propertyAttributes!.owner=='Dealer'
+                    //         ? true
+                    //         : dealer :  dealer, (val) {
+                    //   dealer = val!;
+                    //   selectDealer = 'Dealer';
+                    //   print(selectDealer);
+                    //
+                    //   owner = false;
+                    //   setState(() {});
+                    // }, 'Dealer'),
+                  ],
+                )
+                    : SizedBox.shrink(),
+
+                ( _selectedCategory == 'Jobs' )
+                    ? Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: AppButton.appButton(
+                          "Hiring" ,
+                          height: 35.h,
+                          fontWeight: FontWeight.w500,
+                          padding : EdgeInsets.symmetric(horizontal: 40.w, vertical: 2.h),
+                          fontSize: 15,
+                          radius: 40.0,
+                          backgroundColor: selectJobType == "Hiring" ? AppTheme.yellowColor : null,
+                          textColor: selectJobType == "Hiring"? AppTheme.whiteColor : null,
+                          borderColor:  selectJobType == "Hiring" ? AppTheme.yellowColor : null,
+                          onTap:(){
+                            selectJobType = "Hiring" ;
+                            setState(() {});}
+                      ),
+                    ),
+                    SizedBox(width:18.w),
+                    Expanded(
+                      child: AppButton.appButton(
+                          'Looking',
+                          height: 35.h,
+                          padding : EdgeInsets.symmetric(horizontal: 40.w,),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                          radius: 40.0,
+                          borderColor:  selectJobType == "Looking" ? AppTheme.yellowColor : null,
+                          backgroundColor: selectJobType == "Looking" ? AppTheme.yellowColor : null,
+                          textColor: selectJobType == "Looking" ? AppTheme.whiteColor : null,
+                          onTap:(){
+                            selectJobType = "Looking";
+                            setState(() {});}
+                      )
+                      ,
+                    ),
+
+                    // customCheckBox(
+                    //     propertyAttributes!=null ?  propertyAttributes!.owner=='Owner'
+                    //         ? true
+                    //         : owner : owner, (val) {
+                    //   owner = val!;
+                    //   dealer = false;
+                    //   selectDealer = 'Owner';
+                    //   print(selectDealer);
+                    //   setState(() {});
+                    // }, 'Owner'),
+                    // customCheckBox(
+                    //     propertyAttributes!=null ? propertyAttributes!.owner=='Dealer'
+                    //         ? true
+                    //         : dealer :  dealer, (val) {
+                    //   dealer = val!;
+                    //   selectDealer = 'Dealer';
+                    //   print(selectDealer);
+                    //
+                    //   owner = false;
+                    //   setState(() {});
+                    // }, 'Dealer'),
+                  ],
+                )
                     : SizedBox.shrink(),
 
                 customRow(
@@ -554,7 +1356,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     title: "Category(required)",
                     selectText: _selectedCategory ?? 'Select Category'),
 
-                _selectedCategory == 'Electronic & Appliance'
+                if( _selectedCategory != null && _selectedCategory!.isNotEmpty)
+                  customRow(
+                      onTap: () {
+                        makeSubCategoriesBottom(context);
+                      },
+                      title: 'Subcategories(required)',
+                      selectText: _selectedSubCategory ??
+                          'Select Subcategories'),
+
+                _selectedCategory == 'Electronics & Appliance' && _selectedSubCategory!.isNotEmpty
                     ? Column(
                         children: [
                           customRow(
@@ -574,6 +1385,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           // PostTextField(
                           //     txt: 'Price',
                           //     textEditingController: priceController),
+                          if(_selectedSubCategory != 'Generators, UPS & Power Solutions')
                           customRow(
                               onTap: () {
                                 colorTypeBottom(context);
@@ -590,49 +1402,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       )
                     : const SizedBox.shrink(),
 
-                _selectedCategory == 'Fashion (dress) and beauty'
+                _selectedCategory == 'Fashion & beauty' && _selectedSubCategory!.isNotEmpty
                     ? Column(
                         children: [
-                          customRow(
-                              onTap: () {
-                                makeSubCategoriesBottom(context);
-                              },
-                              title: 'Subcategories',
-                              selectText: _selectedSubCategory ??
-                                  'Select Subcategories'),
-                          customRow(
-                              onTap: () {
-                                makeFabricTypeBottom(context);
-                              },
-                              title: 'Fabric',
-                              selectText: fabric ?? 'Select Fabric'),
-
-                          // customRow(
-                          //     onTap: () {
-                          //       priceRangeBottom(context);
-                          //     },
-                          //     title: 'Price',
-                          //     selectText: priceRangeSelect ?? 'Select Price'),
-                          customRow(
-                              onTap: () {
-                                makeSuitTypeTypeBottom(context);
-                              },
-                              title: 'Suit Type',
-                              selectText: suitType ?? 'Select Suit Type'),
+                          descriptionTextField(title : 'Product description')
                         ],
                       )
                     : const SizedBox.shrink(),
 
-                _selectedCategory == 'Kids'
+                _selectedCategory == 'Kids' && _selectedSubCategory!.isNotEmpty
                     ? Column(
                         children: [
-                          customRow(
-                              onTap: () {
-                                makeSubCategoriesBottom(context);
-                              },
-                              title: 'Subcategories',
-                              selectText: _selectedSubCategory ??
-                                  'Select Subcategories'),
                           customRow(
                               onTap: () {
                                 conditionBottom(context);
@@ -647,25 +1427,19 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           //     title: 'Price',
                           //     selectText: priceRangeSelect ?? 'Select Price'),
 
-                          customRow(
-                              onTap: () {
-                                makeKidsTypeBottom(context);
-                              },
-                              title: 'Toy',
-                              selectText: kids ?? 'Select Toy'),
+                          descriptionTextField()
                         ],
                       )
                     : const SizedBox.shrink(),
 
-                _selectedCategory == 'Furniture and home decor'
+                _selectedCategory == 'Furniture & home decor' && _selectedSubCategory!.isNotEmpty
                     ? Column(
                         children: [
-                          customRow(
+                          customRowTextField(
                               onTap: () {
-                                makeFurnitureTypeBottom(context);
                               },
-                              title: 'Choose Type',
-                              selectText: furnitureType ?? 'Select Type'),
+                              title: 'Type',
+                              textEditingController: _typeController),
                           customRow(
                               onTap: () {
                                 conditionBottom(context);
@@ -690,16 +1464,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       )
                     : const SizedBox.shrink(),
 
-                _selectedCategory == 'Animals'
+                _selectedCategory == 'Animals' && _selectedSubCategory!.isNotEmpty
                     ? Column(
                         children: [
-                          customRow(
-                              onTap: () {
-                                makeSubCategoriesBottom(context);
-                              },
-                              title: 'Subcategories',
-                              selectText: _selectedSubCategory ??
-                                  'Select Subcategories'),
+
+                          if(_selectedSubCategory != 'Pet Food & Accessories') ... [
                           customRow(
                               onTap: () {
                                 makeAgeTypeBottom(context);
@@ -713,12 +1482,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           //     },
                           //     title: 'Price',
                           //     selectText: priceRangeSelect ?? 'Select Price'),
-                          customRow(
-                              onTap: () {
-                                makeBreedTypeBottom(context);
-                              },
+                          customRowTextField(
                               title: 'Breed',
-                              selectText: breed ?? 'Select Breed'),
+                              hintText: 'Enter breed', textEditingController: _breedController)
+                          ]
+                          else
+                            descriptionTextField()
                           // customRow(
                           //     onTap: () {
                           //       locationTypeBottom(context);
@@ -729,7 +1498,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       )
                     : const SizedBox.shrink(),
 
-                _selectedCategory == 'Job'
+                _selectedCategory == 'Jobs' && _selectedSubCategory!.isNotEmpty
                     ? Column(
                         children: [
                           customRow(
@@ -738,70 +1507,57 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               },
                               title: 'Type',
                               selectText: jobType ?? 'Select Job Type'),
-                          customRow(
-                              onTap: () {
-                                makeExperienceBottom(context);
-                              },
-                              title: 'Experience',
-                              selectText: experience ?? 'Select Experience'),
+                          descriptionTextField(),
                           customRow(
                               onTap: () {
                                 makeEducationBottom(context);
                               },
                               title: 'Education',
                               selectText: education ?? 'Select Education'),
-                          customRow(
-                              onTap: () {
-                                makeSalaryBottom(context);
-                              },
-                              title: 'Salary',
-                              selectText: salary ?? 'Select Salary'),
+                          // customRowTextField(
+                          //     onTap: () {
+                          //     },
+                          //     title: 'Salary',
+                          //     textEditingController: _salaryController),
+                          if(selectJobType == 'Hiring' )
                           customRow(
                               onTap: () {
                                 makeSalaryPeriodBottom(context);
                               },
                               title: 'Salary Period',
                               selectText:
-                                  salaryPeriod ?? 'Select Salary Period'),
-                          customRow(
-                              onTap: () {
-                                makeCompanyNameBottom(context);
-                              },
-                              title: 'Company Name',
-                              selectText: companyName ?? 'Select Company Name'),
+                                  salaryPeriod ?? 'Select Salary Period')
+                          else
+                            customRow(
+                                onTap: () {
+                                  makeExperienceLevelBottom(context);
+                                },
+                                title: 'Experience Level',
+                                selectText:
+                                experienceLevel ?? 'Select Experience Level'),
+                          customRowTextField(
+                              title: selectJobType == 'Hiring' ? 'Company Name' : 'Linkedin Profile(link)',
+                              textEditingController: selectJobType == 'Hiring' ?  companyNameController : linkedinProfileController),
                           customRow(
                               onTap: () {
                                 makePossitionTypeBottom(context);
                               },
-                              title: 'Position Type',
-                              selectText: jobType ?? 'Select Position Type'),
-                          customRow(
-                              onTap: () {
-                                makeCarrieLevelBottom(context);
-                              },
-                              title: 'Carrie Level',
-                              selectText: careerLevel ?? 'Select Carrie Level'),
+                              title: selectJobType == 'Hiring' ? 'Position Type' : 'Preferred Employment Type',
+                              selectText: possitionType),
+                          // customRow(
+                          //     onTap: () {
+                          //       makeCarrieLevelBottom(context);
+                          //     },
+                          //     title: 'Carrier Level',
+                          //     selectText: careerLevel ?? 'Select Carrier Level'),
                         ],
                       )
                     : const SizedBox.shrink(),
 
-                _selectedCategory == 'Services'
+                _selectedCategory == 'Services' && _selectedSubCategory!.isNotEmpty
                     ? Column(
                         children: [
-                          customRow(
-                              onTap: () {
-                                makeSubCategoriesBottom(context);
-                              },
-                              title: 'Subcategories',
-                              selectText: _selectedSubCategory ??
-                                  'Select Subcategories'),
-                          customRow(
-                              onTap: () {
-                                conditionBottom(context);
-                              },
-                              title: 'Condition',
-                              selectText:
-                                  conditionSelect ?? 'Select Condition'),
+                          descriptionTextField()
 
                           // customRow(
                           //     onTap: () {
@@ -809,26 +1565,29 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           //     },
                           //     title: 'Price',
                           //     selectText: priceRangeSelect ?? 'Select Price'),
-                          customRow(
-                              onTap: () {
-                                makeCarBottom(context);
-                              },
-                              title: 'Car',
-                              selectText: car ?? 'Select Car'),
+                          // customRow(
+                          //     onTap: () {
+                          //       makeCarBottom(context);
+                          //     },
+                          //     title: 'Car',
+                          //     selectText: car ?? 'Select Car'),
                         ],
                       )
                     : const SizedBox.shrink(),
 
-                _selectedCategory == 'Bike'
+                _selectedCategory == 'Bikes' && _selectedSubCategory!.isNotEmpty
                     ? Column(
                         children: [
+
                           customRow(
                               onTap: () {
-                                makeSubCategoriesBottom(context);
+                                conditionBottom(context);
                               },
-                              title: 'Subcategories',
-                              selectText: _selectedSubCategory ??
-                                  'Select Subcategories'),
+                              title: 'Condition',
+                              selectText:
+                              conditionSelect ?? 'Select Condition'),
+
+                          if(_selectedSubCategory != 'Bicycles' && _selectedSubCategory != 'Bikes Accessories' && _selectedSubCategory != 'Parts')
                           customRow(
                               onTap: () {
                                 makeEngineCapacityBottom(context);
@@ -842,17 +1601,23 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           //     },
                           //     title: 'Price',
                           //     selectText: priceRangeSelect ?? 'Select Price'),
-                          customRow(
+                          if(_selectedSubCategory == 'Bikes Accessories')
+                          customRowTextField(
                               onTap: () {
-                                makeBikeModelBottom(context);
+                              },
+                              title: 'Accessories description',
+                              textEditingController: descriptionController),
+
+                          customRowTextField(
+                              onTap: () {
                               },
                               title: 'Model',
-                              selectText: model ?? 'Select Model'),
+                              textEditingController: modelController),
                         ],
                       )
                     : const SizedBox.shrink(),
 
-                _selectedCategory == 'Mobiles'
+                _selectedCategory == 'Mobiles' && _selectedSubCategory!.isNotEmpty
                     ? Column(
                         children: [
                           customRow(
@@ -875,6 +1640,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           //     },
                           //     title: 'Price',
                           //     selectText: priceRangeSelect ?? 'Select Price'),
+                          if(_selectedSubCategory!='Accessories' && _selectedSubCategory!='Smart Watches')
                           customRow(
                               onTap: () {
                                 makeStorageBottom(context);
@@ -891,15 +1657,22 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       )
                     : const SizedBox.shrink(),
 
-                _selectedCategory == 'Property for Sale' ||
-                        _selectedCategory == 'Property for Rent'
+                (_selectedCategory == 'Property for Sale' ||
+                        _selectedCategory == 'Property for Rent') && _selectedSubCategory!.isNotEmpty
                     ? Column(children: [
+
+                      if(_selectedSubCategory == 'Commercial Space')
                         customRow(
                             onTap: () {
-                              makeTypeBottom(context);
+                              makeZoneBottom(context);
                             },
-                            title: 'Type',
-                            selectText: typeProperty ?? 'Select Property Type'),
+                            title: 'Zoned For',
+                            selectText: zoneFor ?? 'Zoned for'),
+
+
+                        if(_selectedSubCategory == 'Commercial Space' && zoneFor != '' || _selectedSubCategory != 'Commercial Space') ...[
+
+                        if(_selectedSubCategory != 'Commercial Space')
                         customRow(
                             onTap: () {
                               makeBedroomBottom(context);
@@ -913,36 +1686,86 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         //     },
                         //     title: 'Price',
                         //     selectText: priceRangeSelect ?? 'Select Price'),
+                        customRowTextField(
+                            onTap: () {
+                            },
+                            title: 'Area/Size' ,
+                            hintText: 'sqft',
+                           textEditingController: area),
+
                         customRow(
                             onTap: () {
-                              areaBottom(context);
+                              makeBathroomBottom(context);
                             },
-                            title: 'Area/Size',
-                            selectText: area ?? 'Select Area'),
-                        customRow(
+                            title: 'Bathroom',
+                            selectText: bathroom ?? 'Select Year Built'),
+
+                        customRowTextField(
                             onTap: () {
-                              makeYearBottom(context);
                             },
-                            title: 'Year Built',
-                            selectText: yearBuilt ?? 'Select Year Built'),
+                            title: 'Year Built', textEditingController: yearBuiltController,),
                         customRow(
                             onTap: () {
                               makeFeaturesBottom(context);
                             },
                             title: 'Features',
-                            selectText: features ?? 'Select Features'),
+                            selectText: features.join(', ') ?? 'Select Features'),
+                        if(zoneFor != 'Shop')
                         customRow(
                             onTap: () {
                               makeAmenitiesBottom(context);
                             },
-                            title: 'Amenities',
-                            selectText: amenities ?? 'Select Amenities'),
+                            title: 'Furnished',
+                            selectText: furnished ?? 'Select Furnished'),
+                  if(_selectedCategory != 'Property for Rent')...[
+                        customRowTextField(
+                          onTap: () {
+                          },
+                          title: 'Total closing fee', textEditingController: totalClosingFeeController,),
+                        customRowTextField(
+                          onTap: () {
+                          },
+                          title: 'Developer', textEditingController: developerController,),
+                        customRowTextField(
+                          onTap: () {
+                          },
+                          title: 'Annual community fee', textEditingController: annualCommunityFeeController,),
+                        customRowTextField(
+                          onTap: () {
+                          },
+                          title: 'Property Reference ID #', textEditingController: propertyReferenceController,),
+                        customRowTextField(
+                          onTap: () {
+                          },
+                          title: 'Buy Transfer Fee', textEditingController: buyTransferController,),
+                        customRowTextField(
+                          onTap: () {
+                          },
+                          title: 'Seller Transfer Fee', textEditingController: sellTransferController,),
+                        customRowTextField(
+                          onTap: () {
+                          },
+                          title: 'Maintenance Fee', textEditingController: maintenanceFeeController,),
+                        customRow(
+                            onTap: () {
+                              occupancyStatusBottom(context);
+                            },
+                            title: 'Occupancy Status',
+                            selectText: occupancyStatus ?? 'Select Occupancy Status'),],
+
+                      if(_selectedCategory != 'Property for Rent')
+                      customRow(
+                          onTap: () {
+                            makeCompletionBottom(context);
+                          },
+                          title: 'Completion',
+                          selectText: completion ?? 'Select Completion'),
+                      ]
                       ])
                     : const SizedBox.shrink(),
 
-                _selectedCategory != 'Vehicles'
-                    ? const SizedBox.shrink()
-                    : Column(
+                     if(_selectedCategory == 'Vehicles' && _selectedSubCategory!.isNotEmpty)
+                     Column(
                         children: [
                           _selectedCategory == null
                               ? const SizedBox.shrink()
@@ -959,14 +1782,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                       selectMakeModel ?? 'Select Model'),
                           _selectedCategory == null
                               ? const SizedBox.shrink()
-                              : customRow(
+                              : customRowTextField(
                                   onTap: () {
-                                    yearBottom(context);
+                                    // yearBottom(context);
                                   },
                                   title: _selectedCategory == 'Vehicles'
                                       ? "Year"
                                       : "",
-                                  selectText: yearModel ?? 'Select Year'),
+                                   textEditingController: yearBuiltController),
                           _selectedCategory == null
                               ? const SizedBox.shrink()
                               : customRow(
@@ -981,9 +1804,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
                           _selectedCategory == null
                               ? const SizedBox.shrink()
-                              : PostTextField(
-                                  txt: 'Mileage',
-                                  textEditingController: mileAgeController),
+                              : _selectedSubCategory!= 'Car Accessories' && _selectedSubCategory!= 'Parts'
+                                  ? customRowTextField(
+                                  title: 'Kilometers',
+                                  textEditingController: kilometresController) : const SizedBox.shrink(),
 
                           // customRow(
                           //         onTap: () {
@@ -996,7 +1820,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           //             mileAgeSelect ?? 'Select Mileage'),
                           _selectedCategory == null
                               ? const SizedBox.shrink()
-                              : customRow(
+                              : _selectedSubCategory!= 'Car Accessories' && _selectedSubCategory!= 'Parts' ?
+                               customRow(
                                   onTap: () {
                                     fuelTypeBottom(context);
                                   },
@@ -1004,7 +1829,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                       ? "Fuel Type"
                                       : "",
                                   selectText:
-                                      fuelTypeSelect ?? 'Select Fuel Type'),
+                                      fuelTypeSelect ?? 'Select Fuel Type') : const SizedBox.shrink(),
                           _selectedCategory == null
                               ? const SizedBox.shrink()
                               : customRow(
@@ -1017,41 +1842,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                   selectText: colorSelect ?? 'Select Color'),
                         ],
                       ),
-                // customRow(
-                //   onTap: () {
-                //     _showSubCategoryBottomSheet(context);
-                //   },
-                //   title: "Sub-category(optional)",
-                //   selectText: _selectedSubCategory,
-                // ),
-                // customRow(
-                //   onTap: () {
-                //     _showConditionBottomSheet(context);
-                //   },
-                //   title: "Condition (required)",
-                //   selectText: _selectedCondition,
-                // ),
-                // lableFields(
-                //     lableTtxt: "Year, Make & Model(Optional)",
-                //     controller: _modelYearController),
-                // lableFields(
-                //     lableTtxt: "Mileage (Optional)",
-                //     controller: _millageController),
-                // lableFields(
-                //     lableTtxt: "Color (optional)",
-                //     controller: _colorController),
-                // lableFields(
-                //     lableTtxt: "Brand (optional)",
-                //     controller: _brandController),
-                // lableFields(
-                //     lableTtxt: "Model (optional)",
-                //     controller: _modelController),
-                // lableFields(
-                //     lableTtxt: "Edition (optional)",
-                //     controller: _editionController),
-                // lableFields(
-                //     lableTtxt: "Authenticity (optional)",
-                //     controller: _authenticityController),
+
                 _isLoading == true
                     ? LoadingDialog()
                     : Padding(
@@ -1066,9 +1857,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                       ? vehiclesJson
                                       : _selectedCategory == 'Property for Rent'
                                           ? propertyForRentJson
-                                          : _selectedCategory == 'Bike'
+                                          : _selectedCategory == 'Bikes'
                                               ? bikeJson
-                                              : _selectedCategory == 'Job'
+                                              : _selectedCategory == 'Jobs'
                                                   ? jobJson
                                                   : _selectedCategory ==
                                                           'Services'
@@ -1077,16 +1868,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                                               'Animals'
                                                           ? animalsJson
                                                           : _selectedCategory ==
-                                                                  'Furniture and home decor'
+                                                                  'Furniture & home decor'
                                                               ? furnitureJson
                                                               : _selectedCategory ==
-                                                                      'Fashion (dress) and beauty'
+                                                                      'Fashion & beauty'
                                                                   ? fashionJson
                                                                   : _selectedCategory ==
                                                                           'Kids'
                                                                       ? kidsJson
                                                                       : _selectedCategory ==
-                                                                              'Electronic & Appliance'
+                                                                              'Electronics & Appliance'
                                                                           ? electricApplianceJson
                                                                           : {});
                         },
@@ -1164,10 +1955,45 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     );
   }
 
+  Widget customRowTextField({Function()? onTap, String? title, required TextEditingController textEditingController, String hintText=''}) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20.0),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          color: Colors.transparent,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  AppText.appText("$title",
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      textColor: AppTheme.hintTextColor),
+                ],
+              ),
+              SizedBox(
+                height: _selectedCategory == 'Bikes' ||_selectedCategory == 'Jobs' || _selectedCategory == 'Vehicles' || title!.contains('Description') ||
+                    _selectedCategory == 'Property for Rent' || _selectedCategory == 'Animals' || _selectedCategory == 'Furniture & home decor' ||
+              _selectedCategory == 'Property for Sale' ? 12 :  _selectedCategory == 'Vehicles' ? 8 : 18,
+              ),
+            PostTextField(textEditingController: textEditingController, txt: title, textInputType: _selectedCategory == 'Kids' || _selectedCategory == 'Animals' || _selectedCategory == 'Bikes' || (_selectedCategory == 'Property For Sale' || title != 'Year Built') ? TextInputType.name : TextInputType.number, hintText: hintText,)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   /////////////////////////////   category bottom sheet ///////////////////////
   void _showCategoryBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      useSafeArea: false,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
@@ -1175,31 +2001,42 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               decoration: BoxDecoration(
                   color: AppTheme.whiteColor,
                   borderRadius: BorderRadius.circular(30)),
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.fromLTRB(8.w,40.h,12.w,0),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: AppText.appText(
-                      "Categories",
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    children: [
+                      Center(
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          icon: Icon(Icons.close_sharp, size: 30.w),
+                        ),
+                      ),
+                      Spacer(),
+                      AppText.appText(
+                        'Categories',
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      Spacer(),
+                      SizedBox(width: 34.w,)
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  CustomAppFormField(
-                    radius: 15.0,
-                    prefixIcon: Image.asset(
-                      "assets/images/search.png",
-                      height: 17,
-                      color: AppTheme.textColor,
-                    ),
-                    texthint: "Search",
-                    controller: _searchController,
-                  ),
-                  const SizedBox(height: 16),
+                  // const SizedBox(height: 16),
+                  // CustomAppFormField(
+                  //   radius: 15.0,
+                  //   // prefixIcon: Image.asset(
+                  //   //   "assets/images/search.png",
+                  //   //   height: 17,
+                  //   //   color: AppTheme.textColor,
+                  //   // ),
+                  //   texthint: "Search",
+                  //   controller: _searchController,
+                  // ),
+                  SizedBox(height: 10.h),
                   Expanded(child: _buildCategoryList(setState)),
                 ],
               ),
@@ -1214,42 +2051,51 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     });
   }
 
-  Widget _kidsData() {
-    return StatefulBuilder(builder: (context, setStatee) {
-      return ListView.builder(
-        shrinkWrap: true,
-        itemCount: kidsList.length,
-        itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: kids == kidsList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      kids = kidsList[index];
-                    } else {
-                      kids = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(kidsList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
-          );
-        },
-      );
-    });
-  }
+  // Widget _kidsData() {
+  //   return StatefulBuilder(builder: (context, setStatee) {
+  //     return ListView.builder(
+  //       shrinkWrap: true,
+  //       itemCount: kidsList.length,
+  //       itemBuilder: (context, index) {
+  //         return Row(
+  //           children: [
+  //             Checkbox(
+  //               shape: RoundedRectangleBorder(
+  //                   borderRadius: BorderRadius.circular(20)),
+  //               checkColor: AppTheme.whiteColor,
+  //               activeColor: AppTheme.appColor,
+  //               value: kids == kidsList[index],
+  //               onChanged: (bool? value) {
+  //                 setStatee(() {
+  //                   if (value != null && value) {
+  //                     kids = kidsList[index];
+  //                   } else {
+  //                     kids = null;
+  //                   }
+  //                 });
+  //               },
+  //             ),
+  //             AppText.appText(kidsList[index],
+  //                 fontSize: 16,
+  //                 fontWeight: FontWeight.w500,
+  //                 textColor: AppTheme.textColor),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //   });
+  // }
 
   //furniture
+
+  Widget descriptionTextField({String? title}){
+    return customRowTextField(
+        onTap: () {
+        },
+        title: title ?? 'Description',
+        textEditingController: descriptionController);
+  }
+
 
   Widget _ageType() {
     return StatefulBuilder(builder: (context, setStatee) {
@@ -1257,29 +2103,40 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         shrinkWrap: true,
         itemCount: ageList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: age == ageList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      age = ageList[index];
-                    } else {
-                      age = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(ageList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+
+              });
+              age = ageList[index];
+
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: age == ageList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        age = ageList[index];
+                      } else {
+                        age = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(ageList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
@@ -1292,71 +2149,48 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     return StatefulBuilder(builder: (context, setStatee) {
       return ListView.builder(
         shrinkWrap: true,
-        itemCount: furnitureList.length,
+        itemCount: furnitureList[_selectedSubCategory]!.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: furnitureType == furnitureList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      furnitureType = furnitureList[index];
-                    } else {
-                      furnitureType = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(furnitureList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+
+              });
+              furnitureType = furnitureList[_selectedSubCategory]![index];
+
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: furnitureType == furnitureList[_selectedSubCategory]![index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        furnitureType = furnitureList[_selectedSubCategory]![index];
+                      } else {
+                        furnitureType = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(furnitureList[_selectedSubCategory]![index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
     });
   }
 
-  Widget _breedType() {
-    return StatefulBuilder(builder: (context, setStatee) {
-      return ListView.builder(
-        shrinkWrap: true,
-        itemCount: breedList.length,
-        itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: breed == breedList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      breed = breedList[index];
-                    } else {
-                      breed = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(breedList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
-          );
-        },
-      );
-    });
-  }
 
   //JobListData
 
@@ -1364,71 +2198,90 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     return StatefulBuilder(builder: (context, setStatee) {
       return ListView.builder(
         shrinkWrap: true,
-        itemCount: jobTypeList.length,
+        itemCount: jobTypeList[_selectedSubCategory]!.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: jobType == jobTypeList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      jobType = jobTypeList[index];
-                    } else {
-                      jobType = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(jobTypeList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+
+              });
+              jobType = jobTypeList[_selectedSubCategory]![index];
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: jobType ==  jobTypeList[_selectedSubCategory]![index],
+                  onChanged: (bool? value) {
+                    setStatee(() {
+                      if (value != null && value) {
+                        jobType = jobTypeList[_selectedSubCategory]![index];
+                      } else {
+                        jobType = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(jobTypeList[_selectedSubCategory]![index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
     });
   }
 
-  Widget _experience() {
-    return StatefulBuilder(builder: (context, setStatee) {
-      return ListView.builder(
-        shrinkWrap: true,
-        itemCount: experienceList.length,
-        itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: experience == experienceList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      experience = experienceList[index];
-                    } else {
-                      experience = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(experienceList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
-          );
-        },
-      );
-    });
-  }
+  // Widget _experience() {
+  //   return StatefulBuilder(builder: (context, setStatee) {
+  //     return ListView.builder(
+  //       shrinkWrap: true,
+  //       itemCount: experienceList.length,
+  //       itemBuilder: (context, index) {
+  //         return InkWell(
+  //           onTap: (){
+  //             Navigator.of(context).pop();
+  //             setState(() {
+  //
+  //             });
+  //             experience = experienceList[index];
+  //           },
+  //           child: Row(
+  //             children: [
+  //               Checkbox(
+  //                 shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(20)),
+  //                 checkColor: AppTheme.whiteColor,
+  //                 activeColor: AppTheme.appColor,
+  //                 value: experience == experienceList[index],
+  //                 onChanged: (bool? value) {
+  //                   Navigator.of(context).pop();
+  //                   setStatee(() {
+  //                     if (value != null && value) {
+  //                       experience = experienceList[index];
+  //                     } else {
+  //                       experience = null;
+  //                     }
+  //                   });
+  //                 },
+  //               ),
+  //               AppText.appText(experienceList[index],
+  //                   fontSize: 16,
+  //                   fontWeight: FontWeight.w500,
+  //                   textColor: AppTheme.textColor),
+  //             ],
+  //           ),
+  //         );
+  //       },
+  //     );
+  //   });
+  // }
 
   Widget _education() {
     return StatefulBuilder(builder: (context, setStatee) {
@@ -1436,69 +2289,45 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         shrinkWrap: true,
         itemCount: educationList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: education == educationList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      education = educationList[index];
-                    } else {
-                      education = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(educationList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+
+              });
+              education = educationList[index];
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: education == educationList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        education = educationList[index];
+                      } else {
+                        education = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(educationList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
     });
   }
 
-  Widget _salary() {
-    return StatefulBuilder(builder: (context, setStatee) {
-      return ListView.builder(
-        shrinkWrap: true,
-        itemCount: salaryList.length,
-        itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: salary == salaryList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      salary = salaryList[index];
-                    } else {
-                      salary = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(salaryList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
-          );
-        },
-      );
-    });
-  }
 
   Widget _salaryPeriod() {
     return StatefulBuilder(builder: (context, setStatee) {
@@ -1506,69 +2335,94 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         shrinkWrap: true,
         itemCount: salaryPeriodList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: salaryPeriod == salaryPeriodList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      salaryPeriod = salaryPeriodList[index];
-                    } else {
-                      salaryPeriod = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(salaryPeriodList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+
+              });
+              salaryPeriod = salaryPeriodList[index];
+              _scrollToBottom();
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: salaryPeriod == salaryPeriodList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        salaryPeriod = salaryPeriodList[index];
+                      } else {
+                        salaryPeriod = null;
+                      }
+                    });
+                    _scrollToBottom();
+                  },
+                ),
+                AppText.appText(salaryPeriodList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
     });
   }
 
-  Widget _companyName() {
+  Widget _experiencePeriod() {
     return StatefulBuilder(builder: (context, setStatee) {
       return ListView.builder(
         shrinkWrap: true,
-        itemCount: companyNameList.length,
+        itemCount: experienceList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: companyName == companyNameList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      companyName = companyNameList[index];
-                    } else {
-                      companyName = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(companyNameList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+
+              });
+              experienceLevel = experienceList[index];
+              _scrollToBottom();
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: experienceLevel == experienceList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        experienceLevel = experienceList[index];
+                      } else {
+                        experienceLevel = null;
+                      }
+                    });
+                    _scrollToBottom();
+                  },
+                ),
+                AppText.appText(experienceList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
     });
   }
+
 
   Widget _possitiontype() {
     return StatefulBuilder(builder: (context, setStatee) {
@@ -1576,29 +2430,39 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         shrinkWrap: true,
         itemCount: possitionTypeList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: possitionType == possitionTypeList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      possitionType = possitionTypeList[index];
-                    } else {
-                      possitionType = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(possitionTypeList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+
+              });
+              possitionType = possitionTypeList[index];
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: possitionType == possitionTypeList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        possitionType = possitionTypeList[index];
+                      } else {
+                        possitionType = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(possitionTypeList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
@@ -1611,29 +2475,40 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         shrinkWrap: true,
         itemCount: careerLevelList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: careerLevel == careerLevelList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      careerLevel = careerLevelList[index];
-                    } else {
-                      careerLevel = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(careerLevelList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+
+              });
+              careerLevel = careerLevelList[index];
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: careerLevel == careerLevelList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+
+                    setStatee(() {
+                      if (value != null && value) {
+                        careerLevel = careerLevelList[index];
+                      } else {
+                        careerLevel = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(careerLevelList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
@@ -1647,29 +2522,39 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         shrinkWrap: true,
         itemCount: carList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: car == carList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      car = carList[index];
-                    } else {
-                      car = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(carList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+
+              });
+              car = carList[index];
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: car == carList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        car = carList[index];
+                      } else {
+                        car = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(carList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
@@ -1684,29 +2569,39 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         shrinkWrap: true,
         itemCount: engineList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: engineCapacity == engineList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      engineCapacity = engineList[index];
-                    } else {
-                      engineCapacity = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(engineList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+
+              });
+              engineCapacity = engineList[index];
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: engineCapacity == engineList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        engineCapacity = engineList[index];
+                      } else {
+                        engineCapacity = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(engineList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
@@ -1785,41 +2680,41 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     });
   }
 
-  Widget _model() {
-    return StatefulBuilder(builder: (context, setStatee) {
-      return ListView.builder(
-        shrinkWrap: true,
-        itemCount: modelList.length,
-        itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: model == modelList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      model = modelList[index];
-                      print('model---?$model');
-                    } else {
-                      model = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(modelList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
-          );
-        },
-      );
-    });
-  }
+  // Widget _model() {
+  //   return StatefulBuilder(builder: (context, setStatee) {
+  //     return ListView.builder(
+  //       shrinkWrap: true,
+  //       itemCount: modelList.length,
+  //       itemBuilder: (context, index) {
+  //         return Row(
+  //           children: [
+  //             Checkbox(
+  //               shape: RoundedRectangleBorder(
+  //                   borderRadius: BorderRadius.circular(20)),
+  //               checkColor: AppTheme.whiteColor,
+  //               activeColor: AppTheme.appColor,
+  //               value: model == modelList[index],
+  //               onChanged: (bool? value) {
+  //                 setStatee(() {
+  //                   if (value != null && value) {
+  //                     model = modelList[index];
+  //                     print('model---?$model');
+  //                   } else {
+  //                     model = null;
+  //                   }
+  //                 });
+  //               },
+  //             ),
+  //             AppText.appText(modelList[index],
+  //                 fontSize: 16,
+  //                 fontWeight: FontWeight.w500,
+  //                 textColor: AppTheme.textColor),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //   });
+  // }
 
   //SubCategories
 
@@ -1847,44 +2742,59 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     return StatefulBuilder(
       builder: (context, setState) {
         final filteredSubCatModel = subCatModel
-            .where((element) => element.id == int.parse(catagoryId))
+            .where((element) => element.categoryId == catagoryId)
             .toList();
 
         return ListView.builder(
           shrinkWrap: true,
           itemCount: filteredSubCatModel.length,
           itemBuilder: (context, index) {
-            return Row(
-              children: [
-                Checkbox(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+            return InkWell(
+              onTap: (){
+                setState(() {
+                    subCatagoryId = filteredSubCatModel[index].id;
+                    subCategory = _selectedSubCategory;
+                    print('subCatagoryId---->$subCatagoryId');
+                    _selectedSubCategory =
+                    filteredSubCatModel[index].title!;
+                    catagoryId = filteredSubCatModel[index].categoryId;
+                    Navigator.of(context).pop();
+                });
+              },
+              child: Row(
+                children: [
+                  Checkbox(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    checkColor: AppTheme.whiteColor,
+                    activeColor: AppTheme.appColor,
+                    value:
+                        _selectedSubCategory == filteredSubCatModel[index].title,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        if (value != null && value) {
+                          subCatagoryId = filteredSubCatModel[index].id;
+                          subCategory = _selectedSubCategory;
+                          print('subCatagoryId---->$subCatagoryId');
+                          _selectedSubCategory =
+                              filteredSubCatModel[index].title!;
+                          catagoryId = filteredSubCatModel[index].categoryId;
+                          Navigator.of(context).pop();
+                        } else {
+                          _selectedSubCategory = "";
+                        }
+                      });
+                    },
                   ),
-                  checkColor: AppTheme.whiteColor,
-                  activeColor: AppTheme.appColor,
-                  value:
-                      _selectedSubCategory == filteredSubCatModel[index].title,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      if (value != null && value) {
-                        subCatagoryId = filteredSubCatModel[index].id;
-                        print('subCatagoryId---->$subCatagoryId');
-                        _selectedSubCategory =
-                            filteredSubCatModel[index].title!;
-                        catagoryId = filteredSubCatModel[index].id;
-                      } else {
-                        _selectedSubCategory = "";
-                      }
-                    });
-                  },
-                ),
-                AppText.appText(
-                  filteredSubCatModel[index].title!,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor,
-                ),
-              ],
+                  AppText.appText(
+                    filteredSubCatModel[index].title!,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor,
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -1898,35 +2808,53 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       shrinkWrap: true,
       itemCount: catModel.length,
       itemBuilder: (context, index) {
-        return Row(
-          children: [
-            Checkbox(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              checkColor: AppTheme.whiteColor,
-              activeColor: AppTheme.appColor,
-              // value: _selectedCategory == catagoryData[index]["name"],
-              value: _selectedCategory == catModel[index].title,
-              onChanged: (bool? value) {
-                setState(() {
-                  if (value != null && value) {
-                    // _selectedCategory = catagoryData[index]["name"];
-                    _selectedCategory = catModel[index].title!;
-                    catagoryId = catModel[index].id;
-                    _selectedSubCategory = '';
+        return InkWell(
+          onTap: (){
+            setState(() {
+                // _selectedCategory = catagoryData[index]["name"];
+                _selectedCategory = catModel[index].title!;
+                catagoryId = catModel[index].id;
+                _selectedSubCategory = '';
 
-                    print('catCat------>${catagoryId}');
-                  } else {
-                    _selectedCategory = "";
-                  }
-                });
-              },
-            ),
-            AppText.appText(catModel[index].title!,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                textColor: AppTheme.textColor),
-          ],
+                setState((){});
+                Navigator.of(context).pop();
+
+                print('catCat------>${catagoryId}');
+            });
+          },
+          child: Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                checkColor: AppTheme.whiteColor,
+                activeColor: AppTheme.appColor,
+                // value: _selectedCategory == catagoryData[index]["name"],
+                value: _selectedCategory == catModel[index].title,
+                onChanged: (bool? value) {
+                  setState(() {
+                    if (value != null && value) {
+                      // _selectedCategory = catagoryData[index]["name"];
+                      _selectedCategory = catModel[index].title!;
+                      catagoryId = catModel[index].id;
+                      _selectedSubCategory = '';
+
+                      setState((){});
+                      Navigator.of(context).pop();
+
+                      print('catCat------>${catagoryId}');
+                    } else {
+                      _selectedCategory = "";
+                    }
+                  });
+                },
+              ),
+              AppText.appText(catModel[index].title!,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: AppTheme.textColor),
+            ],
+          ),
         );
       },
     );
@@ -1940,29 +2868,38 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         shrinkWrap: true,
         itemCount: brandList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: brand == brandList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      brand = brandList[index];
-                    } else {
-                      typeProperty = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(brandList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+                brand = brandList[index];
+              });
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: brand == brandList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        brand = brandList[index];
+                      } else {
+                        typeProperty = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(brandList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
@@ -1976,29 +2913,38 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         shrinkWrap: true,
         itemCount: storageList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: storage == storageList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      storage = storageList[index];
-                    } else {
-                      storage = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(storageList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+                storage = storageList[index];
+              });
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: storage == storageList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        storage = storageList[index];
+                      } else {
+                        storage = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(storageList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
@@ -2011,29 +2957,38 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         shrinkWrap: true,
         itemCount: typePropertyList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: typeProperty == typePropertyList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      typeProperty = typePropertyList[index];
-                    } else {
-                      typeProperty = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(typePropertyList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+                typeProperty = typePropertyList[index];
+              });
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: typeProperty == typePropertyList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        typeProperty = typePropertyList[index];
+                      } else {
+                        typeProperty = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(typePropertyList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
@@ -2044,101 +2999,209 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     return StatefulBuilder(builder: (context, setStatee) {
       return ListView.builder(
         shrinkWrap: true,
-        itemCount: bedroomList.length,
+        itemCount: _selectedSubCategory == 'Houses' ? bedroomHousesList.length :bedroomList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: bedrooms == bedroomList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      bedrooms = bedroomList[index];
-                    } else {
-                      bedrooms = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(bedroomList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+                bedrooms = _selectedSubCategory == 'Houses' ? bedroomHousesList[index] : bedroomList[index];
+              });
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: bedrooms == (_selectedSubCategory == 'Houses' ? bedroomHousesList[index] : bedroomList[index]),
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        bedrooms = (_selectedSubCategory == 'Houses' ? bedroomHousesList[index] : bedroomList[index]);
+                      } else {
+                        bedrooms = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText((_selectedSubCategory == 'Houses' ? bedroomHousesList[index] : bedroomList[index]),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
     });
   }
 
-  Widget _area() {
+  // Widget _area() {
+  //   return StatefulBuilder(builder: (context, setStatee) {
+  //     return ListView.builder(
+  //       shrinkWrap: true,
+  //       itemCount: areaSizeList.length,
+  //       itemBuilder: (context, index) {
+  //         return Row(
+  //           children: [
+  //             Checkbox(
+  //               shape: RoundedRectangleBorder(
+  //                   borderRadius: BorderRadius.circular(20)),
+  //               checkColor: AppTheme.whiteColor,
+  //               activeColor: AppTheme.appColor,
+  //               value: area == areaSizeList[index],
+  //               onChanged: (bool? value) {
+  //                 setStatee(() {
+  //                   if (value != null && value) {
+  //                     area.text = areaSizeList[index];
+  //                   } else {
+  //                     area = null;
+  //                   }
+  //                 });
+  //               },
+  //             ),
+  //             AppText.appText(areaSizeList[index],
+  //                 fontSize: 16,
+  //                 fontWeight: FontWeight.w500,
+  //                 textColor: AppTheme.textColor),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //   });
+  // }
+
+  // Widget _yearBuilt() {
+  //   return StatefulBuilder(builder: (context, setStatee) {
+  //     return ListView.builder(
+  //       shrinkWrap: true,
+  //       itemCount: yearBuiltList.length,
+  //       itemBuilder: (context, index) {
+  //         return InkWell(
+  //           onTap: (){
+  //             Navigator.of(context).pop();
+  //             setState(() {
+  //               yearBuilt = yearBuiltList[index];
+  //             });
+  //           },
+  //           child: Row(
+  //             children: [
+  //               Checkbox(
+  //                 shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(20)),
+  //                 checkColor: AppTheme.whiteColor,
+  //                 activeColor: AppTheme.appColor,
+  //                 value: yearBuilt == yearBuiltList[index],
+  //                 onChanged: (bool? value) {
+  //                   Navigator.of(context).pop();
+  //                   setStatee(() {
+  //                     if (value != null && value) {
+  //                       yearBuilt = yearBuiltList[index];
+  //                     } else {
+  //                       yearBuilt = null;
+  //                     }
+  //                   });
+  //                 },
+  //               ),
+  //               AppText.appText(yearBuiltList[index],
+  //                   fontSize: 16,
+  //                   fontWeight: FontWeight.w500,
+  //                   textColor: AppTheme.textColor),
+  //             ],
+  //           ),
+  //         );
+  //       },
+  //     );
+  //   });
+  // }
+
+  Widget _bathroomBuilt() {
     return StatefulBuilder(builder: (context, setStatee) {
       return ListView.builder(
         shrinkWrap: true,
-        itemCount: areaSizeList.length,
+        itemCount: bathroomList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: area == areaSizeList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      area = areaSizeList[index];
-                    } else {
-                      area = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(areaSizeList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+                bathroom = bathroomList[index];
+              });
+              _scrollToBottom();
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: bathroom == bathroomList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        bathroom = bathroomList[index];
+                      } else {
+                        bathroom = null;
+                      }
+                    });
+                    _scrollToBottom();
+                  },
+                ),
+                AppText.appText(bathroomList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
     });
   }
 
-  Widget _yearBuilt() {
+  Widget _zoneForBuilt() {
     return StatefulBuilder(builder: (context, setStatee) {
       return ListView.builder(
         shrinkWrap: true,
-        itemCount: yearBuiltList.length,
+        itemCount: zoneList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: yearBuilt == yearBuiltList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      yearBuilt = yearBuiltList[index];
-                    } else {
-                      yearBuilt = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(yearBuiltList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+                zoneFor = zoneList[index];
+              });
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: zoneFor == zoneList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        zoneFor = zoneList[index];
+                      } else {
+                        zoneFor = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(zoneList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
@@ -2146,69 +3209,217 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Widget _features() {
+    List temp = [];
+    temp.addAll(features);
+    return StatefulBuilder(builder: (context, setStatee) {
+      return Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: featuresList.length,
+            itemBuilder: (context, index) {
+              return InkWell(
+                onTap: (){
+                  // Navigator.of(context).pop();
+                    if (temp.contains(featuresList[index])) {
+                      temp.remove(featuresList[index]);
+                    } else {
+                      temp.add(featuresList[index]);
+                    }
+                    setStatee(() {});
+                },
+                child: Row(
+                  children: [
+                    Checkbox(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                      checkColor: AppTheme.whiteColor,
+                      activeColor: AppTheme.appColor,
+                      value: temp.contains(featuresList[index]),
+                      onChanged: (bool? value) {
+                        // Navigator.of(context).pop();
+                        setStatee(() {
+                          if (value != null && value) {
+                            temp.add(featuresList[index]);
+                          } else {
+                            temp.remove(featuresList[index]);
+                          }
+                        });
+                      },
+                    ),
+                    AppText.appText(featuresList[index],
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        textColor: AppTheme.textColor),
+                  ],
+                ),
+              );
+            },
+                    ),
+          ),
+          SizedBox(
+            height: 60.w,
+            child: Center(
+              child: AppButton.appButton('Done',height: 45.h,
+                  onTap: (){
+                    features=temp;
+                    setState(() {
+
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14.5.sp,
+                  radius: 32.0,
+                  width: 350.w,
+                  borderColor: AppTheme.hintTextColor,
+                  backgroundColor: temp.isEmpty ? null : AppTheme.appColor,
+                  textColor: temp.isEmpty ? AppTheme.hintTextColor : AppTheme.whiteColor),
+            ),
+          )
+      ]
+      );
+    });
+  }
+
+  Widget _furnished() {
     return StatefulBuilder(builder: (context, setStatee) {
       return ListView.builder(
         shrinkWrap: true,
-        itemCount: featuresList.length,
+        itemCount: furnishedList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: features == featuresList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      features = featuresList[index];
-                    } else {
-                      features = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(featuresList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return GestureDetector(
+            onTap: (){
+              Navigator.of(context).pop();
+              furnished = furnishedList[index];
+              setState(() {
+
+              });
+              _scrollToBottom();
+
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: furnished == furnishedList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      if (value != null && value) {
+                        furnished = furnishedList[index];
+                      } else {
+                        furnished = null;
+                      }
+                    });
+                    _scrollToBottom();
+                  },
+                ),
+                AppText.appText(furnishedList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
     });
   }
 
-  Widget _amenities() {
+
+  Widget _occupancyStatus() {
     return StatefulBuilder(builder: (context, setStatee) {
       return ListView.builder(
         shrinkWrap: true,
-        itemCount: amenitiesList.length,
+        itemCount: occupancyList.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: amenities == amenitiesList[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      amenities = amenitiesList[index];
-                    } else {
-                      amenities = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(amenitiesList[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return GestureDetector(
+            onTap: (){
+              Navigator.of(context).pop();
+              occupancyStatus = occupancyList[index];
+              setState(() {
+
+              });
+              _scrollToBottom();
+
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: occupancyStatus == occupancyList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      if (value != null && value) {
+                        occupancyStatus = occupancyList[index];
+                      } else {
+                        occupancyStatus = null;
+                      }
+                    });
+                    _scrollToBottom();
+                  },
+                ),
+                AppText.appText(occupancyList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
+          );
+        },
+      );
+    });
+  }
+
+  Widget _completion() {
+    return StatefulBuilder(builder: (context, setStatee) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: completionList.length,
+        itemBuilder: (context, index) {
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+                completion = completionList[index];
+              });
+              _scrollToBottom();
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: completion == completionList[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        completion = completionList[index];
+                      } else {
+                        completion = null;
+                      }
+                    });
+                    _scrollToBottom();
+                  },
+                ),
+                AppText.appText(completionList[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
@@ -2219,31 +3430,40 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     return StatefulBuilder(builder: (context, setStatee) {
       return ListView.builder(
         shrinkWrap: true,
-        itemCount: electricBrand.length,
+        itemCount: electricBrand[_selectedSubCategory]!.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: selectElectricBrand == electricBrand[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      selectElectricBrand = electricBrand[index];
-                    } else {
-                      selectElectricBrand = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(electricBrand[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+                selectElectricBrand = electricBrand[_selectedSubCategory]![index];
+              });
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: selectElectricBrand == electricBrand[_selectedSubCategory]![index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        selectElectricBrand = electricBrand[_selectedSubCategory]![index];
+                      } else {
+                        selectElectricBrand = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(electricBrand[_selectedSubCategory]![index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
@@ -2260,29 +3480,38 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         shrinkWrap: true,
         itemCount: makeModel.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: selectMakeModel == makeModel[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      selectMakeModel = makeModel[index];
-                    } else {
-                      selectMakeModel = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(makeModel[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+                selectMakeModel = makeModel[index];
+              });
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: selectMakeModel == makeModel[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        selectMakeModel = makeModel[index];
+                      } else {
+                        selectMakeModel = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(makeModel[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
@@ -2291,42 +3520,51 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   //yearModel
 
-  String? yearModel = '';
-
-  Widget _yearModel() {
-    return StatefulBuilder(builder: (context, setStatee) {
-      return ListView.builder(
-        shrinkWrap: true,
-        itemCount: year.length,
-        itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: yearModel == year[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      yearModel = year[index];
-                    } else {
-                      yearModel = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(year[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
-          );
-        },
-      );
-    });
-  }
+  // String? yearModel = '';
+  //
+  // Widget _yearModel() {
+  //   return StatefulBuilder(builder: (context, setStatee) {
+  //     return ListView.builder(
+  //       shrinkWrap: true,
+  //       itemCount: year.length,
+  //       itemBuilder: (context, index) {
+  //         return  InkWell(
+  //           onTap: (){
+  //             Navigator.of(context).pop();
+  //             setState(() {
+  //               yearModel = year[index];
+  //             });
+  //           },
+  //           child: Row(
+  //             children: [
+  //               Checkbox(
+  //                 shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(20)),
+  //                 checkColor: AppTheme.whiteColor,
+  //                 activeColor: AppTheme.appColor,
+  //                 value: yearModel == year[index],
+  //                 onChanged: (bool? value) {
+  //                   Navigator.of(context).pop();
+  //                   setStatee(() {
+  //                     if (value != null && value) {
+  //                       yearModel = year[index];
+  //                     } else {
+  //                       yearModel = null;
+  //                     }
+  //                   });
+  //                 },
+  //               ),
+  //               AppText.appText(year[index],
+  //                   fontSize: 16,
+  //                   fontWeight: FontWeight.w500,
+  //                   textColor: AppTheme.textColor),
+  //             ],
+  //           ),
+  //         );
+  //       },
+  //     );
+  //   });
+  // }
 
   //conditionModel
 
@@ -2336,31 +3574,42 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     return StatefulBuilder(builder: (context, setStatee) {
       return ListView.builder(
         shrinkWrap: true,
-        itemCount: condition.length,
+        itemCount:  condition.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: conditionSelect == condition[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      conditionSelect = condition[index];
-                    } else {
-                      conditionSelect = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(condition[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+                conditionSelect = condition[index];
+              });
+              _scrollToBottom();
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: conditionSelect == condition[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        conditionSelect = condition[index];
+                      } else {
+                        conditionSelect = null;
+                      }
+                    });
+                    _scrollToBottom();
+                  },
+                ),
+                AppText.appText( condition[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
@@ -2412,71 +3661,44 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         shrinkWrap: true,
         itemCount: fuelType.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: fuelTypeSelect == fuelType[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      fuelTypeSelect = fuelType[index];
-                    } else {
-                      fuelTypeSelect = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(fuelType[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+                fuelTypeSelect = fuelType[index];
+              });
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: fuelTypeSelect == fuelType[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        fuelTypeSelect = fuelType[index];
+                      } else {
+                        fuelTypeSelect = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(fuelType[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
     });
   }
 
-  String? mileAgeSelect;
-
-  Widget _mileage() {
-    return StatefulBuilder(builder: (context, setStatee) {
-      return ListView.builder(
-        shrinkWrap: true,
-        itemCount: mileage.length,
-        itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: mileAgeSelect == mileage[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      mileAgeSelect = mileage[index];
-                    } else {
-                      mileAgeSelect = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(mileage[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
-          );
-        },
-      );
-    });
-  }
 
   String? colorSelect = '';
 
@@ -2486,29 +3708,38 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         shrinkWrap: true,
         itemCount: color.length,
         itemBuilder: (context, index) {
-          return Row(
-            children: [
-              Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                checkColor: AppTheme.whiteColor,
-                activeColor: AppTheme.appColor,
-                value: colorSelect == color[index],
-                onChanged: (bool? value) {
-                  setStatee(() {
-                    if (value != null && value) {
-                      colorSelect = color[index];
-                    } else {
-                      colorSelect = null;
-                    }
-                  });
-                },
-              ),
-              AppText.appText(color[index],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textColor: AppTheme.textColor),
-            ],
+          return InkWell(
+            onTap: (){
+              Navigator.of(context).pop();
+              setState(() {
+                  colorSelect = color[index];
+              });
+            },
+            child: Row(
+              children: [
+                Checkbox(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  checkColor: AppTheme.whiteColor,
+                  activeColor: AppTheme.appColor,
+                  value: colorSelect == color[index],
+                  onChanged: (bool? value) {
+                    Navigator.of(context).pop();
+                    setStatee(() {
+                      if (value != null && value) {
+                        colorSelect = color[index];
+                      } else {
+                        colorSelect = null;
+                      }
+                    });
+                  },
+                ),
+                AppText.appText(color[index],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    textColor: AppTheme.textColor),
+              ],
+            ),
           );
         },
       );
@@ -2575,10 +3806,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   //kids
-  void makeKidsTypeBottom(BuildContext context) {
-    return customBottomSheet(
-        context, 'Choose Toy', _searchController, _kidsData(), kids ?? '');
-  }
+  // void makeKidsTypeBottom(BuildContext context) {
+  //   return customBottomSheet(
+  //       context, 'Choose Toy', _searchController, _kidsData(), kids ?? '');
+  // }
 
   //animals
 
@@ -2587,10 +3818,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         context, 'Age', _searchController, _ageType(), age ?? '');
   }
 
-  void makeBreedTypeBottom(BuildContext context) {
-    return customBottomSheet(
-        context, 'Breed', _searchController, _breedType(), breed ?? '');
-  }
 
   //JobsData
 
@@ -2599,33 +3826,30 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         context, 'Job Type', _searchController, _jobType(), jobType ?? '');
   }
 
-  void makeExperienceBottom(BuildContext context) {
-    return customBottomSheet(context, 'Experience', _searchController,
-        _experience(), experience ?? '');
-  }
+  // void makeExperienceBottom(BuildContext context) {
+  //   return customBottomSheet(context, 'Experience', _searchController,
+  //       _experience(), experience ?? '');
+  // }
 
   void makeEducationBottom(BuildContext context) {
     return customBottomSheet(
         context, 'Education', _searchController, _education(), education ?? '');
   }
 
-  void makeSalaryBottom(BuildContext context) {
-    return customBottomSheet(
-        context, 'Salary', _searchController, _salary(), salary ?? '');
-  }
 
   void makeSalaryPeriodBottom(BuildContext context) {
     return customBottomSheet(context, 'Salary Period', _searchController,
         _salaryPeriod(), salaryPeriod ?? '');
   }
 
-  void makeCompanyNameBottom(BuildContext context) {
-    return customBottomSheet(context, 'Company Name', _searchController,
-        _companyName(), companyName ?? '');
+  void makeExperienceLevelBottom(BuildContext context) {
+    return customBottomSheet(context, 'Experience Level', _searchController,
+        _experiencePeriod(), experienceLevel ?? '');
   }
 
+
   void makePossitionTypeBottom(BuildContext context) {
-    return customBottomSheet(context, 'Position Type', _searchController,
+    return customBottomSheet(context, selectJobType == 'Hiring' ? 'Position Type' : 'Preferred Employment Type', _searchController,
         _possitiontype(), possitionType ?? '');
   }
 
@@ -2647,10 +3871,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         _engineCapacity(), engineCapacity ?? '');
   }
 
-  void makeBikeModelBottom(BuildContext context) {
-    return customBottomSheet(
-        context, 'Model', _searchController, _model(), model ?? '');
-  }
+  // void makeBikeModelBottom(BuildContext context) {
+  //   return customBottomSheet(
+  //       context, 'Model', _searchController, _model(), model ?? '');
+  // }
 
   //subCategoriuesData
 
@@ -2683,24 +3907,44 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         context, 'Bedrooms', _searchController, _bedrooms(), bedrooms ?? '');
   }
 
-  void areaBottom(BuildContext context) {
-    return customBottomSheet(
-        context, 'Area', _searchController, _area(), area ?? '');
+  // void areaBottom(BuildContext context) {
+  //   return customBottomSheet(
+  //       context, 'Area', _searchController, _area(), area ?? '');
+  // }
+
+  // void makeYearBottom(BuildContext context) {
+  //   return customBottomSheet(context, 'Year Built', _searchController,
+  //       _yearBuilt(), yearBuilt ?? '');
+  // }
+
+  void makeZoneBottom(BuildContext context) {
+    return customBottomSheet(context, 'Zone For', _searchController,
+        _zoneForBuilt(), zoneFor ?? '');
   }
 
-  void makeYearBottom(BuildContext context) {
-    return customBottomSheet(context, 'Year Built', _searchController,
-        _yearBuilt(), yearBuilt ?? '');
+  void makeBathroomBottom(BuildContext context) {
+    return customBottomSheet(context, 'Bathroom', _searchController,
+        _bathroomBuilt(), bathroom ?? '');
   }
 
   void makeFeaturesBottom(BuildContext context) {
     return customBottomSheet(
-        context, 'Features', _searchController, _features(), features ?? '');
+        context, 'Features', _searchController, _features(), '');
   }
 
   void makeAmenitiesBottom(BuildContext context) {
     return customBottomSheet(
-        context, 'Amenities', _searchController, _amenities(), amenities ?? '');
+        context, 'Furnished', _searchController, _furnished(), amenities ?? '');
+  }
+
+  void occupancyStatusBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Occupancy Status', _searchController, _occupancyStatus(), occupancyStatus ?? '');
+  }
+
+  void makeCompletionBottom(BuildContext context) {
+    return customBottomSheet(
+        context, 'Completion', _searchController, _completion(), completion ?? '');
   }
 
   void makeModelBottom(BuildContext context) {
@@ -2708,10 +3952,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         _makeModel(), selectMakeModel ?? '');
   }
 
-  void yearBottom(BuildContext context) {
-    return customBottomSheet(
-        context, 'Year', _searchController, _yearModel(), yearModel ?? '');
-  }
+  // void yearBottom(BuildContext context) {
+  //   return customBottomSheet(
+  //       context, 'Year', _searchController, _yearModel(), yearModel ?? '');
+  // }
 
   void conditionBottom(BuildContext context) {
     return customBottomSheet(context, 'Condition', _searchController,
@@ -2723,10 +3967,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         _priceRange(), priceRangeSelect ?? '');
   }
 
-  void mileageBottom(BuildContext context) {
-    return customBottomSheet(
-        context, 'Mileage', _searchController, _mileage(), mileAgeSelect ?? '');
-  }
 
   void fuelTypeBottom(BuildContext context) {
     return customBottomSheet(context, 'Fuel Type', _searchController,
@@ -2747,38 +3987,53 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       TextEditingController controller, Widget? child, String selectedValue) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Container(
               decoration: BoxDecoration(
                   color: AppTheme.whiteColor,
-                  borderRadius: BorderRadius.circular(30)),
-              padding: const EdgeInsets.all(16),
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30))),
+              padding: EdgeInsets.fromLTRB(8.w,40.h,12.w,0),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: AppText.appText(
-                      title!,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    children: [
+                      Center(
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          icon: Icon(Icons.close_sharp, size: 30.w),
+                        ),
+                      ),
+                      Spacer(),
+                      AppText.appText(
+                        title!,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      Spacer(),
+                      SizedBox(width: 30.w,)
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  CustomAppFormField(
-                    radius: 15.0,
-                    prefixIcon: Image.asset(
-                      "assets/images/search.png",
-                      height: 17,
-                      color: AppTheme.textColor,
-                    ),
-                    texthint: "Search",
-                    controller: controller,
-                  ),
-                  const SizedBox(height: 16),
+
+
+
+                  SizedBox(height: 10.h),
+                  // CustomAppFormField(
+                  //   radius: 15.0,
+                  //   prefixIcon: Image.asset(
+                  //     "assets/images/search.png",
+                  //     height: 17,
+                  //     color: AppTheme.textColor,
+                  //   ),
+                  //   texthint: "Search",
+                  //   controller: controller,
+                  // ),
+                  // const SizedBox(height: 16),
                   Expanded(child: child!),
                 ],
               ),
@@ -2789,6 +4044,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     ).then((value) {
       setState(() {
         selectedValue = selectedValue;
+        if((title != 'Job Type' && title != 'Zone For' && title != "Subcategories") && selectedValue.isNotEmpty) {
+          _scrollToBottom();
+        }
       });
     });
   }
@@ -2910,83 +4168,148 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   void addProductDetail(Map<String, dynamic> mapData) async {
-    setState(() {
-      _isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "category_id": "${widget.selling == null ? catagoryId : catagoryId}",
-      "product_id": "${widget.productId}",
-      "condition": conditionSelect,
-      "sub_category_id": "$subCatagoryId",
-      "make_and_model": selectMakeModel,
-      "mileage": _millageController.text,
-      "color": colorSelect,
-      "brand": selectMakeModel,
-      "model": selectMakeModel,
-      "edition": _editionController.text,
-      "authenticity": _authenticityController.text,
-    };
+    if ((_selectedCategory == 'Property for Rent' || _selectedCategory == 'Vehicles' ||
+        _selectedCategory == 'Property for Sale') && owner == false &&
+        dealer == false) {
+      showSnackBar(context, "Please select whether you are an owner or a ${_selectedCategory == 'Vehicles' ? 'dealer' : 'agent'}.");
+    }
 
-    print('addPostParamsNewwewew--->$mapData');
-    try {
-      response = await dio.post(
-          path: widget.selling != null
-              ? AppUrls.updateProductDetail
-              : AppUrls.addProductDetail,
-          data: mapData);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
+    else if (_selectedSubCategory!.isEmpty ) {
+      showSnackBar(context, "Subcategory is required. Please add it.");
+    }
+    else if ((_selectedCategory == 'Mobiles' || _selectedCategory == 'Vehicles' ||
+        _selectedCategory == 'Electronics & Appliance' || _selectedCategory == 'Furniture & home decor' ||
+        _selectedCategory == 'Kids')
+        && conditionSelect!.isEmpty ) {
+      showSnackBar(context, "Condition is required. Please add it.");
+    }
+    else {
+      setState(() {
+        _isLoading = true;
+      });
+      var response;
+      int responseCode200 = 200; // For successful request.
+      int responseCode400 = 400; // For Bad Request.
+      int responseCode401 = 401; // For Unauthorized access.
+      int responseCode404 = 404; // For For data not found
+      int responseCode422 = 422; // For For data not found
+      int responseCode500 = 500; // Internal server error.
+      Map<String, dynamic> params = {
+
+        "category_id": "${widget.selling == null ? catagoryId : catagoryId}",
+        "product_id": "${widget.productId}",
+        "condition": conditionSelect,
+        "sub_category_id": subCatagoryId,
+        "make_and_model": selectMakeModel,
+        "mileage": _millageController.text,
+        "color": colorSelect,
+        "brand": selectMakeModel,
+        "model": selectMakeModel,
+        "edition": _editionController.text,
+        "authenticity": _authenticityController.text,
+      };
+
+      print('addPostParamsNewwewew--->$mapData');
+      try {
+        response = await dio.post(
+            path: widget.selling != null || isBack == true
+                ? AppUrls.updateProductDetail
+                : AppUrls.addProductDetail,
+            data: mapData);
+        var responseData = response.data;
+        if (response.statusCode == responseCode400) {
+          showSnackBar(context, "${responseData["msg"]}");
+          setState(() {
+            _isLoading = false;
+          });
+        } else if (response.statusCode == responseCode401) {
+          showSnackBar(context, "${responseData["msg"]}");
+          setState(() {
+            _isLoading = false;
+          });
+        } else if (response.statusCode == responseCode404) {
+          showSnackBar(context, "${responseData["msg"]}");
+          setState(() {
+            _isLoading = false;
+          });
+        } else if (response.statusCode == responseCode500) {
+          showSnackBar(context, "${responseData["msg"]}");
+          setState(() {
+            _isLoading = false;
+          });
+        } else if (response.statusCode == responseCode422) {
+          setState(() {
+            _isLoading = false;
+          });
+        } else if (response.statusCode == responseCode200) {
+          setState(() {
+            _isLoading = false;
+          });
+            Navigator.push(context, CupertinoPageRoute(builder: (_) =>
+                SetPostPriceScreen(
+                  selling: widget.selling,
+                  // productId: widget.productId,
+                  productId: widget.productId,
+                  title: widget.title,
+                  categoryName: _selectedCategory
+                ))).then((value){
+              setState(() {
+                isBack = true;
+              });
+            });
+        }
+      } catch (e) {
+        print("Something went Wrong $e");
+        showSnackBar(context, "Something went Wrong.");
         setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          pushReplacement(
-              context,
-              SetPostPriceScreen(
-                selling: widget.selling,
-                // productId: widget.productId,
-                productId: widget.productId,
-                title: widget.title,
-              ));
           _isLoading = false;
         });
       }
-    } catch (e) {
-      print("Something went Wrong $e");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
+
+  Widget PostTextField({String? txt,
+    TextEditingController? textEditingController,
+    String? hintText,
+
+    TextInputType? textInputType}){
+    return Column(
+      children: [
+        TextField(
+          keyboardType: textInputType == TextInputType.number ? TextInputType.number : TextInputType.visiblePassword,
+          controller: textEditingController,
+          style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textColor
+          ),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(
+              RegExp(r'[ -~]'), // This regex allows all printable ASCII characters
+            ),
+          ],
+          decoration: InputDecoration(
+              hintStyle: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: AppTheme.textColor
+              ),
+              hintText: hintText,
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.only(bottom: 8.h)
+          ),
+          onChanged: (_){
+            setState(() {
+
+            });
+          },
+        ),
+        const CustomDivider()
+      ],
+    );
+  }
+
+
 }
 
 class ImageDeleteService {
@@ -3232,40 +4555,6 @@ Widget customCheckBox(bool val, Function(bool?)? onChanged, String? title) {
   );
 }
 
-class PostTextField extends StatefulWidget {
-  String? txt;
-  TextEditingController? textEditingController;
 
-  TextInputType? textInputType;
 
-  PostTextField(
-      {super.key,
-      this.txt,
-      this.textEditingController,
-      this.textInputType = TextInputType.number});
 
-  @override
-  State<PostTextField> createState() => _PostTextFieldState();
-}
-
-class _PostTextFieldState extends State<PostTextField> {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TextField(
-          keyboardType: widget.textInputType,
-          controller: widget.textEditingController,
-          decoration: InputDecoration(
-              labelText: widget.txt,
-              border: InputBorder.none,
-              labelStyle: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.hintTextColor)),
-        ),
-        const CustomDivider()
-      ],
-    );
-  }
-}

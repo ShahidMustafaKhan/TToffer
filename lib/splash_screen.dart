@@ -1,12 +1,25 @@
 import 'dart:async';
 
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/on_boarding_screen.dart';
+import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
+import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
 
+import 'Constants/app_logger.dart';
+import 'Controller/APIs Manager/banner_api.dart';
+import 'config/dio/app_dio.dart';
+import 'custom_requests/firebase_messaging_service.dart';
+import 'main.dart';
 import 'stripe_test.dart';
 import 'views/Authentication screens/login_screen.dart';
 import 'views/BottomNavigation/navigation_bar.dart';
@@ -22,6 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
   String? id;
   String? token;
 
+
   getUserCredentials() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -35,11 +49,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (token != null) {
       Future.delayed(const Duration(seconds: 2), () {
-        pushReplacement(context, const BottomNavView());
+        pushReplacement(context, const BottomNavView(fromLogin : true));
       });
     } else {
       Future.delayed(const Duration(seconds: 2), () {
-        pushReplacement(context, const SigInScreen());
+        pushReplacement(context, const BottomNavView(fromLogin : true));
       });
     }
   }
@@ -48,42 +62,89 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    navigationFunction();
+    backgroundNotification();
+
+
   }
+
+  backgroundNotification() async {
+    NotificationAppLaunchDetails? notificationAppLaunchDetails = await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+
+    if(notificationAppLaunchDetails?.didNotificationLaunchApp ?? false){
+      final selectedNotificationPayload = notificationAppLaunchDetails!.notificationResponse!.payload;
+      pushReplacement(
+                    context,
+                    FeatureInfoScreen(
+                      fromDynamicLink: true,
+                      productId: "91",
+                    )) ;
+    }
+    else{
+      FirebaseDynamicLinks.instance.getInitialLink().then((PendingDynamicLinkData? data) {
+        final Uri? deepLink = data?.link;
+        if (deepLink != null) {
+          final productId = deepLink.queryParameters['productId'];
+          final productType = deepLink.queryParameters['productType'];
+
+          if (productId != null && productType != null) {
+            Future.delayed(const Duration(seconds: 2), () {
+              pushReplacement(
+                context,
+                productType == 'featured' ?
+                FeatureInfoScreen(
+                  fromDynamicLink: true,
+                  popToBottomNav: true,
+                  productId: productId.toString(),
+                ) : AuctionInfoScreen(
+                  fromDynamicLink: true,
+                  popToBottomNav: true,
+                  productId: productId.toString(),
+                ),
+              );
+            });
+          }
+        } else {
+          navigationFunction();
+        }
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.appColor,
       body: Container(
         decoration: const BoxDecoration(),
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
-        child: Align(
+        child: Stack(
           alignment: Alignment.center,
-          child: Center(
-            child: Column(
-              children: [
-                const Spacer(),
-                Image.asset(
-                  "assets/images/newFrame.png",
-                  // fit: BoxFit.cover,
-                  height: 90,
-                  width: 90,
-                ),
-                const SizedBox(height: 15),
-                Image.asset(
-                  "assets/images/newTitle.png",
-                  // height: 40,
-                  // fit: BoxFit.cover,
-                  //
-                  width: 100,
-                ),
-                const Spacer(),
-
-              ],
+          children: [
+            Align(
+              child: Image.asset(
+                "assets/images/newFrame.png",
+                // fit: BoxFit.cover,
+                height: 120.w,
+                width: 120.w,
+              ),
             ),
-          ),
+
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 30.h),
+                child: Text(
+                  ' Time The Offer',
+                  style:TextStyle(
+                    fontFamily:'FranklinGothic',
+                    color: AppTheme.appColor, // Dark Blue
+                    fontSize: 28.sp,
+                  ),
+                ),
+              ),
+            )
+          ],
         ),
       ),
     );

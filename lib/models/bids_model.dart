@@ -75,26 +75,26 @@ class User {
   String? name;
   String? src;
   String? provider;
-  Null? providerId;
-  Null? providerToken;
+  String? providerId;
+  String? providerToken;
   String? code;
   String? emailVerifiedAt;
-  int? emailCode;
-  Null? phoneVerifiedAt;
-  Null? imageVerifiedAt;
+  String? emailCode;
+  String? phoneVerifiedAt;
+  String? imageVerifiedAt;
   String? username;
   String? email;
   String? phone;
   String? shareAbleLink;
   String? img;
-  int? status;
+  String? status;
   String? location;
-  Null? customLink;
-  int? isTrueYou;
+  String? customLink;
+  String? isTrueYou;
   String? createdAt;
   String? updatedAt;
-  int? totalReview;
-  int? reviewPercentage;
+  String? totalReview;
+  String? reviewPercentage;
 
   User(
       {this.id,
@@ -125,28 +125,8 @@ class User {
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
-    src = json['src'];
-    provider = json['provider'];
-    providerId = json['provider_id'];
-    providerToken = json['provider_token'];
-    code = json['code'];
-    emailVerifiedAt = json['email_verified_at'];
-    emailCode = json['email_code'];
-    phoneVerifiedAt = json['phone_verified_at'];
-    imageVerifiedAt = json['image_verified_at'];
-    username = json['username'];
-    email = json['email'];
-    phone = json['phone'];
-    shareAbleLink = json['share_able_link'];
     img = json['img'];
-    status = json['status'];
-    location = json['location'];
-    customLink = json['custom_link'];
-    isTrueYou = json['is_true_you'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-    totalReview = json['total_review'];
-    reviewPercentage = json['review_percentage'];
+    json['review_percentage'];
   }
 
   Map<String, dynamic> toJson() {

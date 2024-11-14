@@ -8,7 +8,9 @@ import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
+import 'package:tt_offer/Utils/widgets/others/no_data_found.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
+import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/sub_categories_model.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/all_auction_procucts.dart';
@@ -16,6 +18,8 @@ import 'package:tt_offer/views/All%20Featured%20Products/feature_container.dart'
 import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
+
+import '../../Utils/widgets/custom_radio_button.dart';
 
 class ViewFeaturedProducts extends StatefulWidget {
   const ViewFeaturedProducts({super.key});
@@ -32,11 +36,21 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
   List<bool>? isExpanded;
   var catId;
   var catName;
+  var categoryName = "All Category";
   var subCatId;
-  bool isLoading = false;
+
+  bool? isUrgentAds;
+  String? subCategory;
+  String? category;
 
   List<CategoryModel> catModel = [];
   List<SubCategoriesModel> subCat = [];
+  late final apiProvider;
+  var featureProductList = [];
+  var condition = [];
+  String selectedCondition = "Select By Condition";
+
+
 
   getCategories() async {
     await BlockedUserServices().getBlockedUser(context: context);
@@ -62,120 +76,136 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
 
     getCategories();
     getSubCat();
-    final apiProvider =
-        Provider.of<ProductsApiProvider>(context, listen: false);
+    sortNewestOnTop();
+
+    apiProvider = Provider.of<ProductsApiProvider>(context, listen: false);
     apiProvider.getFeatureProducts(
       dio: dio,
       context: context,
     );
+      featureProductList = apiProvider.allfeatureProductsData;
 
-    apiProvider.getCatagories(
-      dio: dio,
-      context: context,
-    );
-    apiProvider.getSubCatagories(dio: dio, context: context);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final apiProvider = Provider.of<ProductsApiProvider>(context);
+    if(categoryName=='Mobiles'){
+    if(catName=='Accessories'){
+      condition = ["New", "Used", "Open Box", "Others"];
+    }
+    else {
+      condition = ["New", "Used", "Open Box", "Refurbished", "Others"];
+    }
+    }
+    else if(categoryName=='All Category'){
+      condition=[];
+    }
+    else if(categoryName=="Electronics & Appliance"){
+      condition = ["New", "Used", "Refurbished", "Others"];
+    }
+    else if(categoryName=="Kids"){
+      condition = ["New", "Used", "Open Box", "Others"];
+    }
+    else if(categoryName=="Vehicles"){
+      condition = ["New", "Used", "Others"];
+    }
+    else{
+      condition = ["New", "Used", "Refurbished", "Others"];
+    }
+    
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
       appBar: CustomAppBar1(
         title: "Featured Products",
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Padding(
-            //   padding:
-            //       const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-            //   child: CustomAppFormField(
-            //     height: 40,
-            //     radius: 15.0,
-            //     prefixIcon: Image.asset(
-            //       "assets/images/search.png",
-            //       height: 17,
-            //       color: AppTheme.textColor,
-            //     ),
-            //     texthint: "Search",
-            //     controller: _searchController,
-            //   ),
-            // ),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-              child: SizedBox(
-                height: 20,
-                width: screenWidth,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    customRow(
-                      img: "assets/images/location.png",
-                      txt: "Belarus",
-                      onTap: () {
-                        _showLocationBottomSheet(context);
-                      },
-                    ),
-                    Container(
-                      width: 1,
-                      height: 20,
-                      color: AppTheme.blackColor,
-                    ),
-                    customRow(
-                      img: "assets/images/category.png",
-                      txt: "All Category",
-                      onTap: () {
-                        _showCategoryBottomSheet(context);
-                      },
-                    ),
-                    Container(
-                      width: 1,
-                      height: 20,
-                      color: AppTheme.blackColor,
-                    ),
-                    customRow(
-                      img: "assets/images/filter.png",
-                      txt: "Filter",
-                      onTap: () {
-                        _showFilterBottomSheet(context);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            apiProvider.isLoading == true
-                ? LoadingDialog()
-                : Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        mainAxisSpacing: 30,
-                        crossAxisSpacing: 8,
-                        crossAxisCount: 2,
-                        childAspectRatio: screenWidth / (2.6 * 252),
-                      ),
-                      shrinkWrap: true,
-                      itemCount: apiProvider.allfeatureProductsData.length,
-                      itemBuilder: (context, int index) {
-                        return GestureDetector(
-                            onTap: () {
-                              getFeatureProductDetail(apiProvider
-                                  .allfeatureProductsData[index]["id"]);
-                            },
-                            child: FeatureProductContainer(
-                              data: apiProvider.allfeatureProductsData[index],
-                            ));
-                      },
+      body: Consumer<ProductsApiProvider>(
+          builder: (context, apiProvider, child) {
+            return SingleChildScrollView(
+            child: Column(
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                  child: SizedBox(
+                    height: 20,
+                    width: screenWidth,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        customRow(
+                          img: "assets/images/location.png",
+                          txt: _locationController.text.isEmpty ? "Global" : _locationController.text,
+                          onTap: () {
+                            _showLocationBottomSheet(context);
+                          },
+                        ),
+                        Container(
+                          width: 1,
+                          height: 20,
+                          color: AppTheme.blackColor,
+                        ),
+                        customRow(
+                          img: "assets/images/category.png",
+                          txt: catName ?? "All Category",
+                          onTap: () {
+                            _showCategoryBottomSheet(context);
+                          },
+                        ),
+                        Container(
+                          width: 1,
+                          height: 20,
+                          color: AppTheme.blackColor,
+                        ),
+                        customRow(
+                          img: "assets/images/filter.png",
+                          txt: "Filter",
+                          onTap: () {
+                            _showFilterBottomSheet(context);
+                          },
+                        ),
+                      ],
                     ),
                   ),
-          ],
-        ),
+                ),
+                Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            mainAxisSpacing: 20,
+                            crossAxisSpacing: 10,
+                            crossAxisCount: 2,
+                            childAspectRatio: screenWidth / (3.8 * 150),
+                          ),
+                          shrinkWrap: true,
+                          itemCount: featureProductList.length,
+                          itemBuilder: (context, int index) {
+                            return GestureDetector(
+                                onTap: () {
+                                  push(
+                                      context,
+                                      FeatureInfoScreen(
+                                        detailResponse: featureProductList[index],
+                                      ));
+
+                                  // getFeatureProductDetail(
+                                  //     featureProductList[index]["id"]);
+                                },
+                                child: FeatureProductContainer(
+                                  data: featureProductList[index],
+                                ));
+                          },
+                        ),
+                      ),
+                if(featureProductList.isEmpty && apiProvider.isLoading==false)
+                  NoDataFound.noDataFound()
+
+              ],
+            ),
+          );
+        }
       ),
     );
   }
@@ -252,10 +282,6 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
     ).then((value) {
       setState(() {
         subCatId = subCatId;
-        if (subCatId != null && catId != null) {
-          apiProvider.getFeatureProducts(
-              context: context, dio: dio, subCatId: subCatId, cateId: catName);
-        }
       });
     });
     ;
@@ -268,7 +294,7 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
 
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: catModel.length,
+      itemCount: catModel.length+1,
       itemBuilder: (context, index) {
         return Padding(
             padding: const EdgeInsets.only(bottom: 10.0, left: 10, right: 10),
@@ -276,9 +302,26 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
               GestureDetector(
                 onTap: () {
                   setState(() {
-                    catId = catModel[index].id;
-                    catName = catModel[index].title;
-                    _toggleExpand(index);
+                    if(index==0){
+                      subCategory=null;
+                      category=null;
+                      catName= "All Category";
+                      categoryName = "All Category";
+                      selectedCondition = 'Select By Condition';
+                      isExpanded = null;
+                      filterProductsByPrice();
+                      Navigator.of(context).pop();
+                    }
+                    else{
+                      catId = catModel[index-1].id;
+                      category=catModel[index-1].id.toString();
+                      catName = catModel[index-1].title;
+                      categoryName = catModel[index-1].title ?? '';
+                      _toggleExpand(index-1);
+                      filterProductsByPrice();
+
+                    }
+
                   });
                 },
                 child: Container(
@@ -286,7 +329,7 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      AppText.appText(catModel[index].title.toString(),
+                      AppText.appText(index==0 ? "All Category" :catModel[index-1].title.toString(),
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           textColor: const Color(0xff1B2028)),
@@ -298,18 +341,24 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                   ),
                 ),
               ),
-              if (isExpanded![index])
+              if (index!=0 && isExpanded![index-1])
                 for (int i = 0; i < subCat.length; i++)
-                  if (catId == subCat[i].id)
-                    CustomRadioButton(selectedIndexes[catModel[index].id] == i,
+                  if (catId == subCat[i].categoryId)
+                    CustomRadioButton(selectedIndexes[catModel[index-1].id] == i,
                         subCat[i].title, () {
                       // subCatId = subCat[i].id;
                       subCatId = subCat[i].title;
                       print('newSub---->${subCatId}');
 
-                      selectedIndexes[catModel[index].id!] = i;
+                      selectedIndexes[catModel[index-1].id!] = i;
+                      subCategory = subCat[i].id.toString();
+                      catName = subCat[i].title;
+                      // filterBySubCategory("${subCat[i].id}");
+                      filterProductsByPrice();
                       setState(() {});
-                    })
+                      Navigator.of(context).pop();
+
+                        })
             ]));
       },
     );
@@ -328,8 +377,6 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
   }
 
   void _showLocationBottomSheet(BuildContext context) {
-    final apiProvider =
-        Provider.of<ProductsApiProvider>(context, listen: false);
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -362,8 +409,16 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                     height: 10,
                   ),
                   CustomAppFormField(
-                    texthint: "Set a loction",
+                    texthint: "Set a location",
                     controller: _locationController,
+                    onChanged: (value){
+                      // filterByLocation(value);
+                      location = value;
+                      filterProductsByPrice();
+                    },
+                    onFieldSubmitted: (value){
+                      Navigator.of(context).pop();
+                    },
                     borderColor: const Color(0xffE5E9EB),
                     hintTextColor: AppTheme.hintTextColor,
                     suffixIcon: Image.asset(
@@ -392,104 +447,13 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
           },
         );
       },
-    ).whenComplete(() {
-      if (_locationController.text.isNotEmpty) {
-        apiProvider.getFeatureProducts(
-            context: context, dio: dio, location: _locationController.text);
-      }
-    });
+    );
   }
 
-  // Widget customLocationRow({txt1, txt2}) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       AppText.appText("$txt1",
-  //           fontSize: 12,
-  //           fontWeight: FontWeight.w600,
-  //           textColor: AppTheme.textColor),
-  //       const SizedBox(
-  //         height: 10,
-  //       ),
-  //       CustomAppFormField(
-  //         texthint: "$txt2",
-  //         controller: _locationController,
-  //         borderColor: const Color(0xffE5E9EB),
-  //         hintTextColor: AppTheme.hintTextColor,
-  //         width: MediaQuery.of(context).size.width * 0.25,
-  //       ),
-  //     ],
-  //   );
-  // }
 
-  void getFeatureProductDetail(productId) async {
-    setState(() {
-      isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": productId,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getFeatureProducts, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          setState(() {
-            isLoading = false;
-          });
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          var detailResponse = responseData["data"];
-          push(
-              context,
-              FeatureInfoScreen(
-                detailResponse: detailResponse[0],
-              ));
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
 
   void _showFilterBottomSheet(BuildContext context) {
-    final apiProvider =
-        Provider.of<ProductsApiProvider>(context, listen: false);
+
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -547,13 +511,30 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                                     value: e,
                                     child: Text(e));
                               }).toList(),
-                              onChanged: (_) {}),
+                              onChanged: (value) {
+                                if(filter[0] == value){
+                                  sortNewestOnTop();
+                                  Navigator.of(context).pop();
+                                }
+                                else if(filter[1] == value){
+                                  sortNewestOnBottom();
+                                  Navigator.of(context).pop();
+                                }
+                                else if(filter[2] == value){
+                                  sortLowestPriceOnTop();
+                                  Navigator.of(context).pop();
+                                }
+                                else if(filter[3] == value){
+                                  sortLowestPriceOnBottom();
+                                  Navigator.of(context).pop();
+                                }
+                              }),
                         )),
-
+                        if(categoryName!='All Category')...[
                         const SizedBox(height: 20),
 
                         AppText.appText(
-                          'Filter ads by',
+                          'Condition',
                           fontWeight: FontWeight.w800,
                         ),
                         const SizedBox(height: 8),
@@ -561,26 +542,30 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                           padding: const EdgeInsets.only(left: 8.0),
                           child: DropdownButton(
                               hint: AppText.appText(
-                                isUrgent,
+                                selectedCondition,
                                 fontWeight: FontWeight.w500,
                               ),
                               underline: const SizedBox(),
                               icon: const SizedBox(),
                               isExpanded: true,
-                              items: urgent.map((e) {
+                              items: condition.map((e) {
                                 return DropdownMenuItem(
                                     onTap: () {
                                       setState(() {
-                                        isUrgent = e;
+                                        selectedCondition = e;
                                       });
                                     },
                                     value: e,
                                     child: Text(e));
                               }).toList(),
-                              onChanged: (_) {}),
+                              onChanged: (value) {
+                                  isUrgentAds = true;
+                                  filterProductsByPrice();
+                              }),
                         )),
-                        const SizedBox(height: 20),
 
+                        ],
+                        const SizedBox(height: 20),
                         AppText.appText(
                           'Sort by min to max price',
                           fontWeight: FontWeight.w800,
@@ -589,73 +574,22 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                         Row(
                           children: [
                             Expanded(
-                                child: lableFields(
+                                child: labelField(
                                     controller: minPrice,
+
+                                    onChanged: (value){filterProductsByPrice(min: value.isEmpty ? null : value);},
                                     hintText: 'Min Price')),
                             const SizedBox(
                               width: 10,
                             ),
                             Expanded(
-                                child: lableFields(
+                                child: labelField(
                                     controller: maxPrice,
+                                    onChanged: (value){filterProductsByPrice(max: value.isEmpty ? null : value);},
                                     hintText: 'High Price'))
                           ],
                         ),
 
-                        AppText.appText(
-                          'Filter by distance',
-                          fontWeight: FontWeight.w800,
-                        ),
-
-                        SizedBox(
-                          width: double.infinity,
-                          child: Stack(
-                            children: [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 12.0),
-                                child: Slider(
-                                  activeColor: AppTheme.appColor,
-                                  value: sliderValue,
-                                  min: 0,
-                                  max: 100,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      sliderValue = val;
-                                    });
-                                  },
-                                ),
-                              ),
-                              Positioned(
-                                key: tooltipKey,
-                                left: (sliderValue / 100) * 300 - 20,
-                                // Adjust position based on slider value and width
-                                bottom: 40,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0, vertical: 4.0),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.appColor,
-                                    borderRadius: BorderRadius.circular(4.0),
-                                  ),
-                                  child: Text(
-                                    sliderValue.toStringAsFixed(0),
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        //   children: [
-                        //     customLocationRow(txt1: "City", txt2: "New York"),
-                        //     customLocationRow(txt1: "State", txt2: "California"),
-                        //     customLocationRow(txt1: "Zip", txt2: "3254"),
-                        //   ],
-                        // ),
                         const SizedBox(
                           height: 20,
                         ),
@@ -668,27 +602,94 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
           },
         );
       },
-    ).then((value) {
-      apiProvider.getAuctionFiltterProducts(
-          dio: dio,
-          context: context,
-          maxPrice: maxPrice.text.trim(),
-          minPrice: minPrice.text.trim(),
-          sortBy: sorting,
-          isUrgent: isUrgent);
-    });
+    );
   }
 
-  Widget lableFields({lableTtxt, controller, hintText}) {
+  void sortNewestOnTop() {
+    featureProductList.sort((a, b) => b['created_at'].compareTo(a['created_at']));
+    setState(() {
+
+    });  }
+
+  void sortNewestOnBottom() {
+    featureProductList.sort((a, b) => a['created_at'].compareTo(b['created_at']));
+    setState(() {});
+  }
+
+  void sortLowestPriceOnTop() {
+    featureProductList.sort((a, b) => double.parse(a['fix_price']).compareTo(double.parse(b['fix_price'])));
+    setState(() {});
+  }
+
+  void sortLowestPriceOnBottom() {
+    featureProductList.sort((a, b) => double.parse(b['fix_price']).compareTo(double.parse(a['fix_price'])));
+    setState(() {});
+  }
+// Notify listeners about the updated state
+
+
+  void filterProductsByPrice({
+    String? min,
+    String? max,
+    }){
+    filterProducts(maxPrice: max ?? (maxPrice.text.isNotEmpty ? maxPrice.text : null) , minPrice:  min ?? (minPrice.text.isNotEmpty ? minPrice.text : null));
+  }
+
+  void filterProducts({
+    String? minPrice,
+    String? maxPrice,
+  }) {
+    featureProductList = apiProvider.allfeatureProductsData.where((product) {
+      bool matches = true;
+
+      if (selectedCondition != 'Select By Condition' && categoryName!= 'All Category') {
+        matches = matches && (product['condition'] == selectedCondition);
+      }
+
+      if (_locationController.text.isNotEmpty) {
+        List<dynamic> locationParts = product['location'].toLowerCase().split(',').map((s) => s.trim()).toList();
+        String searchText = _locationController.text.toLowerCase();
+
+        matches = matches && locationParts.any((part) => part.contains(searchText));
+      }
+
+      if (category != null) {
+        matches = matches && (product['category_id'] == category);
+      }
+
+      if (subCategory != null) {
+        matches = matches && (product['sub_category_id'] == subCategory);
+      }
+
+      if (minPrice != null || maxPrice != null) {
+        int price = int.parse(product['fix_price'].split('.')[0]);
+
+        if (minPrice != null && maxPrice != null) {
+          matches = matches && (price >= int.parse(minPrice) && price <= int.parse(maxPrice));
+        } else if (minPrice != null) {
+          matches = matches && (price >= int.parse(minPrice));
+        } else if (maxPrice != null) {
+          matches = matches && (price <= int.parse(maxPrice));
+        }
+      }
+
+      return matches;
+    }).toList();
+
+    setState(() {});  // Notify listeners about the updated state
+  }
+
+  Widget labelField({labelText, controller, hintText, onChanged}) {
     return Padding(
       padding: const EdgeInsets.only(top: 0.0),
       child: Column(
         children: [
           LableTextField(
-            // labelTxt: lableTtxt == null ? '' : "$lableTtxt",
             lableColor: AppTheme.hintTextColor,
             hintTxt: hintText,
+            keyboard: const TextInputType.numberWithOptions(),
             controller: controller,
+            onChanged: onChanged,
           ),
           // const CustomDivider(),
         ],
@@ -700,42 +701,4 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
   TextEditingController maxPrice = TextEditingController();
 }
 
-class CustomRadioButton extends StatefulWidget {
-  bool color;
-  String? txt;
-  Function()? onTap;
 
-  CustomRadioButton(this.color, this.txt, this.onTap);
-
-  @override
-  State<CustomRadioButton> createState() => _CustomRadioButtonState();
-}
-
-class _CustomRadioButtonState extends State<CustomRadioButton> {
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: (widget.onTap),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              height: 17,
-              width: 17,
-              decoration: BoxDecoration(
-                  color: widget.color ? AppTheme.appColor : Colors.white,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                      color: widget.color
-                          ? AppTheme.appColor
-                          : AppTheme.appColor)),
-            ),
-          ),
-          const SizedBox(width: 8),
-          AppText.appText(widget.txt!)
-        ],
-      ),
-    );
-  }
-}

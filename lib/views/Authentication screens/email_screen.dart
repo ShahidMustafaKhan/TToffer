@@ -1,4 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -13,6 +15,9 @@ import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
+
+import '../Profile Screen/Settings/privacy_policy.dart';
+import '../Profile Screen/Settings/terms_and_condition.dart';
 
 class EmailLoginScreen extends StatefulWidget {
   const EmailLoginScreen({super.key});
@@ -98,6 +103,50 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                       textColor: AppTheme.txt1B20),
                 ),
               ),
+
+              SizedBox(height: 20.h),
+
+              RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                      text: 'By logging in I agree to the ',
+                      style: TextStyle(color: AppTheme.hintTextColor, fontFamily: 'Poppins', fontSize: 12),
+                      children: [
+                        TextSpan(
+                          text: 'Terms and Conditions',
+                          style: TextStyle(
+                            color: AppTheme.yellowColor,
+                            decoration: TextDecoration.underline,
+                            fontSize: 13,
+                            fontFamily: 'Poppins',
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              push(context, const TermsAndCondition());
+
+
+                              // Handle Terms and Conditions tap
+                              print("Terms and Conditions Tapped");
+                            },
+                        ),
+                        TextSpan(
+                          text: ' and ',
+                          style: TextStyle(color: AppTheme.hintTextColor,  fontFamily: 'Poppins'),
+                        ),
+                        TextSpan(
+                          text: 'Privacy Policy',
+                          style: TextStyle(
+                            color: AppTheme.yellowColor,
+                            fontSize: 13,
+                            fontFamily: 'Poppins',
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              push(context, PrivacyPolicyScreen());
+                              print("Privacy Policy Tapped");
+                            },
+                        ),])),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 40.0),
                 child: _isLoading == true
@@ -166,7 +215,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
           _isLoading = false;
         });
       } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["message"]}");
+        showSnackBar(context, "Invalid email or password");
         setState(() {
           _isLoading = false;
         });
@@ -201,14 +250,15 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
           var id = userId.toString();
           print("id$id");
           // SharedPreferences prefs = await SharedPreferences.getInstance();
-          pref.setString(PrefKey.userId, id ?? '');
-          pref.setString(PrefKey.authorization, token ?? '');
-          pref.setString(PrefKey.userName, name ?? '');
+          await pref.setString(PrefKey.userId, id ?? '');
+          await pref.setString(PrefKey.authorization, token ?? '');
+          await pref.setString(PrefKey.userName, name ?? '');
+
 
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) => const BottomNavView(),
+                builder: (context) => const BottomNavView(fromLogin : true),
               ),
               (route) => false);
         }

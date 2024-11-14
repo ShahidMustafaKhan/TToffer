@@ -1,6 +1,10 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
@@ -18,12 +22,17 @@ import 'package:tt_offer/views/ContactPage/contact_page.dart';
 import 'package:tt_offer/views/EmailVerification/email_verification_screen.dart';
 import 'package:tt_offer/views/PhoneVerify/phone_verify_screen.dart';
 import 'package:tt_offer/views/Profile%20Screen/Account%20Settigs/account_setting.dart';
+import 'package:tt_offer/views/Profile%20Screen/Settings/settings.dart';
 import 'package:tt_offer/views/Profile%20Screen/custom_link.dart';
 import 'package:tt_offer/views/Profile%20Screen/payment%20Screens/payment_screen.dart';
 import 'package:tt_offer/views/Profile%20Screen/saved_products.dart';
 import 'package:tt_offer/views/Sellings/selling_purchase.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
+
+import '../../Utils/widgets/custom_loader.dart';
+import '../../Utils/widgets/others/delete_notification_dialog.dart';
+import '../../providers/selling_purchase_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -46,6 +55,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {});
   }
 
+  confirmImageVerification() async{
+    dio = AppDio(context);
+    logger.init();
+
+    final apiProvider = Provider.of<ProfileApiProvider>(context, listen: false);
+
+    apiProvider.updateVerification(
+      dio: dio,
+      context: context, userId: userId, phone: false,
+    );
+
+  }
+
   @override
   void initState() {
     dio = AppDio(context);
@@ -59,6 +81,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     getPhone();
 
     super.initState();
+  }
+
+
+  int percentageOfFive(String value) {
+    // Convert the string input to a double
+    double number = double.parse(value);
+
+    // Calculate the percentage with respect to 5
+    int percentage = ((number / 5) * 100).round();
+
+    return percentage;
   }
 
   getUserDetail() async {
@@ -82,19 +115,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
             context: context,
             userId: userId,
             profile: true,
-            imgPath: pickedFilePath);
+            imgPath: pickedFilePath).then((value){
+          confirmImageVerification();
+        });
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final profileApi = Provider.of<ProfileApiProvider>(context);
 
     return Scaffold(
-        backgroundColor: AppTheme.whiteColor,
+        // backgroundColor: AppTheme.whiteColor,
         appBar: AppBar(
           automaticallyImplyLeading: false,
+          forceMaterialTransparency: true,
           centerTitle: true,
           title: AppText.appText("Profile",
               fontSize: 20,
@@ -105,10 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.only(right: 20.0),
               child: GestureDetector(
                 onTap: () async {
-                  SharedPreferences pref =
-                      await SharedPreferences.getInstance();
-                  pref.clear();
-                  pushUntil(context, const SigInScreen());
+                  logoutDialog();
                 },
                 child: Image.asset(
                   "assets/images/logout.png",
@@ -119,148 +151,238 @@ class _ProfileScreenState extends State<ProfileScreen> {
             )
           ],
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              profileApi.profileData == null
-                  ? LoadingDialog()
-                  : Column(
-                      children: [
-                        upperContainer(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        body: Consumer<ProfileApiProvider>(
+            builder: (context, profileApi, child) {
+              return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  profileApi.profileData == null
+                      ? LoadingDialog()
+                      : Column(
                           children: [
-                            verifiedContainer(
-                                onTap: profileApi
-                                            .profileData["email_verified_at"] ==
+                            upperContainer(),
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                buildStatItem('0', 'Bought'),
+                                buildStatItem('0', 'Sold'),
+                                buildStatItem('0', 'Followers'),
+                                buildStatItem('0', 'Following'),
+                              ],
+                            ),
+
+                            SizedBox(height: 3.h,),
+
+                            if(profileApi
+                                .profileData["email_verified_at"] ==
+                                null || profileApi
+                                .profileData["image_verified_at"] ==
+                                null || profileApi
+                                .profileData["phone_verified_at"] ==
+                                null)
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 14.w),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  verifiedContainer(
+                                      onTap: profileApi
+                                                  .profileData["email_verified_at"] ==
+                                              null
+                                          ? () {
+                                              push(context,
+                                                  const EmailVerificationScreen());
+                                            }
+                                          : null,
+                                      txt: profileApi
+                                                  .profileData["email_verified_at"] ==
+                                              null
+                                          ? "Email\nis not\nVerified"
+                                          : "Email\nVerified",
+                                      img: "assets/images/sms.png",
+                                      color: profileApi
+                                                  .profileData["email_verified_at"] ==
+                                              null
+                                          ? Colors.red
+                                          : null),
+                                  verifiedContainer(
+                                    onTap: profileApi
+                                        .profileData["image_verified_at"] ==
                                         null
-                                    ? () {
-                                        push(context,
-                                            const EmailVerificationScreen());
-                                      }
-                                    : null,
-                                txt: profileApi
-                                            .profileData["email_verified_at"] ==
-                                        null
-                                    ? "Email not Verified"
-                                    : "Email Verified",
-                                img: "assets/images/sms.png",
-                                color: profileApi
-                                            .profileData["email_verified_at"] ==
-                                        null
-                                    ? Colors.red
-                                    : null),
-                            verifiedContainer(
-                                img: "assets/images/gallery.png",
-                                color: profileApi
-                                            .profileData["image_verified_at"] ==
-                                        null
-                                    ? Colors.red
-                                    : null,
-                                txt: profileApi
-                                            .profileData["image_verified_at"] ==
-                                        null
-                                    ? "Image not Verified"
-                                    : "Image Verified"),
-                            verifiedContainer(
-                                onTap: profileApi
-                                            .profileData["phone_verified_at"] ==
-                                        null
-                                    ? () {
-                                        push(context, PhoneVerifyScreen());
-                                      }
-                                    : null,
-                                txt: profileApi
-                                            .profileData["image_verified_at"] ==
-                                        null
-                                    ? "Phone not Verified"
-                                    : "Phone Verified",
-                                img: "assets/images/call.png",
-                                color: profileApi
-                                            .profileData["phone_verified_at"] ==
-                                        null
-                                    ? Colors.red
-                                    : null),
-                            verifiedContainer(
-                                txt: "Join TruYou",
-                                color:
-                                    profileApi.profileData["is_true_you"] == 0
-                                        ? Colors.red
-                                        : null,
-                                img: "assets/images/verify1.png"),
+                                        ? ()=>pickImage() : null,
+                                      img: "assets/images/gallery.png",
+                                      color: profileApi
+                                                  .profileData["image_verified_at"] ==
+                                              null
+                                          ? Colors.red
+                                          : null,
+                                      txt: profileApi
+                                                  .profileData["image_verified_at"] ==
+                                              null
+                                          ? "Image\nis not\nVerified"
+                                          : "Image\nVerified"),
+                                  verifiedContainer(
+                                      onTap: profileApi
+                                                  .profileData["phone_verified_at"] ==
+                                              null
+                                          ? () {
+                                              push(context, PhoneVerifyScreen());
+                                            }
+                                          : null,
+                                      txt: profileApi
+                                                  .profileData["phone_verified_at"] ==
+                                              null
+                                          ? "Phone\nis not\nVerified"
+                                          : "Phone\nVerified",
+                                      img: "assets/images/call.png",
+                                      color: profileApi
+                                                  .profileData["phone_verified_at"] ==
+                                              null
+                                          ? Colors.red
+                                          : null),
+                                  // if(profileApi
+                                  //     .profileData["phone_verified_at"] != null && profileApi
+                                  //     .profileData["image_verified_at"] != null && profileApi
+                                  //     .profileData["email_verified_at"] != null)
+                                  // verifiedContainer(
+                                  //     txt: "Join TruYou",
+                                  //     color:
+                                  //         profileApi.profileData["is_true_you"] == 0
+                                  //             ? Colors.red
+                                  //             : null,
+                                  //     img: "assets/images/verify1.png"),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
-                      ],
-                    ),
-              headingText(txt: "Transactions"),
-              customRow(
-                  onTap: () {
-                    push(
-                        context,
-                        const SellingPurchaseScreen(
-                          title: "Purchase & Sale",
-                        ));
-                  },
-                  txt: "Purchases & Sales",
-                  img: "assets/images/receipt.png"),
-              // customRow(
-              //     onTap: () {
-              //       push(context, const PaymentScreen());
-              //     },
-              //     txt: "Payment & Deposit method",
-              //     img: "assets/images/payment.png"),
-              const CustomDivider(),
-              headingText(txt: "Save"),
-              customRow(
-                  onTap: () {
-                    push(context, const SavedItemsScreen());
-                  },
-                  txt: "Saved items",
-                  img: "assets/images/heart.png"),
-              // customRow(
-              //     onTap: () {},
-              //     txt: "Search alerts",
-              //     img: "assets/images/notification.png"),
-              const CustomDivider(),
-              headingText(txt: "Account"),
-              customRow(
-                  onTap: () {
-                    push(context, const AccountSettingScreen());
-                  },
-                  txt: "Account Setting",
-                  img: "assets/images/accountSetting.png"),
-              customRow(
-                  onTap: () {
-                    push(context, const BoostWorkScreen());
-                  },
-                  txt: "Boost Plus",
-                  img: "assets/images/boostPlus.png"),
-              customRow(
-                  onTap: () {
-                    push(
-                        context,
-                        CustomLinkScreen(
-                          link: profileApi.profileData['username'] ?? '',
-                        ));
-                  },
-                  txt: "Custom Profile Link",
-                  img: "assets/images/link.png"),
-              const CustomDivider(),
-              headingText(txt: "Help"),
-              customRow(
-                  onTap: () {
-                    push(context, const ContactPage());
-                  },
-                  txt: "Help Center",
-                  img: "assets/images/helpCenter.png"),
-              const SizedBox(
-                height: 20,
-              )
-            ],
-          ),
+                  headingText(txt: "Transactions"),
+                  customRow(
+                      onTap: () {
+                        push(
+                            context,
+                            const SellingPurchaseScreen(
+                              title: "Purchase & Sale",
+                            ));
+                      },
+                      txt: "Purchases & Sales",
+                      img: "assets/images/receipt.png"),
+                  // customRow(
+                  //     onTap: () {
+                  //       push(context, const PaymentScreen());
+                  //     },
+                  //     txt: "Payment & Deposit method",
+                  //     img: "assets/images/payment.png"),
+                  const CustomDivider(),
+                  headingText(txt: "Save"),
+                  customRow(
+                      onTap: () {
+                        push(context, const SavedItemsScreen());
+                      },
+                      txt: "Saved items",
+                      img: "assets/images/heart.png"),
+                  // customRow(
+                  //     onTap: () {},
+                  //     txt: "Search alerts",
+                  //     img: "assets/images/notification.png"),
+                  const CustomDivider(),
+                  headingText(txt: "Account"),
+                  customRow(
+                      onTap: () {
+                        push(context, const AccountSettingScreen(), then: (){
+                          profileApi.getProfile(
+                            dio: dio,
+                            context: context,
+                          );
+                        });
+                      },
+                      txt: "Account Settings",
+                      img: "assets/images/accountSetting.png"),
+                  customRow(
+                      onTap: () {
+                        push(context, const BoostWorkScreen());
+                      },
+                      txt: "Boost Plus",
+                      img: "assets/images/boostPlus.png"),
+                  customRow(
+                      onTap: () {
+                        push(
+                            context,
+                            CustomLinkScreen(
+                              link: profileApi.profileData['username'] ?? '',
+                            ));
+                      },
+                      txt: "Custom Profile Link",
+                      img: "assets/images/link.png"),
+                  const CustomDivider(),
+                  headingText(txt: "Help"),
+                  customRow(
+                      onTap: () {
+                        push(context, const ContactPage());
+                      },
+                      txt: "Help Center",
+                      img: "assets/images/helpCenter.png"),
+                  customRow(
+                      onTap: () {
+                        push(context, const SettingScreen());
+                      },
+                      txt: "Settings",
+                      img: "assets/images/settings.png"),
+                  const SizedBox(
+                    height: 20,
+                  )
+                ],
+              ),
+            );
+          }
         ));
   }
+
+
+  Future<void> logoutDialog() async {
+    bool isLoading = false;
+    CustomAlertDialog(
+      title: "Confirm logout",
+      description: "Are you sure you want to logout?",
+      cancelButtonTitle: "No",
+      confirmButtonTitle: "Yes",
+      context: context,
+      loading: isLoading,
+
+      onTap: () async {
+        Navigator.of(context).pop();
+        clearCacheAndSignOut();
+        SharedPreferences pref =
+        await SharedPreferences.getInstance();
+        pref.clear();
+        Provider.of<SellingPurchaseProvider>(context, listen: false).sellingProductsModel = null;
+        Provider.of<ProfileApiProvider>(context, listen: false).profileData = null;
+        pushUntil(context, const SigInScreen());
+      },
+    );
+  }
+
+
+  Future<void> clearCacheAndSignOut() async {
+    // Sign out from Google
+    GoogleSignIn googleSignIn = GoogleSignIn();
+    await googleSignIn.signOut();
+
+    // Clear shared preferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    // Optionally, clear other caches if needed
+    // e.g., app-specific caches, in-memory caches, etc.
+
+    // Restart the authentication flow or navigate to the login screen
+    // For example:
+    // Navigator.of(context).pushReplacementNamed('/login');
+  }
+
 
   Widget verifiedContainer({img, txt, color, Function()? onTap}) {
     final profileApi = Provider.of<ProfileApiProvider>(context, listen: false);
@@ -268,12 +390,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20.0),
       child: SizedBox(
-        height: 90,
-        width: 48,
         child: InkWell(
           onTap: (onTap),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Container(
                 height: 36,
@@ -290,15 +410,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               const SizedBox(
-                width: 20,
+                height: 8,
               ),
-              Container(
-                child: AppText.appText("$txt",
-                    textAlign: TextAlign.center,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    textColor: AppTheme.txt1B20),
-              ),
+              WordsOnNewLine(text: txt),
               if (!txt.contains("not"))
                 const SizedBox(
                   width: 20,
@@ -309,6 +423,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+
 
   Widget headingText({txt}) {
     return Padding(
@@ -353,29 +468,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget customRowSetting({img, txt, required Function() onTap}) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  img,
+                  size: 22,
+                  color: Colors.black87,
+                ),
+                const SizedBox(
+                  width: 20,
+                ),
+                AppText.appText("$txt",
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    textColor: AppTheme.txt1B20),
+              ],
+            ),
+            Image.asset(
+              "assets/images/arrowFor.png",
+              height: 16,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget upperContainer() {
     final profileApi = Provider.of<ProfileApiProvider>(context, listen: false);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20.0),
+      padding: const EdgeInsets.only(top: 20.0, bottom: 13.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            height: 140,
-            width: 150,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SizedBox(
-                  height: 92,
-                  width: 80,
+                  width: 100,
+                  height: 110,
                   child: Stack(
                     children: [
                       Container(
-                        height: 80,
-                        width: 80,
+                        height: 100,
+                        width: 100,
                         decoration: BoxDecoration(
-                            color: AppTheme.text09,
                             borderRadius: BorderRadius.circular(16)),
                         child: pickedFilePath != null
                             ? ClipRRect(
@@ -394,7 +540,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       fit: BoxFit.fill,
                                       "${profileApi.profileData["img"]}",
                                     ))
-                                : null,
+                                : Image.asset(
+                                  fit: BoxFit.cover,
+                                  "assets/images/default_image.png",
+                                ),
                       ),
                       Align(
                         alignment: Alignment.bottomCenter,
@@ -418,24 +567,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                AppText.appText("${profileApi.profileData["name"]}",
+                SizedBox(height: 12.h,),
+                AppText.appText(capitalizeWords(profileApi.profileData["name"]),
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     textColor: AppTheme.txt1B20),
+                SizedBox(height: 4.h,),
+                AppText.appText("Joined ${formatMonthYear(profileApi.profileData["created_at"])}",
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    textColor: AppTheme.txt1B20),
+                if(profileApi.profileData["location"]!=null)...[
+                SizedBox(height: 4.h,),
+                AppText.appText("${profileApi.profileData["location"] ?? ''}",
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    textColor: AppTheme.txt1B20)],
+                SizedBox(height: 6.h,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    SizedBox(width: Provider.of<ProfileApiProvider>(context, listen: false).userRating == 0.0 ? 40.w : 12.w,),
                     StarRating(
-                      percentage: profileApi.profileData["review_percentage"],
+                      percentage: percentageOfFive(Provider.of<ProfileApiProvider>(context, listen: false).userRating.toString()),
                       color: Colors.yellow,
-                      size: 14,
+                      size: 25,
                     ),
-                    profileApi.profileData["review_percentage"] == 0
-                        ? const SizedBox.shrink()
-                        : AppText.appText(
-                            "${(profileApi.profileData["review_percentage"]) / 100 * 5}",
-                            fontSize: 10,
-                            fontWeight: FontWeight.w400,
+                    SizedBox(width: 3.w,),
+                    AppText.appText(
+                    Provider.of<ProfileApiProvider>(context, listen: false).userRating == 0 ? 'not rated yet' : Provider.of<ProfileApiProvider>(context, listen: false).userRating.toStringAsFixed(1),
+                            fontSize: Provider.of<ProfileApiProvider>(context, listen: false).userRating == 0 ? 11.sp : 12.sp,
+                            fontWeight: FontWeight.normal,
                             textColor: AppTheme.txt1B20),
                   ],
                 ),
@@ -473,24 +636,41 @@ class StarRating extends StatelessWidget {
         if (index < filledStars) {
           return Icon(
             Icons.star,
-            color: percentage == 0 ? Colors.transparent : color,
+            color: color,
             size: size,
           );
         } else if (index == filledStars && hasHalfStar) {
           return Icon(
             Icons.star_half,
-            color: percentage == 0 ? Colors.transparent : color,
+            color: color,
             size: size,
           );
         } else {
           return Icon(
             Icons.star,
             color:
-                percentage == 0 ? Colors.transparent : const Color(0xffD5DADD),
+                const Color(0xffD5DADD),
             size: size,
           );
         }
       }),
     );
+  }
+}
+
+class WordsOnNewLine extends StatelessWidget {
+  final String text;
+
+  WordsOnNewLine({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    // Split the text into words and join them with \n
+
+    return AppText.appText(text,
+              textAlign: TextAlign.center,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              textColor: AppTheme.txt1B20);
   }
 }

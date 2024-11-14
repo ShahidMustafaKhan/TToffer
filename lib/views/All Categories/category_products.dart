@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
@@ -6,6 +7,8 @@ import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
+import 'package:tt_offer/Utils/widgets/others/no_data_found.dart';
+import 'package:tt_offer/detail_model/property_for_sale_model.dart';
 import 'package:tt_offer/views/All%20Aucton%20Products/auction_container.dart';
 import 'package:tt_offer/views/All%20Featured%20Products/feature_container.dart';
 import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
@@ -16,8 +19,10 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 class CatagoryProductScreen extends StatefulWidget {
   final catId;
   final String? catNAme;
+  final String? subCatId;
+  final bool all;
 
-  const CatagoryProductScreen({super.key, this.catId, this.catNAme});
+  const CatagoryProductScreen({super.key, this.catId, this.catNAme, this.all=false, this.subCatId});
 
   @override
   State<CatagoryProductScreen> createState() => _CatagoryProductScreenState();
@@ -28,6 +33,8 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
   late AppDio dio;
   AppLogger logger = AppLogger();
   bool isLoading = false;
+  var auctionList;
+  var filteredList;
 
   @override
   void initState() {
@@ -45,6 +52,33 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
   Widget build(BuildContext context) {
     final apiProvider = Provider.of<ProductsApiProvider>(context);
     final screenWidth = MediaQuery.of(context).size.width;
+    if(widget.all==true){
+      auctionList = apiProvider.allauctionProductsData.where((item) {
+
+        return item["category_id"].toString() == widget.catId.toString();
+      }).toList();
+
+      filteredList = apiProvider.allfeatureProductsData.where((item) {
+        return item["category_id"].toString() == widget.catId.toString();
+      }).toList();
+    }
+    else {
+      auctionList = apiProvider.allauctionProductsData.where((item) {
+        // ProductAttributes productAttributes =
+        // ProductAttributes.fromJson(item['attributes']);
+        // return productAttributes.subcategory == widget.catNAme;
+        return item["sub_category_id"].toString() == widget.subCatId.toString();
+      }).toList();
+
+      filteredList = apiProvider.allfeatureProductsData.where((item) {
+        // ProductAttributes productAttributes =
+        // ProductAttributes.fromJson(item['attributes']);
+        // return productAttributes.subcategory == widget.catNAme;
+        return item["sub_category_id"].toString() == widget.subCatId.toString();
+      }).toList();
+    }
+
+
     return Scaffold(
       appBar: CustomAppBar1(
         title: "${widget.catNAme}",
@@ -57,26 +91,26 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
             if (selectedOption == "Auction")
               apiProvider.isLoading == true
                   ? LoadingDialog()
+                  : auctionList.isEmpty ? NoDataFound.noDataFound()
                   : Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          mainAxisSpacing: 30,
-                          crossAxisSpacing: 20,
+                          mainAxisSpacing: 15.h,
+                          crossAxisSpacing: 12,
                           crossAxisCount: 2,
-                          childAspectRatio: screenWidth / (3.8 * 200),
+                          childAspectRatio: screenWidth / (3.2 * 220),
                         ),
                         shrinkWrap: true,
-                        itemCount: apiProvider.allauctionProductsData.length,
+                        itemCount: auctionList.length,
                         itemBuilder: (context, int index) {
                           return GestureDetector(
                               onTap: () {
-                                getAuctionProductDetail(apiProvider
-                                    .allauctionProductsData[index]["id"]);
+                                getAuctionProductDetail(auctionList[index]["id"]);
                               },
                               child: AuctionProductContainer(
-                                data: apiProvider.allauctionProductsData[index],
+                                data: auctionList[index],
                               ));
                         },
                       ),
@@ -84,26 +118,26 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
             if (selectedOption == "Featured")
               apiProvider.isLoading == true
                   ? LoadingDialog()
+                  : filteredList.isEmpty ? NoDataFound.noDataFound()
                   : Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          mainAxisSpacing: 30,
-                          crossAxisSpacing: 20,
+                          mainAxisSpacing: 15.h,
+                          crossAxisSpacing: 12,
                           crossAxisCount: 2,
-                          childAspectRatio: screenWidth / (2.6 * 265),
+                          childAspectRatio: screenWidth / (2.6 * 220),
                         ),
                         shrinkWrap: true,
-                        itemCount: apiProvider.allfeatureProductsData.length,
+                        itemCount: filteredList.length,
                         itemBuilder: (context, int index) {
                           return GestureDetector(
                               onTap: () {
-                                getFeatureProductDetail(apiProvider
-                                    .allfeatureProductsData[index]["id"]);
+                                getFeatureProductDetail(filteredList[index]["id"]);
                               },
                               child: FeatureProductContainer(
-                                data: apiProvider.allfeatureProductsData[index],
+                                data: filteredList[index],
                               ));
                         },
                       ),

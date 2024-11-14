@@ -28,17 +28,7 @@ class _SigInScreenState extends State<SigInScreen> {
             fontWeight: FontWeight.w400,
             textColor: const Color(0xff1B2028)),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20.0),
-            child: GestureDetector(
-              onTap: () {},
-              child: Image.asset(
-                "assets/images/cross.png",
-                height: 20,
-                width: 20,
-              ),
-            ),
-          )
+
         ],
       ),
       body: Padding(

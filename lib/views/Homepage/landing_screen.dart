@@ -1,8 +1,10 @@
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dialogs/dialogs.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
@@ -34,7 +36,13 @@ import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
 import 'package:tt_offer/views/Homepage/home_app_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
+import 'package:tt_offer/views/Homepage/search_screen.dart';
 import 'package:tt_offer/views/SearchPage/search_page.dart';
+
+import '../../Controller/APIs Manager/banner_api.dart';
+import '../../Controller/APIs Manager/cart_api.dart';
+import '../../Controller/APIs Manager/notification_api.dart';
+import '../../Controller/APIs Manager/send_notification_service.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -46,8 +54,10 @@ class LandingScreen extends StatefulWidget {
 class _LandingScreenState extends State<LandingScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool isLoading = false;
+  late ProductsApiProvider apiProvider;
 
-  // var catagoryData;
+  String? authenticationToken;
+
   var subCatagoryData;
   static const List<String> _imagePaths = [
     "assets/images/sliderImg.png",
@@ -80,14 +90,13 @@ class _LandingScreenState extends State<LandingScreen> {
       context: context,
     );
 
-    dio = AppDio(context);
-    logger.init();
-    final apiProvider =
+
+    apiProvider =
         Provider.of<ProductsApiProvider>(context, listen: false);
-    apiProvider.getCatagories(
-      dio: dio,
-      context: context,
-    );
+    // apiProvider.getCatagories(
+    //   dio: dio,
+    //   context: context,
+    // );
     apiProvider.getAuctionProducts(
       dio: dio,
       context: context,
@@ -97,10 +106,40 @@ class _LandingScreenState extends State<LandingScreen> {
       context: context,
     );
 
-    log("pref.getString(PrefKey.userId) = ${pref.getString(PrefKey.userId)}");
-    log("pref.getString(PrefKey.userName) = ${pref.getString(PrefKey.userName)}");
+    getNotificationHandler();
+
+    cartProvider = Provider.of<CartApiProvider>(context, listen: false);
+    authenticationToken = pref.getString(PrefKey.authorization);
+
+    if(authenticationToken!=null) {
+      cartProvider.getCartItems(dio: dio, context: context);
+    }
+
+
+
+
 
     super.initState();
+  }
+
+  Future<void> getData() async {
+
+    // apiProvider.getCatagories(
+    //   dio: dio,
+    //   context: context,
+    // );
+    apiProvider.getAuctionProducts(
+      dio: dio,
+      context: context,
+    );
+    apiProvider.getFeatureProducts(
+      dio: dio,
+      context: context,
+    );
+    apiProvider.getAllProducts(
+      dio: dio,
+      context: context,
+    );
   }
 
   List<SearchData> provider = [];
@@ -133,7 +172,9 @@ class _LandingScreenState extends State<LandingScreen> {
     Navigator.pop(context);
 
     if (res) {
-      push(context, const SearchPage());
+      push(context, const SearchPage(), then: (){
+        getData();
+      });
     }
 
     provider = Provider.of<SearchProvider>(context, listen: false).selling;
@@ -141,11 +182,19 @@ class _LandingScreenState extends State<LandingScreen> {
     setState(() {});
   }
 
+  getNotificationHandler() async {
+    await NotificationService().notificationService(context: context);
+  }
+
+  late CartApiProvider cartProvider;
+
+
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    // getData();
     // final apiProvider = Provider.of<ProductsApiProvider>(context);
-    final apiProvider = Provider.of<ProductsApiProvider>(context);
     final profileApi = Provider.of<ProfileApiProvider>(context);
     if (profileApi.profileData != null) {
       location = profileApi.profileData["location"];
@@ -156,232 +205,305 @@ class _LandingScreenState extends State<LandingScreen> {
     final apiProvider1 = Provider.of<CategoryProvider>(context);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppTheme.whiteColor,
-      appBar: CustomAppBar(context: context),
-      body: Padding(
-        padding: const EdgeInsets.only(
-          top: 20.0,
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: CustomAppFormField(
-                  onFieldSubmitted: (val) {
-                    setState(() {
-                      print('dfdsfdsf-->${val}');
-                      _searchController.text = val;
-                      searchHandler(context);
-                    });
-                  },
-                  radius: 15.0,
-                  prefixIcon: Image.asset(
-                    "assets/images/search.png",
-                    height: 17,
-                    color: AppTheme.textColor,
+      appBar: CustomAppBar(context: context, authenticationCode: authenticationToken, searchHandler: (){ searchHandler(context);}, searchController: _searchController, setState: setState,),
+      body: Consumer<ProductsApiProvider>(
+          builder: (context, apiProvider, child) {
+            if(_searchController.text.isNotEmpty) {
+              return const ViewSearchedProducts();
+            } else {
+              return Consumer<BannerController>(
+                  builder: (context, bannerController, child) {
+                      return Padding(
+                  padding: EdgeInsets.only(
+                    top: 20.h,
                   ),
-                  texthint: "What are you looking for",
-                  controller: _searchController,
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: CarouselSlider(
-                  options: CarouselOptions(
-                    aspectRatio: 16 / 9,
-                    viewportFraction: 1,
-                    initialPage: 0,
-                    enableInfiniteScroll: true,
-                    reverse: false,
-                    autoPlay: true,
-                    autoPlayInterval: const Duration(seconds: 3),
-                    autoPlayAnimationDuration:
-                        const Duration(milliseconds: 800),
-                    autoPlayCurve: Curves.fastOutSlowIn,
-                    enlargeCenterPage: true,
-                    scrollDirection: Axis.horizontal,
-                  ),
-                  items: _imagePaths.map((String imagePath) {
-                    return Builder(
-                      builder: (BuildContext context) {
-                        return Container(
-                          height: 154,
-                          width: screenWidth,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              image: DecorationImage(
-                                image: AssetImage(
-                                  imagePath,
-                                ),
-                                fit: BoxFit.cover,
-                              )),
-                        );
-                      },
-                    );
-                  }).toList(),
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: CarouselSlider(
-                  options: CarouselOptions(
-                    aspectRatio: 16 / 9,
-                    viewportFraction: 1,
-                    initialPage: 0,
-                    enableInfiniteScroll: true,
-                    reverse: false,
-                    autoPlay: false,
-                    autoPlayInterval: const Duration(seconds: 3),
-                    autoPlayAnimationDuration:
-                        const Duration(milliseconds: 800),
-                    autoPlayCurve: Curves.fastOutSlowIn,
-                    enlargeCenterPage: true,
-                    scrollDirection: Axis.horizontal,
-                  ),
-                  items: newBannerImage.map((String imagePath) {
-                    return Builder(
-                      builder: (BuildContext context) {
-                        return Container(
-                          height: 154,
-                          width: screenWidth,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              image: DecorationImage(
-                                image: AssetImage(
-                                  imagePath,
-                                ),
-                                fit: BoxFit.cover,
-                              )),
-                        );
-                      },
-                    );
-                  }).toList(),
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              customRow(
-                  txt1: "Categories",
-                  txt2: "View All",
-                  txt3: "",
-                  onTap: () {
-                    push(
-                        context,
-                        AllCategories(
-                          data: apiProvider.catagoryData,
-                          isList: false,
-                        ));
-                  }),
-              // apiProvider.catagoryData == null
-              //     ? Center(
-              //         child: AppText.appText("Loading...."),
-              //       )
-              //     :
-              SizedBox(
-                height: 100,
-                width: screenWidth,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 6,
-                  itemBuilder: (context, index) {
-                    // Color color = Color(int.parse(apiProvider
-                    //     .catagoryData[index]["color"]
-                    //     .replaceFirst('#', '0xFF')));
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        if(bannerController.firstBanner.isNotEmpty)
+                      Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: CarouselSlider(
+                          options: CarouselOptions(
+                            aspectRatio: 16 / 7.0,
+                            viewportFraction: 1,
+                            initialPage: 0,
+                            enableInfiniteScroll: true,
+                            reverse: false,
+                            autoPlay: true,
+                            autoPlayInterval: const Duration(seconds: 3),
+                            autoPlayAnimationDuration: const Duration(milliseconds: 1000),
+                            autoPlayCurve: Curves.fastOutSlowIn,
+                            enlargeCenterPage: true,
+                            scrollDirection: Axis.horizontal,
+                          ),
+                          items: bannerController.firstBanner.map((String imagePath) {
+                            return LayoutBuilder(
+                              builder: (context, constraints) {
+                                double screenWidth = MediaQuery.of(context).size.width;
+                                double bannerHeight = screenWidth * (7 / 16);
 
-                    return Padding(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Row(
-                        children: [
-                          GestureDetector(
+                                return Container(
+                                  height: bannerHeight,
+                                  width: screenWidth,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: CachedNetworkImage(
+                                      imageUrl: imagePath,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) => Center(
+                                        child: SizedBox(
+                                          height: 30.h,
+                                          child: CircularProgressIndicator(color: AppTheme.yellowColor),
+                                        ),
+                                      ),
+                                      errorWidget: (context, url, error) => SizedBox(),
+                                      cacheKey: imagePath,
+                                      maxWidthDiskCache: 200,
+                                      fadeInDuration: const Duration(milliseconds: 500),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ),
+
+
+                      if(bannerController.firstBanner.isNotEmpty)
+                          const SizedBox(
+                          height: 15,
+                        ),
+                        if(bannerController.secondBanner.isNotEmpty)
+                          Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: CarouselSlider(
+                            options: CarouselOptions(
+                              aspectRatio: 16 / 7.0,
+                              viewportFraction: 1,
+                              initialPage: 0,
+                              enableInfiniteScroll: true,
+                              reverse: false,
+                              autoPlay: false,
+                              autoPlayInterval: const Duration(seconds: 3),
+                              autoPlayAnimationDuration:
+                              const Duration(milliseconds: 800),
+                              autoPlayCurve: Curves.fastOutSlowIn,
+                              enlargeCenterPage: true,
+                              scrollDirection: Axis.horizontal,
+                            ),
+                            items: bannerController.secondBanner.map((String imagePath) {
+                              return Container(
+                                height: 154,
+                                width: screenWidth,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: CachedNetworkImage(
+                                    imageUrl: imagePath,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => Center(
+                                      child: SizedBox(
+                                        height: 30.h,
+                                        child: CircularProgressIndicator(color: AppTheme.yellowColor,),
+                                      ),
+                                    ),
+                                    errorWidget: (context, url, error) => SizedBox(),
+                                    cacheKey: imagePath, // Cache key to identify this image
+                                    maxWidthDiskCache: 200, // Specify disk cache size to optimize loading
+                                    fadeInDuration: Duration(milliseconds: 500), // Smooth fade-in effect
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        if(bannerController.secondBanner.isNotEmpty)
+                          const SizedBox(
+                          height: 15,
+                        ),
+                        if(bannerController.thirdBanner.isNotEmpty)...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: CarouselSlider(
+                            options: CarouselOptions(
+                              aspectRatio: 3,
+                              viewportFraction: 1,
+                              initialPage: 0,
+                              enableInfiniteScroll: true,
+                              reverse: false,
+                              autoPlay: false,
+                              autoPlayInterval: const Duration(seconds: 3),
+                              autoPlayAnimationDuration:
+                              const Duration(milliseconds: 800),
+                              autoPlayCurve: Curves.fastOutSlowIn,
+                              enlargeCenterPage: true,
+                              scrollDirection: Axis.horizontal,
+                            ),
+                            items: bannerController.thirdBanner.map((String imagePath) {
+                              return Container(
+                                width: screenWidth,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: CachedNetworkImage(
+                                    imageUrl: imagePath,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => Center(
+                                      child: SizedBox(
+                                        height: 30.h,
+                                        child: CircularProgressIndicator(color: AppTheme.yellowColor,),
+                                      ),
+                                    ),
+                                    errorWidget: (context, url, error) => Center(
+                                      child: SizedBox(
+                                        height: 30.h,
+                                        child: CircularProgressIndicator(color: AppTheme.yellowColor,),
+                                      ),
+                                    ),
+                                    cacheKey: imagePath, // Cache key to identify this image
+                                    maxWidthDiskCache: 200, // Specify disk cache size to optimize loading
+                                    fadeInDuration: Duration(milliseconds: 500), // Smooth fade-in effect
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 25.h,
+                        ),],
+                        customRow(
+                            txt1: "Categories",
+                            txt2: "View All",
+                            txt3: "",
                             onTap: () {
                               push(
                                   context,
-                                  SubCategoriesScreen(
-                                    title: apiProvider1.category[index].title,
-                                    id: apiProvider1.category[index].id,
-                                  ));
-
-                              // push(
-                              //     context,
-                              //     CatagoryProductScreen(
-                              //       catId: apiProvider.catagoryData[index]
-                              //           ["id"],
-                              //       catNAme:
-                              //           "${apiProvider.catagoryData[index]["name"]}",
-                              //     ));
-                            },
-                            child: CatagoryContainer(
-                              color: apiProvider1.category[index].color,
-                              img: apiProvider1.category[index].image,
-                              txt: apiProvider1.category[index].title,
-                              isList: true,
-                            ),
-                          ),
-                          // if (index ==
-                          //     apiProvider.catagoryData.length - 1)
-                          //   const SizedBox(
-                          //     width: 20,
-                          //   )
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Image.asset('assets/images/divide.png'),
-              const SizedBox(
-                height: 20,
-              ),
-              customRow(
-                  onTap: () {
-                    push(context, const ViewAllAuctionProducts());
-                  },
-                  txt1: "Auction Products",
-                  txt2: "View All",
-                  txt3: "Hurry up! The auction is ending soon."),
-              const SizedBox(
-                height: 20,
-              ),
-              apiProvider.allauctionProductsData == null
-                  ? Center(
-                      child: AppText.appText("Loading...."),
-                    )
-                  : apiProvider.allauctionProductsData.isEmpty
-                      ? Center(
-                          child:
-                              AppText.appText("No Auction Product Added Yet"),
-                        )
-                      : SizedBox(
-                          height: 310,
+                                  AllCategories(
+                                    data: apiProvider.catagoryData,
+                                    isList: false,
+                                  ), then: () {
+                                getData();
+                              });
+                            }),
+                        // apiProvider.catagoryData == null
+                        //     ? Center(
+                        //         child: AppText.appText("Loading...."),
+                        //       )
+                        //     :
+                        SizedBox(
+                          height: 110.h,
                           width: screenWidth,
                           child: ListView.builder(
+                            padding: EdgeInsets.only(right: 5.w),
                             scrollDirection: Axis.horizontal,
-                            itemCount:
-                                apiProvider.allauctionProductsData.length > 4
-                                    ? 4
-                                    : apiProvider.allauctionProductsData.length,
+                            itemCount: 6,
                             itemBuilder: (context, index) {
+                              // Color color = Color(int.parse(apiProvider
+                              //     .catagoryData[index]["color"]
+                              //     .replaceFirst('#', '0xFF')));
+
                               return Padding(
                                 padding: const EdgeInsets.only(left: 20.0),
                                 child: Row(
                                   children: [
                                     GestureDetector(
+                                      onTap: () {
+                                        push(
+                                            context,
+                                            SubCategoriesScreen(
+                                              title: apiProvider1.category[index]
+                                                  .title,
+                                              id: apiProvider1.category[index].id,
+                                            ), then: () {
+                                          getData();
+                                        });
+                                      },
+                                      child: CatagoryContainer(
+                                        color: apiProvider1.category[index].color,
+                                        img: apiProvider1.category[index].image,
+                                        txt: apiProvider1.category[index].title,
+                                        isList: true,
+                                      ),
+                                    ),
+                                    // if (index ==
+                                    //     apiProvider.catagoryData.length - 1)
+                                    //   const SizedBox(
+                                    //     width: 20,
+                                    //   )
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        // const SizedBox(
+                        //   height: 5,
+                        // ),
+                        // Image.asset('assets/images/divide.png'),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        customRow(
+                            onTap: () {
+                              push(context, const ViewAllAuctionProducts(),
+                                  then: () {
+                                    getData();
+                                  });
+                            },
+                            txt1: "Auction Products",
+                            txt2: "View All",
+                            txt3: "Hurry up! The auction is ending soon."),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        apiProvider.allauctionProductsData == null
+                            ? Center(
+                          child: AppText.appText("Loading...."),
+                        )
+                            : apiProvider.allauctionProductsData.isEmpty
+                            ? Center(
+                          child:
+                          AppText.appText("No Auction Product Added Yet"),
+                        )
+                            : SizedBox(
+                            height: 290.h,
+                            width: screenWidth,
+                            child: ListView.builder(
+                            padding: EdgeInsets.fromLTRB(8.w, 0, 8.w, 0),
+                            scrollDirection: Axis.horizontal,
+                            itemCount:
+                            apiProvider.allauctionProductsData.length > 4
+                                ? 4
+                                : apiProvider.allauctionProductsData.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: EdgeInsets.only(left: 14.w),
+                                child: Row(
+                                  children: [
+                                    GestureDetector(
                                         onTap: () {
-                                          getAuctionProductDetail(
-                                              productId: apiProvider
-                                                      .allauctionProductsData[
-                                                  index]["id"]);
+                                          // getAuctionProductDetail(
+                                          //     productId: apiProvider
+                                          //             .allauctionProductsData[
+                                          //         index]["id"]);
+                                          push(context, AuctionInfoScreen(
+                                              detailResponse: apiProvider
+                                                  .allauctionProductsData[index]),
+                                              then: () {
+                                                getData();
+                                              });
                                         },
                                         child: AuctionProductContainer(
                                           data: apiProvider
@@ -389,7 +511,7 @@ class _LandingScreenState extends State<LandingScreen> {
                                         )),
                                     if (index ==
                                         apiProvider
-                                                .allauctionProductsData.length -
+                                            .allauctionProductsData.length -
                                             1)
                                       const SizedBox(
                                         width: 20,
@@ -400,57 +522,78 @@ class _LandingScreenState extends State<LandingScreen> {
                             },
                           ),
                         ),
-              const SizedBox(
-                height: 20,
-              ),
-              customRow(
-                  onTap: () {
-                    push(context, const ViewFeaturedProducts());
-                  },
-                  txt1: "Feature Products",
-                  txt2: "View All",
-                  txt3: "Act fast! These featured products won't last long."),
-              if (apiProvider.allfeatureProductsData == null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: Center(
-                    child: AppText.appText("Loading..."),
-                  ),
-                )
-              else
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: SizedBox(
-                    child: GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        mainAxisSpacing: 25,
-                        crossAxisSpacing: 19,
-                        crossAxisCount: 2,
-                        childAspectRatio: screenWidth / (2.6 * 250),
-                      ),
-                      shrinkWrap: true,
-                      itemCount: apiProvider.allfeatureProductsData.length > 4
-                          ? 4
-                          : apiProvider.allfeatureProductsData.length,
-                      itemBuilder: (context, int index) {
-                        return GestureDetector(
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        customRow(
                             onTap: () {
-                              getFeatureProductDetail(
-                                  productId: apiProvider
-                                      .allfeatureProductsData[index]["id"]);
+                              push(context, const ViewFeaturedProducts(), then: () {
+                                getData();
+                              });
                             },
-                            child: FeatureProductContainer(
-                                data:
-                                    apiProvider.allfeatureProductsData[index]));
-                      },
+                            txt1: "Feature Products",
+                            txt2: "View All",
+                            txt3: "Act fast! These featured products won't last long."),
+
+                        apiProvider.allfeatureProductsData == null
+                            ? Center(
+                          child: AppText.appText("Loading...."),
+                        )
+                            : apiProvider.allfeatureProductsData.isEmpty
+                            ? Center(
+                          child:
+                          AppText.appText("No Feature Product Added Yet"),
+                        )
+                            :
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: SizedBox(
+                            child: GridView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                mainAxisSpacing: 15.h,
+                                crossAxisSpacing: 12,
+                                crossAxisCount: 2,
+                                childAspectRatio: screenWidth / (2.6 * 220),
+                              ),
+                              shrinkWrap: true,
+                              itemCount: apiProvider.allfeatureProductsData.length >
+                                  4
+                                  ? 4
+                                  : apiProvider.allfeatureProductsData.length,
+                              itemBuilder: (context, int index) {
+                                return GestureDetector(
+                                    onTap: () {
+                                      push(
+                                          context,
+                                          FeatureInfoScreen(
+                                            detailResponse: apiProvider
+                                                .allfeatureProductsData[index],
+                                          ), then: () {
+                                        getData();
+                                      });
+                                      // getFeatureProductDetail(
+                                      //     productId: apiProvider
+                                      //         .allfeatureProductsData[index]["id"]);
+                                    },
+                                    child: FeatureProductContainer(
+                                        data:
+                                        apiProvider.allfeatureProductsData[index]));
+                              },
+                            ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
-                )
-            ],
-          ),
-        ),
-      ),
+                              );
+                }
+              );
+            }
+          }),
     );
   }
 
@@ -471,7 +614,7 @@ class _LandingScreenState extends State<LandingScreen> {
                 onTap: onTap,
                 child: AppText.appText("$txt2",
                     fontSize: 12,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.bold,
                     textColor: AppTheme.textColor),
               )
             ],
@@ -544,7 +687,9 @@ class _LandingScreenState extends State<LandingScreen> {
         setState(() {
           var detailResponse = responseData["data"];
           pr.dismiss();
-          push(context, AuctionInfoScreen(detailResponse: detailResponse[0]));
+          push(context, AuctionInfoScreen(detailResponse: detailResponse[0]),then: (){
+            getData();
+          });
         });
       }
     } catch (e) {
@@ -618,7 +763,9 @@ class _LandingScreenState extends State<LandingScreen> {
               context,
               FeatureInfoScreen(
                 detailResponse: detailResponse[0],
-              ));
+              ), then: (){
+            getData();
+          });
         });
       }
     } catch (e) {

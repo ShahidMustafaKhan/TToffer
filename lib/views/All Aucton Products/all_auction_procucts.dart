@@ -23,6 +23,9 @@ import 'package:tt_offer/views/All%20Aucton%20Products/auction_container.dart';
 import 'package:tt_offer/views/All%20Featured%20Products/all_feature_products.dart';
 import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
 
+import '../../Utils/widgets/custom_radio_button.dart';
+import '../../Utils/widgets/others/no_data_found.dart';
+
 class ViewAllAuctionProducts extends StatefulWidget {
   const ViewAllAuctionProducts({super.key});
 
@@ -40,6 +43,12 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
   bool isLoading = false;
   var catId;
   var subCatId;
+  late ProductsApiProvider apiProvider;
+  var auctionProductList = [];
+  bool? isUrgentAds;
+  String? subCategory;
+  String? category;
+  var categoryName = "All Category";
 
   List<CategoryModel> catModel = [];
   List<SubCategoriesModel> subCat = [];
@@ -65,22 +74,19 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
   void initState() {
     getCategories();
     getSubCat();
+    sortNewestOnTop();
+
+
     dio = AppDio(context);
     logger.init();
-    final apiProvider =
-        Provider.of<ProductsApiProvider>(context, listen: false);
+    apiProvider = Provider.of<ProductsApiProvider>(context, listen: false);
     apiProvider.getAuctionProducts(
       dio: dio,
       context: context,
     );
 
-    apiProvider.getCatagories(
-      dio: dio,
-      context: context,
-    );
-    apiProvider.getSubCatagories(dio: dio, context: context);
-    getCatagories(search: "");
-    getSubCatagories(search: "");
+    auctionProductList = apiProvider.allauctionProductsData;
+
     super.initState();
   }
 
@@ -90,102 +96,118 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final apiProvider = Provider.of<ProductsApiProvider>(context);
+    if(categoryName=='Mobiles'){
+      if(catName=='Accessories'){
+        condition = ["New", "Used", "Open Box", "Others"];
+      }
+      else {
+        condition = ["New", "Used", "Open Box", "Refurbished", "Others"];
+      }
+    }
+    else if(categoryName=='All Category'){
+      condition=[];
+    }
+    else if(categoryName=="Electronics & Appliance"){
+      condition = ["New", "Used", "Refurbished", "Others"];
+    }
+    else if(categoryName=="Kids"){
+      condition = ["New", "Used", "Open Box", "Others"];
+    }
+    else if(categoryName=="Vehicles"){
+      condition = ["New", "Used", "Others"];
+    }
+    else{
+      condition = ["New", "Used", "Refurbished", "Others"];
+    }
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
       appBar: CustomAppBar1(
         title: "Auction Products",
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Padding(
-            //   padding:
-            //       const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-            //   child: CustomAppFormField(
-            //     height: 40,
-            //     radius: 15.0,
-            //     prefixIcon: Image.asset(
-            //       "assets/images/search.png",
-            //       height: 17,
-            //       color: AppTheme.textColor,
-            //     ),
-            //     texthint: "Search",
-            //     controller: _searchController,
-            //   ),
-            // ),
-            Padding(
-              padding:
+      body: Consumer<ProductsApiProvider>(
+          builder: (context, apiProvider, child) {
+            return SingleChildScrollView(
+            child: Column(
+              children: [
+                Padding(
+                  padding:
                   const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-              child: SizedBox(
-                height: 20,
-                width: screenWidth,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    customRow(
-                      img: "assets/images/location.png",
-                      txt: "Belarus",
-                      onTap: () {
-                        _showLocationBottomSheet(context);
-                      },
-                    ),
-                    Container(
-                      width: 1,
-                      height: 20,
-                      color: AppTheme.blackColor,
-                    ),
-                    customRow(
-                      img: "assets/images/category.png",
-                      txt: "All Category",
-                      onTap: () {
-                        _showCategoryBottomSheet(context);
-                      },
-                    ),
-                    Container(
-                      width: 1,
-                      height: 20,
-                      color: AppTheme.blackColor,
-                    ),
-                    customRow(
-                      img: "assets/images/filter.png",
-                      txt: "Filter",
-                      onTap: () {
-                        _showFilterBottomSheet(context);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            apiProvider.isLoading == true
-                ? LoadingDialog()
-                : Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        mainAxisSpacing: 20,
-                        crossAxisSpacing: 10,
-                        crossAxisCount: 2,
-                        childAspectRatio: screenWidth / (3.8 * 200),
-                      ),
-                      shrinkWrap: true,
-                      itemCount: apiProvider.allauctionProductsData.length,
-                      itemBuilder: (context, int index) {
-                        return GestureDetector(
-                            onTap: () {
-                              getAuctionProductDetail(apiProvider
-                                  .allauctionProductsData[index]["id"]);
-                            },
-                            child: AuctionProductContainer(
-                              data: apiProvider.allauctionProductsData[index],
-                            ));
-                      },
+                  child: SizedBox(
+                    height: 20,
+                    width: screenWidth,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        customRow(
+                          img: "assets/images/location.png",
+                          txt: _locationController.text.isEmpty ? "Global" : _locationController.text,
+                          onTap: () {
+                            _showLocationBottomSheet(context);
+                          },
+                        ),
+                        Container(
+                          width: 1,
+                          height: 20,
+                          color: AppTheme.blackColor,
+                        ),
+                        customRow(
+                          img: "assets/images/category.png",
+                          txt: catName ?? "All Category",
+                          onTap: () {
+                            _showCategoryBottomSheet(context);
+                          },
+                        ),
+                        Container(
+                          width: 1,
+                          height: 20,
+                          color: AppTheme.blackColor,
+                        ),
+                        customRow(
+                          img: "assets/images/filter.png",
+                          txt: "Filter",
+                          onTap: () {
+                            _showFilterBottomSheet(context);
+                          },
+                        ),
+                      ],
                     ),
                   ),
-          ],
-        ),
+                ),
+                 Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: GridView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 10,
+                      crossAxisCount: 2,
+                      childAspectRatio: screenWidth / (3.8 * 175),
+                    ),
+                    shrinkWrap: true,
+                    itemCount: auctionProductList.length,
+                    itemBuilder: (context, int index) {
+                      return GestureDetector(
+                          onTap: () {
+                            push(
+                                context,
+                                AuctionInfoScreen(
+                                  detailResponse:auctionProductList[index],
+                                ));
+                            // getAuctionProductDetail(apiProvider
+                            //     .allauctionProductsData[index]["id"]);
+                          },
+                          child: AuctionProductContainer(
+                            data:auctionProductList[index],
+                          ));
+                    },
+                  ),
+                ),
+                if(auctionProductList.isEmpty && apiProvider.isLoading==false)
+                  NoDataFound.noDataFound()
+              ],
+            ),
+          );
+        }
       ),
     );
   }
@@ -215,7 +237,7 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
 
   void _showCategoryBottomSheet(BuildContext context) {
     final apiProvider =
-        Provider.of<ProductsApiProvider>(context, listen: false);
+    Provider.of<ProductsApiProvider>(context, listen: false);
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -262,10 +284,6 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
     ).then((value) {
       setState(() {
         subCatId = subCatId;
-        if (subCatId != null && catId != null) {
-          apiProvider.getAuctionProducts(
-              context: context, dio: dio, subCatId: subCatId, cateId: subCatId);
-        }
       });
     });
     ;
@@ -278,7 +296,7 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
 
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: catModel.length,
+      itemCount: catModel.length+1,
       itemBuilder: (context, index) {
         return Padding(
             padding: const EdgeInsets.only(bottom: 10.0, left: 10, right: 10),
@@ -286,9 +304,27 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
               GestureDetector(
                 onTap: () {
                   setState(() {
-                    catId = catModel[index].id;
-                    catName = catModel[index].title;
-                    _toggleExpand(index);
+                    if(index==0){
+                      subCategory=null;
+                      category=null;
+                      catName= "All Category";
+                      categoryName= "All Category";
+                      isExpanded = null;
+                      selectedCondition = 'Select By Condition';
+                      filterProductsByPrice();
+                      Navigator.of(context).pop();
+
+                    }
+                    else{
+                      catId = catModel[index-1].id;
+                      category=catModel[index-1].id.toString();
+                      catName = catModel[index-1].title;
+                      categoryName = catModel[index-1].title!;
+                      _toggleExpand(index-1);
+                      filterProductsByPrice();
+
+                    }
+
                   });
                 },
                 child: Container(
@@ -296,7 +332,7 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      AppText.appText(catModel[index].title.toString(),
+                      AppText.appText(index==0 ? "All Category" :catModel[index-1].title.toString(),
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           textColor: const Color(0xff1B2028)),
@@ -308,17 +344,22 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
                   ),
                 ),
               ),
-              if (isExpanded![index])
+              if (index!=0 && isExpanded![index-1])
                 for (int i = 0; i < subCat.length; i++)
-                  if (catId == subCat[i].id)
-                    CustomRadioButton(selectedIndexes[catModel[index].id] == i,
+                  if (catId == subCat[i].categoryId)
+                    CustomRadioButton(selectedIndexes[catModel[index-1].id] == i,
                         subCat[i].title, () {
                           // subCatId = subCat[i].id;
                           subCatId = subCat[i].title;
                           print('newSub---->${subCatId}');
 
-                          selectedIndexes[catModel[index].id!] = i;
+                          selectedIndexes[catModel[index-1].id!] = i;
+                          subCategory = subCat[i].id.toString();
+                          catName = subCat[i].title;
+                          // filterBySubCategory("${subCat[i].id}");
+                          filterProductsByPrice();
                           setState(() {});
+                          Navigator.of(context).pop();
                         })
             ]));
       },
@@ -338,8 +379,7 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
   }
 
   void _showFilterBottomSheet(BuildContext context) {
-    final apiProvider =
-        Provider.of<ProductsApiProvider>(context, listen: false);
+
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -397,40 +437,62 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
                                     value: e,
                                     child: Text(e));
                               }).toList(),
-                              onChanged: (_) {}),
+                              onChanged: (value) {
+                                if(filter[0] == value){
+                                  sortNewestOnTop();
+                                  Navigator.of(context).pop();
+                                }
+                                else if(filter[1] == value){
+                                  sortNewestOnBottom();
+                                  Navigator.of(context).pop();
+                                }
+                                else if(filter[2] == value){
+                                  sortLowestPriceOnTop();
+                                  Navigator.of(context).pop();
+                                }
+                                else if(filter[3] == value){
+                                  sortLowestPriceOnBottom();
+                                  Navigator.of(context).pop();
+                                }
+                              }),
                         )),
+                        if(categoryName!='All Category')...[
+                          const SizedBox(height: 20),
 
+                          AppText.appText(
+                            'Condition',
+                            fontWeight: FontWeight.w800,
+                          ),
+                          const SizedBox(height: 8),
+                          customDropdown(Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: DropdownButton(
+                                hint: AppText.appText(
+                                  selectedCondition,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                underline: const SizedBox(),
+                                icon: const SizedBox(),
+                                isExpanded: true,
+                                items: condition.map((e) {
+                                  return DropdownMenuItem(
+                                      onTap: () {
+                                        setState(() {
+                                          selectedCondition = e;
+                                        });
+                                      },
+                                      value: e,
+                                      child: Text(e));
+                                }).toList(),
+                                onChanged: (value) {
+                                  isUrgentAds = true;
+                                  filterProductsByPrice();
+                                  Navigator.of(context).pop();
+                                }),
+                          )),
+
+                        ],
                         const SizedBox(height: 20),
-
-                        AppText.appText(
-                          'Filter ads by',
-                          fontWeight: FontWeight.w800,
-                        ),
-                        const SizedBox(height: 8),
-                        customDropdown(Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: DropdownButton(
-                              hint: AppText.appText(
-                                isUrgent,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              underline: const SizedBox(),
-                              icon: const SizedBox(),
-                              isExpanded: true,
-                              items: urgent.map((e) {
-                                return DropdownMenuItem(
-                                    onTap: () {
-                                      setState(() {
-                                        isUrgent = e;
-                                      });
-                                    },
-                                    value: e,
-                                    child: Text(e));
-                              }).toList(),
-                              onChanged: (_) {}),
-                        )),
-                        const SizedBox(height: 20),
-
                         AppText.appText(
                           'Sort by min to max price',
                           fontWeight: FontWeight.w800,
@@ -439,73 +501,22 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
                         Row(
                           children: [
                             Expanded(
-                                child: lableFields(
+                                child: labelField(
                                     controller: minPrice,
+
+                                    onChanged: (value){filterProductsByPrice(min: value.isEmpty ? null : value);},
                                     hintText: 'Min Price')),
                             const SizedBox(
                               width: 10,
                             ),
                             Expanded(
-                                child: lableFields(
+                                child: labelField(
                                     controller: maxPrice,
+                                    onChanged: (value){filterProductsByPrice(max: value.isEmpty ? null : value);},
                                     hintText: 'High Price'))
                           ],
                         ),
 
-                        AppText.appText(
-                          'Filter by distance',
-                          fontWeight: FontWeight.w800,
-                        ),
-
-                        SizedBox(
-                          width: double.infinity,
-                          child: Stack(
-                            children: [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 12.0),
-                                child: Slider(
-                                  activeColor: AppTheme.appColor,
-                                  value: sliderValue,
-                                  min: 0,
-                                  max: 100,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      sliderValue = val;
-                                    });
-                                  },
-                                ),
-                              ),
-                              Positioned(
-                                key: tooltipKey,
-                                left: (sliderValue / 100) * 300 - 20,
-                                // Adjust position based on slider value and width
-                                bottom: 40,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0, vertical: 4.0),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.appColor,
-                                    borderRadius: BorderRadius.circular(4.0),
-                                  ),
-                                  child: Text(
-                                    sliderValue.toStringAsFixed(0),
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        //   children: [
-                        //     customLocationRow(txt1: "City", txt2: "New York"),
-                        //     customLocationRow(txt1: "State", txt2: "California"),
-                        //     customLocationRow(txt1: "Zip", txt2: "3254"),
-                        //   ],
-                        // ),
                         const SizedBox(
                           height: 20,
                         ),
@@ -518,15 +529,7 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
           },
         );
       },
-    ).then((value) {
-      apiProvider.getAuctionFiltterProducts(
-          dio: dio,
-          context: context,
-          maxPrice: maxPrice.text.trim(),
-          minPrice: minPrice.text.trim(),
-          sortBy: sorting,
-          isUrgent: isUrgent);
-    });
+    );
   }
 
   TextEditingController minPrice = TextEditingController();
@@ -534,7 +537,7 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
 
   void _showLocationBottomSheet(BuildContext context) {
     final apiProvider =
-        Provider.of<ProductsApiProvider>(context, listen: false);
+    Provider.of<ProductsApiProvider>(context, listen: false);
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -567,8 +570,16 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
                     height: 10,
                   ),
                   CustomAppFormField(
-                    texthint: "Set a loction",
+                    texthint: "Set a location",
                     controller: _locationController,
+                    onChanged: (value){
+                      // filterByLocation(value);
+                      location = value;
+                      filterProductsByPrice();
+                    },
+                    onFieldSubmitted: (value){
+                      Navigator.of(context).pop();
+                    },
                     borderColor: const Color(0xffE5E9EB),
                     hintTextColor: AppTheme.hintTextColor,
                     suffixIcon: Image.asset(
@@ -597,35 +608,8 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
           },
         );
       },
-    ).whenComplete(() {
-      if (_locationController.text.isNotEmpty) {
-        apiProvider.getAuctionProducts(
-            context: context, dio: dio, location: _locationController.text);
-      }
-    });
+    );
   }
-
-  // Widget customLocationRow({txt1, txt2}) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       AppText.appText("$txt1",
-  //           fontSize: 12,
-  //           fontWeight: FontWeight.w600,
-  //           textColor: AppTheme.textColor),
-  //       const SizedBox(
-  //         height: 10,
-  //       ),
-  //       CustomAppFormField(
-  //         texthint: "$txt2",
-  //         controller: _locationController,
-  //         borderColor: const Color(0xffE5E9EB),
-  //         hintTextColor: AppTheme.hintTextColor,
-  //         width: MediaQuery.of(context).size.width * 0.25,
-  //       ),
-  //     ],
-  //   );
-  // }
 
   void getAuctionProductDetail(productId) async {
     setState(() {
@@ -676,10 +660,7 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
         setState(() {
           var detailResponse = responseData["data"];
 
-          // PropertyAttributes propertyAttributes =
-          //     PropertyAttributes.fromJson(detailResponse);
-          //
-          // globalData = propertyAttributes;
+
 
           push(
               context,
@@ -698,16 +679,90 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
     }
   }
 
-  Widget lableFields({lableTtxt, controller, hintText}) {
+  void sortNewestOnTop() {
+    auctionProductList.sort((a, b) => b['created_at'].compareTo(a['created_at']));
+    setState(() {
+
+    });  }
+
+  void sortNewestOnBottom() {
+    auctionProductList.sort((a, b) => a['created_at'].compareTo(b['created_at']));
+    setState(() {});
+  }
+
+  void sortLowestPriceOnTop() {
+    auctionProductList.sort((a, b) => double.parse(a['auction_price']).compareTo(double.parse(b['auction_price'])));
+    setState(() {});
+  }
+
+  void sortLowestPriceOnBottom() {
+    auctionProductList.sort((a, b) => double.parse(b['auction_price']).compareTo(double.parse(a['auction_price'])));
+    setState(() {});
+  }
+
+
+  void filterProductsByPrice({
+    String? min,
+    String? max,
+  }){
+    filterProducts(maxPrice: max ?? (maxPrice.text.isNotEmpty ? maxPrice.text : null) , minPrice:  min ?? (minPrice.text.isNotEmpty ? minPrice.text : null));
+  }
+
+  void filterProducts({
+    String? minPrice,
+    String? maxPrice,
+  }) {
+    auctionProductList = apiProvider.allauctionProductsData.where((product) {
+      bool matches = true;
+
+      if (selectedCondition != 'Select By Condition' && categoryName!= 'All Category') {
+        matches = matches && (product['condition'] == selectedCondition);
+      }
+
+      if (_locationController.text.isNotEmpty) {
+        List<dynamic> locationParts = product['location'].toLowerCase().split(',').map((s) => s.trim()).toList();
+        String searchText = _locationController.text.toLowerCase();
+
+        matches = matches && locationParts.any((part) => part.contains(searchText));
+      }
+
+      if (category != null) {
+        matches = matches && (product['category_id'] == category);
+      }
+
+      if (subCategory != null) {
+        matches = matches && (product['sub_category_id'] == subCategory);
+      }
+
+      if (minPrice != null || maxPrice != null) {
+        int price = int.parse(product['auction_price'].split('.')[0]);
+
+        if (minPrice != null && maxPrice != null) {
+          matches = matches && (price >= int.parse(minPrice) && price <= int.parse(maxPrice));
+        } else if (minPrice != null) {
+          matches = matches && (price >= int.parse(minPrice));
+        } else if (maxPrice != null) {
+          matches = matches && (price <= int.parse(maxPrice));
+        }
+      }
+
+      return matches;
+    }).toList();
+
+    setState(() {});  // Notify listeners about the updated state
+  }
+
+  Widget labelField({labelText, controller, hintText, onChanged}) {
     return Padding(
       padding: const EdgeInsets.only(top: 0.0),
       child: Column(
         children: [
           LableTextField(
-            // labelTxt: lableTtxt == null ? '' : "$lableTtxt",
             lableColor: AppTheme.hintTextColor,
             hintTxt: hintText,
+            keyboard: const TextInputType.numberWithOptions(),
             controller: controller,
+            onChanged: onChanged,
           ),
           // const CustomDivider(),
         ],
@@ -875,88 +930,15 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
     }
   }
 
-// void addProductDetail() async {
-//   setState(() {
-//     _isLoading = true;
-//   });
-//   var response;
-//   int responseCode200 = 200; // For successful request.
-//   int responseCode400 = 400; // For Bad Request.
-//   int responseCode401 = 401; // For Unauthorized access.
-//   int responseCode404 = 404; // For For data not found
-//   int responseCode422 = 422; // For For data not found
-//   int responseCode500 = 500; // Internal server error.
-//   Map<String, dynamic> params = {
-//     "category_id": "${widget.selling == null ? catagoryId : catagoryId}",
-//     "product_id": "${widget.productId}",
-//     "condition": _selectedCondition,
-//     "sub_category_id": "$subCatagoryId",
-//     "make_and_model": _modelYearController.text,
-//     "mileage": _millageController.text,
-//     "color": _colorController.text,
-//     "brand": _brandController.text,
-//     "model": _modelController.text,
-//     "edition": _editionController.text,
-//     "authenticity": _authenticityController.text,
-//   };
-//   try {
-//     response = await dio.post(
-//         path: widget.selling != null
-//             ? AppUrls.updateProductDetail
-//             : AppUrls.addProductDetail,
-//         data: params);
-//     var responseData = response.data;
-//     if (response.statusCode == responseCode400) {
-//       showSnackBar(context, "${responseData["msg"]}");
-//       setState(() {
-//         _isLoading = false;
-//       });
-//     } else if (response.statusCode == responseCode401) {
-//       showSnackBar(context, "${responseData["msg"]}");
-//       setState(() {
-//         _isLoading = false;
-//       });
-//     } else if (response.statusCode == responseCode404) {
-//       showSnackBar(context, "${responseData["msg"]}");
-//       setState(() {
-//         _isLoading = false;
-//       });
-//     } else if (response.statusCode == responseCode500) {
-//       showSnackBar(context, "${responseData["msg"]}");
-//       setState(() {
-//         _isLoading = false;
-//       });
-//     } else if (response.statusCode == responseCode422) {
-//       setState(() {
-//         _isLoading = false;
-//       });
-//     } else if (response.statusCode == responseCode200) {
-//       setState(() {
-//         pushReplacement(
-//             context,
-//             SetPostPriceScreen(
-//               selling: widget.selling,
-//               productId: widget.productId,
-//               title: widget.title,
-//             ));
-//         _isLoading = false;
-//       });
-//     }
-//   } catch (e) {
-//     print("Something went Wrong $e");
-//     showSnackBar(context, "Something went Wrong.");
-//     setState(() {
-//       _isLoading = false;
-//     });
-//   }
-// }
 }
 
 String _selectedCategory = "";
 String _selectedSubCategory = "";
 String _selectedCondition = "";
 String sorting = "Select Sort By";
-String isUrgent = "Select Ads By";
+var condition = [];
+String selectedCondition = "Select By Condition";
+
 var catagoryId;
 var subCatagoryId;
 double sliderValue = 0;
@@ -966,10 +948,10 @@ GlobalKey tooltipKey = GlobalKey();
 bool _isLoading = false;
 
 List<String> filter = [
-  'newest on top',
-  'newest on bottom',
-  'lowest price on top',
-  'lowest price on bottom'
+  'Newest on top',
+  'Newest on bottom',
+  'Lowest price on top',
+  'Lowest price on bottom'
 ];
 
 List<String> urgent = [

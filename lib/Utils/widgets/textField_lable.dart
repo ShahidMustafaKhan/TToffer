@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
@@ -12,6 +13,12 @@ class LableTextField extends StatefulWidget {
   final lableColor;
   final height;
   final maxLines;
+  final onTap;
+  final keyboard;
+  final ValueChanged<String>? onChanged;
+  final bool readOnly;
+  final FocusNode? focusNode;
+  final List<TextInputFormatter>? inputFormatters;
 
   const LableTextField(
       {super.key,
@@ -22,7 +29,9 @@ class LableTextField extends StatefulWidget {
       this.hintTxt,
       this.lableColor,
       this.height,
-      this.maxLines});
+      this.onTap,
+      this.keyboard,
+      this.maxLines, this.onChanged, this.readOnly=false, this.focusNode, this.inputFormatters});
 
   @override
   State<LableTextField> createState() => _LableTextFieldState();
@@ -53,8 +62,14 @@ class _LableTextFieldState extends State<LableTextField> {
                   controller: widget.controller,
                 )
               : CustomAppFormField(
+
                   maxline: widget.maxLines,
+                  focusNode: widget.focusNode,
                   height: widget.height,
+                  onChanged:  widget.onChanged,
+                  onTap: widget.onTap,
+                  readOnly: widget.readOnly,
+                  type: widget.keyboard,
                   width: widget.width ?? MediaQuery.of(context).size.width,
                   texthint: "${widget.hintTxt}",
                   controller: widget.controller,

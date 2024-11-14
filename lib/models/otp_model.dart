@@ -1,8 +1,8 @@
 class OtpModel {
-  String? status;
+  dynamic status;
   String? msg;
-  int? otp;
-  Data? data;
+  dynamic? otp;
+  dynamic? data;
 
   OtpModel({this.status, this.msg, this.otp, this.data});
 

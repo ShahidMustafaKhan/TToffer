@@ -9,10 +9,13 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/views/Authentication%20screens/update_forgot_password.dart';
 
+import '../../config/app_urls.dart';
+import '../../main.dart';
+
 class OTPScreen extends StatefulWidget {
   final String email;
-  final String validOtp;
-  const OTPScreen({super.key, required this.email, required this.validOtp});
+  String validOtp;
+  OTPScreen({super.key, required this.email, required this.validOtp});
 
   @override
   State<OTPScreen> createState() => _OTPScreenState();
@@ -105,7 +108,7 @@ class _OTPScreenState extends State<OTPScreen> {
                     log("onDone fired");
 
                     if (otp == widget.validOtp) {
-                      showSnackBar(context, "Please setup new password.. ");
+                      showSnackBar(context, "Please set up a new password.", title: 'Password Required');
                       pushReplacement(context,
                           UpdateForgotPassordScreen(email: widget.email));
                     } else {
@@ -121,11 +124,14 @@ class _OTPScreenState extends State<OTPScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 40.0),
                 child: AppButton.appButton("Verify", onTap: () {
-                  push(
-                      context,
-                      UpdateForgotPassordScreen(
-                        email: widget.email,
-                      ));
+                  if (textEditingController.text == widget.validOtp) {
+                    showSnackBar(context, "Please setup new password.. ", title: 'Password Required');
+                    pushReplacement(context,
+                        UpdateForgotPassordScreen(email: widget.email));
+                  } else {
+                    showSnackBar(
+                        context, "Otp not valid, please try again... ");
+                  }
                 },
                     height: 53,
                     fontWeight: FontWeight.w500,
@@ -143,7 +149,9 @@ class _OTPScreenState extends State<OTPScreen> {
                     textColor: const Color(0xff000000)),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  forgotPassword();
+                },
                 child: Padding(
                   padding: const EdgeInsets.only(top: 20.0, bottom: 20),
                   child: Container(
@@ -162,4 +170,65 @@ class _OTPScreenState extends State<OTPScreen> {
       ),
     );
   }
+  void forgotPassword() async {
+    setState(() {
+    });
+    var response;
+    int responseCode200 = 200; // For successful request.
+    int responseCode400 = 400; // For Bad Request.
+    int responseCode401 = 401; // For Unauthorized access.
+    int responseCode404 = 404; // For For data not found
+    int responseCode422 = 422; // For For data not found
+    int responseCode500 = 500; // Internal server error.
+    Map<String, dynamic> params = {"email": widget.email};
+    try {
+      response = await dio.post(path: AppUrls.forgotEmailPass, data: params);
+      var responseData = response.data;
+      if (response.statusCode == responseCode400) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+        });
+      } else if (response.statusCode == responseCode401) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+        });
+      } else if (response.statusCode == responseCode404) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+        });
+      } else if (response.statusCode == responseCode500) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+        });
+      } else if (response.statusCode == responseCode422) {
+        setState(() {
+        });
+      } else if (response.statusCode == responseCode200) {
+        if (responseData["status"] == 'error') {
+          setState(() {
+          });
+          showSnackBar(context, responseData["message"]);
+
+          return;
+        } else if(responseData["status"] == 'success') {
+
+          setState(() {
+          });
+
+          widget.validOtp = responseData['otp'].toString();
+
+          showSnackBar(context, 'OTP resent successfully', title: 'Success!');
+
+
+        }
+      }
+    } catch (e) {
+      print("Something went Wrong ${e}");
+      showSnackBar(context, "Something went Wrong.");
+      setState(() {
+      });
+    }
+  }
+
+
 }

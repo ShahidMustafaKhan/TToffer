@@ -1,4 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -11,6 +13,9 @@ import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
+
+import '../Profile Screen/Settings/privacy_policy.dart';
+import '../Profile Screen/Settings/terms_and_condition.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -90,9 +95,63 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   hintTxt: "Password",
                   pass: true,
                   controller: _passwordController),
+
+              SizedBox(height: 10.h),
+
+              RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                      text: 'By logging in I agree to the ',
+                      style: TextStyle(color: AppTheme.hintTextColor, fontFamily: 'Poppins', fontSize: 12),
+                      children: [
+                        TextSpan(
+                          text: 'Terms and Conditions',
+                          style: TextStyle(
+                            color: AppTheme.yellowColor,
+                            fontSize: 13,
+                            fontFamily: 'Poppins',
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+
+                            push(context, const TermsAndCondition());
+
+                              // Handle Terms and Conditions tap
+                              print("Terms and Conditions Tapped");
+                            },
+                        ),
+                        TextSpan(
+                          text: ' and ',
+                          style: TextStyle(color: AppTheme.hintTextColor,  fontFamily: 'Poppins'),
+                        ),
+                        TextSpan(
+                          text: 'Privacy Policy',
+                          style: TextStyle(
+                            color: AppTheme.yellowColor,
+                            fontSize: 13,
+                            fontFamily: 'Poppins',
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              push(context, PrivacyPolicyScreen());
+                              print("Privacy Policy Tapped");
+                            },
+                        ),])),
+
+              SizedBox(height: 10.h),
+
+
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: AppButton.appButton("Register", onTap: () {
+                child: _isLoading == true
+                    ? Center(
+                  child: CircularProgressIndicator(
+                    color: AppTheme.appColor,
+                  ),
+                )
+                    : AppButton.appButton("Register", onTap: () {
                   _emailController.text =
                       _emailController.text.replaceAll(' ', '');
                   if (_fNameController.text.isNotEmpty) {
@@ -120,7 +179,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           }
                         } else {
                           showSnackBar(context,
-                              "Please enter a valid email address or phone number with +");
+                              "Please enter a valid email address or phone number with country code");
                         }
                       } else {
                         showSnackBar(context, "Enter Email");
@@ -154,7 +213,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     int responseCode200 = 200; // For successful request.
     int responseCode400 = 400; // For Bad Request.
     int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
+    int responseCode404 = 404;
+    int responseCode409 = 409; // For For data not found// For For data not found
     int responseCode422 = 422; // For For data not found
     int responseCode500 = 500; // Internal server error.
     Map<String, dynamic> params = {
@@ -193,10 +253,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           _isLoading = false;
         });
       } else if (response.statusCode == responseCode422) {
+        showSnackBar(context, "${responseData["message"]}");
         setState(() {
           _isLoading = false;
         });
-      } else if (response.statusCode == responseCode200) {
+      }
+      else if (response.statusCode == responseCode409) {
+        showSnackBar(context, "${responseData["message"]}");
+        setState(() {
+          _isLoading = false;
+        });
+      }
+      else if (response.statusCode == responseCode200) {
         if (responseData["status"] == false) {
           setState(() {
             _isLoading = false;
@@ -219,7 +287,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) => const BottomNavView(),
+                builder: (context) => const BottomNavView(fromLogin : true),
               ),
               (route) => false);
         }

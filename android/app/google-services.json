@@ -1,54 +1,138 @@
 {
   "project_info": {
-    "project_number": "778831276994",
-    "firebase_url": "https://ttoffer-2b291-default-rtdb.firebaseio.com",
-    "project_id": "ttoffer-2b291",
-    "storage_bucket": "ttoffer-2b291.appspot.com"
+    "project_number": "743801656770",
+    "firebase_url": "https://ttoffer-427813-default-rtdb.firebaseio.com",
+    "project_id": "ttoffer-427813",
+    "storage_bucket": "ttoffer-427813.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:778831276994:android:51557ac6f4e9cb5c5d845b",
+        "mobilesdk_app_id": "1:743801656770:android:bf918f0396de09e8f4b25b",
         "android_client_info": {
           "package_name": "com.example.tt_offer"
         }
       },
       "oauth_client": [
         {
-          "client_id": "778831276994-et93u5mj3rhk4rvs6pbtca8h612dseu1.apps.googleusercontent.com",
+          "client_id": "743801656770-81d66pb745h2u8ljataieccqrt23gf2n.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.tt_offer",
-            "certificate_hash": "6e06809bf590635d40dfd4fad23464dcedc01682"
+            "certificate_hash": "ad83027736f8f4acc0bec68aca8e2958c0a1a498"
           }
         },
         {
-          "client_id": "778831276994-hu5dll77eodg4u2grp7oidp2qi9u9gpj.apps.googleusercontent.com",
+          "client_id": "743801656770-avgg0k63ekvr79k7ll34mud7temtvv39.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.tt_offer",
-            "certificate_hash": "e8fccdaf1c595fd1539d4fed3355889052a3f0ce"
+            "certificate_hash": "2753f05bd18a603353779dd9a3aadf144419ec15"
           }
         },
         {
-          "client_id": "778831276994-56tligqkps42vp03uaag7colba5i3tp7.apps.googleusercontent.com",
+          "client_id": "743801656770-c7c89hqlflvrs3emhlqao69j8rrsnds2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tt_offer",
+            "certificate_hash": "60ad725a1fa1eddd1f1cc9c39e4815ac3599ca88"
+          }
+        },
+        {
+          "client_id": "743801656770-i4l1t2f7h9nnofasmdjmgln4l7rlc31o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tt_offer",
+            "certificate_hash": "de3f3131569bd6c6e2f6479fc61e1533e7d6c4af"
+          }
+        },
+        {
+          "client_id": "743801656770-es0a6l69o4n2ghok8q830o0rfukboa9n.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA7QBsMoXe7banHxeOat5VkTJTJY_yWTXI"
+          "current_key": "AIzaSyD6_R6OrMC0QZPPKPaVf2noIgs7Kfy_8XY"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "778831276994-56tligqkps42vp03uaag7colba5i3tp7.apps.googleusercontent.com",
+              "client_id": "743801656770-es0a6l69o4n2ghok8q830o0rfukboa9n.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "778831276994-v1a446brr1d8s6pm6dmt7c1e8mf4lam7.apps.googleusercontent.com",
+              "client_id": "743801656770-6dot61ki4g7j5rtuiah1ncrqbcsjnvep.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.ttOffer"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:743801656770:android:4c5ba0ae0514c23cf4b25b",
+        "android_client_info": {
+          "package_name": "com.ttoffer.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "743801656770-bjo0v3o4gqnn4srmi0ngkju9o1u8kt3t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ttoffer.app",
+            "certificate_hash": "60ad725a1fa1eddd1f1cc9c39e4815ac3599ca88"
+          }
+        },
+        {
+          "client_id": "743801656770-oev1lmjpnmitf2dnskp3r9ra8habo7s4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ttoffer.app",
+            "certificate_hash": "2753f05bd18a603353779dd9a3aadf144419ec15"
+          }
+        },
+        {
+          "client_id": "743801656770-rrkg7vnpc7phalmvq2nms42fkm7g2obt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ttoffer.app",
+            "certificate_hash": "de3f3131569bd6c6e2f6479fc61e1533e7d6c4af"
+          }
+        },
+        {
+          "client_id": "743801656770-vh624pe47vkrt5t2oseo86c4e172bdt9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ttoffer.app",
+            "certificate_hash": "ad83027736f8f4acc0bec68aca8e2958c0a1a498"
+          }
+        },
+        {
+          "client_id": "743801656770-es0a6l69o4n2ghok8q830o0rfukboa9n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6_R6OrMC0QZPPKPaVf2noIgs7Kfy_8XY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "743801656770-es0a6l69o4n2ghok8q830o0rfukboa9n.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "743801656770-6dot61ki4g7j5rtuiah1ncrqbcsjnvep.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.example.ttOffer"

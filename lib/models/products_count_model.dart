@@ -26,7 +26,7 @@ class ProductCountModel {
 
 class ItemData {
   int id;
-  int userId;
+  String userId;
   String title;
   String description;
   dynamic soldToUserId;
@@ -62,7 +62,7 @@ class ItemData {
 
 class Photo {
   int id;
-  int productId;
+  String productId;
   String? src;
 
   Photo({

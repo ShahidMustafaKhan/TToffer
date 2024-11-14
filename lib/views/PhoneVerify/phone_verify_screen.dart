@@ -1,15 +1,24 @@
+import 'package:country_list_pick/country_list_pick.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:pinput/pinput.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/custom_requests/update_account_service.dart';
+
+import '../../Constants/app_logger.dart';
+import '../../Controller/APIs Manager/profile_apis.dart';
+import '../../Utils/utils.dart';
+import '../../config/app_urls.dart';
+import '../../config/dio/app_dio.dart';
 
 class PhoneVerifyScreen extends StatefulWidget {
   @override
@@ -24,69 +33,124 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
 
   String verificationId = '';
 
+  var userId;
+  late AppDio dio;
+  AppLogger logger = AppLogger();
+
   bool loading = false;
+
+
 
   phoneVerifyHandler() async {
     setState(() {
       loading = true;
     });
     await UpdateAccountSettingService()
-        .updatePhoneService(context: context, phone: _phoneNumberController!);
+        .updatePhoneService(context: context, phone: _phoneNumberController.text!);
+    confirmPhoneVerification();
 
     setState(() {
       loading = false;
     });
   }
 
-  Future<void> verifyPhoneNumber() async {
+  void forgotPasswordPhone(String phoneNumber) async {
+    setState(() {
+      loading = true;
+    });
+    var response;
+    int responseCode200 = 200; // For successful request.
+    int responseCode400 = 400; // For Bad Request.
+    int responseCode401 = 401; // For Unauthorized access.
+    int responseCode404 = 404; // For For data not found
+    int responseCode422 = 422; // For For data not found
+    int responseCode500 = 500; // Internal server error.
+    Map<String, dynamic> params = {"phone": phoneNumber};
     try {
-      setState(() {
-        loading = true;
-      });
-      verificationCompleted(PhoneAuthCredential phoneAuthCredential) async {
-        await FirebaseAuth.instance.signInWithCredential(phoneAuthCredential);
+      response = await dio.post(path: AppUrls.verifyPhone, data: params);
+      var responseData = response.data;
+      if (response.statusCode == responseCode400) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          loading = false;
+        });
+      } else if (response.statusCode == responseCode401) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          loading = false;
+        });
+      } else if (response.statusCode == responseCode404) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          loading = false;
+        });
+      } else if (response.statusCode == responseCode500) {
+        showSnackBar(context, "${responseData["msg"]}");
+        setState(() {
+          loading = false;
+        });
+      } else if (response.statusCode == responseCode422) {
+        setState(() {
+          loading = false;
+        });
+      } else if (response.statusCode == responseCode200) {
+        if (responseData["status"] == 'error') {
+          setState(() {
+            loading = false;
+          });
+          showSnackBar(context, responseData["message"]);
 
-        // await savePhoneNumber(_phoneNumberController!);
+          return;
+        } else if(responseData["status"] == 'success') {
 
-        // Handle the sign-in completion
+          setState(() {
+            loading = false;
+            otpField = true;
+          });
+
+        }
       }
-
-      verificationFailed(FirebaseAuthException authException) {
-        print('Phone verification failed: ${authException.message}');
-        // Show snackbar for verification failure
-        showSnackbar('Phone verification failed: ${authException.message}');
-      }
-
-      codeSent(String verificationId, [int? forceResendingToken]) async {
-        this.verificationId = verificationId;
-        // Handle the code sent
-      }
-
-      codeAutoRetrievalTimeout(String verificationId) {
-        this.verificationId = verificationId;
-        // Handle timeout
-      }
-
-      await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: _phoneNumberController,
-        verificationCompleted: verificationCompleted,
-        verificationFailed: verificationFailed,
-        codeSent: codeSent,
-        codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
-      );
-      print('otp---->$otpField');
-      setState(() {
-        otpField =
-            true; // Set otpField to true only when verification is completed
-      });
-
+    } catch (e) {
+      print("Something went Wrong ${e}");
+      showSnackBar(context, "Something went Wrong.");
       setState(() {
         loading = false;
       });
-    } catch (err) {
-      print('err--->$err');
-      // Show snackbar for other errors
-      showSnackbar('Error occurred: $err');
+    }
+  }
+
+
+  otpVerification(String code, String phoneNumber) async {
+    setState(() {
+      loading = true;
+    });
+    var response;
+
+    Map<String, dynamic> params = {"phone": phoneNumber, "code" : code};
+    try {
+      response = await dio.post(path: AppUrls.verifyPhoneOtp, data: params);
+      var responseData = response.data;
+      if (responseData["status"] ==  "error") {
+        setState(() {
+          loading = false;
+        });
+
+        showSnackBar(
+            context, responseData["msg"]);
+
+        return;
+      } else {
+        setState(() {
+          loading = false;
+        });
+        phoneVerifyHandler();
+      }
+    } catch (e) {
+      print("Something went Wrong ${e}");
+      showSnackBar(context, "Something went Wrong.");
+      setState(() {
+        loading = false;
+      });
     }
   }
 
@@ -95,19 +159,64 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
+  getUserDetail() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      userId = pref.getString(PrefKey.userId);
+    });
+  }
+
   Future<void> signInWithPhoneNumber() async {
-    PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
-        verificationId: verificationId, smsCode: _otpController.text);
-    await FirebaseAuth.instance.signInWithCredential(phoneAuthCredential);
-    phoneVerifyHandler();
+    try {
+      PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
+          verificationId: verificationId, smsCode: _otpController.text);
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(phoneAuthCredential);
+      phoneVerifyHandler();
+    }
+    catch(e){
+      showSnackBar(context, e.toString().replaceAll(RegExp(r'\[.*?\]'), ''));
+    }
     // Handle the sign-in completion
   }
 
-  String? _phoneNumberController;
+
+  TextEditingController _phoneNumberController = TextEditingController();
 
   Future<void> savePhoneNumber(String phoneNumber) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(PrefKey.phoneFirebase, phoneNumber);
+  }
+
+  confirmPhoneVerification() async{
+    dio = AppDio(context);
+    logger.init();
+
+    final apiProvider = Provider.of<ProfileApiProvider>(context, listen: false);
+
+
+     apiProvider.updatePhoneNumber(
+        dio: dio,
+        context: context, userId: userId, phone: _phoneNumberController.text.trim(),
+      ).then((value) {
+       apiProvider.updateVerification(
+         dio: dio,
+         context: context, userId: userId, phone: true,
+       ).then((value) => Navigator.of(context).pop()
+       );
+     }
+     );
+
+  }
+
+
+   @override
+  void initState() {
+     dio = AppDio(context);
+     logger.init();
+     getUserDetail();
+     _phoneNumberController.text = "+971";
+     super.initState();
   }
 
   @override
@@ -140,60 +249,56 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
                     const SizedBox(height: 20.0),
                     loading
                         ? CircularProgressIndicator(color: AppTheme.appColor)
-                        : AppButton.appButton('Sign In',
+                        : AppButton.appButton('Verify',
                             height: 50,
                             textColor: Colors.white,
                             backgroundColor: AppTheme.appColor,
-                            onTap: signInWithPhoneNumber)
-                    // ElevatedButton(onPressed: phoneVerifyHandler, child: Text('sddsad'))
+                            onTap: (){otpVerification(_otpController.text, _phoneNumberController.text);})
                   ],
                 )
               : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(color: AppTheme.borderColor),
-                            borderRadius: BorderRadius.circular(10)),
-                        child: InternationalPhoneNumberInput(
-                          spaceBetweenSelectorAndTextField: 1,
-                          inputDecoration:
-                              const InputDecoration(border: InputBorder.none),
-                          inputBorder: const OutlineInputBorder(),
-                          onInputChanged: (PhoneNumber number) {
-                            _phoneNumberController = number.phoneNumber;
-                            print('phone--->$_phoneNumberController');
-                          },
-                          selectorConfig: const SelectorConfig(
-                            selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                          ),
-                          initialValue: PhoneNumber(
-                              isoCode: 'PK'), // Default country is Pakistan
-                        ),
-                      ),
-                    ),
-
-                    // TextField(
-                    //   controller: _phoneNumberController,
-                    //   keyboardType: TextInputType.phone,
-                    //   decoration: const InputDecoration(
-                    //     hintText: 'Enter phone number',
+                    phoneField(controller: _phoneNumberController, context: context),
+                    // Padding(
+                    //   padding: const EdgeInsets.all(8.0),
+                    //   child: Container(
+                    //     decoration: BoxDecoration(
+                    //         border: Border.all(color: AppTheme.borderColor),
+                    //         borderRadius: BorderRadius.circular(10)),
+                    //     child: InternationalPhoneNumberInput(
+                    //       spaceBetweenSelectorAndTextField: 1,
+                    //       inputDecoration:
+                    //           const InputDecoration(border: InputBorder.none),
+                    //       inputBorder: const OutlineInputBorder(),
+                    //       onInputChanged: (PhoneNumber number) {
+                    //         _phoneNumberController = number.phoneNumber;
+                    //         print('phone--->$_phoneNumberController');
+                    //       },
+                    //       selectorConfig: const SelectorConfig(
+                    //         selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                    //       ),
+                    //       initialValue: PhoneNumber(
+                    //           isoCode: 'PK'), // Default country is Pakistan
+                    //     ),
                     //   ),
                     // ),
-                    const Spacer(),
+
+                    SizedBox(height: 40.h,),
                     loading
                         ? CircularProgressIndicator(color: AppTheme.appColor)
                         : AppButton.appButton('Verify Phone Number',
                             textColor: Colors.white,
                             backgroundColor: AppTheme.appColor,
                             height: 50,
-                            onTap: verifyPhoneNumber),
+                            onTap: (){forgotPasswordPhone(_phoneNumberController.text);}),
                   ],
                 ),
         ),
       ),
     );
   }
+
+
+
 }

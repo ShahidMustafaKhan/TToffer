@@ -82,7 +82,7 @@ class PaymentStatusService {
           await CustomPostRequest().httpPostRequest(url: 'charge', body: body);
 
       if (res['success'] == true) {
-        showSnackBar(context, '${res['message']}');
+        showSnackBar(context, '${res['message']}', error : false);
 
         push(
             context,

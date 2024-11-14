@@ -1,7 +1,9 @@
 import 'dart:developer';
 
 import 'package:dialogs/dialogs/progress_dialog.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -53,6 +55,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: SavedItemListView(
           data: savedProducts,
+          func: getUserId,
         ),
       ),
     );
@@ -121,10 +124,12 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
 
 class SavedItemListView extends StatefulWidget {
   final data;
+  final Function() func;
 
   const SavedItemListView({
     super.key,
     this.data,
+    required this.func,
   });
 
   @override
@@ -153,15 +158,24 @@ class _SavedItemListViewState extends State<SavedItemListView> {
       );
     }
     if (widget.data.isEmpty) {
-      return Center(
-          child: AppText.appText(
-        "No Saved Item found",
-        textColor: AppTheme.appColor,
-      ));
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Center(child: Image.asset("assets/images/no_data_folder.png", height: 150.h,)),
+          SizedBox(height: 16.h,),
+          Center(
+              child: AppText.appText(
+            "No Saved Item found",
+            textColor: AppTheme.appColor, fontSize: 14.sp
+          )),
+          SizedBox(height: 25.h,)
+        ],
+      );
     } else {
       return ListView.builder(
         shrinkWrap: true,
         itemCount: widget.data.length,
+        reverse: true,
         itemBuilder: (context, index) {
           return Column(
             children: [
@@ -184,6 +198,7 @@ class _SavedItemListViewState extends State<SavedItemListView> {
                       children: [
                         Row(
                           children: [
+                            if( widget.data[index]["product"]["photo"].length != 0)
                             Container(
                               height: 70,
                               width: 70,
@@ -203,41 +218,46 @@ class _SavedItemListViewState extends State<SavedItemListView> {
                             const SizedBox(
                               width: 10,
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                AppText.appText(
-                                    "${widget.data[index]["product"]["title"]}",
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    textColor: AppTheme.txt1B20),
-                                AppText.appText(
-                                    "${widget.data[index]["product"]["location"]}",
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                    textColor: AppTheme.lighttextColor),
-                                AppText.appText(
-                                    formatTimestamp(
-                                        "${widget.data[index]["product"]["created_at"]}"),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                    textColor: AppTheme.appColor)
-                              ],
+                            SizedBox(
+                              width: 265.w,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  AppText.appText(
+                                      "${widget.data[index]["product"]["title"]}",
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      textColor: AppTheme.txt1B20),
+                                  AppText.appText(
+                                      "${widget.data[index]["product"]["location"]}",
+                                      fontSize: 12,
+                                      maxlines: 1,
+                                      fontWeight: FontWeight.w400,
+                                      overflow: TextOverflow.ellipsis,
+                                      textColor: AppTheme.lighttextColor),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      AppText.appText(
+                                        formatTimestamp(
+                                            "${widget.data[index]["product"]["created_at"]}"),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                        textColor: AppTheme.appColor),
+                                      AppText.appText(
+                                          formatTimestamp(
+                                              "${widget.data[index]["created_at"]}"),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400,
+                                          textColor: AppTheme.lighttextColor)
+                                        ]
+                                  )
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            AppText.appText(
-                                formatTimestamp(
-                                    "${widget.data[index]["created_at"]}"),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                textColor: AppTheme.lighttextColor),
-                          ],
-                        )
                       ],
                     ),
                   ),
@@ -331,7 +351,8 @@ class _SavedItemListViewState extends State<SavedItemListView> {
               context,
               FeatureInfoScreen(
                 detailResponse: detailResponse[0],
-              ));
+              ),
+          then: widget.func);
         });
       }
     } catch (e) {
@@ -404,7 +425,8 @@ class _SavedItemListViewState extends State<SavedItemListView> {
               context,
               AuctionInfoScreen(
                 detailResponse: detailResponse[0],
-              ));
+              ),
+              then: widget.func);
         });
       }
     } catch (e) {

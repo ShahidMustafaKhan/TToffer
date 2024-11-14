@@ -1,14 +1,19 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/listview_container.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
+import 'package:tt_offer/Utils/widgets/others/congragulations_dialog.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/custom_requests/sell-faster_stripe_api.dart';
@@ -16,11 +21,16 @@ import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/stripe_payment_screen.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
 import 'package:http/http.dart' as http;
+import 'package:tt_offer/views/Sell%20Faster/how_promotion_works.dart';
+
+import '../../Controller/image_provider.dart';
+import '../BottomNavigation/navigation_bar.dart';
 
 class SellFaster extends StatefulWidget {
-  const SellFaster({super.key, required this.selling});
+  const SellFaster({super.key, required this.selling, this.fromLocation=false});
 
   final Selling selling;
+  final bool fromLocation;
 
   @override
   State<SellFaster> createState() => _SellFasterState();
@@ -30,19 +40,24 @@ class _SellFasterState extends State<SellFaster> {
   List<SellFasterData> sellFastData = [
     SellFasterData(
         boostDays: "3",
-        amount: "3",
+        amount: "10",
         subscriptionName: "Basic",
-        amountInCents: 300),
-    SellFasterData(
-        boostDays: "5",
-        amount: "5",
-        subscriptionName: "Standard",
-        amountInCents: 500),
+        amountInCents: 10),
     SellFasterData(
         boostDays: "7",
-        amount: "7",
+        amount: "20",
+        subscriptionName: "Standard",
+        amountInCents: 20),
+    SellFasterData(
+        boostDays: "15",
+        amount: "30",
         subscriptionName: "Premium",
-        amountInCents: 700),
+        amountInCents: 30),
+    SellFasterData(
+        boostDays: "30",
+        amount: "50",
+        subscriptionName: "Elite",
+        amountInCents: 50),
   ];
 
   fasterProductHandler(String? day, String? amount, String? currency) {
@@ -57,35 +72,60 @@ class _SellFasterState extends State<SellFaster> {
 
   @override
   Widget build(BuildContext context) {
+    final imageProvider = Provider.of<ImageNotifyProvider>(context, listen: false);
+
     return Scaffold(
+      bottomNavigationBar: widget.fromLocation==true ? Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: AppButton.appButton("Done", onTap: () async {
+          imageProvider.imagePaths.clear();
+          imageProvider.vedioPath = '';
+          pushUntil(context, BottomNavView(showDialog: widget.fromLocation ? true : false,));
+           // await getPaymentStatus();
+        },
+            height: 53,
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+            radius: 32.0,
+            backgroundColor: AppTheme.appColor,
+            textColor: AppTheme.whiteColor),
+      ) : const SizedBox(),
       appBar: CustomAppBar1(
         title: "Sell Faster",
+        selFaster: false,
+        leading: true,
+        dialog: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      body: SingleChildScrollView(
         child: Column(
           children: [
-            ListViewContainer(
-              selling: widget.selling,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: ListViewContainer(
+                selling: widget.selling,
+              ),
             ),
-            const CustomDivider(),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.0),
+              child: CustomDivider(),
+            ),
             const SizedBox(
               height: 20,
             ),
             SizedBox(
-              height: 206,
-              width: getWidth(context) * .8,
-              child: ListView.builder(
+              child: ListView.separated(
                 itemCount: sellFastData.length,
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                physics : const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                scrollDirection: Axis.horizontal,
+                scrollDirection: Axis.vertical,
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Center(
                       child: Container(
-                        height: 206,
-                        width: 250,
+                        height: 165,
+                        width: 240,
                         decoration: BoxDecoration(
                             border: Border.all(color: AppTheme.appColor),
                             borderRadius: BorderRadius.circular(16)),
@@ -99,23 +139,23 @@ class _SellFasterState extends State<SellFaster> {
                                 textColor: AppTheme.appColor),
                             AppText.appText(
                                 "Boost ${sellFastData[index].boostDays} Days",
-                                fontSize: 16,
+                                fontSize: 15,
                                 fontWeight: FontWeight.w500,
                                 textColor: AppTheme.blackColor),
-                            AppText.appText("\$${sellFastData[index].amount}",
-                                fontSize: 32,
+                            AppText.appText("AED ${sellFastData[index].amount}",
+                                fontSize: 28,
                                 fontWeight: FontWeight.w600,
                                 textColor: AppTheme.blackColor),
-                            AppButton.appButton("Subscribe", height: 42,
+                            AppButton.appButton("Subscribe", height: 38,
                                 onTap: () async {
                               push(
                                   context,
                                   StripePaymentScreen(
                                       selling: widget.selling,
                                       amount: sellFastData[index].amount,
-                                      currency: 'USD',
+                                      currency: 'AED',
                                       day: sellFastData[index].boostDays));
-
+        
                               // makePayment(sellFastData[index].amount.toString(),
                               //     sellFastData[index].boostDays);
                             },
@@ -128,20 +168,34 @@ class _SellFasterState extends State<SellFaster> {
                       ),
                     ),
                   );
-                },
+                }, separatorBuilder: (BuildContext context, int index) { return SizedBox(height: 4.h,); },
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 40.0),
-              child: customRow(txt: "Switch promotion to any item."),
+              padding: const EdgeInsets.only(top: 40.0,left: 0),
+              child: customRow(txt: "Switch promotion to sell faster"),
             ),
             const SizedBox(
               height: 40,
             ),
-            AppText.appText("How does promoting work?",
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                textColor: AppTheme.appColor),
+            GestureDetector(
+              onTap: (){
+                push(context, const HowPromotionWorks());
+              },
+              child: AppText.appText("How does promoting work?",
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  textColor: AppTheme.yellowColor),
+            ),
+            const SizedBox(
+              height: 25,
+            ),
+            SvgPicture.asset('assets/images/boosting.svg',
+            height: 280.h,
+            ),
+            const SizedBox(
+              height: 50,
+            ),
           ],
         ),
       ),
@@ -222,10 +276,13 @@ class _SellFasterState extends State<SellFaster> {
   displayPaymentSheet() async {
     try {
       await Stripe.instance.presentPaymentSheet().then((newValue) async {
-        print('payment intent${paymentIntentData!['id']}');
-        print('payment intent${paymentIntentData!['client_secret']}');
-        print('payment intent${paymentIntentData!['amount']}');
-        print('payment intent$paymentIntentData');
+        if (kDebugMode) {
+          print('payment intent${paymentIntentData!['client_secret']}');
+          print('payment intent${paymentIntentData!['amount']}');
+          print('payment intent$paymentIntentData');
+          print('payment intent${paymentIntentData!['id']}');
+        }
+
         //orderPlaceApi(paymentIntentData!['id'].toString());
 
         setState(() {});
@@ -281,22 +338,20 @@ class _SellFasterState extends State<SellFaster> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(
-            "assets/images/shield-tick.png",
-            height: 24,
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.79,
-            child: AppText.appText("$txt",
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                textColor: AppTheme.txt1B20),
-          ),
+          // Image.asset(
+          //   "assets/images/shield-tick.png",
+          //   height: 24,
+          // ),
+          // const SizedBox(
+          //   width: 10,
+          // ),
+          AppText.appText("$txt",
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w900,
+              textColor: AppTheme.txt1B20),
         ],
       ),
     );

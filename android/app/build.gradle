@@ -15,6 +15,7 @@ if (localPropertiesFile.exists()) {
     }
 }
 
+
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
     flutterVersionCode = '1'
@@ -25,8 +26,16 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+
 android {
-    namespace "com.example.tt_offer"
+//    namespace "com.example.tt_offer"
+    namespace "com.ttoffer.app"
     compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
@@ -44,7 +53,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.tt_offer"
+        applicationId "com.ttoffer.app"
         minSdkVersion 21
         targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
@@ -56,12 +65,22 @@ android {
         // }
     }
 
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
     buildTypes {
         release {
             signingConfig signingConfigs.debug
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
+
 
     // Add splits block
 //    splits {

@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 
@@ -6,20 +9,25 @@ class AppButton {
   static Widget appButton(String text,
       {double? height,
       double? width,
+       IconData? icon,
       Color? backgroundColor,
+      Color? borderColor,
       EdgeInsetsGeometry? padding,
       TextAlign? textAlign,
       Color? textColor,
+      Color? imageColor,
       double? fontSize,
       GestureTapCallback? onTap,
       FontWeight? fontWeight,
       FontStyle? fontStyle,
       TextBaseline? textBaseline,
       TextOverflow? overflow,
+      double borderWidth=1,
       var radius,
       double? letterSpacing,
       bool underLine = false,
       bool fontFamily = false,
+      String? imagePath,
       bool? border,
       bool? blurContainer}) {
     return InkWell(
@@ -36,28 +44,42 @@ class AppButton {
                       color: Colors.black26,
                       blurRadius: 2,
                       offset: Offset(0.0, 4))
-                  : const BoxShadow()
+                  : const BoxShadow(color: Colors.transparent)
             ],
             color: backgroundColor,
             borderRadius: BorderRadius.circular(radius ?? 10),
             border: border == false
                 ? null
                 : Border.all(
-                    color: border == true
+                    color: borderColor ?? (border == true
                         ? AppTheme.blackColor
-                        : AppTheme.appColor,
-                    width: 1)),
-        child: AppText.appText(text,
-            fontFamily: fontFamily,
-            fontSize: fontSize,
-            textAlign: textAlign,
-            fontWeight: fontWeight,
-            textColor: textColor,
-            overflow: overflow,
-            letterSpacing: letterSpacing,
-            textBaseline: textBaseline,
-            fontStyle: fontStyle,
-            underLine: underLine),
+                        : AppTheme.appColor),
+                    width: borderWidth)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if(imagePath!=null)
+              if(imagePath.endsWith(".svg"))
+                SvgPicture.asset(imagePath, color: imageColor)
+              else
+                Image.asset(imagePath),
+            if(icon!=null)
+              Icon(icon, size: 15, color: Color(0xff434343),),
+            if(imagePath!=null || icon!=null)
+              SizedBox(width: 10.w,),
+              AppText.appText(text,
+              fontFamily: fontFamily,
+              fontSize: fontSize,
+              textAlign: textAlign,
+              fontWeight: fontWeight,
+              textColor: textColor,
+              overflow: overflow,
+              letterSpacing: letterSpacing,
+              textBaseline: textBaseline,
+              fontStyle: fontStyle,
+              underLine: underLine),
+        ]
+        ),
       ),
     );
   }
@@ -125,6 +147,7 @@ class AppButton {
   static Widget appButtonWithLeadingImage(String text,
       {double? height,
       double? width,
+      double? containerWidth,
       space,
       borderColor,
       double? imgHeight,
@@ -150,7 +173,6 @@ class AppButton {
       onTap: onTap,
       child: Container(
         padding: padding,
-        width: width,
         height: height,
         decoration: BoxDecoration(
             color: backgroundColor,
@@ -161,29 +183,46 @@ class AppButton {
                     color: borderColor?? const Color(0xff292D32),
                     width: 1,
                   )),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              "$imagePath",
-              height: imgHeight,
-              color: borderColor?? null,
-            ),
-            SizedBox(
-              width: space ?? 10,
-            ),
-            AppText.appText(text,
-                fontFamily: fontFamily,
-                fontSize: fontSize,
-                textAlign: textAlign,
-                fontWeight: fontWeight,
-                textColor: textColor,
-                overflow: overflow,
-                letterSpacing: letterSpacing,
-                textBaseline: textBaseline,
-                fontStyle: fontStyle,
-                underLine: underLine),
-          ],
+        child: SizedBox(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: containerWidth,
+                child: Row(
+                  children: [
+                    if(imagePath!.endsWith(".svg"))
+                    SvgPicture.asset(
+                      imagePath,
+                      height: imgHeight,
+                      color: borderColor?? null,
+                    ),
+                    if(imagePath.endsWith(".png"))
+                      Image.asset(
+                        imagePath,
+                        height: imgHeight,
+                        color: borderColor?? null,
+                      ),
+                    SizedBox(
+                      width: space ?? 10,
+                    ),
+                    AppText.appText(text,
+                        fontFamily: fontFamily,
+                        fontSize: fontSize,
+                        textAlign: textAlign,
+                        fontWeight: fontWeight,
+                        textColor: textColor,
+                        overflow: overflow,
+                        letterSpacing: letterSpacing,
+                        textBaseline: textBaseline,
+                        fontStyle: fontStyle,
+                        underLine: underLine),
+                  ],
+                ),
+              )
+
+            ],
+          ),
         ),
       ),
     );

@@ -19,7 +19,7 @@ class BlockdeUserService {
             context,
             report == true
                 ? 'User Reported Successfully'
-                : 'User Blocked Successfully');
+                : 'User Blocked Successfully', error : false);
 
         return true;
       } else {

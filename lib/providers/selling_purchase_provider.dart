@@ -3,12 +3,18 @@ import 'package:tt_offer/models/selling_products_model.dart';
 
 class SellingPurchaseProvider extends ChangeNotifier {
   SellingProductsModel? sellingProductsModel;
+  List<Selling>? soldProductsList;
 
   bool isLoading = true;
 
   void updateData({required SellingProductsModel model}) {
     sellingProductsModel = model;
     isLoading = false;
+    notifyListeners();
+  }
+
+  void updateSoldProductData({required List<Selling> soldProductList}) {
+    soldProductsList = soldProductList;
     notifyListeners();
   }
 }

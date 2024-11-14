@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/send_notification_service.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -20,16 +21,16 @@ Future showLogOutALert(BuildContext context, var price, var productId,
 
   final bidProvider = Provider.of<BidsProvider>(context, listen: false).bids;
 
-  void sendBidNotification() {
-    SendNotification.sendNotification(
-      context: context,
-      userId: productUserId,
-      text: 'You have received a new Bid',
-      type: 'Bid',
-      typeId: productId,
-      status: 'Bid',
-    );
-  }
+  // void sendBidNotification() {
+  //   SendNotification.sendNotification(
+  //     context: context,
+  //     userId: int.parse(productUserId.toString()),
+  //     text: 'You have received a new Bid',
+  //     type: 'Bid',
+  //     typeId: int.parse(productId.toString()),
+  //     status: 'Bid',
+  //   );
+  // }
 
   return showDialog(
     context: context,
@@ -40,7 +41,6 @@ Future showLogOutALert(BuildContext context, var price, var productId,
                 borderRadius: BorderRadius.circular(32.0)),
             child: SingleChildScrollView(
               child: Container(
-                height: 346,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: AppTheme.whiteColor,
@@ -49,6 +49,7 @@ Future showLogOutALert(BuildContext context, var price, var productId,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(
                         height: 20,
@@ -58,15 +59,16 @@ Future showLogOutALert(BuildContext context, var price, var productId,
                           fontWeight: FontWeight.w700,
                           textColor: const Color(0xff14181B)),
                       const SizedBox(
-                        height: 30,
+                        height: 20,
                       ),
                       Container(
                         child: AppText.appText(
-                            "You have placed a bid for \$$price. Should we place this as your Bid?",
+                            "ATTENTION! WHEN YOU CONFIRM YOUR BID, IT MEANS YOU’RE AGREE TO BUY THIS ITEM IN CASE IF YOU WIN THIS AUCTION. IF YOU REFUSE TO BUY THIS PRODUCT, YOU WILL NOT BE ABLE TO PLACE BIDS FOR AUCTION PRODUCTS.",
+                            // "You have placed a bid for AED ${formatNumber(price)}. Should we place this as your Bid?",
                             textAlign: TextAlign.center,
                             fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            textColor: const Color(0xff14181B)),
+                            fontWeight: FontWeight.w600,
+                            textColor: Colors.red),
                       ),
                       const SizedBox(
                         height: 30,
@@ -85,9 +87,9 @@ Future showLogOutALert(BuildContext context, var price, var productId,
                           });
 
                           Map<String, dynamic> body = {
-                            "user_id": userId,
-                            "product_id": productId,
-                            "price": price
+                            "user_id": userId.toString(),
+                            "product_id": productId.toString(),
+                            "price": price.toString().replaceAll(',', '')
                           };
 
                           print('body--->${body}');
@@ -99,7 +101,7 @@ Future showLogOutALert(BuildContext context, var price, var productId,
                             // if (response.statusCode == 200) {
                             var responseData = response.data;
 
-                            if (responseData['success'] == false) {
+                            if (responseData['status'] == "error") {
                               showSnackBar(context, responseData['message']);
                             } else {
                               await BidsService().getBidsService(
@@ -107,14 +109,14 @@ Future showLogOutALert(BuildContext context, var price, var productId,
 
                               bidProvider.add(BidsData(
                                 id: id,
-                                userId: int.parse(userId.toString()),
+                                userId: int.parse(userId),
                                 productId: productId,
-                                price: int.parse(price.toString()),
+                                price: int.parse(price.toString().replaceAll(',', '')),
                                 createdAt: DateTime.now().toIso8601String(),
                                 updatedAt: DateTime.now().toIso8601String(),
                               ));
 
-                              showSnackBar(context, responseData["message"]);
+                              showSnackBar(context, responseData["message"], title: 'Success!');
                             }
 
                             log("response in bid post = ${response.data}");
@@ -127,7 +129,7 @@ Future showLogOutALert(BuildContext context, var price, var productId,
                             });
                           }
 
-                          sendBidNotification();
+                          // sendBidNotification();
 
                           Navigator.of(context).pop();
                         },
@@ -149,7 +151,10 @@ Future showLogOutALert(BuildContext context, var price, var productId,
                           border: true,
                           fontWeight: FontWeight.w500,
                           textColor: AppTheme.blackColor,
-                          backgroundColor: AppTheme.whiteColor)
+                          backgroundColor: AppTheme.whiteColor),
+                      const SizedBox(
+                        height: 25,
+                      ),
                     ],
                   ),
                 ),

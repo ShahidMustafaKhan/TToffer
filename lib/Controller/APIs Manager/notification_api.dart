@@ -1,3 +1,4 @@
+
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,9 @@ import 'package:tt_offer/models/notifications_model.dart';
 import 'package:tt_offer/providers/notification_provider.dart';
 
 class NotificationService {
+
+
+
   Future<void> notificationService({required BuildContext context}) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -35,6 +39,7 @@ class NotificationService {
 
         Provider.of<NotificationProvider>(context, listen: false)
             .getNotifications(notificationModel.data!);
+        checkForUnreadMessage(notificationModel.data! , context);
       } else {
         print(response.statusMessage);
       }
@@ -42,4 +47,100 @@ class NotificationService {
       print(err);
     }
   }
+
+  void checkForUnreadMessage(List<NotificationData>? data, BuildContext context) {
+    if (data == null) return;
+
+    Provider.of<NotificationProvider>(context, listen: false)
+        .changeIndicatorStatus(false); // Reset indicator to false
+
+    for (var notification in data) {
+      if (notification.status == 'unread') {
+        Provider.of<NotificationProvider>(context, listen: false)
+            .changeIndicatorStatus(true);
+        if(notification.type == 'conversation'){
+          changeChatStatus(context: context, notificationData: notification);
+        }
+        // changeStatus(context: context, id: notification.id.toString());
+      }
+    }
+  }
+
+
+
+  void changeAllNotificationStatus(List<NotificationData>? data, BuildContext context) {
+    if (data == null) return;
+
+    Provider.of<NotificationProvider>(context, listen: false)
+        .changeIndicatorStatus(false); // Reset indicator to false
+
+    for (var notification in data) {
+      if (notification.status == 'unread') {
+        changeStatus(context: context, id: notification.id.toString());
+      }
+    }
+  }
+
+
+
+
+  Future<void> changeStatus({required BuildContext context, required String id}) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString(PrefKey.authorization);
+      print('Authorization Token: $token');
+      print('id: $id');
+
+
+      var headers = {'Authorization': 'Bearer $token'};
+      var dio = Dio();
+      var response = await dio.get(
+        '${AppUrls.baseUrl}change/notification/status/$id',
+        options: Options(
+          headers: headers,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+
+
+
+      } else {
+
+      }
+    } catch (err) {
+      print(err);
+
+    }
+  }
+
+  Future<void> changeChatStatus({required BuildContext context, required NotificationData notificationData}) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString(PrefKey.authorization);
+      print('Authorization Token: $token');
+
+      var headers = {'Authorization': 'Bearer $token'};
+      var dio = Dio();
+      var response = await dio.get(
+        '${AppUrls.baseUrl}mark/conversation/read/${notificationData.typeId}',
+        options: Options(
+          headers: headers,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+
+
+
+      } else {
+
+      }
+    } catch (err) {
+      print(err);
+
+    }
+  }
+
+
 }

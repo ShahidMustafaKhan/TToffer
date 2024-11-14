@@ -58,7 +58,7 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
     print('userId--->${PrefKey.userId}');
     print('boolll_--->${res}');
     if (res) {
-      showSnackBar(context, 'Update Successfully');
+      showSnackBar(context, 'Updated Successfully', error: false);
     }
 
     setState(() {
@@ -74,7 +74,7 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
         .updateEmailService(context: context, email: controller.text);
 
     if (res) {
-      showSnackBar(context, 'Update Successfully');
+      showSnackBar(context, 'Updated Successfully', error: false);
     }
 
     setState(() {
@@ -83,6 +83,19 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
   }
 
   updateLocationHandler() async {
+    final RegExp locationPattern = RegExp(r'^.+,.+$');
+
+    // Check if the location matches the pattern
+    if (!locationPattern.hasMatch(controller.text)) {
+      // Show SnackBar if the format is incorrect
+
+      showSnackBar(context, 'Please enter full location.');
+      return;
+
+    }
+
+
+
     setState(() {
       loading = true;
     });
@@ -92,7 +105,7 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
     await pref.setString('myLocation', controller.text);
 
     if (res) {
-      showSnackBar(context, 'Update Successfully');
+      showSnackBar(context, 'Updated Successfully', error: false);
     }
 
     setState(() {
@@ -108,7 +121,7 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
         context: context, newPassword: controller.text, email: widget.emailSt);
 
     if (res) {
-      showSnackBar(context, 'Update Successfully');
+      showSnackBar(context, 'Updated Successfully', error: false);
     }
 
     setState(() {

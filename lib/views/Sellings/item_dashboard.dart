@@ -1,7 +1,11 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -23,6 +27,9 @@ import 'package:tt_offer/views/Sellings/item_performance.dart';
 import 'package:tt_offer/views/Sellings/new_sold_screen.dart';
 import 'package:tt_offer/views/Sellings/selling_purchase.dart';
 
+import '../../config/dio/app_dio.dart';
+import '../Auction Info/reschdule_acution_time.dart';
+
 class ItemDashBoard extends StatefulWidget {
   const ItemDashBoard({super.key, required this.selling});
 
@@ -34,6 +41,21 @@ class ItemDashBoard extends StatefulWidget {
 
 class _ItemDashBoardState extends State<ItemDashBoard> {
   bool loading = false;
+  late final dio;
+  bool restrictEdit = false;
+  bool restrictMarkSold = false;
+
+  @override
+  void initState() {
+    dio = AppDio(context);
+    // TODO: implement initState
+    if(widget.selling.auctionPrice!=null && endTimeReached(widget.selling.endingDate!, widget.selling.endingTime!)==false){
+      restrictEdit = true;
+      restrictMarkSold = true;
+    }
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,65 +65,75 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
       child: Scaffold(
         backgroundColor: AppTheme.whiteColor,
         bottomNavigationBar: SizedBox(
-          height: 80,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Column(
-              children: [
-                const CustomDivider(),
-                const SizedBox(
-                  height: 5,
-                ),
-                Align(
-                    alignment: Alignment.topRight,
-                    child: Image.asset(
-                      "assets/images/cross.png",
-                      height: 14,
-                    )),
-                InkWell(
-                  onTap: () {
-                    push(context, SellFaster(selling: widget.selling));
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.55,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AppText.appText("Sell faster with promotions",
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                textColor: AppTheme.txt1B20),
-                            AppText.appText(
-                                "Get an average of 20x more views each day",
-                                fontSize: 12,
-                                textAlign: TextAlign.justify,
-                                fontWeight: FontWeight.w400,
-                                textColor: AppTheme.txt1B20),
-                          ],
-                        ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 20.0, right: 20, bottom: 5.h),
+                child: Column(
+                  children: [
+                    const CustomDivider(),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Align(
+                        alignment: Alignment.topRight,
+                        child: Image.asset(
+                          "assets/images/cross.png",
+                          height: 14,
+                        )),
+                    InkWell(
+                      onTap: () {
+                        push(context, SellFaster(selling: widget.selling));
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  AppText.appText("Sell faster with promotions",
+                                      fontSize: 13.sp,
+                                      fontWeight: FontWeight.w600,
+                                      textColor: const Color(0xff1E293B)),
+                                  SizedBox(height: 6.h,),
+                                  AppText.appText(
+                                      "Get an average of 20x more\n views each day",
+                                      fontSize: 11.sp,
+                                      textAlign: TextAlign.justify,
+                                      fontWeight: FontWeight.w400,
+                                      textColor: AppTheme.txt1B20),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            child: AppButton.appButtonWithLeadingImage(
+                              "Sell Faster",
+                              imagePath: "assets/images/sellFaster.png",
+                              imgHeight: 14,
+                              fontSize: 10,
+                              height: 30.h,
+                              width: 30.h,
+                              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                              fontWeight: FontWeight.w400,
+                              backgroundColor: AppTheme.appColor,
+                              textColor: AppTheme.whiteColor,
+                            ),
+                          ),
+                          SizedBox(width: 10.w,)
+                        ],
                       ),
-                      AppButton.appButtonWithLeadingImage(
-                        "Sell Faster",
-                        imagePath: "assets/images/sellFaster.png",
-                        imgHeight: 14,
-                        width: 90,
-                        height: 26,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w400,
-                        backgroundColor: AppTheme.appColor,
-                        textColor: AppTheme.whiteColor,
-                      )
-                    ],
-                  ),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    )
+                  ],
                 ),
-                const SizedBox(
-                  height: 5,
-                )
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         appBar: CustomAppBar1(
@@ -166,8 +198,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                                           vertical: 4),
                                       child: InkWell(
                                         onTap: () {
-                                          markArchived(
-                                              widget.selling.id!, setStatess);
+
                                         },
                                         child: AppText.appText("Archive",
                                             fontSize: 14,
@@ -205,14 +236,14 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                     );
                   },
                   child: customListview(
-                      img: widget.selling.photo![0].src.toString(),
+                      img: widget.selling.photo!.isNotEmpty ? widget.selling.photo![0].src.toString() : '',
                       title: widget.selling.title,
-                      subtitle: widget.selling.fixPrice),
+                      subtitle: widget.selling.fixPrice ??  widget.selling.auctionPrice),
                 ),
               ),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16),
+                    const EdgeInsets.symmetric(vertical: 10.0, horizontal: 24),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -229,23 +260,45 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                     ),
                     InkWell(
                       onTap: () {
-                        push(context, PostScreen(selling: widget.selling));
+                        if(restrictEdit == false) {
+                          if(widget.selling.auctionPrice!=null){
+                            push(context, RescheduleTimeProduct(
+                              productId: widget.selling.id.toString(),
+
+                            ));
+                          }
+                          else{
+                            push(context, PostScreen(selling: widget.selling));}
+                        }
+                        else{
+                          showSnackBar(context, 'You cannot edit this product until the auction has ended.');
+                        }
                       },
                       child: customContainer(
                           img: "assets/images/edit.png", txt: "Edit Post"),
                     ),
                     InkWell(
                       onTap: () {
-                        push(
+                        if(restrictMarkSold == false) {
+                          push(
                             context,
                             NewSoldScreen(
-                              selling: widget.selling,
+                              title: widget.selling.title,
+                              productId: widget.selling.id.toString(),
+                              fixPrice: widget.selling.fixPrice,
+                              auctionPrice: widget.selling.auctionPrice,
+                              image: widget.selling.photo!=null && widget.selling.photo!.isNotEmpty ? widget.selling.photo![0].src : null,
+                              auction: widget.selling.fixPrice != null ? false : true,
                             ));
+                        }
+                        else{
+                          showSnackBar(context, 'You cannot mark this as sold until the auction has ended.');
+                        }
 
                       },
                       child: customContainer(
                           img: "assets/images/markSold.png",
-                          txt: "Mark as Sold"),
+                          txt: "Mark Sold"),
                     ),
                     InkWell(
                       onTap: () {
@@ -263,11 +316,11 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                 ),
               ),
               const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20.0),
+                padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
                 child: CustomDivider(),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: customRow(
                     onTap: () {
                       push(
@@ -280,21 +333,22 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                     img: "assets/images/performance.png"),
               ),
               const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20.0),
+                padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
                 child: CustomDivider(),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: AppText.appText("Message",
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    textColor: AppTheme.txt1B20),
+                padding: EdgeInsets.symmetric(vertical: 10.h,horizontal: 18.w),
+                child: AppText.appText('Messages', fontWeight: FontWeight.w600, fontSize: 16.sp),
               ),
 
-              const SizedBox(
+              SizedBox(
                   // width: getWidth(context),
                   height: 300,
-                  child: ChatScreen(isProductChat: true)),
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 2.0),
+                    child: ChatScreen(isProductChat: true, productId: widget.selling.id.toString(),),
+                  )),
+
               // ListView.builder(
               //   physics: const NeverScrollableScrollPhysics(),
               //   shrinkWrap: true,
@@ -315,6 +369,61 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
     );
   }
 
+
+  bool endTimeReached(String endDate, String endTimeString) {
+    DateTime? endTime = convertEndTimeToUserTimeZone(_parseEndingDateTime(endDate, endTimeString));
+
+    if (kDebugMode) {
+      print('endTime $endTime');
+    }
+
+    // If the current time is after or at the endTime, return true (end time reached)
+    return !endTime.isAfter(DateTime.now());
+  }
+
+  DateTime _parseEndingDateTime(String endDate, String endTime) {
+    String? endingTimeString = endTime;
+    String? endingDateString = endDate;
+    DateTime endingDate =
+    DateFormat("yyyy-MM-dd").parse(endDate);
+    DateTime endingTime;
+
+    if (endingTimeString.contains("PM") || endingTimeString.contains("AM")) {
+      endingTime = DateFormat("h:mm a").parse(endTime);
+      if (kDebugMode) {
+        print(" vkrvlrvm$endingTime");
+      }
+    } else {
+      endingTime = DateFormat("HH:mm").parse(endTime);
+      if (kDebugMode) {
+        print(" jf3o3jfpfp3fpk$endingTime");
+      }
+    }
+    return DateTime(
+      endingDate.year,
+      endingDate.month,
+      endingDate.day,
+      endingTime.hour,
+      endingTime.minute,
+    );
+  }
+
+
+  DateTime convertEndTimeToUserTimeZone(DateTime endTime) {
+    // Get the user's local time zone offset (e.g., UTC+5)
+    Duration userTimeZoneOffset = DateTime.now().timeZoneOffset;
+
+    // Define the time zone offset for UTC+4 (Dubai time)
+    const dubaiTimeZoneOffset = Duration(hours: 4);
+
+    // Calculate the difference between user time zone and Dubai time zone
+    Duration timeDifference = userTimeZoneOffset - dubaiTimeZoneOffset;
+
+    // Add or subtract the time difference to the endTime
+    return endTime.add(timeDifference);
+  }
+
+
   Future<void> markAsSold(int? id, context) async {
     bool isLoading = false;
     CustomAlertDialog(
@@ -331,14 +440,20 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
           var responce = await customGetRequest.httpGetRequest(
               url: "${AppUrls.markProductSold}/$id");
 
-          showSnackBar(context, responce["message"]);
           // showSnackBar(context, responce["success"]);
 
           // if (responce.statusCode == 200) {
           if (responce["success"] == true) {
-            getSellingProducts(context);
+            showSnackBar(context, responce["message"], title: 'Success!');
+
+            getSellingProducts(context,dio).then((value) => Navigator.of(context).pop(true));
           }
-          Navigator.of(context).pop(true);
+          else{
+            showSnackBar(context, responce["message"]);
+
+            Navigator.of(context).pop(true);
+          }
+
           //
           // }
 
@@ -428,28 +543,17 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                   height: 70,
                   width: 70,
                   decoration: BoxDecoration(
+                    color: Colors.amber,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: img.contains("https")
-                        ? Image.network(
-                            "$img",
-                            fit: BoxFit.cover,
-                          )
-                        : Provider.of<ImageNotifyProvider>(context,
-                                        listen: false)
-                                    .newImagePath !=
-                                null
-                            ? Image.file(File(Provider.of<ImageNotifyProvider>(
-                                    context,
-                                    listen: false)
-                                .newImagePath
-                                .toString()))
-                            : Image.asset(
-                                "$img",
-                                fit: BoxFit.cover,
-                              ),
+                    child: img.isEmpty
+                        ? Image.asset('assets/images/gallery.png')
+                        : Image.network(
+                      widget.selling.photo![0].src!,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 const SizedBox(
@@ -466,7 +570,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                     const SizedBox(
                       height: 5,
                     ),
-                    AppText.appText("$subtitle",
+                    AppText.appText("AED ${formatNumber((removeLastTwoZeros(subtitle)))}",
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         textColor: subTitleColor ?? AppTheme.txt1B20),
@@ -499,13 +603,13 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
         loading = false;
       });
 
-      Navigator.of(context).pop();
+
 
       showSnackBar(context, responce["message"]);
 
       log("responce of markArchived = $responce");
 
-      getSellingProducts(context);
+      getSellingProducts(context,dio).then((value) =>  Navigator.of(context).pop());
     } catch (e) {
       setStatesss(() {
         loading = false;

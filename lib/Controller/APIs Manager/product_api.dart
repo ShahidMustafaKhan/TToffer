@@ -7,6 +7,7 @@ import 'package:tt_offer/config/app_urls.dart';
 class ProductsApiProvider extends ChangeNotifier {
   var allfeatureProductsData;
   var allauctionProductsData;
+  var allProductsData;
   var subCatagoryData;
   var catagoryData;
   bool isLoading = false;
@@ -23,7 +24,9 @@ class ProductsApiProvider extends ChangeNotifier {
     required dio,
     required context,
   }) async {
-    isLoading = true;
+    if(allauctionProductsData==null ||  allauctionProductsData.isEmpty) {
+      isLoading = true;
+    }
     var response;
     int responseCode200 = 200; // For successful request.
     int responseCode400 = 400; // For Bad Request.
@@ -38,6 +41,7 @@ class ProductsApiProvider extends ChangeNotifier {
       "sub_category_id": subCatId,
       "limit": limit,
       "location": location,
+      "sort_by": "newest on top"
     };
     try {
       response = await dio.post(path: AppUrls.getAuctionProducts, data: params);
@@ -47,7 +51,7 @@ class ProductsApiProvider extends ChangeNotifier {
         isLoading = false;
         notifyListeners();
       } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
+        // showSnackBar(context, "${responseData["msg"]}");
         isLoading = false;
         notifyListeners();
       } else if (response.statusCode == responseCode404) {
@@ -56,7 +60,7 @@ class ProductsApiProvider extends ChangeNotifier {
         isLoading = false;
         notifyListeners();
       } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
+        showSnackBar(context, "Something went wrong!");
 
         isLoading = false;
         notifyListeners();
@@ -65,12 +69,14 @@ class ProductsApiProvider extends ChangeNotifier {
         notifyListeners();
       } else if (response.statusCode == responseCode200) {
         isLoading = false;
-        allauctionProductsData = responseData["data"];
+        if(responseData["data"].isNotEmpty ) {
+          allauctionProductsData = responseData["data"];
+        }
         notifyListeners();
       }
     } catch (e) {
       print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
+      // showSnackBar(context, "Something went Wrong.");
       isLoading = false;
       notifyListeners();
     }
@@ -109,7 +115,7 @@ class ProductsApiProvider extends ChangeNotifier {
         isLoading = false;
         notifyListeners();
       } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
+        // showSnackBar(context, "${responseData["msg"]}");
         isLoading = false;
         notifyListeners();
       } else if (response.statusCode == responseCode404) {
@@ -118,7 +124,7 @@ class ProductsApiProvider extends ChangeNotifier {
         isLoading = false;
         notifyListeners();
       } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
+        showSnackBar(context, "Something went wrong!");
 
         isLoading = false;
         notifyListeners();
@@ -140,7 +146,7 @@ class ProductsApiProvider extends ChangeNotifier {
 
   ////////////////////////////////////////// Featured Productss ////////////////////////////////////////////////
 
-  void getFeatureProducts({
+  Future<void> getFeatureProducts({
     productId,
     search,
     cateId,
@@ -150,7 +156,9 @@ class ProductsApiProvider extends ChangeNotifier {
     dio,
     context,
   }) async {
-    isLoading = true;
+    if(allfeatureProductsData==null ||  allfeatureProductsData.isEmpty) {
+      isLoading = true;
+    }
     var response;
     int responseCode200 = 200; // For successful request.
     int responseCode400 = 400; // For Bad Request.
@@ -165,6 +173,7 @@ class ProductsApiProvider extends ChangeNotifier {
       "sub_category_id": subCatId,
       "limit": limit,
       "location": location,
+      "sort_by": "newest on top"
     };
     try {
       response = await dio.post(path: AppUrls.getFeatureProducts, data: params);
@@ -175,7 +184,7 @@ class ProductsApiProvider extends ChangeNotifier {
         isLoading = false;
         notifyListeners();
       } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
+        // showSnackBar(context, "${responseData["msg"]}");
 
         isLoading = false;
         notifyListeners();
@@ -195,12 +204,18 @@ class ProductsApiProvider extends ChangeNotifier {
       } else if (response.statusCode == responseCode200) {
         notifyListeners();
         isLoading = false;
-        allfeatureProductsData = responseData["data"];
+        if(responseData["data"].isNotEmpty) {
+          allfeatureProductsData = responseData["data"];
+        }
         notifyListeners();
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
+      if (kDebugMode) {
+        print(e);
+        print(e);
+        print(e);
+      }
+      // showSnackBar(context, "Something went Wrong.");
 
       isLoading = false;
       notifyListeners();
@@ -230,7 +245,7 @@ class ProductsApiProvider extends ChangeNotifier {
         isLoading = false;
         notifyListeners();
       } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["message"]}");
+        // showSnackBar(context, "${responseData["message"]}");
 
         isLoading = false;
         pushUntil(context, const SigInScreen());
@@ -255,7 +270,7 @@ class ProductsApiProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
+      print(e);
       showSnackBar(context, "Something went Wrong.");
 
       isLoading = false;
@@ -291,7 +306,7 @@ class ProductsApiProvider extends ChangeNotifier {
         isLoading = false;
         notifyListeners();
       } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
+        // showSnackBar(context, "${responseData["msg"]}");
 
         isLoading = false;
         notifyListeners();
@@ -319,4 +334,75 @@ class ProductsApiProvider extends ChangeNotifier {
       isLoading = false;
     }
   }
+
+  Future<void> getAllProducts({
+    search,
+    dio,
+    context,
+  }) async {
+
+    var response;
+    int responseCode200 = 200; // For successful request.
+    int responseCode400 = 400; // For Bad Request.
+    int responseCode401 = 401; // For Unauthorized access.
+    int responseCode404 = 404; // For For data not found
+    int responseCode422 = 422; // For For data not found
+    int responseCode500 = 500; // Internal server error.
+    Map<String, dynamic> params = {
+      // "id": productId,
+      "search": search,
+      // "category_id": cateId,
+      // "sub_category_id": subCatId,
+      // "limit": limit,
+      // "location": location,
+      // "sort_by": "newest on top"
+    };
+    try {
+      response = await dio.post(path: AppUrls.getAllProducts, data: params);
+      var responseData = response.data;
+      if (response.statusCode == responseCode400) {
+        showSnackBar(context, "${responseData["msg"]}");
+
+        isLoading = false;
+        notifyListeners();
+      } else if (response.statusCode == responseCode401) {
+        // showSnackBar(context, "${responseData["msg"]}");
+
+        isLoading = false;
+        notifyListeners();
+      } else if (response.statusCode == responseCode404) {
+        showSnackBar(context, "${responseData["msg"]}");
+
+        isLoading = false;
+        notifyListeners();
+      } else if (response.statusCode == responseCode500) {
+        showSnackBar(context, "${responseData["msg"]}");
+
+        isLoading = false;
+        notifyListeners();
+      } else if (response.statusCode == responseCode422) {
+        isLoading = false;
+        notifyListeners();
+      } else if (response.statusCode == responseCode200) {
+        notifyListeners();
+        isLoading = false;
+        if(responseData["data"].isNotEmpty) {
+          allProductsData = responseData["data"];
+        }
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+        print(e);
+        print(e);
+      }
+      // showSnackBar(context, "Something went Wrong.");
+
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+
 }

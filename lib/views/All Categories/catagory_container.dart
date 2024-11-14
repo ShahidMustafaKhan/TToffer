@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 
@@ -23,26 +24,24 @@ class _CatagoryContainerState extends State<CatagoryContainer> {
         ? Column(
             children: [
               Container(
-                height: 60,
-                width: 60,
+                height: 53.w,
+                width: 53.w,
                 decoration:
                     BoxDecoration(shape: BoxShape.circle, color: widget.color),
                 child: Image.asset(
                   widget.img,
-                  height: 32,
-                  width: 32,
                 ),
               ),
               const SizedBox(height: 4),
               AppText.appText(
                   widget.txt == 'Property for Sale'
-                      ? 'Property\n for Sale'
+                      ? ' Property\n for Sale'
                       : widget.txt == 'Property for Rent'
-                          ? 'Property\n for Rent'
-                          : widget.txt == 'Electronic & Appliance'
-                              ? 'Electronic\n & Appliance'
+                          ? ' Property\n for Rent'
+                          : widget.txt == 'Electronics & Appliance'
+                              ? 'Electronics\n & Appliance'
                               : widget.txt,
-                  fontSize: 13,
+                  fontSize: 11.sp,
                   textAlign: TextAlign.center,
                   fontWeight: FontWeight.w600,
                   textColor: AppTheme.textColor),

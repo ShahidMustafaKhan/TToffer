@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
@@ -33,7 +34,7 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
     dio = AppDio(context);
     logger.init();
     getUserDetail();
-    _priceController.text = "\$ 60";
+    // _priceController.text = "AED 60";
     super.initState();
   }
 
@@ -92,7 +93,7 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               textColor: AppTheme.txt1B20),
-                          AppText.appText("\$${widget.data["fix_price"]}",
+                          AppText.appText("AED ${formatNumber(widget.data["fix_price"],textFiled: false)}",
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                               textColor: AppTheme.textColor),
@@ -112,7 +113,8 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                     height: 20,
                   ),
                   CustomAppFormField(
-                    texthint: "",
+                    texthint: "AED",
+                    hintStyle: GoogleFonts.poppins(fontSize: 21, fontWeight: FontWeight.w400, color: Colors.black.withOpacity(0.7)),
                     controller: _priceController,
                     width: 161,
                     textAlign: TextAlign.center,
@@ -128,12 +130,13 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                 child: loader
                     ? CircularProgressIndicator(color: AppTheme.appColor)
                     : AppButton.appButton("Send Offer", onTap: () async {
+                      if(_priceController.text.isNotEmpty){
                         setState(() {
                           loader = true;
                         });
                         String priceWithoutDollarSign =
-                            _priceController.text.replaceAll('\$', '');
-                         await chatApiProvider.makeOffer(
+                        _priceController.text.replaceAll('\$', '');
+                        await chatApiProvider.makeOffer(
                             dio: dio,
                             context: context,
                             productId: widget.data["id"],
@@ -144,6 +147,11 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                         setState(() {
                           loader = false;
                         });
+                      }
+                      else{
+                        showSnackBar(context, 'Please add an offer before submitting.');
+                      }
+
 
                         // push(
                         //     context,

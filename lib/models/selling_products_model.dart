@@ -59,8 +59,8 @@
 // }
 //
 // class Selling {
-//   int? id;
-//   int? userId;
+//   dynamic id;
+//   dynamic userId;
 //   String title;
 //   dynamic slug;
 //   String description;
@@ -238,12 +238,12 @@
 // }
 //
 // class Category {
-//   int id;
+//   dynamic id;
 //   String name;
 //   String slug;
 //   String color;
 //   String image;
-//   int status;
+//   dynamic status;
 //   DateTime createdAt;
 //   DateTime updatedAt;
 //
@@ -282,8 +282,8 @@
 // }
 //
 // class Photo {
-//   int id;
-//   int productId;
+//   dynamic id;
+//   dynamic productId;
 //   String src;
 //   DateTime createdAt;
 //   DateTime updatedAt;
@@ -316,8 +316,8 @@
 // }
 //
 // class SubCategory {
-//   int id;
-//   int categoryId;
+//   dynamic id;
+//   dynamic categoryId;
 //   String name;
 //   DateTime? createdAt;
 //   DateTime? updatedAt;
@@ -331,8 +331,8 @@
 //   });
 //
 //   // SubCategory copyWith({
-//   //   int? id,
-//   //   int? categoryId,
+//   //   dynamic id,
+//   //   dynamic categoryId,
 //   //   String? name,
 //   //   DateTime? createdAt,
 //   //   DateTime? updatedAt,
@@ -372,12 +372,12 @@
 // }
 //
 // class User {
-//   int id;
+//   dynamic id;
 //   String name;
 //   String src;
 //   String provider;
-//   int? providerId;
-//   int? providerToken;
+//   dynamic providerId;
+//   dynamic providerToken;
 //   String? code;
 //   dynamic emailVerifiedAt;
 //   dynamic phoneVerifiedAt;
@@ -387,14 +387,14 @@
 //   dynamic phone;
 //   dynamic shareAbleLink;
 //   String img;
-//   int status;
+//   dynamic status;
 //   dynamic location;
 //   dynamic customLink;
-//   int isTrueYou;
+//   dynamic isTrueYou;
 //   DateTime createdAt;
 //   DateTime updatedAt;
-//   int totalReview;
-//   int reviewPercentage;
+//   dynamic totalReview;
+//   dynamic reviewPercentage;
 //
 //   User({
 //     required this.id,
@@ -423,7 +423,7 @@
 //   });
 //
 //   // User copyWith({
-//   //   int? id,
+//   //   dynamic id,
 //   //   String? name,
 //   //   String? src,
 //   //   String? provider,
@@ -438,14 +438,14 @@
 //   //   dynamic phone,
 //   //   dynamic shareAbleLink,
 //   //   String? img,
-//   //   int? status,
+//   //   dynamic status,
 //   //   dynamic location,
 //   //   dynamic customLink,
-//   //   int? isTrueYou,
+//   //   dynamic isTrueYou,
 //   //   DateTime? createdAt,
 //   //   DateTime? updatedAt,
-//   //   int? totalReview,
-//   //   int? reviewPercentage,
+//   //   dynamic totalReview,
+//   //   dynamic reviewPercentage,
 //   // }) =>
 //   //     User(
 //   //       id: id ?? this.id,
@@ -561,9 +561,9 @@ class SellingProductsModel {
 class Data {
   List<Selling>? selling;
   List<Selling>? purchase;
-  List<Selling>? archive;
+  List<Selling>? history;
 
-  Data({this.selling, this.purchase, this.archive});
+  Data({this.selling, this.purchase, this.history});
 
   Data.fromJson(Map<String, dynamic> json) {
     if (json['selling'] != null) {
@@ -578,10 +578,10 @@ class Data {
         purchase!.add(Selling.fromJson(v));
       });
     }
-    if (json['archive'] != null) {
-      archive = <Selling>[];
-      json['archive'].forEach((v) {
-        archive!.add(Selling.fromJson(v));
+    if (json['history'] != null) {
+      history = <Selling>[];
+      json['history'].forEach((v) {
+        history!.add(Selling.fromJson(v));
       });
     }
   }
@@ -594,8 +594,8 @@ class Data {
     if (purchase != null) {
       data['purchase'] = purchase!.map((v) => v.toJson()).toList();
     }
-    if (archive != null) {
-      data['archive'] = archive!.map((v) => v.toJson()).toList();
+    if (history != null) {
+      data['history'] = history!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -604,14 +604,14 @@ class Data {
 }
 
 class Selling {
-  int? id;
-  int? userId;
+  dynamic id;
+  dynamic userId;
   String? title;
   String? slug;
   String? description;
   String? attributes;
-  int? categoryId;
-  int? subCategoryId;
+  dynamic categoryId;
+  dynamic subCategoryId;
   String? condition;
   String? makeAndModel;
   String? mileage;
@@ -620,30 +620,32 @@ class Selling {
   String? model;
   String? edition;
   String? authenticity;
-  int? fixPrice;
-  int? firmOnPrice;
-  int? auctionPrice;
+  dynamic fixPrice;
+  dynamic firmOnPrice;
+  dynamic auctionPrice;
+  dynamic finalPrice;
   String? startingDate;
   String? startingTime;
   String? endingDate;
   String? endingTime;
-  Null? sellToUs;
+  String? sellToUs;
   String? location;
-  int? status;
+  dynamic status;
   String? createdAt;
   String? updatedAt;
-  int? isUrgent;
-  int? totalReview;
-  int? reviewPercentage;
-  int? isArchived;
-  int? isSold;
-  Null? soldToUserId;
+  String? productType;
+  dynamic isUrgent;
+  dynamic totalReview;
+  dynamic reviewPercentage;
+  dynamic isArchived;
+  dynamic isSold;
+  int? soldToUserId;
   String? viewsCount;
   String? boosterStartDatetime;
   String? boosterEndDatetime;
   User? user;
   Category? category;
-  Null? subCategory;
+  Category? subCategory;
   List<Photo>? photo;
   List<dynamic>? video;
   List<Wishlist>? wishlist;
@@ -668,6 +670,7 @@ class Selling {
         this.fixPrice,
         this.firmOnPrice,
         this.auctionPrice,
+        this.finalPrice,
         this.startingDate,
         this.startingTime,
         this.endingDate,
@@ -682,6 +685,7 @@ class Selling {
         this.reviewPercentage,
         this.isArchived,
         this.isSold,
+        this.productType,
         this.soldToUserId,
         this.viewsCount,
         this.boosterStartDatetime,
@@ -713,6 +717,7 @@ class Selling {
     fixPrice = json['fix_price'];
     firmOnPrice = json['firm_on_price'];
     auctionPrice = json['auction_price'];
+    finalPrice = json['final_price'];
     startingDate = json['starting_date'];
     startingTime = json['starting_time'];
     endingDate = json['ending_date'];
@@ -728,13 +733,15 @@ class Selling {
     isArchived = json['is_archived'];
     isSold = json['is_sold'];
     soldToUserId = json['sold_to_user_id'];
+    productType = json['ProductType'];
     viewsCount = json['views_count'] ?? '0';
     boosterStartDatetime = json['booster_start_datetime'];
     boosterEndDatetime = json['booster_end_datetime'];
     user = json['user'] != null ? User.fromJson(json['user']) : null;
     category =
     json['category'] != null ? Category.fromJson(json['category']) : null;
-    subCategory = json['sub_category'];
+    subCategory =
+    json['sub_category'] != null ? Category.fromJson(json['sub_category']) : null;
     if (json['photo'] != null) {
       photo = <Photo>[];
       json['photo'].forEach((v) {
@@ -747,12 +754,12 @@ class Selling {
     //     video!.add(new Null.fromJson(v));
     //   });
     // }
-    if (json['wishlist'] != null) {
-      wishlist = <Wishlist>[];
-      json['wishlist'].forEach((v) {
-        wishlist!.add(Wishlist.fromJson(v));
-      });
-    }
+    // if (json['wishlist'] != null) {
+    //   wishlist = <Wishlist>[];
+    //   json['wishlist'].forEach((v) {
+    //     wishlist!.add(Wishlist.fromJson(v));
+    //   });
+    // }
   }
 
   Map<String, dynamic> toJson() {
@@ -776,6 +783,7 @@ class Selling {
     data['fix_price'] = fixPrice;
     data['firm_on_price'] = firmOnPrice;
     data['auction_price'] = auctionPrice;
+    data['final_price'] = finalPrice;
     data['starting_date'] = startingDate;
     data['starting_time'] = startingTime;
     data['ending_date'] = endingDate;
@@ -815,12 +823,12 @@ class Selling {
 }
 
 class User {
-  int id;
+  dynamic id;
   String name;
   String src;
   String provider;
-  int? providerId;
-  int? providerToken;
+  dynamic providerId;
+  dynamic providerToken;
   String? code;
   dynamic emailVerifiedAt;
   dynamic phoneVerifiedAt;
@@ -830,14 +838,14 @@ class User {
   dynamic phone;
   dynamic shareAbleLink;
   String img;
-  int status;
+  dynamic status;
   dynamic location;
   dynamic customLink;
-  int isTrueYou;
+  dynamic isTrueYou;
   DateTime createdAt;
   DateTime updatedAt;
-  int totalReview;
-  int reviewPercentage;
+  dynamic totalReview;
+  dynamic reviewPercentage;
 
   User({
     required this.id,
@@ -919,12 +927,12 @@ class User {
 }
 
 class Category {
-  int? id;
+  dynamic id;
   String? name;
   String? slug;
   String? color;
   String? image;
-  int? status;
+  dynamic status;
   String? createdAt;
   String? updatedAt;
 
@@ -964,8 +972,8 @@ class Category {
 }
 
 class Photo {
-  int? id;
-  int? productId;
+  dynamic id;
+  dynamic productId;
   String? src;
   String? createdAt;
   String? updatedAt;
@@ -992,9 +1000,9 @@ class Photo {
 }
 
 class Wishlist {
-  int? id;
-  int? userId;
-  int? productId;
+  dynamic id;
+  dynamic userId;
+  dynamic productId;
   String? createdAt;
   String? updatedAt;
 

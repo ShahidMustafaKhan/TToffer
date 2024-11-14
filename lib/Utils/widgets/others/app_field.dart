@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 
 class CustomAppFormField extends StatefulWidget {
@@ -38,11 +39,16 @@ class CustomAppFormField extends StatefulWidget {
   final errorBorder;
   final focusedErrorBorder;
   final cPadding;
+  final contentPadding;
   final type;
+  final readOnly;
+  final FocusNode? focusNode;
+  List<TextInputFormatter>? inputFormatters;
 
    CustomAppFormField({
     Key? key,
     this.containerBorderCondition = false,
+    this.readOnly = false,
     required this.texthint,
     required this.controller,
     this.validator,
@@ -78,7 +84,9 @@ class CustomAppFormField extends StatefulWidget {
     this.cursorColor,
     this.texAlign,
     this.cPadding,
-    this.type,
+    this.contentPadding,
+    this.type, this.focusNode,
+    this.inputFormatters
   }) : super(key: key);
 
   @override
@@ -97,15 +105,20 @@ class _CustomAppFormFieldState extends State<CustomAppFormField> {
           color: AppTheme.white,
           borderRadius: BorderRadius.circular(widget.radius ?? 10)),
       child: TextFormField(
+        focusNode: widget.focusNode,
+        cursorColor: Colors.black,
         enabled: widget.enable,
+        inputFormatters: widget.inputFormatters,
         onFieldSubmitted: (widget.onFieldSubmitted),
+        onTap: widget.onTap,
+        readOnly: widget.readOnly,
+        onChanged: widget.onChanged,
         style:
             TextStyle(fontSize: widget.fontsize, fontWeight: widget.fontweight),
         textAlign: widget.textAlign,
         maxLines: widget.maxline ?? 1,
         controller: widget.controller,
-        cursorColor: AppTheme.white,
-        cursorHeight: 20,
+        // cursorHeight: widget.cursorHeight ?? 20,
         cursorWidth: 2,
         keyboardType: widget.type ?? TextInputType.name,
         decoration: InputDecoration(
@@ -117,9 +130,9 @@ class _CustomAppFormFieldState extends State<CustomAppFormField> {
               minWidth: 50,
             ),
             border: InputBorder.none,
-            contentPadding: EdgeInsets.all(widget.cPadding ?? 8),
+            contentPadding: widget.contentPadding ?? EdgeInsets.all(widget.cPadding ?? 8),
             hintText: widget.texthint,
-            hintStyle: TextStyle(
+            hintStyle: widget.hintStyle ?? TextStyle(
                 color: widget.hintTextColor ?? AppTheme.textColor,
                 fontSize: 14,
                 fontWeight: FontWeight.w400),
@@ -151,7 +164,7 @@ class CustomAppPasswordfield extends StatefulWidget {
   final Color? prefixIconColor;
   final Color? suffixIconColor;
   final Color? cursorColor;
-  final hintStyle;
+  final TextStyle? hintStyle;
   final style;
   final errorStyle;
   final errorBorder;
@@ -236,7 +249,7 @@ class _CustomAppPasswordfieldState extends State<CustomAppPasswordfield> {
             border: InputBorder.none,
             contentPadding: const EdgeInsets.all(8),
             hintText: widget.texthint,
-            hintStyle: const TextStyle(
+            hintStyle: widget.hintStyle ?? const TextStyle(
                 color: Color(0xff939699),
                 fontSize: 14,
                 fontWeight: FontWeight.w400),

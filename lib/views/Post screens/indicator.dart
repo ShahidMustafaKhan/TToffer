@@ -9,8 +9,9 @@ class StepsIndicator extends StatefulWidget {
   final circleColor2;
   final circleColor3;
   final circleColor4;
+  bool categoryNameJob;
 
-  const StepsIndicator({
+  StepsIndicator({
     super.key,
     this.conColor1,
     this.conColor2,
@@ -19,6 +20,7 @@ class StepsIndicator extends StatefulWidget {
     this.circleColor2,
     this.circleColor3,
     this.circleColor4,
+    this.categoryNameJob = false,
   });
 
   @override
@@ -42,7 +44,7 @@ class _StepsIndicatorState extends State<StepsIndicator> {
               progressIndicator(
                   color: widget.conColor2 ?? const Color(0xffD1D5DB)),
               progressIndicator(
-                  color: widget.conColor3 ?? const Color(0xffD1D5DB)),
+                  color: widget.conColor3 ?? const Color(0xffD1D5DB), width: 0.20 ),
             ],
           ),
           Row(
@@ -50,7 +52,7 @@ class _StepsIndicatorState extends State<StepsIndicator> {
             children: [
               progressNum(bottomTxt: "Post", color1: widget.circleColor1),
               progressNum(bottomTxt: "Detail", color1: widget.circleColor2),
-              progressNum(bottomTxt: "Price", color1: widget.circleColor3),
+              progressNum(bottomTxt: widget.categoryNameJob == true ? 'Salary' : "Price", color1: widget.circleColor3),
               progressNum(bottomTxt: "Finish", color1: widget.circleColor4),
             ],
           )
@@ -59,14 +61,14 @@ class _StepsIndicatorState extends State<StepsIndicator> {
     );
   }
 
-  progressIndicator({color}) {
+  progressIndicator({color, width = 0.2333 }) {
 
     return Padding(
         padding: const EdgeInsets.only(top: 16.0),
         child: Container(
           height: 2,
           color: color,
-          width: MediaQuery.of(context).size.width * 0.2333,
+          width: MediaQuery.of(context).size.width * width,
         ));
   }
 

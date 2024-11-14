@@ -16,13 +16,15 @@ import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/utils/utils.dart';
 import 'package:tt_offer/views/Authentication%20screens/email_screen.dart';
+import 'package:tt_offer/views/Authentication%20screens/phone_auth.dart';
 
 class UpdateForgotPassordScreen extends StatefulWidget {
   final String email;
+  final bool isPhone;
 
   const UpdateForgotPassordScreen({
     super.key,
-    required this.email,
+    required this.email, this.isPhone= false,
   });
 
   @override
@@ -105,12 +107,15 @@ class _AccountEditInfoScreenState extends State<UpdateForgotPassordScreen> {
   }
 
   Future<void> updatePassword() async {
-    Map body = {"email": widget.email, "password": controller.text.trim()};
+    Map body =
+    widget.isPhone == false ?
+    {"email": widget.email, "password": controller.text.trim()} :
+    {"phone": widget.email, "password": controller.text.trim()};
     setState(() {
       loading = true;
     });
     var responce = await customPostRequest.httpPostRequest(
-        noTokenHeader: true, url: AppUrls.newPasswordUrl, body: body);
+        noTokenHeader: true, url: widget.isPhone == true ? AppUrls.newPasswordPhoneUrl : AppUrls.newPasswordUrl, body: body);
 
     log("responce in updatePassword  = $responce");
 
@@ -119,9 +124,12 @@ class _AccountEditInfoScreenState extends State<UpdateForgotPassordScreen> {
     });
 
     if (responce["status"] == "success") {
-      showSnackBar(context, responce["msg"]);
+      showSnackBar(context, responce["msg"], title: 'Success!');
 
-      pushReplacement(context, const EmailLoginScreen());
+      pushReplacement(context, widget.isPhone == false ? const EmailLoginScreen() : const PhoneLoginScreen());
+    }
+    else {
+      showSnackBar(context, responce["msg"]);
     }
   }
 }

@@ -54,6 +54,8 @@ class Conversation {
   int? id;
   int? senderId;
   int? receiverId;
+  int? buyerId;
+  int? sellerId;
   String? message;
   dynamic file;
   dynamic fileName;
@@ -72,6 +74,8 @@ class Conversation {
     this.id,
     this.senderId,
     this.receiverId,
+    this.buyerId,
+    this.sellerId,
     this.message,
     this.file,
     this.fileName,
@@ -91,6 +95,8 @@ class Conversation {
         id: json["id"],
         senderId: json["sender_id"],
         receiverId: json["receiver_id"],
+        buyerId: json["buyer_id"],
+        sellerId: json["seller_id"],
         message: json["message"],
         file: json["file"],
         fileName: json["file_name"],
@@ -177,8 +183,8 @@ class Product {
   String? title;
   String? slug;
   String? description;
-  int? categoryId;
-  int? subCategoryId;
+  String? categoryId;
+  String? subCategoryId;
   String? condition;
   String? makeAndModel;
   String? mileage;
@@ -187,8 +193,8 @@ class Product {
   String? model;
   String? edition;
   String? authenticity;
-  int? fixPrice;
-  int? firmOnPrice;
+  String? fixPrice;
+  String? firmOnPrice;
   dynamic auctionPrice;
   dynamic startingDate;
   dynamic startingTime;
@@ -196,14 +202,14 @@ class Product {
   dynamic endingTime;
   dynamic sellToUs;
   String? location;
-  int? status;
+  String? status;
   DateTime? createdAt;
   DateTime? updatedAt;
-  int? isUrgent;
-  int? totalReview;
-  int? reviewPercentage;
-  int? isArchived;
-  int? isSold;
+  String? isUrgent;
+  String? totalReview;
+  String? reviewPercentage;
+  String? isArchived;
+  String? isSold;
   dynamic soldToUserId;
   dynamic viewsCount;
   dynamic boosterStartDatetime;
@@ -262,17 +268,6 @@ class Product {
         id: json["id"],
         userId: json["user_id"],
         title: json["title"],
-        slug: json["slug"],
-        description: json["description"],
-        categoryId: json["category_id"],
-        subCategoryId: json["sub_category_id"],
-        condition: json["condition"],
-        makeAndModel: json["make_and_model"],
-        mileage: json["mileage"],
-        color: json["color"],
-        brand: json["brand"],
-        model: json["model"],
-        edition: json["edition"],
         authenticity: json["authenticity"],
         fixPrice: json["fix_price"],
         firmOnPrice: json["firm_on_price"],
@@ -281,25 +276,16 @@ class Product {
         startingTime: json["starting_time"],
         endingDate: json["ending_date"],
         endingTime: json["ending_time"],
-        sellToUs: json["sell_to_us"],
+
         location: json["location"],
-        status: json["status"],
+
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
-        isUrgent: json["is_urgent"],
-        totalReview: json["total_review"],
-        reviewPercentage: json["review_percentage"],
-        isArchived: json["is_archived"],
-        isSold: json["is_sold"],
-        soldToUserId: json["sold_to_user_id"],
-        viewsCount: json["views_count"],
-        boosterStartDatetime: json["booster_start_datetime"],
-        boosterEndDatetime: json["booster_end_datetime"],
+
         // category: Category.fromJson(json["category"]),
         // subCategory: SubCategory.fromJson(json["sub_category"]),
         photo: List<Photo>.from(json["photo"].map((x) => Photo.fromJson(x))),
         video: List<dynamic>.from(json["video"].map((x) => x)),
-        wishlist: List<dynamic>.from(json["wishlist"].map((x) => x)),
       );
 }
 

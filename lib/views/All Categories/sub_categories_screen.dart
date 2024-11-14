@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -24,7 +25,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
     final provider = Provider.of<SubCategoriesProvider>(context, listen: false)
         .subCategories;
     filteredSubCategories =
-        provider.where((subCategory) => subCategory.id == widget.id).toList();
+        provider.where((subCategory) => subCategory.categoryId == widget.id).toList();
 
     setState(() {});
   }
@@ -49,11 +50,23 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: AppText.appText('See all in ${widget.title}',
-                      textColor: const Color(0xff1B63D8), fontSize: 16),
+                GestureDetector(
+                  onTap:(){
+                    push(
+                        context,
+                        CatagoryProductScreen(
+                          catId: widget.id,
+                          catNAme: widget.title,
+                          all: true,
+                        ));
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: AppText.appText('See all in ${widget.title}',
+                        textColor: const Color(0xff1B63D8), fontSize: 16),
+                  ),
                 ),
+
                 for (int i = 0; i < filteredSubCategories.length; i++)
                   Padding(
                       padding: const EdgeInsets.symmetric(
@@ -63,7 +76,8 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                           push(
                               context,
                               CatagoryProductScreen(
-                                catId: filteredSubCategories[i].id,
+                                catId: filteredSubCategories[i].categoryId,
+                                subCatId: filteredSubCategories[i].id.toString(),
                                 catNAme: filteredSubCategories[i].title,
                               ));
                         },

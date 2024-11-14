@@ -69,9 +69,15 @@ class Authentication {
           await googleSignIn.signIn();
 
       if (googleSignInAccount != null) {
-        print("nk4fn4nfk43kfk4nnf;");
+
+
         final GoogleSignInAuthentication googleSignInAuthentication =
             await googleSignInAccount.authentication;
+
+        print(googleSignInAuthentication.accessToken);
+        print(googleSignInAuthentication.accessToken);
+        print(googleSignInAuthentication.accessToken);
+        print(googleSignInAuthentication.accessToken);
 
         final AuthCredential credential = GoogleAuthProvider.credential(
           accessToken: googleSignInAuthentication.accessToken,

@@ -12,6 +12,8 @@ import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/bids_model.dart';
 
+import '../../Utils/utils.dart';
+
 class PanelWidget extends StatefulWidget {
   final ScrollController controller;
   final PanelController panelController;
@@ -99,7 +101,7 @@ class _PanelWidgetState extends State<PanelWidget> {
 
     // Find the highest bid price and the user associated with it
     for (var bid in widget.bidsData) {
-      int price = bid.price as int;
+      int price = bid.price!;
       if (price > highestPrice) {
         highestPrice = price;
         highestBidUser = price;
@@ -204,6 +206,7 @@ class _PanelWidgetState extends State<PanelWidget> {
                                 Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       AppText.appText(
                                           widget.bidsData[index].user == null ||
@@ -220,17 +223,12 @@ class _PanelWidgetState extends State<PanelWidget> {
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
                                           textColor: AppTheme.textColor00),
-                                      AppText.appText(
-                                          widget.bidsData[index].price
-                                              .toString(),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400,
-                                          textColor: AppTheme.textColor00),
+
                                     ])
                               ],
                             ),
                             AppText.appText(
-                                "\$${widget.bidsData[index].price.toString()}",
+                                "AED ${widget.bidsData[index].price.toString()}",
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
                                 textColor: AppTheme.textColor00),
@@ -260,7 +258,7 @@ class _PanelWidgetState extends State<PanelWidget> {
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   textColor: AppTheme.textColor00),
-              AppText.appText("\$${widget.data["auction_price"]}",
+              AppText.appText("AED ${formatNumber((removeLastTwoZeros(widget.data["auction_price"])))}",
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
                   textColor: AppTheme.textColor00),
@@ -271,7 +269,7 @@ class _PanelWidgetState extends State<PanelWidget> {
                 children: [
                   Row(
                     children: List.generate(
-                      widget.bidsData.length >= 4 ? 4 : widget.bidsData.length,
+                      widget.bidsData.length >= 3 ? 3 : widget.bidsData.length,
                       (index) => SizedBox(
                         height: 20,
                         width: 20,
@@ -329,7 +327,7 @@ class _PanelWidgetState extends State<PanelWidget> {
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
                       textColor: AppTheme.textColor00)
-                  : AppText.appText("$highestBidUser",
+                  : AppText.appText("AED ${formatNumber(highestBidUser.toString())}",
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
                       textColor: AppTheme.textColor00),

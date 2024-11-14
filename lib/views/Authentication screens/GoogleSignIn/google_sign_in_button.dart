@@ -58,6 +58,12 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                   try {
                     await Authentication.initializeFirebase(context: context);
                     print("initialize");
+                    print("initialize");
+                    print("initialize");
+                    print("initialize");
+                    print("initialize");
+                    print("initialize");
+                    print("initialize");
                     await Authentication.signInWithGoogle(context: context);
                     isAlready == true || isRegister == true
                         ? await signIn()
@@ -73,9 +79,9 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                     //     (route) => false);
 
                     if (isAlready) {
-                      showSnackBar(context, 'Login Successfully');
+                      showSnackBar(context, 'Login Successfully', title: 'Success!');
                     } else {
-                      showSnackBar(context, 'Register Successfully');
+                      showSnackBar(context, 'Register Successfully', title: 'Success!');
                     }
                   } catch (e) {
                     googleSignInProvider.setSigningIn(false);
@@ -145,7 +151,7 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) => const BottomNavView(),
+                builder: (context) => const BottomNavView(fromLogin : true),
               ),
               (route) => false,
             );
@@ -240,7 +246,7 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) => const BottomNavView(),
+                builder: (context) => const BottomNavView(fromLogin : true),
               ),
               (route) => false);
         }

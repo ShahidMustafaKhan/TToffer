@@ -1,6 +1,9 @@
 import 'dart:developer';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -14,12 +17,16 @@ import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/stripe_payment_screen.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
+import 'package:tt_offer/views/Homepage/landing_screen.dart';
+import 'package:tt_offer/views/Post%20screens/google_map_screen.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
 import 'package:tt_offer/views/Post%20screens/post_product_payment.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/views/Sell%20Faster/sell_faster.dart';
 
+import '../../Controller/APIs Manager/profile_apis.dart';
+import '../../Controller/image_provider.dart';
 import '../../providers/selling_purchase_provider.dart';
 
 class PostLocationScreen extends StatefulWidget {
@@ -28,12 +35,14 @@ class PostLocationScreen extends StatefulWidget {
   Selling? selling;
 
   String title;
+  String? selectedCategory;
   int amount;
 
   PostLocationScreen(
       {super.key,
       this.productId,
       this.selling,
+      this.selectedCategory,
       required this.amount,
       required this.title});
 
@@ -44,16 +53,41 @@ class PostLocationScreen extends StatefulWidget {
 class _PostLocationScreenState extends State<PostLocationScreen> {
   final TextEditingController _locationController = TextEditingController();
   bool _isLoading = false;
+  bool done = false;
   late AppDio dio;
   AppLogger logger = AppLogger();
+  bool isSelectedCategoryJob = false;
+  bool isSelectedCategoryProperty = false;
+
+  bool isBack = false;
+
+  bool pickupOnly = false;
+
+  bool localDelivery = false;
+
+
 
   @override
   void initState() {
+
+
+
     dio = AppDio(context);
     logger.init();
 
     if (widget.selling != null) {
       _locationController.text = widget.selling!.location!;
+    }
+    else{
+      _locationController.text = Provider.of<ProfileApiProvider>(context, listen: false).profileData?["location"] ?? '';
+    }
+
+    if(widget.selectedCategory != null && widget.selectedCategory == 'Jobs'){
+      isSelectedCategoryJob = true;
+    }
+
+    if(widget.selectedCategory != null && (widget.selectedCategory == 'Property for Sale' || widget.selectedCategory == 'Property for Rent') ){
+      isSelectedCategoryProperty = true;
     }
 
     // print('location--->${widget.selling!.location??''}');
@@ -63,6 +97,9 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final imageProvider =
+        Provider.of<ImageNotifyProvider>(context, listen: false);
+
     return WillPopScope(
       onWillPop: () async {
         pushReplacement(context, BottomNavView());
@@ -73,8 +110,21 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
           padding: const EdgeInsets.all(20.0),
           child: _isLoading == true
               ? LoadingDialog()
-              : AppButton.appButton("Next", onTap: () {
-                  enterLocation();
+              : AppButton.appButton(done == true && isBack == false ? "Done" : "Next", onTap: () {
+                if(done == true && isBack == false) {
+
+                  imageProvider.imagePaths.clear();
+                  imageProvider.vedioPath = '';
+
+                  pushUntil(context, const BottomNavView(showDialog: true,));
+                }
+                else {
+                  if(_locationController.text.isNotEmpty) {
+                    enterLocation();
+                  } else{
+                    showSnackBar(context, "Please add your location.");
+                  }
+                }
                 },
                   height: 53,
                   fontWeight: FontWeight.w500,
@@ -109,6 +159,8 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
                     conColor3: AppTheme.appColor,
                     circleColor3: AppTheme.appColor,
                     circleColor4: AppTheme.appColor,
+                    categoryNameJob: isSelectedCategoryJob,
+
                   ),
                 ),
                 const SizedBox(
@@ -121,31 +173,123 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
                 LableTextField(
                   labelTxt: "Set a Location (Required)",
                   hintTxt: "Set a location",
+                  readOnly: true,
+                  onTap: (){ Navigator.push(context, CupertinoPageRoute(builder: (_) => GoogleMapView())).then((value){
+                    if(value!=null) {
+                      _locationController.text = value;
+                      setState(() {
+
+                      });
+                    }
+                  });},
                   controller: _locationController,
                 ),
+
+
+
+                if(isSelectedCategoryJob == false && isSelectedCategoryProperty == false) ... [
+                  const Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+
+
+                      // customCheckBox(
+                      //     propertyAttributes!=null ?  propertyAttributes!.owner=='Owner'
+                      //         ? true
+                      //         : owner : owner, (val) {
+                      //   owner = val!;
+                      //   dealer = false;
+                      //   selectDealer = 'Owner';
+                      //   print(selectDealer);
+                      //   setState(() {});
+                      // }, 'Owner'),
+                      // customCheckBox(
+                      //     propertyAttributes!=null ? propertyAttributes!.owner=='Dealer'
+                      //         ? true
+                      //         : dealer :  dealer, (val) {
+                      //   dealer = val!;
+                      //   selectDealer = 'Dealer';
+                      //   print(selectDealer);
+                      //
+                      //   owner = false;
+                      //   setState(() {});
+                      // }, 'Dealer'),
+                    ],
+                  ),
+
                 Image.asset("assets/images/shipping.png"),
-                const SizedBox(
-                  height: 20,
-                ),
-                Align(
-                  alignment: Alignment.center,
-                  child: AppText.appText("Ship, ship, Hooray! ",
-                      fontSize: 16,
-                      textAlign: TextAlign.center,
-                      fontWeight: FontWeight.w700,
-                      textColor: AppTheme.blackColor),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  child: AppText.appText(
-                      "Accelerate the sale of your item by making it available to millions of buyers across the country.",
-                      fontSize: 12,
-                      textAlign: TextAlign.center,
-                      fontWeight: FontWeight.w400,
-                      textColor: AppTheme.blackColor),
-                ),
+
+                  SizedBox(height:15.h),
+
+                  AppButton.appButton(
+                      "ADD SHIPPING",
+                      height: 38.h,
+                      fontWeight: FontWeight.w500,
+                      padding : EdgeInsets.symmetric( vertical: 2.h),
+                      fontSize: 15,
+                      radius: 12.0,
+
+                      onTap: null
+                  ),
+                  SizedBox(height:12.h),
+                  AppButton.appButton(
+                      "LOCAL DELIVERY",
+                      height: 38.h,
+                      fontWeight: FontWeight.w500,
+                      padding : EdgeInsets.symmetric( vertical: 2.h),
+                      fontSize: 15,
+                      radius: 12.0,
+                      backgroundColor: localDelivery == true ? AppTheme.yellowColor : null,
+                      textColor: localDelivery == true ? AppTheme.whiteColor : AppTheme.appColor,
+                      borderColor:  localDelivery == true ? AppTheme.yellowColor : null,
+                      onTap:(){
+                        localDelivery = !localDelivery;
+                        setState(() {});}
+                  ),
+                  SizedBox(height:12.h),
+                  AppButton.appButton(
+                      "PICKUP ONLY",
+                      height: 38.h,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                      radius: 12.0,
+                      borderColor:  pickupOnly == true ? AppTheme.yellowColor : null,
+                      backgroundColor: pickupOnly == true ? AppTheme.yellowColor : null,
+                      textColor: pickupOnly == true ? AppTheme.whiteColor : AppTheme.appColor,
+                      onTap:(){
+                        pickupOnly = !pickupOnly;
+                        setState(() {});}
+                  ),
+
+                // Align(
+                //   alignment: Alignment.center,
+                //   child: AppText.appText("ADD SHIPPING",
+                //       fontSize: 16,
+                //       textAlign: TextAlign.center,
+                //       fontWeight: FontWeight.w700,
+                //       textColor: AppTheme.blackColor),
+                // ),
+
+
+                ],
+                if(isSelectedCategoryJob == true && isSelectedCategoryProperty == false)...[
+                  Image.asset('assets/images/hand_shake.png'),
+
+                  const SizedBox(
+                    height: 0,
+                  ),
+                  Container(
+                    child: AppText.appText(
+                        "Give your job ad a boost and reach millions across the country for faster results!.",
+                        fontSize: 12,
+                        textAlign: TextAlign.center,
+                        fontWeight: FontWeight.w400,
+                        textColor: AppTheme.blackColor),
+                  ),
+                ]
+
+
               ],
             ),
           ),
@@ -172,7 +316,7 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
 
     try {
       response = await dio.post(
-          path: widget.selling != null
+          path: widget.selling != null || isBack==true
               ? AppUrls.updateProductLocation
               : AppUrls.addProductLocation,
           data: params);
@@ -204,18 +348,33 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
       } else if (response.statusCode == responseCode200) {
         setState(() {
           _isLoading = false;
+          done=true;
         });
-        showSnackBar(context, responseData["msg"]);
-        widget.selling ??= Selling.fromJson(responseData);
+        // showSnackBar(context, responseData["msg"]);
 
-      await  getSellingProducts(context);
+        widget.selling = Selling.fromJson(responseData["data"]);
 
 
-        pushReplacement(
-            context,
+        await getSellingProducts(context);
+
+        for (var element in Provider.of<SellingPurchaseProvider>(context, listen: false).sellingProductsModel!.data!.selling!) {
+          if (element.id == widget.selling!.id) {
+            widget.selling = element;
+          }
+        }
+
+        if(widget.selling != null) {
+          Navigator.push(context, CupertinoPageRoute(builder: (_) =>
             SellFaster(
               selling: widget.selling!,
-            ));
+              fromLocation: true,
+            ),)).then((value){
+          setState(() {
+            isBack = true;
+          });
+        });
+        }
+
 
 
         // pushReplacement(

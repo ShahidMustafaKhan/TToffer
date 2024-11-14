@@ -45,7 +45,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       });
 
       if (res['status'] == 'success') {
-        showSnackBar(context, 'Email Verification OTP sent to your email');
+        showSnackBar(context, 'Email Verification OTP sent to your email', title : 'Congratulations!');
         // Assuming you have logic to update otpModel with the received OTP
         setState(() {
           otpModel = OtpModel(
@@ -71,11 +71,20 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         .verifyEmail(context: context, email: emailController.text);
     if (res) {
       showSnackBar(context, 'Email verify successfully');
+      dio = AppDio(context);
+      logger.init();
+      Provider.of<ProfileApiProvider>(context, listen: false).getProfile(
+        dio: dio,
+        context: context,
+      );
+      Navigator.of(context).pop();
     }
     setState(() {
       loading = false;
     });
   }
+
+
 
   late AppDio dio;
   AppLogger logger = AppLogger();
@@ -88,13 +97,10 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       onWillPop: () async {
         dio = AppDio(context);
         logger.init();
-        final profileApi =
-            Provider.of<ProfileApiProvider>(context, listen: false);
-        await profileApi.getProfile(
-          dio: dio,
-          context: context,
-        );
-        // getUserDetail();
+            Provider.of<ProfileApiProvider>(context, listen: false).getProfile(
+              dio: dio,
+              context: context,
+            );
         return true; // Allow the pop action
       },
       child: Scaffold(
@@ -186,7 +192,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                                     otpModel!.otp.toString()) {
                                   verifyEmailHandler();
                                 } else {
-                                  showSnackBar(context, 'Enter correct otp');
+                                  showSnackBar(context, 'Incorrect otp');
                                 }
                               },
                               style: ElevatedButton.styleFrom(

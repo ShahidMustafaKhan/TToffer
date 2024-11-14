@@ -1,5 +1,7 @@
 import 'package:country_list_pick/country_list_pick.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -13,6 +15,10 @@ import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
+
+import '../Profile Screen/Settings/privacy_policy.dart';
+import '../Profile Screen/Settings/terms_and_condition.dart';
+import 'GoogleSignIn/forgot_email.dart';
 
 class PhoneLoginScreen extends StatefulWidget {
   const PhoneLoginScreen({super.key});
@@ -33,7 +39,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   void initState() {
     dio = AppDio(context);
     logger.init();
-    _phoneController.text = "+375";
+    _phoneController.text = "+971";
     super.initState();
   }
 
@@ -68,7 +74,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                     fontWeight: FontWeight.w600,
                     textColor: const Color(0xff090B0C)),
               ),
-              phoneField(controller: _phoneController),
+              phoneField(controller: _phoneController, context: context),
               Padding(
                 padding: const EdgeInsets.only(top: 20.0, bottom: 10),
                 child: AppText.appText("Password",
@@ -80,9 +86,70 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 texthint: "Password",
                 controller: _passwordController,
               ),
+              const SizedBox(
+                height: 10,
+              ),
+              GestureDetector(
+                onTap: () {
+                  push(context, const ForgotEmailPass(phone: true,));
+                },
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: AppText.appText("Forgot Password?",
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      textColor: AppTheme.txt1B20),
+                ),
+              ),
+              SizedBox(height: 20.h),
+
+              RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                      text: 'By logging in I agree to the ',
+                      style: TextStyle(color: AppTheme.hintTextColor, fontFamily: 'Poppins', fontSize: 12),
+                      children: [
+                        TextSpan(
+                          text: 'Terms and Conditions',
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            fontSize: 13,
+                            fontFamily: 'Poppins',
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              push(context, const TermsAndCondition());
+
+
+                            },
+                        ),
+                        TextSpan(
+                          text: ' and ',
+                          style: TextStyle(color: AppTheme.hintTextColor,  fontFamily: 'Poppins'),
+                        ),
+                        TextSpan(
+                          text: 'Privacy Policy',
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            fontSize: 13,
+                            fontFamily: 'Poppins',
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              push(context, PrivacyPolicyScreen());
+                            },
+                        ),])),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 40.0),
-                child: AppButton.appButton("Sign In", onTap: () {
+                child: isLoading == true
+                    ? Center(
+                  child: CircularProgressIndicator(
+                    color: AppTheme.appColor,
+                  ),
+                )
+                    : AppButton.appButton("Sign In", onTap: () {
                   if (_phoneController.text.isNotEmpty) {
                     if (_passwordController.text.isNotEmpty) {
                       phoneSignIn();
@@ -107,51 +174,6 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     );
   }
 
-  Widget phoneField({controller}) {
-    String initialCountry = "by";
-    return Container(
-      decoration: BoxDecoration(
-          color: AppTheme.whiteColor,
-          border: Border.all(color: const Color(0xffE5E9EB)),
-          borderRadius: BorderRadius.circular(14)),
-      height: 50,
-      width: MediaQuery.of(context).size.width,
-      child: Row(
-        children: [
-          CountryListPick(
-            onChanged: (CountryCode? countryCode) {
-              controller.text = countryCode?.dialCode ?? '';
-            },
-            theme: CountryTheme(
-                isShowFlag: true,
-                showEnglishName: true,
-                isShowTitle: false,
-                isShowCode: false,
-                isDownIcon: false),
-            initialSelection: initialCountry,
-            useUiOverlay: false,
-            useSafeArea: false,
-          ),
-          Expanded(
-            child: TextFormField(
-              cursorColor: AppTheme.textColor,
-              cursorHeight: 25,
-              controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(),
-              decoration: const InputDecoration(
-                  fillColor: Colors.black38,
-                  focusedBorder: InputBorder.none,
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5))),
-                  enabledBorder: InputBorder.none,
-                  disabledBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.only(bottom: 4)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   void phoneSignIn() async {
     setState(() {
@@ -178,7 +200,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
           isLoading = false;
         });
       } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["message"]}");
+        showSnackBar(context, "Invalid phone number or password.");
         setState(() {
           isLoading = false;
         });
@@ -220,7 +242,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) => const BottomNavView(),
+                builder: (context) => const BottomNavView(fromLogin : true),
               ),
               (route) => false);
         }

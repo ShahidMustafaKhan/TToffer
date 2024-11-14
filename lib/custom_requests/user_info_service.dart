@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/main.dart';
@@ -16,16 +17,30 @@ class UserInfoService {
       var res = await customGetRequest.httpGetRequest(url: 'user/info/$id');
 
       if (res['data'] != null || res['success'] == true) {
-        UserInfoModel userInfoModel = UserInfoModel.fromJson(res);
+        try {
+          UserInfoModel userInfoModel = UserInfoModel.fromJson(res);
+          Provider.of<ProfileInfoProvider>(context, listen: false)
+              .getUserInfo( userInfo: userInfoModel);
 
-        Provider.of<ProfileInfoProvider>(context, listen: false)
-            .getProfileInfoProduct(newData: userInfoModel.data!.products!);
+          Provider.of<ProfileInfoProvider>(context, listen: false)
+              .getProfileInfoProduct(newData: userInfoModel.data!.products!);
+
+          Provider.of<ProfileInfoProvider>(context, listen: false)
+              .getProfileInfoReview(newData: userInfoModel.data!.reviews!);
+          print('UserInfoModel created successfully');
+        } catch (e) {
+          print('Error deserializing UserInfoModel: $e');
+        }
+
+
         return true;
       } else {
         return false;
       }
     } catch (err) {
-      print(err);
+      if (kDebugMode) {
+        print(err);
+      }
       return false;
     }
   }

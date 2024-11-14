@@ -28,11 +28,16 @@ class _ContactPageState extends State<ContactPage> {
               customRow(
                   onTap: () {},
                   img: "assets/images/sms.png",
-                  txt: "test@gmail.com"),
+                  txt: "Support@ttoffer.com"),
               customRow(
                   onTap: () {},
                   img: "assets/images/call.png",
-                  txt: "032145435435"),
+                  txt: "+971 50265 1684"),
+              customRow(
+                  onTap: () {},
+                  icon: true,
+                  img: "assets/images/call",
+                  txt: "24/7 customer service"),
             ],
           ),
         ),
@@ -40,7 +45,7 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  Widget customRow({img, txt, required Function() onTap}) {
+  Widget customRow({img, txt, required Function() onTap, bool icon = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 15.0,
@@ -52,10 +57,13 @@ class _ContactPageState extends State<ContactPage> {
           children: [
             Row(
               children: [
+                if(icon == false)
                 Image.asset(
                   "$img",
                   height: 20,
-                ),
+                )
+                else
+                  Icon(Icons.access_time),
                 const SizedBox(
                   width: 20,
                 ),
@@ -65,10 +73,10 @@ class _ContactPageState extends State<ContactPage> {
                     textColor: AppTheme.txt1B20),
               ],
             ),
-            Image.asset(
-              "assets/images/arrowFor.png",
-              height: 16,
-            ),
+            // Image.asset(
+            //   "assets/images/arrowFor.png",
+            //   height: 16,
+            // ),
           ],
         ),
       ),

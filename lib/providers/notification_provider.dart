@@ -4,8 +4,44 @@ import 'package:tt_offer/models/notifications_model.dart';
 class NotificationProvider extends ChangeNotifier {
   List<NotificationData> notifications = [];
 
+  bool unreadNotificationIndicator = false;
+  int unreadNotificationCount = 0;
+
+
   getNotifications(List<NotificationData> newNotifications) {
     notifications = newNotifications;
     notifyListeners();
   }
+
+  changeIndicatorStatus(bool value){
+    unreadNotificationIndicator = value;
+    if(value == false){
+      setCountToZero();
+    }
+    else{
+      incrementIndicatorCount();
+    }
+    notifyListeners();
+  }
+
+  incrementIndicatorCount(){
+     unreadNotificationCount++;
+   }
+
+   setCountToZero(){
+     unreadNotificationCount= 0;
+     notifyListeners();
+
+   }
+
+
+  changeAllNotificationStatus(){
+
+  }
+
+
+
+
+
+
 }

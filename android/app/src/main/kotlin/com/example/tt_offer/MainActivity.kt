@@ -1,4 +1,4 @@
-package com.example.tt_offer
+package com.ttoffer.app
 
 import io.flutter.embedding.android.FlutterFragmentActivity 
 

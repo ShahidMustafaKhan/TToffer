@@ -11,13 +11,13 @@ class UpdateAccountSettingService {
       String? id = pref.getString(PrefKey.userId);
       print('idd--->${id}');
 
-      Map body = {'user_id': id, 'username': name};
+      Map body = {'user_id': id, 'name': name};
 
       var res = await CustomPostRequest()
           .httpPostRequest(url: 'update/user', body: body);
 
       if (res['success'] == true) {
-        // showSnackBar(context, 'Update Successfully');
+        // showSnackBar(context, 'Updated Successfully');
         return true;
       } else {
         return false;
@@ -63,7 +63,7 @@ class UpdateAccountSettingService {
           .httpPostRequest(url: 'new-password', body: body);
 
       if (res['status'] == 'success') {
-        showSnackBar(context, 'Password updated');
+        showSnackBar(context, 'Password updated', error : false);
         return true;
       } else {
         return false;
@@ -118,7 +118,7 @@ class UpdateAccountSettingService {
       );
 
       if (res != null && res['success'] == true) {
-        showSnackBar(context, 'Phone verified successfully');
+        showSnackBar(context, 'Phone verified successfully', error : false);
         return true;
       } else {
         return false;
@@ -145,7 +145,7 @@ class UpdateAccountSettingService {
 
       if (res != null && res['success'] == true) {
         // Check if res is not null before accessing 'success'
-        showSnackBar(context, 'Email verified successfully');
+        showSnackBar(context, 'Email verified successfully', error : false);
         return true;
       } else {
         return false;
