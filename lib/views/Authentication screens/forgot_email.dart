@@ -13,7 +13,7 @@ import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 
-import '../otp_phone_screen.dart';
+import 'otp_phone_screen.dart';
 
 class ForgotEmailPass extends StatefulWidget {
   final bool phone;

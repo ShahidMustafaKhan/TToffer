@@ -303,7 +303,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                         color: Colors.black38,
 
                                     ),
-                                    child: Center(child: AppText.appText(chatList[index].product!.productType == 'auction' ? "Auction" : "AED ${abbreviateNumber(chatList[index].product!.fixPrice ?? '')}" ?? '', fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
+                                    child: Center(child: AppText.appText(chatList[index].product!.productType == 'auction' ? "Auction" : "AED ${abbreviateNumber(chatList[index].product!.fixPrice.toString() ?? '')}" ?? '', fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
                         ],
                       ),
 

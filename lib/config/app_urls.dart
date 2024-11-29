@@ -50,7 +50,7 @@ class AppUrls {
   static const String removeCart= "cart/remove";
   static const String removeAllCart= "cart";
 
-  static const String sellingScreen = "selling-screen";
+  static const String sellingScreen = "sale-purchase/history";
   static const String markProductSold = "mark-product-sold";
   static const String deleteProductConversation = "delete/product/all/conversation";
   static const String markProductArchive = "mark-product-archive";

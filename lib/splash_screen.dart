@@ -12,8 +12,8 @@ import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/on_boarding_screen.dart';
-import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
-import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
+import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
+import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
 
 import 'Constants/app_logger.dart';
 import 'Controller/APIs Manager/banner_api.dart';

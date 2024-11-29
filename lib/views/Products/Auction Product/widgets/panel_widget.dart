@@ -12,7 +12,7 @@ import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/bids_model.dart';
 
-import '../../Utils/utils.dart';
+import '../../../../Utils/utils.dart';
 
 class PanelWidget extends StatefulWidget {
   final ScrollController controller;

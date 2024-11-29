@@ -19,7 +19,7 @@ import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
 import 'package:tt_offer/utils/widgets/others/delete_notification_dialog.dart';
-import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
+import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
 import 'package:tt_offer/views/ChatScreens/chat_screen.dart';
 import 'package:tt_offer/views/Post%20screens/post_screen.dart';
 import 'package:tt_offer/views/Sell%20Faster/sell_faster.dart';
@@ -28,7 +28,7 @@ import 'package:tt_offer/views/Sellings/new_sold_screen.dart';
 import 'package:tt_offer/views/Sellings/selling_purchase.dart';
 
 import '../../config/dio/app_dio.dart';
-import '../Auction Info/reschdule_acution_time.dart';
+import '../Products/Auction Product/widgets/reschdule_acution_time.dart';
 
 class ItemDashBoard extends StatefulWidget {
   const ItemDashBoard({super.key, required this.selling});

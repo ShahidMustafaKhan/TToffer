@@ -60,7 +60,7 @@ class _CartScreenState extends State<CartScreen> {
     if (cartModel != null && cartModel.data != null && cartModel.data!.isNotEmpty) {
       for (var element in cartModel.data!) {
         if (element.product != null && element.product!.fixPrice != null) {
-          total += int.parse(element.product!.fixPrice!);
+          total += int.parse(element.product!.fixPrice!.toString());
           numberOfItems++;
         }
       }
@@ -169,11 +169,11 @@ class _CartScreenState extends State<CartScreen> {
                         itemBuilder: (context, index) {
                           final item = cartApiProvider.cartModel!.data![index];
                           return ShoppingCartItem(
-                            seller: item.product?.user?.name,
+                            seller: item.user?.name,
                             productName: item.product?.title,
-                            price: item.product?.fixPrice !=null ? double.parse(item.product!.fixPrice!) : null,
+                            price: item.product?.fixPrice !=null ? double.parse(item.product!.fixPrice!.toString()) : null,
                             shippingCost: 0,
-                            productImage: item.product?.imagePath?.src,
+                            productImage: item.product?.imagePath?.url,
                             lastItem: cartApiProvider.cartModel!.data!.length - 1 == index,
                             deleteItem: (){
                               cartApiProvider.deleteCartItems(dio: dio, context: context, productId: item.product!.id!);

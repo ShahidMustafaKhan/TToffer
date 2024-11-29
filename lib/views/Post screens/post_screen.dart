@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,6 +21,7 @@ import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/providers/selling_purchase_provider.dart';
+import 'package:tt_offer/view_model/product/post_product/post_product_viewmodel.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/add_post_detail.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
@@ -40,9 +43,6 @@ class PostScreen extends StatefulWidget {
 class _PostScreenState extends State<PostScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
-  final PageController _controller = PageController();
-  int _currentPage = 0;
-  bool _isLoading = false;
   late AppDio dio;
   AppLogger logger = AppLogger();
   var userId;
@@ -296,58 +296,77 @@ class _PostScreenState extends State<PostScreen> {
                   maxLines: 3,
                   height: 100.0,
                 ),
-                _isLoading == true
-                    ? LoadingDialog()
-                    : Padding(
-                        padding: const EdgeInsets.only(top: 20.0),
-                        child: AppButton.appButton("Next", onTap: () async {
-                          if (imageProvider.imagePaths.isEmpty &&
-                              widget.selling == null) {
-                            showSnackBar(context, "Add at least one image");
-                            return; // Exit the onTap callback if conditions are not met
-                          }
+                Consumer<PostProductViewModel>(
+                    builder: (context, provider, child){
+                      return provider.firstStepLoading == true
+                        ? LoadingDialog()
+                        : Padding(
+                            padding: const EdgeInsets.only(top: 20.0),
+                            child: AppButton.appButton("Next", onTap: () async {
+                              if (imageProvider.imagePaths.isEmpty &&
+                                  widget.selling == null) {
+                                showSnackBar(context, "Add at least one image");
+                                return; // Exit the onTap callback if conditions are not met
+                              }
 
-                          if (_titleController.text.isEmpty) {
-                            showSnackBar(context, "Enter title");
-                            return; // Exit the onTap callback if title is empty
-                          }
+                              if (_titleController.text.isEmpty) {
+                                showSnackBar(context, "Enter title");
+                                return; // Exit the onTap callback if title is empty
+                              }
 
-                          if (_descController.text.isEmpty) {
-                            showSnackBar(context, "Enter Description");
-                            return; // Exit the onTap callback if description is empty
-                          }
+                              if (_descController.text.isEmpty) {
+                                showSnackBar(context, "Enter Description");
+                                return; // Exit the onTap callback if description is empty
+                              }
 
-                          // if (_descController.text.length <= 100) {
-                          //   showSnackBar(context,
-                          //       "Description must be at least 100 characters");
-                          //   return; // Exit the onTap callback if description is less than 100 characters
-                          // }
 
-                          // If all conditions are met, proceed with adding the product
-                          await addProductFirstStep();
+                              Map<String, dynamic> data = {
+                                "user_id": userId,
+                                "title": _titleController.text,
+                                "description": _descController.text,
+                                if (widget.selling != null) "product_id": widget.selling!.id.toString(),
+                                if (isBack == true) "product_id": ourProductId.toString(),
+                              };
 
-                          Navigator.push(context, CupertinoPageRoute(builder: (_) =>
-                              PostDetailScreen(
-                                productId: widget.selling == null
-                                    ? ourProductId
-                                    : widget.selling!.id,
-                                title: _titleController.text,
-                                selling: widget.selling,
-                              ))).then((value){
-                            setState(() {
-                              isBack = true;
-                            });
-                            }
+                              String? videoPath;
+
+                               if (imageProvider.vedioPath.isNotEmpty) {
+                                videoPath = imageProvider.vedioPath;
+                              }
+
+                              provider.addProductFirstStep(data, imageProvider.imagePaths, update: widget.selling != null || isBack == true, videoPath : videoPath).then((value){
+                                var productId = value.data?.productId;
+                                ourProductId = productId;
+
+                                Navigator.push(context, CupertinoPageRoute(builder: (_) =>
+                                    PostDetailScreen(
+                                      productId: value.data?.productId,
+                                      title: _titleController.text,
+                                      selling: widget.selling,
+                                    ))).then((value){
+                                  setState(() {
+                                    isBack = true;
+                                  });
+                                });
+
+                              }).onError((error, stackTrace){
+                                showSnackBar(context, error.toString());
+                                if (kDebugMode) {
+                                  print(error.toString());
+                                }
+                              });
+
+
+                            },
+                                height: 53,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                                radius: 32.0,
+                                backgroundColor: AppTheme.appColor,
+                                textColor: AppTheme.whiteColor),
                           );
-
-                        },
-                            height: 53,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                            radius: 32.0,
-                            backgroundColor: AppTheme.appColor,
-                            textColor: AppTheme.whiteColor),
-                      ),
+                  }
+                ),
               ],
             ),
           ),
@@ -355,6 +374,9 @@ class _PostScreenState extends State<PostScreen> {
       ),
     );
   }
+
+
+
 
   void _capitalizeWords(String text) {
     String capitalizedText = text.split(' ').map((word) {
@@ -387,243 +409,4 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
-  Future addProductFirstStep() async {
-    final imageProvider =
-        Provider.of<ImageNotifyProvider>(context, listen: false);
-
-    setState(() {
-      _isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500;
-    int responseCode413 = 413; // For For data not found
-
-    File videoFile = File(imageProvider.vedioPath);
-    var formData = FormData();
-    formData.fields.addAll([
-      MapEntry("user_id", "$userId"),
-      MapEntry("title", _titleController.text),
-      MapEntry("description", _descController.text),
-      if (widget.selling != null)
-        MapEntry("product_id", widget.selling!.id.toString()),
-      if (isBack == true)
-        MapEntry("product_id", ourProductId.toString()),
-    ]);
-
-    print(
-        'formData---->${formData.fields}'); // Print the content of formData.fields
-
-    if (imageProvider.vedioPath.isNotEmpty) {
-      formData.files
-          .add(MapEntry("video", await MultipartFile.fromFile(videoFile.path)));
-    }
-    try {
-      response = await dio.post(
-          path: widget.selling != null || isBack == true
-              ? AppUrls.updateProduct
-              : AppUrls.addProduct,
-          data: formData);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode413) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        if (responseData["status"] == false) {
-          setState(() {
-            _isLoading = false;
-          });
-
-          return;
-        } else {
-          setState(() {
-            var productId = responseData["product_id"];
-
-            ourProductId = productId;
-
-            sendImages(
-                productId:
-                    widget.selling != null ? widget.selling!.id : "$productId");
-            _isLoading = false;
-          });
-        }
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  void getSellingProducts(context) async {
-    log("getSellingProducts fired");
-
-    var response;
-
-    // try {
-    response = await dio.get(path: AppUrls.sellingScreen);
-    var responseData = response.data;
-    if (response.statusCode == 200) {
-      // sellingData = responseData["sold"];
-      SellingProductsModel model = SellingProductsModel.fromJson(responseData);
-
-      Provider.of<SellingPurchaseProvider>(context, listen: false)
-          .updateData(model: model);
-      // purchaseData = responseData["purchase"];
-      // archieveData = responseData["archive"];
-    }
-    // } catch (e) {
-    //   print("Something went Wrong $e");
-    //   showSnackBar(context, "Something went Wrong.");
-    // }
-  }
-
-  void sendImages({productId}) async {
-    final imageProvider =
-        Provider.of<ImageNotifyProvider>(context, listen: false);
-    print("objectId $productId");
-    setState(() {
-      _isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode413 = 413; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    List<MultipartFile> imageFiles = [];
-
-    File? myfile;
-
-    for (var i = 0; i < imageProvider.imagePaths.length; i++) {
-      final file = File(imageProvider.imagePaths[i]);
-      if (imageProvider.imagePaths.isNotEmpty) {
-        myfile = File(imageProvider.imagePaths.first);
-      }
-      if (file.existsSync()) {
-        imageFiles.add(await MultipartFile.fromFile(file.path));
-      } else {
-        // Handle the case where the file does not exist
-      }
-    }
-
-    if (imageFiles.isNotEmpty) {
-      var formData = FormData.fromMap({
-        "product_id": productId,
-        "src[]": imageFiles,
-      });
-
-      try {
-        response = await dio.post(path: isBack == true ? AppUrls.overRideImage : AppUrls.addImage, data: formData);
-        var responseData = response.data;
-        print("object${responseData}");
-        if (response.statusCode == responseCode400) {
-          showSnackBar(context, "${responseData["message"]}");
-          setState(() {
-            _isLoading = false;
-          });
-        } else if (response.statusCode == responseCode401) {
-          showSnackBar(context, "${responseData["message"]}");
-          setState(() {
-            _isLoading = false;
-          });
-        } else if (response.statusCode == responseCode413) {
-          showSnackBar(context, "${responseData["message"]}");
-          setState(() {
-            _isLoading = false;
-          });
-        } else if (response.statusCode == responseCode404) {
-          showSnackBar(context, "${responseData["message"]}");
-          setState(() {
-            _isLoading = false;
-          });
-        } else if (response.statusCode == responseCode500) {
-          showSnackBar(context, "${responseData["message"]}");
-          setState(() {
-            _isLoading = false;
-          });
-        } else if (response.statusCode == responseCode422) {
-          setState(() {
-            _isLoading = false;
-          });
-        } else if (response.statusCode == responseCode200) {
-          if (responseData["status"] == false) {
-            showSnackBar(context, "${responseData["status"]}", error: false);
-
-            setState(() {
-              _isLoading = false;
-            });
-
-            print('respomsee--->${responseData["status"]}');
-            print('new--->${responseData}');
-
-            return;
-          } else {
-            setState(() {
-              // _descController.clear();
-              // _titleController.clear();
-              // imageProvider.vedioPath = "";
-              // imageProvider.imagePaths=[];
-              // imageProvider.vedioPath='';
-              // imageProvider.imagePaths.clear();
-              _isLoading = false;
-
-              title = _titleController.text ??
-                  ''; // Ensure _titleController.text is not null
-
-              // push(
-              //     context,
-              //     PostDetailScreen(
-              //       productId: productId,
-              //       title: widget.selling != null
-              //           ? widget.selling!.title
-              //           : _titleController.text,
-              //       selling: widget.selling,
-              //     ));
-            });
-          }
-        }
-      } catch (e) {
-        print("Something went Wrong ${e}");
-        showSnackBar(context, "Something went Wrong.");
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
 }

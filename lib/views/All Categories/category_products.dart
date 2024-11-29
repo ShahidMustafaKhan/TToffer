@@ -8,13 +8,17 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/no_data_found.dart';
+import 'package:tt_offer/data/response/status.dart';
 import 'package:tt_offer/detail_model/property_for_sale_model.dart';
-import 'package:tt_offer/views/All%20Aucton%20Products/auction_container.dart';
-import 'package:tt_offer/views/All%20Featured%20Products/feature_container.dart';
-import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
-import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
+import 'package:tt_offer/models/cart_model.dart';
+import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
+import 'package:tt_offer/views/Products/Auction%20Product/auction_container.dart';
+import 'package:tt_offer/views/Products/Feature%20Product/feature_container.dart';
+import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
+import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
+import '../../../models/product_model.dart';
 
 class CatagoryProductScreen extends StatefulWidget {
   final catId;
@@ -33,7 +37,7 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
   late AppDio dio;
   AppLogger logger = AppLogger();
   bool isLoading = false;
-  var auctionList;
+  late List<Product>? auctionList;
   var filteredList;
 
   @override
@@ -41,40 +45,38 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
     dio = AppDio(context);
     logger.init();
     final apiProvider =
-        Provider.of<ProductsApiProvider>(context, listen: false);
-    apiProvider.getAuctionProducts(
-        dio: dio, context: context, cateId: widget.catId);
+        Provider.of<ProductViewModel>(context, listen: false);
+    apiProvider.getAuctionProducts();
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final apiProvider = Provider.of<ProductsApiProvider>(context);
+    final apiProvider = Provider.of<ProductViewModel>(context);
     final screenWidth = MediaQuery.of(context).size.width;
     if(widget.all==true){
-      auctionList = apiProvider.allauctionProductsData.where((item) {
+      auctionList = apiProvider.auctionProductList.data?.data?.productList
+          ?.where((item) => item.category?.id.toString() == widget.catId.toString())
+          .toList();
 
-        return item["category_id"].toString() == widget.catId.toString();
-      }).toList();
-
-      filteredList = apiProvider.allfeatureProductsData.where((item) {
-        return item["category_id"].toString() == widget.catId.toString();
+      filteredList = apiProvider.featureProductList.data?.data?.productList?.where((item) {
+        return item.category?.id.toString() == widget.catId.toString();
       }).toList();
     }
     else {
-      auctionList = apiProvider.allauctionProductsData.where((item) {
+      auctionList = apiProvider.auctionProductList.data?.data?.productList?.where((item) {
         // ProductAttributes productAttributes =
         // ProductAttributes.fromJson(item['attributes']);
         // return productAttributes.subcategory == widget.catNAme;
-        return item["sub_category_id"].toString() == widget.subCatId.toString();
+        return item.subCategory?.id.toString() == widget.subCatId.toString();
       }).toList();
 
-      filteredList = apiProvider.allfeatureProductsData.where((item) {
+      filteredList = apiProvider.featureProductList.data?.data?.productList?.where((item) {
         // ProductAttributes productAttributes =
         // ProductAttributes.fromJson(item['attributes']);
         // return productAttributes.subcategory == widget.catNAme;
-        return item["sub_category_id"].toString() == widget.subCatId.toString();
+        return item.subCategory?.id.toString() == widget.subCatId.toString();
       }).toList();
     }
 
@@ -89,9 +91,9 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
           children: [
             selectOption(),
             if (selectedOption == "Auction")
-              apiProvider.isLoading == true
+              apiProvider.auctionProductList.status == Status.loading
                   ? LoadingDialog()
-                  : auctionList.isEmpty ? NoDataFound.noDataFound()
+                  : apiProvider.auctionProductList.data?.data?.productList?.isEmpty ?? true  ? NoDataFound.noDataFound()
                   : Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: GridView.builder(
@@ -103,20 +105,20 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
                           childAspectRatio: screenWidth / (3.2 * 220),
                         ),
                         shrinkWrap: true,
-                        itemCount: auctionList.length,
+                        itemCount: apiProvider.auctionProductList.data?.data?.productList?.length,
                         itemBuilder: (context, int index) {
                           return GestureDetector(
                               onTap: () {
-                                getAuctionProductDetail(auctionList[index]["id"]);
+                                getAuctionProductDetail(apiProvider.auctionProductList.data?.data?.productList?[index].id);
                               },
                               child: AuctionProductContainer(
-                                data: auctionList[index],
+                                product: apiProvider.auctionProductList.data?.data?.productList?[index],
                               ));
                         },
                       ),
                     ),
             if (selectedOption == "Featured")
-              apiProvider.isLoading == true
+              apiProvider.featureProductList.status == Status.completed
                   ? LoadingDialog()
                   : filteredList.isEmpty ? NoDataFound.noDataFound()
                   : Padding(

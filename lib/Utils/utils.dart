@@ -445,7 +445,7 @@ void _navigateToBottomNavView(BuildContext context) {
   Navigator.pushAndRemoveUntil(
     context,
     MaterialPageRoute(
-      builder: (context) => BottomNavView(),
+      builder: (context) => const BottomNavView(),
     ),
         (Route<dynamic> route) => false, // This removes all previous routes
   );

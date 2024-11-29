@@ -59,7 +59,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
     if (item != null && item.isNotEmpty) {
       for (var element in item) {
         if (element.product != null && element.product!.fixPrice != null) {
-          total += int.parse(element.product!.fixPrice!);
+          total += int.parse(element.product!.fixPrice!.toString());
           numberOfItems++;
         }
       }
@@ -154,9 +154,9 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                       return ShoppingCartItem(
                         seller: item.product?.user?.name,
                         productName: item.product?.title,
-                        price: item.product?.fixPrice !=null ? double.parse(item.product!.fixPrice!) : null,
+                        price: item.product?.fixPrice !=null ? double.parse(item.product!.fixPrice!.toString()) : null,
                         shippingCost: 0,
-                        productImage: item.product?.imagePath?.src,
+                        productImage: item.product?.imagePath?.url,
                         deleteItem: (){
                           items!.removeAt(index);
                           setState(() {

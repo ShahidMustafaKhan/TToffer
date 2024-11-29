@@ -31,8 +31,8 @@ import '../../Controller/APIs Manager/profile_apis.dart';
 import '../../Utils/widgets/others/delete_notification_dialog.dart';
 import '../../custom_requests/user_info_service.dart' ;
 import '../../providers/profile_info_provider.dart' ;
-import '../All Featured Products/feature_info.dart';
-import '../Auction Info/auction_info.dart';
+import '../Products/Feature Product/feature_info.dart';
+import '../Products/Auction Product/auction_info.dart';
 
 class SellingPurchaseScreen extends StatefulWidget {
   final String title;

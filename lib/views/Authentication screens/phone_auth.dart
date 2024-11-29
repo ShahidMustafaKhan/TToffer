@@ -2,6 +2,7 @@ import 'package:country_list_pick/country_list_pick.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -16,9 +17,10 @@ import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 
+import '../../view_model/login/login_view_model.dart';
 import '../Profile Screen/Settings/privacy_policy.dart';
 import '../Profile Screen/Settings/terms_and_condition.dart';
-import 'GoogleSignIn/forgot_email.dart';
+import 'forgot_email.dart';
 
 class PhoneLoginScreen extends StatefulWidget {
   const PhoneLoginScreen({super.key});
@@ -141,31 +143,50 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                               push(context, PrivacyPolicyScreen());
                             },
                         ),])),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 40.0),
-                child: isLoading == true
-                    ? Center(
-                  child: CircularProgressIndicator(
-                    color: AppTheme.appColor,
-                  ),
-                )
-                    : AppButton.appButton("Sign In", onTap: () {
-                  if (_phoneController.text.isNotEmpty) {
-                    if (_passwordController.text.isNotEmpty) {
-                      phoneSignIn();
-                    } else {
-                      showSnackBar(context, "Enter Password");
-                    }
-                  } else {
-                    showSnackBar(context, "Enter Phone");
-                  }
-                },
-                    height: 53,
-                    radius: 32.0,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    backgroundColor: AppTheme.appColor,
-                    textColor: AppTheme.whiteColor),
+              Consumer<LoginViewModel>(
+                  builder: (context, provider, child){
+                    return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40.0),
+                    child: provider.loginLoading == true
+                        ? Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.appColor,
+                      ),
+                    )
+                        : AppButton.appButton("Sign In", onTap: () {
+                      if (_phoneController.text.isNotEmpty) {
+                        if (_passwordController.text.isNotEmpty) {
+
+                          Map<String, dynamic> data = {
+                            "phone": _phoneController.text,
+                            "password": _passwordController.text
+                          };
+
+                          provider.loginApiWithPhone(data).then((value){
+                            Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const BottomNavView(fromLogin : true),
+                                ),
+                                    (route) => false);
+                          }).onError((error, stackTrace){
+                            showSnackBar(context, error.toString());
+                          });
+                        } else {
+                          showSnackBar(context, "Enter Password");
+                        }
+                      } else {
+                        showSnackBar(context, "Enter Phone");
+                      }
+                    },
+                        height: 53,
+                        radius: 32.0,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        backgroundColor: AppTheme.appColor,
+                        textColor: AppTheme.whiteColor),
+                  );
+                }
               )
             ],
           ),
@@ -175,84 +196,4 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   }
 
 
-  void phoneSignIn() async {
-    setState(() {
-      isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "phone": _phoneController.text,
-      "password": _passwordController.text
-    };
-    try {
-      response = await dio.post(path: AppUrls.logInPhone, data: params);
-      var responseData = response.data;
-      print("object${responseData}");
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["message"]}");
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "Invalid phone number or password.");
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["message"]}");
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["message"]}");
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        if (responseData["status"] == false) {
-          setState(() {
-            isLoading = false;
-          });
-
-          return;
-        } else {
-          setState(() {
-            isLoading = false;
-          });
-          var userId = responseData["data"]["user"]["id"];
-          var token = responseData["data"]["token"];
-          var name = responseData["data"]["user"]["name"];
-
-          var id = userId.toString();
-          print("id$id  kmff $token");
-          pref.setString(PrefKey.userId, id ?? '');
-          pref.setString(PrefKey.authorization, token ?? '');
-          pref.setString(PrefKey.userName, name ?? '');
-
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const BottomNavView(fromLogin : true),
-              ),
-              (route) => false);
-        }
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
 }

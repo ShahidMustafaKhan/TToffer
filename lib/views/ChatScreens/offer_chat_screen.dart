@@ -32,7 +32,7 @@ import 'package:tt_offer/models/chat_model.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
 import 'package:tt_offer/utils/widgets/loading_popup.dart';
-import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
+import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../Controller/APIs Manager/profile_apis.dart';
@@ -40,7 +40,7 @@ import '../../config/dio/app_dio.dart';
 import '../../custom_requests/user_info_service.dart';
 import '../../models/user_info_model.dart';
 import '../../providers/profile_info_provider.dart';
-import '../All Featured Products/feature_info.dart';
+import '../Products/Feature Product/feature_info.dart';
 import '../Seller Profile/seller_profile.dart';
 import '../Seller Profile/seller_profile_chat.dart';
 
@@ -303,7 +303,7 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
 
 
         if(element.product!=null && element.product!.photo!.isNotEmpty){
-          productImg = element.product!.photo![0].src ?? '';
+          productImg = element.product?.imagePath?.url ?? '';
         }
         else{
           productImg = "";
@@ -367,8 +367,8 @@ class _OfferChatScreenState extends State<OfferChatScreen> {
         appBar: ChatAppBar(
           img: widget.userImgUrl,
           userRating:  widget.userRating,
-          productImg: chatModel?.data?.conversation?[0].product?.photo?[0].src,
-          productPrice: chatModel?.data?.conversation?[0].product?.fixPrice ?? 'Auction',
+          productImg: chatModel?.data?.conversation?[0].product?.imagePath?.url,
+          productPrice: chatModel?.data?.conversation?[0].product?.fixPrice?.toString() ?? 'Auction',
           title: capitalizeWords(widget.title ?? ''),
           actionOntap: () {
             if(widget.productId!=null){

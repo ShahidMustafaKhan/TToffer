@@ -6,7 +6,7 @@ import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/models/selling_serach_model.dart';
 import 'package:tt_offer/providers/search_provider.dart';
-import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
+import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
 
 // var response;
 

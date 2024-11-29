@@ -86,8 +86,6 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
 
   getBidsHandler() async {
 
-
-
     await BidsService().getBidsService(
         context: context, productId: int.parse(widget.productId!));
 

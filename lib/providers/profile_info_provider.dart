@@ -1,10 +1,8 @@
-import 'dart:convert';
-import 'dart:ffi';
+
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
-import 'package:tt_offer/models/selling_serach_model.dart' hide User;
+
 import 'package:tt_offer/models/user_info_model.dart';
 
 import '../Utils/utils.dart';
@@ -52,6 +50,7 @@ class ProfileInfoProvider extends ChangeNotifier {
       }
     }
   }
+
 
 
 

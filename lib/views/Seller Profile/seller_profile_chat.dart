@@ -27,8 +27,8 @@ import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/selling_serach_model.dart';
 import 'package:tt_offer/models/user_info_model.dart';
 import 'package:tt_offer/providers/profile_info_provider.dart';
-import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
-import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
+import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
+import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
 import 'package:tt_offer/views/Profile%20Screen/profile_screen.dart';
 
 import '../../Controller/APIs Manager/profile_apis.dart';

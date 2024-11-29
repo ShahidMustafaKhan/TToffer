@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -17,6 +18,7 @@ import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/custom_requests/payment_status_service.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
+import 'package:tt_offer/view_model/product/post_product/post_product_viewmodel.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/enter_location_screen.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
@@ -127,41 +129,45 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     return Scaffold(
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: _isLoading == true
-            ? LoadingDialog()
-            : Visibility(
-              visible : selectedOption != "Sell to Us",
-              child: AppButton.appButton("Next", onTap: () async {
-                  // await getPaymentStatus();
-                  if(selectedOption == "Fixed Price" && isSelectedCategoryJob == false && _priceController.text.isEmpty){
-                    showSnackBar(context, "Please enter price");
-                  }
-                  else if(isSelectedCategoryJob == true && _minSalaryController.text.isEmpty){
-                    showSnackBar(context, "Please enter minimum salary");
-                  }
-                  else if(isSelectedCategoryJob == true && _maxSalaryController.text.isEmpty){
-                    showSnackBar(context, "Please enter maximum salary");
-                  }
-                  else if(selectedOption == "Auction" && _startingPriceController.text.isEmpty){
-                    showSnackBar(context, "Please enter starting price");
-                  }
-                  else if(selectedOption == "Auction" && _finalPriceController.text.isEmpty){
-                    showSnackBar(context, "Please enter final price");
-                  }
-                  else if(selectedOption == "Auction" && (int.parse(_startingPriceController.text.replaceAll(',', '')) >= int.parse(_finalPriceController.text.replaceAll(',', '')))) {
-                    showSnackBar(context, "The final price must be greater than the starting price");
-                  }
-                  else{
-                    addProducrPrice();
-                  }
-                },
-                  height: 53,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                  radius: 32.0,
-                  backgroundColor: AppTheme.appColor,
-                  textColor: AppTheme.whiteColor),
-            ),
+        child: Consumer<PostProductViewModel>(
+            builder: (context, provider, child){
+              return provider.thirdStepLoading == true
+                ? LoadingDialog()
+                : Visibility(
+                  visible : selectedOption != "Sell to Us",
+                  child: AppButton.appButton("Next", onTap: () async {
+                      // await getPaymentStatus();
+                      if(selectedOption == "Fixed Price" && isSelectedCategoryJob == false && _priceController.text.isEmpty){
+                        showSnackBar(context, "Please enter price");
+                      }
+                      else if(isSelectedCategoryJob == true && _minSalaryController.text.isEmpty){
+                        showSnackBar(context, "Please enter minimum salary");
+                      }
+                      else if(isSelectedCategoryJob == true && _maxSalaryController.text.isEmpty){
+                        showSnackBar(context, "Please enter maximum salary");
+                      }
+                      else if(selectedOption == "Auction" && _startingPriceController.text.isEmpty){
+                        showSnackBar(context, "Please enter starting price");
+                      }
+                      else if(selectedOption == "Auction" && _finalPriceController.text.isEmpty){
+                        showSnackBar(context, "Please enter final price");
+                      }
+                      else if(selectedOption == "Auction" && (int.parse(_startingPriceController.text.replaceAll(',', '')) >= int.parse(_finalPriceController.text.replaceAll(',', '')))) {
+                        showSnackBar(context, "The final price must be greater than the starting price");
+                      }
+                      else{
+                        addProductPrice(provider);
+                      }
+                    },
+                      height: 53,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      radius: 32.0,
+                      backgroundColor: AppTheme.appColor,
+                      textColor: AppTheme.whiteColor),
+                );
+          }
+        ),
       ),
       appBar: CustomAppBar1(
         title: "Price",
@@ -408,32 +414,32 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
           const SizedBox(
             height: 40,
           ),
-          const CustomDivider(),
-          const SizedBox(
-            height: 15,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              AppText.appText("Firm on price",
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  textColor: AppTheme.txt1B20),
-              Switch(
-                activeColor: AppTheme.appColor,
-                value: _toggleValue == 1,
-                onChanged: (bool value) {
-                  setState(() {
-                    _toggleValue = value ? 1 : 0;
-                  });
-                },
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          const CustomDivider()
+          // const CustomDivider(),
+          // const SizedBox(
+          //   height: 15,
+          // ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     AppText.appText("Firm on price",
+          //         fontSize: 16,
+          //         fontWeight: FontWeight.w400,
+          //         textColor: AppTheme.txt1B20),
+          //     Switch(
+          //       activeColor: AppTheme.appColor,
+          //       value: _toggleValue == 1,
+          //       onChanged: (bool value) {
+          //         setState(() {
+          //           _toggleValue = value ? 1 : 0;
+          //         });
+          //       },
+          //     ),
+          //   ],
+          // ),
+          // const SizedBox(
+          //   height: 15,
+          // ),
+          // const CustomDivider()
         ],
       ),
     );
@@ -472,32 +478,32 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
           const SizedBox(
             height: 40,
           ),
-          const CustomDivider(),
-          const SizedBox(
-            height: 15,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              AppText.appText("Firm on price",
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  textColor: AppTheme.txt1B20),
-              Switch(
-                activeColor: AppTheme.appColor,
-                value: _toggleValue == 1,
-                onChanged: (bool value) {
-                  setState(() {
-                    _toggleValue = value ? 1 : 0;
-                  });
-                },
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          const CustomDivider()
+          // const CustomDivider(),
+          // const SizedBox(
+          //   height: 15,
+          // ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     AppText.appText("Firm on price",
+          //         fontSize: 16,
+          //         fontWeight: FontWeight.w400,
+          //         textColor: AppTheme.txt1B20),
+          //     Switch(
+          //       activeColor: AppTheme.appColor,
+          //       value: _toggleValue == 1,
+          //       onChanged: (bool value) {
+          //         setState(() {
+          //           _toggleValue = value ? 1 : 0;
+          //         });
+          //       },
+          //     ),
+          //   ],
+          // ),
+          // const SizedBox(
+          //   height: 15,
+          // ),
+          // const CustomDivider()
         ],
       ),
     );
@@ -894,59 +900,52 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     );
   }
 
-  addProducrPrice() async {
-    setState(() {
-      _isLoading = true;
-    });
-       String? minSalary;
-       String? maxSalary;
-       if(isSelectedCategoryJob == true){
-         maxSalary = _maxSalaryController.text.replaceAll(',', '');
-         minSalary = _minSalaryController.text.replaceAll(',', '');
+  addProductPrice(PostProductViewModel provider) async {
+       provider.setThirdStepLoading(true);
+       int? minSalary;
+       int? maxSalary;
+       if (isSelectedCategoryJob == true) {
+         maxSalary = int.tryParse(_maxSalaryController.text.replaceAll(',', ''));
+         minSalary = int.tryParse(_minSalaryController.text.replaceAll(',', ''));
        }
-       String fixPrice = isSelectedCategoryJob == true ?_maxSalaryController.text.replaceAll(',', '') : _priceController.text.replaceAll(',', '');
-       String auctionPrice = _startingPriceController.text.replaceAll(',', '');
-       String finalPrice = _finalPriceController.text.replaceAll(',', '');
 
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500;
-    Map<String, dynamic> params = {
+       int? fixPrice = isSelectedCategoryJob == true
+           ? int.tryParse(_maxSalaryController.text.replaceAll(',', ''))
+           : int.tryParse(_priceController.text.replaceAll(',', '')) ;
+
+       int? auctionPrice = int.tryParse(_startingPriceController.text.replaceAll(',', ''));
+       int? finalPrice = int.tryParse(_finalPriceController.text.replaceAll(',', ''));
+
+
+       Map<String, dynamic> params = {
       "product_id": widget.productId,
       "fix_price": fixPrice,
-      if(_toggleValue == 1)
-      "firm_on_price": 1,
-      "auction_price": auctionPrice,
-      "final_price": finalPrice,
+      "auction_initial_price": auctionPrice,
+      "auction_final_price": finalPrice,
       "min_salary": minSalary,
       "max_salary": maxSalary,
       if(startDate != null)
-      "starting_date": formatDate(startDate!),
-      "starting_time": startTimeDubai,
-      // "starting_time": startTime,
+      "auction_starting_date": formatDate(startDate!),
+      "auction_starting_time": startTimeDubai,
+      // "auction_starting_time": startTime,
       if(endDate != null)
-        "ending_date": formatDate(endDate!),
-      "ending_time": endTimeDubai,
-      // "ending_time": endTime,
+        "auction_ending_date": formatDate(endDate!),
+      "auction_ending_time": endTimeDubai,
       "sell_to_us": sellDate,
       if(selectedOption == "Fixed Price")
-        "productType" : "featured"
+        "product_type" : "featured"
       else
-        "productType" : "auction",
+        "product_type" : "auction",
     };
     if (selectedOption == "Fixed Price" && isSelectedCategoryJob == false) {
-      params.remove("auction_price");
-      params.remove("final_price");
+      params.remove("auction_initial_price");
+      params.remove("auction_final_price");
       params.remove("max_salary");
       params.remove("min_salary");
-      params.remove("starting_date");
-      params.remove("starting_time");
-      params.remove("ending_date");
-      params.remove("ending_time");
+      params.remove("auction_starting_date");
+      params.remove("auction_starting_time");
+      params.remove("auction_ending_date");
+      params.remove("auction_ending_time");
       params.remove("sell_to_us");
     } else if (selectedOption == "Auction") {
       params.remove("fix_price");
@@ -957,88 +956,51 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     } else if (selectedOption == "Sell to Us") {
       params.remove("fix_price");
       params.remove("firm_on_price");
-      params.remove("auction_price");
-      params.remove("final_price");
-      params.remove("starting_date");
-      params.remove("starting_time");
-      params.remove("ending_date");
-      params.remove("ending_time");
+      params.remove("auction_initial_price");
+      params.remove("auction_final_price");
+      params.remove("auction_starting_date");
+      params.remove("auction_starting_time");
+      params.remove("auction_ending_date");
+      params.remove("auction_ending_time");
       params.remove("max_salary");
       params.remove("min_salary");
     } else if(isSelectedCategoryJob == true){
       params.remove("sell_to_us");
       params.remove("firm_on_price");
-      params.remove("auction_price");
-      params.remove("final_price");
-      params.remove("starting_date");
-      params.remove("starting_time");
-      params.remove("ending_date");
-      params.remove("ending_time");
+      params.remove("auction_initial_price");
+      params.remove("auction_final_price");
+      params.remove("auction_starting_date");
+      params.remove("auction_starting_time");
+      params.remove("auction_ending_date");
+      params.remove("auction_ending_time");
     }
 
-    try {
-      response = await dio.post(
-          path: widget.selling != null || isBack==true
-              ? AppUrls.updateProductPrice
-              : AppUrls.addProductPrice,
-          data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          _isLoading = false;
-        });
 
-          // if (navigate == false) {
-            print('newMabigaassa---->${navigate}');
-            Navigator.push(context, CupertinoPageRoute(builder: (_) =>
-                PostLocationScreen(
-                  selling: widget.selling,
-                  selectedCategory: widget.categoryName,
-                  productId: widget.selling == null
-                      ? widget.productId
-                      : widget.selling!.id,
-                  amount: selectedOption == "Fixed Price" ? isSelectedCategoryJob ? int.parse(maxSalary!) : int.parse(_priceController.text.replaceAll(',', '')) : int.parse(_startingPriceController.text.replaceAll(',', '')),
-                  title: widget.title,
+       provider.addProductThirdStep(params, update: widget.selling != null || isBack == true).then((value){
+         Navigator.push(context, CupertinoPageRoute(builder: (_) =>
+             PostLocationScreen(
+               selling: widget.selling,
+               selectedCategory: widget.categoryName,
+               productId: widget.selling == null
+                   ? value.data!.productId
+                   : widget.selling!.id,
+               amount: selectedOption == "Fixed Price" ? isSelectedCategoryJob ? maxSalary! : int.parse(_priceController.text.replaceAll(',', '')) : int.parse(_startingPriceController.text.replaceAll(',', '')),
+               title: widget.title,
 
-                ))).then((value){
-              setState(() {
-                isBack = true;
-              });
-            });
+             ))).then((value){
+           setState(() {
+             isBack = true;
+           });
+         });
+         provider.setThirdStepLoading(false);
 
-          // }
+       }).onError((error, stackTrace){
+         provider.setThirdStepLoading(false);
+         showSnackBar(context, error.toString());
+       });
 
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        _isLoading = false;
-      });
-    }
+
+
+
   }
 }

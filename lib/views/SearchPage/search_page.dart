@@ -9,8 +9,8 @@ import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/providers/search_provider.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
-import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
-import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
+import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
+import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
 
 import '../../config/dio/app_dio.dart';
 import '../../utils/resources/res/app_theme.dart';

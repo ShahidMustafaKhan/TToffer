@@ -18,7 +18,7 @@ class AppDioInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) {
+  void onError(DioException err, ErrorInterceptorHandler handler) {
     Map<String, dynamic> er = {
       "type": err.type,
       "message": err.message,

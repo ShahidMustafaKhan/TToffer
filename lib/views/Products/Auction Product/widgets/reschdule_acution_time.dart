@@ -25,8 +25,8 @@ import 'package:tt_offer/views/Post%20screens/indicator.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 
-import '../../Controller/APIs Manager/product_api.dart';
-import '../Sellings/new_sold_screen.dart';
+import '../../../../Controller/APIs Manager/product_api.dart';
+import '../../../Sellings/new_sold_screen.dart';
 
 class RescheduleTimeProduct extends StatefulWidget {
   final productId;

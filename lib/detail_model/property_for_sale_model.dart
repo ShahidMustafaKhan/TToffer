@@ -152,13 +152,11 @@ class PropertyAttributes {
   final String yearBuilt;
   final String area;
   final String owner;
-  final String features;
+  final dynamic features;
   final String completion;
   final String furnished;
   final String bathroom;
-
   final String subCatName;
-
   final String location;
   final String totalClosingFee;
   final String developer;
@@ -223,6 +221,7 @@ class PropertyAttributes {
     );
   }
 }
+
 
 class JobAttributes {
   dynamic categoryId;

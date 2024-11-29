@@ -11,15 +11,17 @@ import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/detail_model/property_for_sale_model.dart';
 import 'package:tt_offer/main.dart';
-import 'package:tt_offer/views/All%20Aucton%20Products/auction_container.dart';
+import 'package:tt_offer/views/Products/Auction%20Product/auction_container.dart';
 
-import '../../Utils/utils.dart';
-import '../../config/dio/app_dio.dart';
+import '../../../Utils/utils.dart';
+import '../../../config/dio/app_dio.dart';
+import '../../../models/product_model.dart';
 
 class FeatureProductContainer extends StatefulWidget {
   var data;
+  Product? product;
 
-   FeatureProductContainer({this.data});
+   FeatureProductContainer({super.key, this.data, this.product});
 
   @override
   State<FeatureProductContainer> createState() =>
@@ -32,6 +34,8 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
   String? authorizationToken;
   bool isFav = false;
   late final dio;
+
+  Product? product;
 
 
   getUserId() async {
@@ -50,28 +54,18 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
     dio = AppDio(context);
     apiProvider = Provider.of<ProductsApiProvider>(context, listen: false);
 
-    if(widget.data!=null && widget.data["wishlist"]!=null) {
-    isFav = widget.data["wishlist"].isNotEmpty
-        ? true
-        : false;}
+    product = widget.product;
+
+    // if(widget.data!=null && widget.data["wishlist"]!=null) {
+    // isFav = widget.data["wishlist"].isNotEmpty
+    //     ? true
+    //     : false;}
 
 
-    // apiProvider!.getCatagories(
-    //   dio: dio,
-    //   context: context,
-    // );
-    // apiProvider!.getAuctionProducts(
-    //   dio: dio,
-    //   context: context,
-    // );
-    // apiProvider!.getFeatureProducts(
-    //   dio: dio,
-    //   context: context,
-    // );
 
     getUserId();
     // Convert API date to DateTime
-    DateTime dateTime = DateTime.parse("${widget.data["created_at"]}");
+    DateTime dateTime = DateTime.parse(product?.createdAt ?? '');
     // Calculate time difference
     timeDifference = calculateTimeDifference(dateTime);
   }
@@ -103,16 +97,19 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
 
   @override
   Widget build(BuildContext context) {
-    VehicleAttributes vehicleAttributes =
-        VehicleAttributes.fromJson(widget.data["attributes"]);
-    PropertyAttributes propertyAttributes =
-        PropertyAttributes.fromJson(widget.data["attributes"]);
 
-    if(widget.data!=null && widget.data["wishlist"]!=null) {
-      isFav = widget.data["wishlist"].isNotEmpty
-        ? true
-        : false;
-    }
+    VehicleAttributes vehicleAttributes =
+        VehicleAttributes.fromJson(product?.attributes);
+    PropertyAttributes propertyAttributes =
+    PropertyAttributes.fromJson(product?.attributes);
+
+
+    // if(widget.data!=null && widget.data["wishlist"]!=null) {
+    //   isFav = widget.data["wishlist"].isNotEmpty
+    //     ? true
+    //     : false;
+    // }
+
 
     return Container(
       decoration: BoxDecoration(
@@ -126,14 +123,14 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
             height: 135.h,
             decoration: BoxDecoration(
               color: AppTheme.hintTextColor,
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(8),
                 topRight: Radius.circular(8),
               ),
-              image: widget.data["photo"].isNotEmpty
+              image: product?.imagePath?.url?.isNotEmpty ?? false
                   ? DecorationImage(
                       image:
-                          NetworkImage("${widget.data["photo"][0]["src"]}"),
+                          NetworkImage( product!.imagePath!.url!),
                       fit: BoxFit.fill,
                     )
                   : null,
@@ -148,7 +145,7 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if(isProductBoosted(widget.data["booster_end_datetime"]))
+                      if(isProductBoosted(product?.boosterEndDatetime))
                       Container(
                         margin: EdgeInsets.only(top: 6.h, left: 8.w),
                         padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 4.h),
@@ -207,7 +204,7 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                       child: Padding(
                         padding: const EdgeInsets.only(left: 24, right: 14),
                         child: AppText.appText(
-                            "AED ${abbreviateNumber(widget.data["fix_price"] ?? '')}",
+                            "AED ${abbreviateNumber(product?.fixPrice?.toString() ?? '')}",
                           textColor: Colors.white,
                           fontSize: 14.sp
 
@@ -234,7 +231,7 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                     SizedBox(
                       // height: 40,
                       width: MediaQuery.sizeOf(context).width * .4,
-                      child: AppText.appText("${widget.data["title"]}",
+                      child: AppText.appText(product?.title ?? '',
                           fontSize: 14,
                           overflow: TextOverflow.ellipsis,
                           fontWeight: FontWeight.w700,
@@ -244,10 +241,11 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                     // const SizedBox(height: 3),
 
 
-                    if(propertyAttributes.catName == 'Property for Sale' ||
-                        propertyAttributes.catName
-                            == 'Property for Rent' || vehicleAttributes.catName == 'Vehicles')
-                      vehicleAttributes.catName == 'Vehicles'
+                    if(product?.category?.name == 'Property for Sale' ||
+                        product?.category?.name
+                            == 'Property for Rent' || product?.category?.name == 'Vehicles')
+
+                      product?.category?.name == 'Vehicles'
                           ? Row(
                         children: [
                           ImageText(
@@ -259,12 +257,12 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                               image: 'petrol.png'),
                         ],
                       )
-                          : propertyAttributes.catName == 'Property for Sale' ||
-                          propertyAttributes.catName == 'Property for Rent'
+                          : product?.category?.name == 'Property for Sale' ||
+                          product?.category?.name == 'Property for Rent'
                           ? Row(
                         children: [
                           ImageText(
-                              txt: propertyAttributes.bathroom == '' ? "0" : propertyAttributes.bathroom,
+                              txt: propertyAttributes.bathroom ?? "0",
                               image: 'bath.png'),
                           ImageText(
                               txt: propertyAttributes.bedroom == '' ? "0" : propertyAttributes.bedroom,
@@ -276,18 +274,6 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                       )
                           : const SizedBox.shrink(),
 
-                    // if(propertyAttributes.catName != 'Property for Sale' &&
-                    //     propertyAttributes.catName
-                    //         != 'Property for Rent' && vehicleAttributes.catName != 'Vehicles')
-                    //   Row(
-                    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //     children: [
-                    //       AppText.appText("Member since: ${formatYear(widget.data["created_at"])}",
-                    //           fontSize: 12.sp,
-                    //           fontWeight: FontWeight.w700,
-                    //           textColor: AppTheme.textColor),
-                    //     ],
-                    //   ),
 
 
                     Row(
@@ -300,7 +286,7 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                         ),
                         const SizedBox(width: 5),
                         Expanded(
-                          child: AppText.appText(widget.data["location"],
+                          child: AppText.appText(product?.location ?? '',
                               fontSize: 11,
                               overflow: TextOverflow.ellipsis,
                               fontWeight: FontWeight.w700,
@@ -310,14 +296,14 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                     ),
                     // const SizedBox(height: 5),
 
-                    if(propertyAttributes.catName != 'Property for Sale' &&
-                        propertyAttributes.catName
-                            != 'Property for Rent' && vehicleAttributes.catName != 'Vehicles')
+                    if(product?.category?.name != 'Property for Sale' &&
+                        product?.category?.name
+                            != 'Property for Rent' && product?.category?.name  != 'Vehicles')
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Expanded(
-                            child: AppText.appText(timeAgo(widget.data["created_at"]),
+                            child: AppText.appText(timeAgo(product?.createdAt ?? ''),
                                 fontSize: 11,
                                 overflow: TextOverflow.ellipsis,
                                 fontWeight: FontWeight.w700,
@@ -337,58 +323,6 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
 
 
 
-          // AppText.appText(
-          //   "${widget.data["title"]}",
-          //   fontSize: 14,
-          //   fontWeight: FontWeight.w500,
-          //   textColor: AppTheme.textColor,
-          // ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     AppText.appText(
-          //       "\$${widget.data["fix_price"]}",
-          //       fontSize: 14,
-          //       fontWeight: FontWeight.w700,
-          //       textColor: AppTheme.textColor,
-          //     ),
-          //   ],
-          // ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     Row(
-          //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //       children: [
-          //         Icon(
-          //           Icons.location_on_outlined,
-          //           color: AppTheme.textColor,
-          //           size: 20,
-          //         ),
-          //         SizedBox(
-          //           width: 50,
-          //           child: AppText.appText(
-          //             "${widget.data["location"]}",
-          //             fontSize: 12,
-          //             fontWeight: FontWeight.w400,
-          //             overflow: TextOverflow.ellipsis,
-          //             textColor: AppTheme.textColor,
-          //           ),
-          //         )
-          //       ],
-          //     ),
-          //     SizedBox(
-          //       width: 100,
-          //       child: AppText.appText(
-          //         overflow: TextOverflow.ellipsis,
-          //         timeDifference,
-          //         fontSize: 11,
-          //         fontWeight: FontWeight.w600,
-          //         textColor: AppTheme.appColor,
-          //       ),
-          //     ),
-          //   ],
-          // ),
         ],
       ),
     );

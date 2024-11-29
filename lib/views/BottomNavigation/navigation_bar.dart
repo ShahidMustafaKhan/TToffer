@@ -14,7 +14,7 @@ import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/utils/utils.dart';
 import 'package:tt_offer/views/ChatScreens/chat_screen.dart';
-import 'package:tt_offer/views/Homepage/landing_screen.dart';
+import 'package:tt_offer/views/Homepage/LandingPage/landing_screen.dart';
 import 'package:tt_offer/views/Post%20screens/post_screen.dart';
 import 'package:tt_offer/views/Profile%20Screen/profile_screen.dart';
 import 'package:tt_offer/views/Sellings/selling_purchase.dart';

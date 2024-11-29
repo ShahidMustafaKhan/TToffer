@@ -16,15 +16,18 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/detail_model/property_for_sale_model.dart';
-import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
+import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
 
-import '../../config/keys/pref_keys.dart';
-import '../All Featured Products/feature_container.dart';
+import '../../../config/keys/pref_keys.dart';
+import '../../../data/response/api_response.dart';
+import '../../../models/product_model.dart';
+import '../../../view_model/product/product/product_viewmodel.dart';
+import '../Feature Product/feature_container.dart';
 
 class AuctionProductContainer extends StatefulWidget {
-   var data;
+  Product? product;
 
-   AuctionProductContainer({super.key, this.data});
+   AuctionProductContainer({super.key, this.product});
 
   @override
   State<AuctionProductContainer> createState() =>
@@ -40,6 +43,7 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
   String? authorizationToken;
 
   late bool wishItem;
+  Product? product;
 
   getUserId() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -56,33 +60,25 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
   void initState() {
     dio = AppDio(context);
     logger.init();
+    
+    product = widget.product;
+    
     getUserId();
 
 
      apiProvider =
     Provider.of<ProductsApiProvider>(context, listen: false);
 
-    if(widget.data!=null && widget.data["wishlist"]!=null) {
-      isFav = widget.data["wishlist"].isNotEmpty
-          ? true
-          : false;
-    }
-    // apiProvider!.getCatagories(
-    //   dio: dio,
-    //   context: context,
-    // );
-    // apiProvider!.getAuctionProducts(
-    //   dio: dio,
-    //   context: context,
-    // );
-    // apiProvider!.getFeatureProducts(
-    //   dio: dio,
-    //   context: context,
-    // );
-    if(widget.data!=null && widget.data["wishlist"]!=null) {
-    wishItem = widget.data["wishlist"].isNotEmpty
-        ? true
-        : false;}
+    // if(widget.data!=null && widget.data["wishlist"]!=null) {
+    //   isFav = widget.data["wishlist"].isNotEmpty
+    //       ? true
+    //       : false;
+    // }
+    //
+    // if(widget.data!=null && widget.data["wishlist"]!=null) {
+    // wishItem = widget.data["wishlist"].isNotEmpty
+    //     ? true
+    //     : false;}
 
 
 
@@ -90,35 +86,35 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
   }
 
 
-  addOrRemoveWishItem(){
-    wishItem = !wishItem;
-    setState(() {
-
-    });
-  }
-
-  addOrRemoveWishItemFromDB(){
-    widget.data["wishlist"].isNotEmpty
-        ? removeFavourite(
-        wishId: widget.data["wishlist"][0]["id"])
-        : addToFavourite();
-  }
+  // addOrRemoveWishItem(){
+  //   wishItem = !wishItem;
+  //   setState(() {
+  //
+  //   });
+  // }
+  //
+  // addOrRemoveWishItemFromDB(){
+  //   widget.data["wishlist"].isNotEmpty
+  //       ? removeFavourite(
+  //       wishId: widget.data["wishlist"][0]["id"])
+  //       : addToFavourite();
+  // }
 
 
   DateTime _parseEndingDateTime() {
-    String? endingTimeString = widget.data["ending_time"];
-    String? endingDateString = widget.data["ending_date"];
+    String? endingTimeString = product?.auctionEndingTime;
+    String? endingDateString = product?.auctionEndingDate;
     DateTime endingDate =
-        DateFormat("yyyy-MM-dd").parse("${widget.data["ending_date"]}");
+        DateFormat("yyyy-MM-dd").parse(endingDateString!);
     DateTime endingTime;
 
     if (endingTimeString!.contains("PM") || endingTimeString.contains("AM")) {
-      endingTime = DateFormat("h:mm a").parse("${widget.data["ending_time"]}");
+      endingTime = DateFormat("h:mm a").parse(endingTimeString);
       if (kDebugMode) {
         print(" vkrvlrvm$endingTime");
       }
     } else {
-      endingTime = DateFormat("HH:mm").parse("${widget.data["ending_time"]}");
+      endingTime = DateFormat("HH:mm").parse(endingTimeString);
       if (kDebugMode) {
         print(" jf3o3jfpfp3fpk$endingTime");
       }
@@ -135,23 +131,26 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
   @override
   Widget build(BuildContext context) {
     VehicleAttributes vehicleAttributes =
-        VehicleAttributes.fromJson(widget.data["attributes"]);
+        VehicleAttributes.fromJson(product?.attributes);
     PropertyAttributes propertyAttributes =
-        PropertyAttributes.fromJson(widget.data["attributes"]);
+        PropertyAttributes.fromJson(product?.attributes);
         // PropertyAttributes.fromJson(widget.data['attributes']);
 
 
-    final allAuctionProducts = Provider.of<ProductsApiProvider>(context, listen: false).allauctionProductsData;
+    final productViewModel = Provider.of<ProductViewModel>(context, listen: false);
 
-    final product = allAuctionProducts.firstWhere((item) => item['id'] == widget.data["id"], orElse: () => null);
 
-    widget.data = product;
+    Product? productTemp = productViewModel.auctionProductList.data?.data?.productList
+        ?.firstWhere(
+          (item) => item.id == product?.id,);
 
-    if(widget.data!=null && widget.data["wishlist"]!=null) {
-      isFav = widget.data["wishlist"].isNotEmpty
-        ? true
-        : false;
-    }
+    widget.product = productTemp;
+
+    // if(widget.data!=null && widget.data["wishlist"]!=null) {
+    //   isFav = widget.data["wishlist"].isNotEmpty
+    //     ? true
+    //     : false;
+    // }
 
 
 
@@ -174,10 +173,10 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
                 topRight: Radius.circular(8),
               ),
               // borderRadius: BorderRadius.circular(8.r),
-              image: widget.data["photo"].isNotEmpty
+              image: (product?.imagePath?.url?.isNotEmpty ?? false)
                   ? DecorationImage(
                 image:
-                NetworkImage("${widget.data["photo"][0]["src"]}"),
+                NetworkImage("${product?.imagePath?.url}"),
                 fit: BoxFit.fill,
               )
                   : null,
@@ -192,7 +191,7 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if(isProductBoosted(widget.data["booster_end_datetime"]))
+                      if(isProductBoosted(product?.boosterEndDatetime))
                         Container(
                           margin: EdgeInsets.only(top: 6.h, left: 8.w),
                           padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 4.h),
@@ -219,7 +218,7 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
                           behavior: HitTestBehavior.deferToChild,
                           onTap: () {
                             // addOrRemoveWishItem();
-                            addOrRemoveWishItemFromDB();
+                            // addOrRemoveWishItemFromDB();
                           },
                           child: Align(
                             alignment: Alignment.topRight,
@@ -251,7 +250,7 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
                       child: Padding(
                         padding: const EdgeInsets.only(left: 24, right: 14),
                         child: AppText.appText(
-                            "AED ${abbreviateNumber(widget.data["auction_price"] ?? '')}",
+                            "AED ${abbreviateNumber(product?.auctionInitialPrice?.toString() ?? '')}",
                             textColor: Colors.white,
                             fontSize: 14.sp
 
@@ -290,17 +289,17 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
                                     SizedBox(
                                       // height: 40,
                                       width: MediaQuery.sizeOf(context).width * .4,
-                                      child: AppText.appText("${widget.data["title"]}",
+                                      child: AppText.appText(product?.title ?? '',
                                           fontSize: 13,
                                           overflow: TextOverflow.ellipsis,
                                           fontWeight: FontWeight.w700,
                                           textColor: AppTheme.textColor),
                                     ),
 
-                                    if(propertyAttributes.catName == 'Property for Sale' ||
-                                        propertyAttributes.catName
-                                            == 'Property for Rent' || vehicleAttributes.catName == 'Vehicles')
-                                      vehicleAttributes.catName == 'Vehicles'
+                                    if(product?.category?.name == 'Property for Sale' ||
+                                        product?.category?.name
+                                            == 'Property for Rent' || product?.category?.name == 'Vehicles')
+                                      product?.category?.name == 'Vehicles'
                                           ? Row(
                                         children: [
                                           ImageText(
@@ -312,8 +311,8 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
                                               txt: vehicleAttributes.FuelType, image: 'petrol.png'),
                                         ],
                                       )
-                                          : propertyAttributes.catName == 'Property for Sale' ||
-                                          propertyAttributes.catName == 'Property for Rent'
+                                          : product?.category?.name == 'Property for Sale' ||
+                                          product?.category?.name == 'Property for Rent'
                                           ? Row(
                                         children: [
                                           ImageText(
@@ -330,9 +329,9 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
                                           : const SizedBox.shrink(),
 
 
-                                    if(propertyAttributes.catName != 'Property for Sale' &&
-                                        propertyAttributes.catName
-                                            != 'Property for Rent' && vehicleAttributes.catName != 'Vehicles')
+                                    if(product?.category?.name != 'Property for Sale' &&
+                                        product?.category?.name
+                                            != 'Property for Rent' && product?.category?.name != 'Vehicles')
                                       SizedBox(
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.start,
@@ -368,7 +367,7 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
                                         ),
                                         const SizedBox(width: 5),
                                         Expanded(
-                                          child: AppText.appText(widget.data["location"],
+                                          child: AppText.appText(product?.location ?? '',
                                               fontSize: 10,
                                               overflow: TextOverflow.ellipsis,
                                               fontWeight: FontWeight.w700,
@@ -380,8 +379,8 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
                                     Padding(
                                       padding: EdgeInsets.symmetric(horizontal: 0.w),
                                       child: AppButton.appButton("Bid Now", onTap: () {
-                                        if(widget.data["user_id"] != userId.toString()){
-                                          getAuctionProductDetail(productId: widget.data["id"]);}
+                                        if(product?.user?.id?.toString() != userId.toString()){
+                                          push(context, AuctionInfoScreen(detailResponse: product));}
                                         else{
                                           showSnackBar(context, 'You can\'t place a bid on your own product.');
                                         }
@@ -545,7 +544,7 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
     int responseCode500 = 500; // Internal server error.
     Map<String, dynamic> params = {
       "user_id": userId,
-      "product_id": widget.data["id"],
+      "product_id": widget.product!.id!,
     };
     try {
       response = await dio.post(path: AppUrls.adddToFavorite, data: params);

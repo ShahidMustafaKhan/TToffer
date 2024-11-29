@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/cart_api.dart';
@@ -36,10 +37,19 @@ import 'package:tt_offer/providers/profile_info_provider.dart';
 import 'package:tt_offer/providers/screen_state_notifier.dart';
 import 'package:tt_offer/providers/search_provider.dart';
 import 'package:tt_offer/providers/selling_purchase_provider.dart';
+import 'package:tt_offer/repository/auth_api/auth_repository.dart';
+import 'package:tt_offer/repository/product_api/get_product_api/get_product_repository.dart';
+import 'package:tt_offer/repository/product_api/post_products_api/post_product_repository.dart';
 import 'package:tt_offer/search_location_page.dart';
 import 'package:tt_offer/splash_screen.dart';
-import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
-import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
+import 'package:tt_offer/view_model/google_auth/google_auth_view_model.dart';
+import 'package:tt_offer/view_model/login/login_view_model.dart';
+import 'package:tt_offer/view_model/product/post_product/post_product_viewmodel.dart';
+import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
+import 'package:tt_offer/view_model/register/register_view_model.dart';
+import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
+import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
+import 'package:tt_offer/repository/google_auth/authentication.dart';
 import 'package:tt_offer/views/Authentication%20screens/GoogleSignIn/google_signin_provider.dart';
 import 'package:tt_offer/views/SearchPage/search_page.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -60,7 +70,6 @@ bool isAlready = false;
 bool isRegister = false;
 
 int? firstTimeProductId;
-UserCredential? userCredential;
 
 late SharedPreferences pref;
 late CustomPostRequest customPostRequest;
@@ -163,9 +172,16 @@ void showFlutterNotification(RemoteMessage message) {
 /// Initialize the [FlutterLocalNotificationsPlugin] package.
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
+GetIt getIt = GetIt.instance;
+
+
 
 Future<void> main() async {
   HttpOverrides.global = MyHttpOverrides();
+  getIt.registerLazySingleton<AuthRepository>(() => AuthRepository());
+  getIt.registerLazySingleton<GoogleAuthRepository>(() => GoogleAuthRepository());
+  getIt.registerLazySingleton<PostProductRepository>(() => PostProductRepository());
+  getIt.registerLazySingleton<ProductRepository>(() => ProductRepository());
 
   WidgetsFlutterBinding.ensureInitialized();
   Stripe.publishableKey =
@@ -262,6 +278,11 @@ class _MyAppState extends State<MyApp> {
             ChangeNotifierProvider(create: (_) => BannerController()),
             ChangeNotifierProvider(create: (_) => LoadingProvider()),
             ChangeNotifierProvider(create: (_) => CartApiProvider()),
+            ChangeNotifierProvider(create: (_) => LoginViewModel(authRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => RegisterViewModel(authRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => GoogleAuthViewModel(googleAuthRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => PostProductViewModel(postProductRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => ProductViewModel(productRepository: getIt())),
           ],
           child: MaterialApp(
             navigatorKey: navigatorKey,

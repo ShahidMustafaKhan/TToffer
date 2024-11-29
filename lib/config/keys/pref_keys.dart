@@ -15,6 +15,7 @@ class PrefKey {
   static const String dataonBoardScreenDietryRestriction = "dataonBoardScreenDietryRestriction";
   static const String conditiontoLoad = "conditiontoLoad";
   static const String userName = "userName";
+  static const String userModel = "userModel";
   static const String dateOfBirth = "dateOfBirth";
   static const String type = "type";
   static const String verified = "verified";

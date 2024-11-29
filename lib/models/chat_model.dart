@@ -1,3 +1,6 @@
+import '../../../models/product_model.dart';
+
+
 class ChatModel {
   bool success;
   Data? data;
@@ -177,117 +180,6 @@ class Offer {
       };
 }
 
-class Product {
-  int? id;
-  int? userId;
-  String? title;
-  String? slug;
-  String? description;
-  String? categoryId;
-  String? subCategoryId;
-  String? condition;
-  String? makeAndModel;
-  String? mileage;
-  String? color;
-  String? brand;
-  String? model;
-  String? edition;
-  String? authenticity;
-  String? fixPrice;
-  String? firmOnPrice;
-  dynamic auctionPrice;
-  dynamic startingDate;
-  dynamic startingTime;
-  dynamic endingDate;
-  dynamic endingTime;
-  dynamic sellToUs;
-  String? location;
-  String? status;
-  DateTime? createdAt;
-  DateTime? updatedAt;
-  String? isUrgent;
-  String? totalReview;
-  String? reviewPercentage;
-  String? isArchived;
-  String? isSold;
-  dynamic soldToUserId;
-  dynamic viewsCount;
-  dynamic boosterStartDatetime;
-  dynamic boosterEndDatetime;
-  // Category? category;
-  // SubCategory? subCategory;
-  List<Photo>? photo;
-  List<dynamic>? video;
-  List<dynamic>? wishlist;
-
-  Product({
-    this.id,
-    this.userId,
-    this.title,
-    this.slug,
-    this.description,
-    this.categoryId,
-    this.subCategoryId,
-    this.condition,
-    this.makeAndModel,
-    this.mileage,
-    this.color,
-    this.brand,
-    this.model,
-    this.edition,
-    this.authenticity,
-    this.fixPrice,
-    this.firmOnPrice,
-    this.auctionPrice,
-    this.startingDate,
-    this.startingTime,
-    this.endingDate,
-    this.endingTime,
-    this.sellToUs,
-    this.location,
-    this.status,
-    this.createdAt,
-    this.updatedAt,
-    this.isUrgent,
-    this.totalReview,
-    this.reviewPercentage,
-    this.isArchived,
-    this.isSold,
-    this.soldToUserId,
-    this.viewsCount,
-    this.boosterStartDatetime,
-    this.boosterEndDatetime,
-    // this.category,
-    // this.subCategory,
-    this.photo,
-    this.video,
-    this.wishlist,
-  });
-
-  factory Product.fromJson(Map<String, dynamic> json) => Product(
-        id: json["id"],
-        userId: json["user_id"],
-        title: json["title"],
-        authenticity: json["authenticity"],
-        fixPrice: json["fix_price"],
-        firmOnPrice: json["firm_on_price"],
-        auctionPrice: json["auction_price"],
-        startingDate: json["starting_date"],
-        startingTime: json["starting_time"],
-        endingDate: json["ending_date"],
-        endingTime: json["ending_time"],
-
-        location: json["location"],
-
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
-
-        // category: Category.fromJson(json["category"]),
-        // subCategory: SubCategory.fromJson(json["sub_category"]),
-        photo: List<Photo>.from(json["photo"].map((x) => Photo.fromJson(x))),
-        video: List<dynamic>.from(json["video"].map((x) => x)),
-      );
-}
 
 // class Category {
 //   int? id;

@@ -82,7 +82,8 @@ class CartApiProvider extends ChangeNotifier {
   Future<bool?> addCartItems({
     required dio,
     required context,
-    required int productId
+    required int productId,
+    required int price
   }) async {
     isLoading = true;
     var response;
@@ -93,7 +94,9 @@ class CartApiProvider extends ChangeNotifier {
     int responseCode422 = 422; // For For data not found
     int responseCode500 = 500; // Internal server error.
     Map<String, dynamic> params = {
-      "product_id": productId.toString(),
+      "product_id": productId,
+      "quantity": 1,
+      "price": price,
     };
     try {
       response = await dio.post(path: AppUrls.addCart, data: params);
@@ -138,6 +141,7 @@ class CartApiProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+    return null;
   }
 
   Future<void> deleteCartItems({
@@ -154,7 +158,7 @@ class CartApiProvider extends ChangeNotifier {
     int responseCode422 = 422; // For For data not found
     int responseCode500 = 500; // Internal server error.
     Map<String, dynamic> params = {
-      "product_id": productId.toString(),
+      "product_id": productId,
     };
     try {
       response = await dio.post(path: AppUrls.removeCart, data: params);

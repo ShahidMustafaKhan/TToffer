@@ -16,8 +16,8 @@ import 'package:tt_offer/Utils/widgets/others/no_data_found.dart';
 import 'package:tt_offer/custom_requests/notification_delete_request.dart';
 import 'package:tt_offer/models/notifications_model.dart';
 import 'package:tt_offer/providers/notification_provider.dart';
-import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
-import 'package:tt_offer/views/Auction%20Info/reschdule_acution_time.dart';
+import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
+import 'package:tt_offer/views/Products/Auction%20Product/widgets/reschdule_acution_time.dart';
 
 import '../../Constants/app_logger.dart';
 import '../../Controller/APIs Manager/chat_api.dart';
@@ -25,7 +25,7 @@ import '../../Controller/APIs Manager/profile_apis.dart';
 import '../../config/app_urls.dart';
 import '../../config/dio/app_dio.dart';
 import '../../models/selling_products_model.dart' as selling_model;
-import '../Auction Info/auction_info.dart';
+import '../Products/Auction Product/auction_info.dart';
 import '../ChatScreens/offer_chat_screen.dart';
 import '../Sellings/new_sold_screen.dart';
 import '../Sellings/rating_screen.dart';
@@ -382,7 +382,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     decoration: BoxDecoration(
                                       color: getNotificationImage(index)=='product' || getNotificationImage(index)=='user' ? Colors.transparent : Colors.amber,
                                       image:  getNotificationImage(index)=='product' || getNotificationImage(index)=='user' ? DecorationImage(
-                                        image: NetworkImage(getNotificationImage(index)=='product' ? notification[index].product!.imagePath!.src.toString() :  notification[index].user!.img!),
+                                        image: NetworkImage(getNotificationImage(index)=='product' ? notification[index].product!.imagePath!.url.toString() :  notification[index].user!.img!),
                                         fit: BoxFit.fill,
                                       ) : const DecorationImage(
                                         image: AssetImage('assets/images/gallery.png',
@@ -404,7 +404,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                               bottomRight: Radius.circular(16.r),
                                             )
                                           ),
-                                          child: Center(child: AppText.appText(notification[index].product!.productType == 'auction' ? "Auction" : "AED ${abbreviateNumber(notification[index].product!.fixPrice ?? '')}" ?? '', fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
+                                          child: Center(child: AppText.appText(notification[index].product!.productType == 'auction' ? "Auction" : "AED ${abbreviateNumber(notification[index].product!.fixPrice.toString() ?? '')}" ?? '', fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
                                 ],
                               ),
                               SizedBox(width: 11.w),
@@ -564,7 +564,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   String getNotificationImage(int index){
-    if(notification[index].product != null && notification[index].product!.imagePath!= null && notification[index].product!.imagePath!= null && notification[index].product!.imagePath!.src!= null){
+    if(notification[index].product != null && notification[index].product!.imagePath!= null && notification[index].product!.imagePath!= null && notification[index].product!.imagePath!.url!= null){
       return 'product';
     }
     else if(notification[index].user != null && notification[index].user!.img != null && notification[index].user!.img != null && notification[index].user!.img != null){

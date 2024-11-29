@@ -12,11 +12,10 @@ import '../../utils/utils.dart';
 import 'sub_categories_screen.dart';
 
 class AllCategories extends StatefulWidget {
-  final data;
 
   bool isList;
 
-  AllCategories({super.key, this.data, required this.isList});
+  AllCategories({super.key, required this.isList});
 
   @override
   State<AllCategories> createState() => _AllCategoriesState();

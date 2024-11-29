@@ -14,12 +14,12 @@ import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/sub_categories_model.dart';
-import 'package:tt_offer/views/All%20Aucton%20Products/all_auction_procucts.dart';
-import 'package:tt_offer/views/All%20Featured%20Products/feature_container.dart';
-import 'package:tt_offer/views/All%20Featured%20Products/feature_info.dart';
+import 'package:tt_offer/views/Products/Auction%20Product/all_auction_procucts.dart';
+import 'package:tt_offer/views/Products/Feature%20Product/feature_container.dart';
+import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
-import 'package:tt_offer/views/Auction%20Info/auction_info.dart';
+import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
 
 import '../../Utils/widgets/custom_radio_button.dart';
 

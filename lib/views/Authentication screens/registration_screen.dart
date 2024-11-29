@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -9,6 +10,7 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/main.dart';
+import 'package:tt_offer/view_model/register/register_view_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
@@ -143,60 +145,79 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               SizedBox(height: 10.h),
 
 
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: _isLoading == true
-                    ? Center(
-                  child: CircularProgressIndicator(
-                    color: AppTheme.appColor,
-                  ),
-                )
-                    : AppButton.appButton("Register", onTap: () {
-                  _emailController.text =
-                      _emailController.text.replaceAll(' ', '');
-                  if (_fNameController.text.isNotEmpty) {
-                    if (_userNameController.text.isNotEmpty) {
-                      if (_emailController.text.isNotEmpty) {
-                        String emailPhone = _emailController.text.trim();
-                        bool isEmail =
-                            RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                .hasMatch(emailPhone);
-                        bool isPhoneNumber =
-                            RegExp(r'^\+\d{1,3}\d{9,15}$').hasMatch(emailPhone);
-                        if (isPhoneNumber || isEmail) {
-                          if (_passwordController.text.isNotEmpty) {
-                            if (_passwordController.text.isNotEmpty) {
-                              print("is $isEmail");
-                              print("is $isPhoneNumber");
+              Consumer<RegisterViewModel>(
+                  builder: (context, provider, child){
+                    return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: provider.registerLoading == true
+                        ? Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.appColor,
+                      ),
+                    )
+                        : AppButton.appButton("Register", onTap: () {
+                      _emailController.text =
+                          _emailController.text.replaceAll(' ', '');
+                      if (_fNameController.text.isNotEmpty) {
+                        if (_userNameController.text.isNotEmpty) {
+                          if (_emailController.text.isNotEmpty) {
+                            String emailPhone = _emailController.text.trim();
+                            bool isEmail =
+                                RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                    .hasMatch(emailPhone);
+                            bool isPhoneNumber =
+                                RegExp(r'^\+\d{1,3}\d{9,15}$').hasMatch(emailPhone);
+                            if (isPhoneNumber || isEmail) {
+                              if (_passwordController.text.isNotEmpty) {
+                                if (_passwordController.text.isNotEmpty) {
 
-                              register(phone: isPhoneNumber);
+                                  Map<String, dynamic> data = {
+                                    "name": "${_fNameController.text} ${_lNameController.text}",
+                                    "email": _emailController.text,
+                                    "username": _userNameController.text,
+                                    "password": _passwordController.text,
+                                    "phone": _emailController.text,
+                                  };
+
+                                  provider.registerApi(data).then((value){
+                                    Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const BottomNavView(fromLogin : true),
+                                        ),
+                                            (route) => false);
+                                  }).onError((error, stackTrace){
+                                    showSnackBar(context, error.toString());
+                                  });
+                                } else {
+                                  showSnackBar(
+                                      context, "Password length is minimum 8");
+                                }
+                              } else {
+                                showSnackBar(context, "Enter Password");
+                              }
                             } else {
-                              showSnackBar(
-                                  context, "Password length is minimum 8");
+                              showSnackBar(context,
+                                  "Please enter a valid email address or phone number with country code");
                             }
                           } else {
-                            showSnackBar(context, "Enter Password");
+                            showSnackBar(context, "Enter Email");
                           }
                         } else {
-                          showSnackBar(context,
-                              "Please enter a valid email address or phone number with country code");
+                          showSnackBar(context, "Enter Username");
                         }
                       } else {
-                        showSnackBar(context, "Enter Email");
+                        showSnackBar(context, "Enter Name");
                       }
-                    } else {
-                      showSnackBar(context, "Enter Username");
-                    }
-                  } else {
-                    showSnackBar(context, "Enter Name");
-                  }
-                },
-                    height: 53,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    radius: 32.0,
-                    backgroundColor: AppTheme.appColor,
-                    textColor: AppTheme.whiteColor),
+                    },
+                        height: 53,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        radius: 32.0,
+                        backgroundColor: AppTheme.appColor,
+                        textColor: AppTheme.whiteColor),
+                  );
+                }
               )
             ],
           ),
@@ -275,8 +296,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           setState(() {
             _isLoading = false;
           });
-          var userId = responseData["data"]["user"]["id"];
-          var name = responseData["data"]["user"]["name"];
+          var userId = responseData["data"]["id"];
+          var name = responseData["data"]["name"];
           var token = responseData["data"]["token"];
           var id = userId.toString();
           print("id$id");

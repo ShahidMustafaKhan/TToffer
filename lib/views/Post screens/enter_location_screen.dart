@@ -16,8 +16,9 @@ import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/stripe_payment_screen.dart';
+import 'package:tt_offer/view_model/product/post_product/post_product_viewmodel.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
-import 'package:tt_offer/views/Homepage/landing_screen.dart';
+import 'package:tt_offer/views/Homepage/LandingPage/landing_screen.dart';
 import 'package:tt_offer/views/Post%20screens/google_map_screen.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
 import 'package:tt_offer/views/Post%20screens/post_product_payment.dart';
@@ -65,6 +66,8 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
 
   bool localDelivery = false;
 
+  bool addShipping = false;
+
 
 
   @override
@@ -108,30 +111,34 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
       child: Scaffold(
         bottomNavigationBar: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: _isLoading == true
-              ? LoadingDialog()
-              : AppButton.appButton(done == true && isBack == false ? "Done" : "Next", onTap: () {
-                if(done == true && isBack == false) {
+          child: Consumer<PostProductViewModel>(
+              builder: (context, provider, child){
+                return provider.lastStepLoading == true
+                  ? LoadingDialog()
+                  : AppButton.appButton(done == true && isBack == false ? "Done" : "Next", onTap: () {
+                    if(done == true && isBack == false) {
 
-                  imageProvider.imagePaths.clear();
-                  imageProvider.vedioPath = '';
+                      imageProvider.imagePaths.clear();
+                      imageProvider.vedioPath = '';
 
-                  pushUntil(context, const BottomNavView(showDialog: true,));
-                }
-                else {
-                  if(_locationController.text.isNotEmpty) {
-                    enterLocation();
-                  } else{
-                    showSnackBar(context, "Please add your location.");
-                  }
-                }
-                },
-                  height: 53,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                  radius: 32.0,
-                  backgroundColor: AppTheme.appColor,
-                  textColor: AppTheme.whiteColor),
+                      pushUntil(context, const BottomNavView(showDialog: true,));
+                    }
+                    else {
+                      if(_locationController.text.isNotEmpty) {
+                        addLocation(provider);
+                      } else{
+                        showSnackBar(context, "Please add your location.");
+                      }
+                    }
+                    },
+                      height: 53,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      radius: 32.0,
+                      backgroundColor: AppTheme.appColor,
+                      textColor: AppTheme.whiteColor);
+            }
+          ),
         ),
         backgroundColor: AppTheme.whiteColor,
         appBar: CustomAppBar1(
@@ -229,8 +236,12 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
                       padding : EdgeInsets.symmetric( vertical: 2.h),
                       fontSize: 15,
                       radius: 12.0,
-
-                      onTap: null
+                      backgroundColor: addShipping == true ? AppTheme.yellowColor : null,
+                      textColor: addShipping == true ? AppTheme.whiteColor : AppTheme.appColor,
+                      borderColor:  addShipping == true ? AppTheme.yellowColor : null,
+                      onTap:(){
+                        addShipping = !addShipping;
+                        setState(() {});}
                   ),
                   SizedBox(height:12.h),
                   AppButton.appButton(
@@ -298,82 +309,106 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
     );
   }
 
-  void enterLocation() async {
-    setState(() {
-      _isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500;
+  void addLocation(PostProductViewModel provider) async {
+
     Map<String, dynamic> params = {
-      "product_id": "${widget.productId}",
+      "product_id": widget.productId,
       "location": _locationController.text,
+      "Local_Delivery": localDelivery==true ? 1 : 0,
+      "Pick_Up": pickupOnly==true ? 1 : 0,
+      "Shipping": addShipping==true ? 1 : 0,
     };
 
-    try {
-      response = await dio.post(
-          path: widget.selling != null || isBack==true
-              ? AppUrls.updateProductLocation
-              : AppUrls.addProductLocation,
-          data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          _isLoading = false;
-          done=true;
-        });
-        // showSnackBar(context, responseData["msg"]);
+    provider.addProductLastStep(params, update: widget.selling != null || isBack == true).then((value) async {
 
-        widget.selling = Selling.fromJson(responseData["data"]);
+      // await getSellingProducts(context);
+      //
+      // for (var element in Provider.of<SellingPurchaseProvider>(context, listen: false).sellingProductsModel!.data!.selling!) {
+      //   if (element.id == widget.selling!.id) {
+      //     widget.selling = element;
+      //   }
+      // }
+      //
+      // if(widget.selling != null) {
+      //   Navigator.push(context, CupertinoPageRoute(builder: (_) =>
+      //       SellFaster(
+      //         selling: widget.selling!,
+      //         fromLocation: true,
+      //       ),)).then((value){
+      //     setState(() {
+      //       isBack = true;
+      //     });
+      //   });
+      // provider.setLastStepLoading(false);
+      // }
 
+      pushUntil(context, BottomNavView(showDialog: true,));
 
-        await getSellingProducts(context);
+    }).onError((error, stackTrace){
+      provider.setLastStepLoading(false);
+      showSnackBar(context, error.toString());
+    });
 
-        for (var element in Provider.of<SellingPurchaseProvider>(context, listen: false).sellingProductsModel!.data!.selling!) {
-          if (element.id == widget.selling!.id) {
-            widget.selling = element;
-          }
-        }
-
-        if(widget.selling != null) {
-          Navigator.push(context, CupertinoPageRoute(builder: (_) =>
-            SellFaster(
-              selling: widget.selling!,
-              fromLocation: true,
-            ),)).then((value){
-          setState(() {
-            isBack = true;
-          });
-        });
-        }
+    // try {
+    //   response = await dio.post(
+    //       path: widget.selling != null || isBack==true
+    //           ? AppUrls.updateProductLocation
+    //           : AppUrls.addProductLocation,
+    //       data: params);
+    //   var responseData = response.data;
+    //   if (response.statusCode == responseCode400) {
+    //     showSnackBar(context, "${responseData["msg"]}");
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   } else if (response.statusCode == responseCode401) {
+    //     showSnackBar(context, "${responseData["msg"]}");
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   } else if (response.statusCode == responseCode404) {
+    //     showSnackBar(context, "${responseData["msg"]}");
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   } else if (response.statusCode == responseCode500) {
+    //     showSnackBar(context, "${responseData["msg"]}");
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   } else if (response.statusCode == responseCode422) {
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   } else if (response.statusCode == responseCode200) {
+    //     setState(() {
+    //       _isLoading = false;
+    //       done=true;
+    //     });
+    //     // showSnackBar(context, responseData["msg"]);
+    //
+    //     widget.selling = Selling.fromJson(responseData["data"]);
+    //
+    //
+    //     await getSellingProducts(context);
+    //
+    //     for (var element in Provider.of<SellingPurchaseProvider>(context, listen: false).sellingProductsModel!.data!.selling!) {
+    //       if (element.id == widget.selling!.id) {
+    //         widget.selling = element;
+    //       }
+    //     }
+    //
+    //     if(widget.selling != null) {
+    //       Navigator.push(context, CupertinoPageRoute(builder: (_) =>
+    //         SellFaster(
+    //           selling: widget.selling!,
+    //           fromLocation: true,
+    //         ),)).then((value){
+    //       setState(() {
+    //         isBack = true;
+    //       });
+    //     });
+    //     }
 
 
 
@@ -387,14 +422,14 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
         //       title: widget.title,
         //       selling: widget.selling,
         //     ));
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      // showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    //   }
+    // } catch (e) {
+    //   print("Something went Wrong ${e}");
+    //   // showSnackBar(context, "Something went Wrong.");
+    //   setState(() {
+    //     _isLoading = false;
+    //   });
+    // }
   }
 
 
