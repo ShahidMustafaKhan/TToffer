@@ -9,7 +9,7 @@ import 'package:tt_offer/models/cart_model.dart';
 
 
 class AlmostThereScreen extends StatelessWidget {
-  List<Data>? data;
+  List<Cart>? data;
   AlmostThereScreen({super.key, this.data});
 
   @override

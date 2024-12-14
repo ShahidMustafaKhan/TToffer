@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
+import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 import 'package:tt_offer/views/PhoneVerify/phone_verify_screen.dart';
 import 'package:tt_offer/views/Profile%20Screen/Account%20Settigs/account_info_edit.dart';
 
 import '../../../Constants/app_logger.dart';
 import '../../../config/dio/app_dio.dart';
 import '../../../config/keys/pref_keys.dart';
+import '../../../main.dart';
+import '../../../models/user_model.dart';
 
 class AccountSettingScreen extends StatefulWidget {
   const AccountSettingScreen({super.key});
@@ -21,38 +23,26 @@ class AccountSettingScreen extends StatefulWidget {
 }
 
 class _AccountSettingScreenState extends State<AccountSettingScreen> {
-  late final ProfileApiProvider profileApi;
-  var userId;
-  late AppDio dio;
-  AppLogger logger = AppLogger();
 
-
-  @override
-  void initState() {
-    dio = AppDio(context);
-    logger.init();
-    getUserDetail();
-    super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    profileApi = Provider.of<ProfileApiProvider>(context);
-    super.didChangeDependencies();
-  }
+  int? showContact;
+  int? userId;
+  late UserViewModel userViewModel;
 
   @override
   void dispose() {
-   profileApi.showPhoneNumberInAds(dio: dio, context: context, userId: userId, showPhone: profileApi.profileData["show_contact"] == '1');
+    userViewModel.updateShowContact(userId, showContact ?? 1);
     super.dispose();
   }
 
-  getUserDetail() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    setState(() {
-      userId = pref.getString(PrefKey.userId);
-    });
+  @override
+  void initState() {
+    userViewModel = Provider.of<UserViewModel>(context, listen: false);
+    userId = int.parse(pref.getString(PrefKey.userId)!);
+    showContact = userViewModel.userModel.data?.showContact ?? 1;
+    super.initState();
   }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,8 +50,9 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
       appBar: CustomAppBar1(
         title: "Account Setting",
       ),
-      body: Consumer<ProfileApiProvider>(
-          builder: (context, profileApi, child) {
+      body: Consumer<UserViewModel>(
+          builder: (context, userViewModel, child) {
+            UserModel? userModel = userViewModel.userModel.data;
             return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Column(
@@ -77,15 +68,15 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
                             userName: true,
                             title: "User Name",
                             lable: "Your Name",
-                            infoText: "${profileApi.profileData["name"]}",
-                          ), then: (){profileApi.getProfile(dio: dio, context: context);});
+                            infoText: "${userModel?.name}",
+                          ), then: (){userViewModel.getUserProfile();});
                     },
                     img: "assets/images/profile.png",
-                    txt: "${profileApi.profileData["name"]}"),
-                profileApi.profileData["phone"] == null
+                    txt: "${userModel?.name}"),
+                userModel?.phone == null
                     ? const SizedBox.shrink()
                     : divider(),
-                profileApi.profileData["phone"] == null
+                userModel?.phone == null
                     ? const SizedBox.shrink()
                     : customRow(
                         onTap: () {
@@ -99,11 +90,11 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
                                   ));
                         },
                         img: "assets/images/call.png",
-                        txt: "${profileApi.profileData["phone"]}"),
-                profileApi.profileData["email"] == null
+                        txt: "${userModel?.phone}"),
+                userModel?.email == null
                     ? const SizedBox.shrink()
                     : divider(),
-                profileApi.profileData["email"] == null
+                userModel?.email == null
                     ? const SizedBox.shrink()
                     : customRow(
                         onTap: () {
@@ -113,29 +104,30 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
                                 userName: false,
                                 title: "Email Address",
                                 lable: "Your Email",
-                                infoText: "${profileApi.profileData["email"]}",
+                                infoText: "${userModel?.email}",
                                 email: true,
-                              ), then: (){profileApi.getProfile(dio: dio, context: context);});
+                              ), then: (){userViewModel.getUserProfile();});
                         },
                         img: "assets/images/sms.png",
-                        txt: "${profileApi.profileData["email"]}"),
+                        txt: "${userModel?.email}"),
                 divider(),
+                if(userViewModel.userModel.data?.socialLogin != 1)...[
                 customRow(
                     onTap: () {
                       push(
                           context,
                           AccountEditInfoScreen(
-                            emailSt: "${profileApi.profileData["email"]}",
+                            emailSt: "${userModel?.email}",
                             userName: false,
                             title: "Password",
                             lable: "Old Password",
                             infoText: "************",
                             password: true,
-                          ), then: (){profileApi.getProfile(dio: dio, context: context);});
+                          ), then: (){userViewModel.getUserProfile();});
                     },
                     img: "assets/images/password.png",
                     txt: "************"),
-                divider(),
+                divider()],
                 customRow(
                     onTap: () {
                       push(
@@ -144,39 +136,26 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
                             userName: false,
                             title: "Location",
                             lable: "Your Location",
-                            infoText: profileApi.profileData["location"] == null
+                            infoText: userModel?.location == null
                                 ? 'Add Location'
-                                : "${profileApi.profileData["location"]}",
+                                : "${userModel?.location}",
                             location: true,
-                          ), then: (){profileApi.getProfile(dio: dio, context: context);});
+                          ), then: (){userViewModel.getUserProfile();});
                     },
                     img: "assets/images/location.png",
-                    txt: profileApi.profileData["location"] == null
+                    txt: userModel?.location == null
                         ? 'Add Location'
-                        : "${profileApi.profileData["location"]}"),
-                // divider(),
-                // customRow(
-                //     onTap: () {
-                //       push(
-                //           context,
-                //           AccountEditInfoScreen(
-                //             title: "User Name",
-                //             lable: "Your Name",
-                //             infoText: "John Doe",
-                //           ));
-                //     },
-                //     img: "assets/images/join.png",
-                //     txt: "Join TruYou"),
+                        : "${userModel?.location}"),
                 divider(),
                 customRow(
                     onTap: () {
                       push(
                           context,
                           AccountEditInfoScreen(
-                            title: "User Name",
-                            lable: "Your Name",
-                            infoText: "John Doe",
-                          ), then: (){profileApi.getProfile(dio: dio, context: context);});
+                            title: "",
+                            lable: "",
+                            infoText: "",
+                          ), then: (){userViewModel.getUserProfile();});
                     },
                     radioButton: true,
                     img: "assets/images/call.png",
@@ -231,19 +210,19 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
               height: 16,
             ),
             if(radioButton==true)
-              Consumer<ProfileApiProvider>(
-                  builder: (context, profileApi, child) {
+              Consumer<UserViewModel>(
+                  builder: (context, userViewModel, child) {
                     return Switch(
-                    value: profileApi.profileData['show_contact']=='1',
+                    value: showContact == 1,
                     onChanged: (bool value) {
                       if(value==true) {
                         setState(() {
-                          profileApi.profileData['show_contact'] = '1';
+                          showContact = 1;
                         });
                       }
                       else{
                         setState(() {
-                          profileApi.profileData['show_contact'] = '0';
+                          showContact = 0;
                         });                      }
                     },
                   );

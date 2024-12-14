@@ -24,12 +24,13 @@ import 'package:http/http.dart' as http;
 import 'package:tt_offer/views/Sell%20Faster/how_promotion_works.dart';
 
 import '../../Controller/image_provider.dart';
+import '../../models/product_model.dart';
 import '../BottomNavigation/navigation_bar.dart';
 
 class SellFaster extends StatefulWidget {
-  const SellFaster({super.key, required this.selling, this.fromLocation=false});
+  const SellFaster({super.key, required this.product, this.fromLocation=false});
 
-  final Selling selling;
+  final Product? product;
   final bool fromLocation;
 
   @override
@@ -37,6 +38,18 @@ class SellFaster extends StatefulWidget {
 }
 
 class _SellFasterState extends State<SellFaster> {
+  Product? product;
+
+
+  @override
+  void initState() {
+    product = widget.product;
+    super.initState();
+  }
+
+
+
+
   List<SellFasterData> sellFastData = [
     SellFasterData(
         boostDays: "3",
@@ -60,16 +73,6 @@ class _SellFasterState extends State<SellFaster> {
         amountInCents: 50),
   ];
 
-  fasterProductHandler(String? day, String? amount, String? currency) {
-    SellFasterStripeService().sellFasterStripeService(
-        context: context,
-        productId: widget.selling.id,
-        nod: day,
-        amount: amount,
-        currency: currency,
-        token: '123');
-  }
-
   @override
   Widget build(BuildContext context) {
     final imageProvider = Provider.of<ImageNotifyProvider>(context, listen: false);
@@ -79,7 +82,7 @@ class _SellFasterState extends State<SellFaster> {
         padding: const EdgeInsets.all(20.0),
         child: AppButton.appButton("Done", onTap: () async {
           imageProvider.imagePaths.clear();
-          imageProvider.vedioPath = '';
+          imageProvider.videoPath = '';
           pushUntil(context, BottomNavView(showDialog: widget.fromLocation ? true : false,));
            // await getPaymentStatus();
         },
@@ -102,7 +105,7 @@ class _SellFasterState extends State<SellFaster> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: ListViewContainer(
-                selling: widget.selling,
+                product: product,
               ),
             ),
             const Padding(
@@ -151,7 +154,7 @@ class _SellFasterState extends State<SellFaster> {
                               push(
                                   context,
                                   StripePaymentScreen(
-                                      selling: widget.selling,
+                                      product: product,
                                       amount: sellFastData[index].amount,
                                       currency: 'AED',
                                       day: sellFastData[index].boostDays));

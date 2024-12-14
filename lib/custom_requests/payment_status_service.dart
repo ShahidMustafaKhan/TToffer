@@ -11,10 +11,12 @@ import 'package:tt_offer/views/Homepage/LandingPage/landing_screen.dart';
 import 'package:tt_offer/views/Post%20screens/enter_location_screen.dart';
 import 'package:tt_offer/views/Post%20screens/payment_charge_screen.dart';
 
+import '../models/product_model.dart';
+
 class PaymentStatusService {
   Future paymentStatusService({
     required BuildContext context,
-    Selling? selling,
+    Product? product,
   }) async {
     try {
       var res = await customGetRequest.httpGetRequest(url: 'payment-status');
@@ -24,15 +26,15 @@ class PaymentStatusService {
         print('object--->${navigate}');
         push(
             context,
-            selling != null
+            product != null
                 ? PostLocationScreen(
                     amount: 1,
                     title: 'title',
-                    selling: selling,
-                    productId: selling.id,
+                    product: product,
+                    productId: product.id,
                   )
                 : StripePaymentChargeScreen(
-                    selling: selling,
+                      product: product,
                   ));
       } else if (res['success'] == true && res["data"]["value"] == "1") {
         navigate = false;
@@ -69,7 +71,7 @@ class PaymentStatusService {
       {required BuildContext context,
       String? amount,
       String? currency,
-      Selling? selling,
+      Product? product,
       String? token}) async {
     try {
       Map<String, dynamic> body = {
@@ -87,7 +89,7 @@ class PaymentStatusService {
         push(
             context,
             PostLocationScreen(
-              selling: selling,
+              product: product,
               productId: firstTimeProductId,
               amount: 0,
               title: 'name',

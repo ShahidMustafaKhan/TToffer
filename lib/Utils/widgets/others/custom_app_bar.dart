@@ -4,13 +4,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
+import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
+import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
+import 'package:tt_offer/views/Seller%20Profile/seller_profile.dart';
 
+import '../../../models/user_model.dart';
 import '../../../views/Profile Screen/profile_screen.dart';
 
 class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
@@ -47,8 +50,6 @@ class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    late AppDio dio;
-    AppLogger logger = AppLogger();
 
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
@@ -106,10 +107,10 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final context;
   final title;
   final action;
-  final actionOntap;
-  final imageOnTap;
+  final int? productId;
+  final int? recipientId;
   final String? img;
-  final String? userRating;
+  final double? userRating;
   final String? productImg;
   final String? productPrice;
 
@@ -119,15 +120,16 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       {super.key,
       this.context,
       this.title,
+      this.productId,
+      this.recipientId,
       this.action,
       this.userRating,
-      this.actionOntap,
-      this.img, this.productImg, this.productPrice, this.imageOnTap});
+      this.img, this.productImg, this.productPrice});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 8.0, right: 12.w),
+      padding: EdgeInsets.only(top: 8.0, right: 5.w),
       child: AppBar(
           elevation: 0,
           forceMaterialTransparency: true,
@@ -148,13 +150,15 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           title: Row(
             children: [
               InkWell(
-                onTap: actionOntap,
+                onTap: (){
+                  push(context, SellerProfileScreen(sellerProfile: UserModel(id: recipientId, name: title, img: img, reviewPercentage: userRating),));
+                },
                 child: Row(
                   children: [
                     if(img == null)
                       SvgPicture.asset('assets/images/Avatar.svg',
-                          width: 36.w,
-                          height: 36.w
+                          width: 45.w,
+                          height: 45.w
                       )
                     else
                       Container(
@@ -170,11 +174,11 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                           backgroundImage: img == null
                               ? const AssetImage("assets/images/user.png")
                               : NetworkImage(img!) as ImageProvider,
-                          radius: 28,
+                          radius: 24.r,
                         ),
                       ),
                     SizedBox(
-                      width: 15.w,
+                      width: 13.w,
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,57 +192,54 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            // SizedBox(width: userRating == "0" ? 40.w : 12.w,),
                             StarRating(
-                              percentage: userRating == null ? 0 : percentageOfFive(userRating.toString()),
+                              percentage: userRating?.round() ?? 0,
                               color: Colors.yellow,
                               size: 18,
                             ),
-                            SizedBox(width: 3.w,),
-                            if(userRating != null)
-                              AppText.appText(
-                                  userRating == "0" ? 'not rated yet' : userRating.toString(),
-                                  fontSize: userRating == "0" ? 11.sp : 12.sp,
-                                  fontWeight: FontWeight.normal,
-                                  textColor: AppTheme.txt1B20),
+                            // SizedBox(width: 3.w,),
+                            // if(userRating != null)
+                            //   AppText.appText(
+                            //       starCount(userRating),
+                            //       fontSize: userRating == 0 ? 11.sp : 12.sp,
+                            //       fontWeight: FontWeight.normal,
+                            //       textColor: AppTheme.txt1B20),
                           ],
                         ),
-                        // AppText.appText("kevin.eth is typing...",
-                        //     fontSize: 10,
-                        //     fontWeight: FontWeight.w400,
-                        //     textColor: const Color(0xff626C7B)),
+
                       ],
                     ),
                   ],
                 ),
               ),
 
-              Spacer(),
+              const Spacer(),
               if(productImg != null)
               InkWell(
-                onTap: imageOnTap,
+                onTap: (){
+                  Provider.of<ProductViewModel>(context, listen: false).navigateToProductPage(productId, context);
+                },
                 child: Row(
                   children: [
                     Stack(
                       children: [
-
-
                         Container(
-                             width: 50.w,
+                             width: 55.w,
                             height: 80.h,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(23.r),
+                              borderRadius: BorderRadius.circular(12.r),
                               image: DecorationImage(
                                 fit: BoxFit.cover,
                                 image: NetworkImage(productImg!)
                               )
                             ),),
 
+                       if(productPrice != null)
                         Positioned(
                             bottom: 0,
                             child: Container(
                                 height: 35.h,
-                                width: 50.w,
+                                width: 55.w,
                                 padding: EdgeInsets.only(top: 3.h),
                                 decoration: const BoxDecoration(
                                   color: Colors.black38,

@@ -8,10 +8,12 @@ import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/Boost%20Plus%20Screens/boost_work.dart';
 import 'package:tt_offer/views/Sell%20Faster/sell_faster.dart';
 
-class BoostPlusScreen extends StatefulWidget {
-  const BoostPlusScreen({super.key, required this.selling});
+import '../../models/product_model.dart';
 
-  final Selling selling;
+class BoostPlusScreen extends StatefulWidget {
+  const BoostPlusScreen({super.key, required this.product});
+
+  final Product? product;
 
   @override
   State<BoostPlusScreen> createState() => _BoostPlusScreenState();
@@ -62,7 +64,7 @@ class _BoostPlusScreenState extends State<BoostPlusScreen> {
                   push(
                       context,
                       SellFaster(
-                        selling: widget.selling,
+                        product: widget.product,
                       ));
                   // showSnackBar(context, "SellFaster page");
                 },
@@ -73,6 +75,7 @@ class _BoostPlusScreenState extends State<BoostPlusScreen> {
                     fontWeight: FontWeight.w500,
                     borderColor: AppTheme.appColor,
                     textColor: AppTheme.appColor,
+                    containerWidth: 120,
                     radius: 32.0),
               ),
               Padding(

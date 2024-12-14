@@ -1,10 +1,12 @@
 import 'package:country_list_pick/country_list_pick.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/models/cart_model.dart';
+import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
 import 'package:tt_offer/views/ShoppingFlow/checkout/checkout_screen.dart';
 
 import '../../../Utils/widgets/others/custom_app_bar.dart';
@@ -13,60 +15,12 @@ import '../../../config/keys/pref_keys.dart';
 import '../../../main.dart';
 import '../cart/cart_screen.dart';
 
-// Reusable CustomTextField widget
-class CustomTextField extends StatelessWidget {
-  final String labelText;
-  final TextEditingController controller;
-  final TextInputType keyboardType;
-  final Widget? prefixIcon;
 
-  CustomTextField({
-    required this.labelText,
-    required this.controller,
-    this.keyboardType = TextInputType.text,
-    this.prefixIcon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          color: AppTheme.whiteColor,
-          border: Border.all(color: const Color(0xffE5E9EB)),
-          borderRadius: BorderRadius.circular(14)),
-      height: 50,
-      width: MediaQuery.of(context).size.width,
-      child: Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              cursorColor: AppTheme.textColor,
-              cursorHeight: 25,
-              controller: controller,
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(
-                  labelText : labelText,
-                  fillColor: Colors.black38,
-                  focusedBorder: InputBorder.none,
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5))),
-                  enabledBorder: InputBorder.none,
-                  disabledBorder: InputBorder.none,
-                  errorBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.only(bottom: 4, left: 12, right: 12)
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 // Main AccountInfoForm widget
 class AccountInfoForm extends StatefulWidget {
-  List<Data>? data;
-  AccountInfoForm({super.key, this.data});
+  final List<Cart>? data;
+  const AccountInfoForm({super.key, this.data});
 
   @override
   State<AccountInfoForm> createState() => _AccountInfoFormState();
@@ -91,138 +45,149 @@ class _AccountInfoFormState extends State<AccountInfoForm> {
   List<DropdownMenuItem<String>> countryItems = [];
   List<DropdownMenuItem<String>> cityItems = [];
 
-  bool _isLoading = false;
-
   int? userId;
+
+  late final CartViewModel cartViewModel;
 
   @override
   void initState() {
     phoneNumberController.text = "+92";
     userId = int.parse(pref.getString(PrefKey.userId)!);
-    fetchCountries();
-
+    cartViewModel = Provider.of<CartViewModel>(context, listen: false);
 
     super.initState();
   }
 
   @override
+  void didChangeDependencies() {
+    fetchCountries();
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset : true,
       appBar: CustomAppBar1(
         title: "Register",
-        actionOntap: () {
-          // Action for Cancel button
-        },
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Complete your account info',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              const Text(
-                'To continue, we need your contact information.',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-              SizedBox(height: 20.h),
-              chooseCountry(),
-              const SizedBox(height: 16),
-              CustomTextField(
-                labelText: 'Street Address',
-                controller: streetAddressController,
-              ),
-              SizedBox(height: 16),
-              CustomTextField(
-                labelText: 'Street Address 2 (Optional)',
-                controller: streetAddress2Controller,
-              ),
-              SizedBox(height: 16),
-              if(selectedCountry!=null && cityItems.isNotEmpty )...[
-              chooseCity(),
-              SizedBox(height: 16)],
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      labelText: 'State or Province',
-                      controller: stateController,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Complete your account info',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'To continue, we need your contact information.',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+                SizedBox(height: 20.h),
+                chooseCountry(),
+                const SizedBox(height: 16),
+                customTextField(
+                  labelText: 'Street Address',
+                  controller: streetAddressController,
+                ),
+                const SizedBox(height: 16),
+                customTextField(
+                  labelText: 'Street Address 2 (Optional)',
+                  controller: streetAddress2Controller,
+                ),
+                const SizedBox(height: 16),
+                if(selectedCountry!=null && cityItems.isNotEmpty )...[
+                chooseCity(),
+                const SizedBox(height: 16)],
+                Row(
+                  children: [
+                    Expanded(
+                      child: customTextField(
+                        labelText: 'State or Province',
+                        controller: stateController,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: CustomTextField(
-                      labelText: 'Zip Code',
-                      controller: zipCodeController,
-                      keyboardType: TextInputType.number,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: customTextField(
+                        labelText: 'Zip Code',
+                        controller: zipCodeController,
+                        keyboardType: TextInputType.number,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-              phoneField(controller: phoneNumberController, context: context),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Checkbox(
-                    value: isPhoneNumberLandline,
-                    onChanged: (value) {
-                      setState(() {
-                        isPhoneNumberLandline = value!;
-                      });
-                    },
-                  ),
-                  Text('Phone number is a landline'),
-                ],
-              ),
-              SizedBox(height: 16),
-              _isLoading ? const Center(child: CircularProgressIndicator()) :
-              AppButton.appButton(
-            'Continue',
-            height: 45.h,
-            backgroundColor: AppTheme.appColor,
-            borderColor: AppTheme.appColor,
-            textColor: Colors.white,
-            fontSize: 14.sp,
-            radius: 21.r,
-            onTap: () {
+                  ],
+                ),
+                const SizedBox(height: 16),
+                phoneField(controller: phoneNumberController, context: context),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isPhoneNumberLandline,
+                      onChanged: (value) {
+                        setState(() {
+                          isPhoneNumberLandline = value!;
+                        });
+                      },
+                    ),
+                    const Text('Phone number is a landline'),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Consumer<CartViewModel>(
+                    builder: (context, cartViewModel, child) {
+                      return cartViewModel.loading ? const Center(child: CircularProgressIndicator()) :
+                    AppButton.appButton(
+                                  'Continue',
+                                  height: 45.h,
+                                  backgroundColor: AppTheme.appColor,
+                                  borderColor: AppTheme.appColor,
+                                  textColor: Colors.white,
+                                  fontSize: 14.sp,
+                                  radius: 21.r,
+                                  onTap: () {
 
-              if (selectedCountry == null) {
-                showSnackBar(context, "Please select a country.");
-              } else if (streetAddressController.text.isEmpty) {
-                showSnackBar(context, "Please enter your street address.");
-              } else if (selectedCityId == null) {
-                showSnackBar(context, "Please select a city.");
-              } else if (stateController.text.isEmpty) {
-                showSnackBar(context, "Please enter your state or province.");
-              } else if (zipCodeController.text.isEmpty) {
-                showSnackBar(context, "Please enter your zip code.");
-              } else if (phoneNumberController.text.isEmpty) {
-                showSnackBar(context, "Please enter your phone number.");
-              } else if (isValidPhoneNumber(phoneNumberController.text) == false) {
-                showSnackBar(context, "Please enter correct phone number with country code");
-              } else {
-                saveUserInfo(
-                  userId: userId,
-                  cityId: selectedCityId,
-                  address: streetAddressController.text ,
-                  address2: streetAddress2Controller.text,
-                  phoneNo: phoneNumberController.text,
-                  isLandLine: isPhoneNumberLandline ? 1 : 0 ,
-                  state: stateController.text,
-                  zipCode: zipCodeController.text
+                    if (selectedCountry == null) {
+                      showSnackBar(context, "Please select a country.");
+                    } else if (streetAddressController.text.isEmpty) {
+                      showSnackBar(context, "Please enter your street address.");
+                    }
+                    else if (selectedCityId == null) {
+                      showSnackBar(context, "Please select a city.");
+                    }
+                    else if (stateController.text.isEmpty) {
+                      showSnackBar(context, "Please enter your state or province.");
+                    } else if (zipCodeController.text.isEmpty) {
+                      showSnackBar(context, "Please enter your zip code.");
+                    } else if (phoneNumberController.text.isEmpty) {
+                      showSnackBar(context, "Please enter your phone number.");
+                    } else if (isValidPhoneNumber(phoneNumberController.text) == false) {
+                      showSnackBar(context, "Please enter correct phone number with country code");
+                    } else {
+                      saveUserInfo(
+                        userId: userId,
+                        cityId: selectedCityId,
+                        address: streetAddressController.text ,
+                        address2: streetAddress2Controller.text,
+                        phoneNo: phoneNumberController.text,
+                        isLandLine: isPhoneNumberLandline ? 1 : 0 ,
+                        state: stateController.text,
+                        zipCode: zipCodeController.text
 
-                );
-              }
-            },
-          )
-
-          ],
+                      );
+                    }
+                                  },
+                                );
+                  }
+                )
+        
+            ],
+            ),
           ),
         ),
       ),
@@ -285,7 +250,7 @@ class _AccountInfoFormState extends State<AccountInfoForm> {
           labelText: 'Country or region',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Color(0xffE5E9EB),
             ),
           ),
@@ -327,13 +292,13 @@ class _AccountInfoFormState extends State<AccountInfoForm> {
           labelText: 'City',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Color(0xffE5E9EB),
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Color(0xffE5E9EB),
             ),
           ),
@@ -359,73 +324,30 @@ class _AccountInfoFormState extends State<AccountInfoForm> {
   void saveUserInfo({int? userId, int? cityId, String? address, String? address2,
     String? phoneNo, int? isLandLine, String? state, String? zipCode
   }) async {
-    setState(() {
-      _isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
+
+    Map<String, dynamic> data = {
       "user_id": userId,
       "city_id": cityId,
+      "country_id": selectedCountryId,
       "address": address,
+      if(address2 != null)
       "address_2": address2,
       "phone_no": phoneNo,
       "is_landline": isLandLine.toString(),
       "state": state,
       "zip_code": zipCode,
     };
-    try {
-      response = await dio.post(path: AppUrls.saveAddress, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          _isLoading = false;
-        });
-        push(context, CheckOutScreen(items: widget.data, fromAccountInfo: true,));
-      }
-    } catch (e) {
-      print("Something went Wrong $e");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        _isLoading = false;
-      });
-    }
+
+    cartViewModel.saveAddress(data).then((value) {
+      push(context, CheckOutScreen(items: widget.data, fromAccountInfo: true,));
+    }).onError((error, stackTrace){
+      showSnackBar(context, error.toString());
+    });
   }
 
   Future<void> fetchCountries() async {
-    final response = await dio.get(path: AppUrls.getCountries);
 
-    if (response.statusCode == 200) {
-      final data = response.data;
+    cartViewModel.fetchCountries().then((data) {
       setState(() {
         countryItems = (data['data'] as List).map((country) {
           return DropdownMenuItem<String>(
@@ -437,21 +359,18 @@ class _AccountInfoFormState extends State<AccountInfoForm> {
           );
         }).toList();
       });
-    } else {
-      print("Failed to load countries");
-    }
+    }).onError((error, stackTrace){
+      showSnackBar(context, error.toString());
+    });
   }
 
   Future<void> fetchCities(int countryId) async {
 
-    Map<String, dynamic> params = {
+    Map<String, dynamic> data = {
       "country_id": countryId.toString(),
     };
 
-    final response = await dio.post(path: AppUrls.getCities, data: params);
-
-    if (response.statusCode == 200) {
-      final data = response.data;
+    cartViewModel.fetchCities(data).then((data) {
       setState(() {
         cityItems = (data['data'] as List).map((city) {
           return DropdownMenuItem<String>(
@@ -463,9 +382,45 @@ class _AccountInfoFormState extends State<AccountInfoForm> {
           );
         }).toList();
       });
-    } else {
-      print("Failed to load cities");
-    }
+    }).onError((error, stackTrace){
+      showSnackBar(context, error.toString());
+    });
+
+  }
+
+
+  Widget customTextField({required TextEditingController controller, required String labelText, TextInputType keyboardType = TextInputType.text}){
+    return Container(
+      decoration: BoxDecoration(
+          color: AppTheme.whiteColor,
+          border: Border.all(color: const Color(0xffE5E9EB)),
+          borderRadius: BorderRadius.circular(14)),
+      height: 50,
+      width: MediaQuery.of(context).size.width,
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              cursorColor: AppTheme.textColor,
+              cursorHeight: 25,
+              controller: controller,
+              keyboardType: keyboardType,
+              decoration: InputDecoration(
+                  labelText : labelText,
+                  fillColor: Colors.black38,
+                  focusedBorder: InputBorder.none,
+                  border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                  enabledBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  contentPadding: EdgeInsets.only(bottom: 4, left: 12, right: 12)
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
 

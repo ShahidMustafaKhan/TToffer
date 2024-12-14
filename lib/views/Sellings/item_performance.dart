@@ -12,10 +12,12 @@ import 'package:tt_offer/models/products_count_model.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/Boost%20Plus%20Screens/boost_plus_screen.dart';
 
-class ItemPerformanceScreen extends StatefulWidget {
-  final Selling selling;
+import '../../models/product_model.dart';
 
-  ItemPerformanceScreen({required this.selling});
+class ItemPerformanceScreen extends StatefulWidget {
+  final Product? product;
+
+  const ItemPerformanceScreen({super.key, required this.product});
   @override
   State<ItemPerformanceScreen> createState() => _ItemPerformanceScreenState();
 }
@@ -30,7 +32,7 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
 
   List<num> views = [];
 
-  bool loading = true;
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +54,7 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                   children: [
                     Row(
                       children: [
+                        if(widget.product?.photo?.isNotEmpty ?? false)
                         Container(
                           height: 70,
                           width: 70,
@@ -61,7 +64,7 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(16),
                             child: Image.network(
-                              widget.selling.photo![0].src.toString(),
+                              widget.product!.photo![0].url!,
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -73,7 +76,7 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            AppText.appText(widget.selling.title.toString(),
+                            AppText.appText(widget.product?.title ?? '',
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 textColor: AppTheme.txt1B20),
@@ -81,7 +84,7 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                               height: 5,
                             ),
                             AppText.appText(
-                                getItemStatus(widget.selling.status),
+                                getItemStatus(widget.product?.status),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                                 textColor: AppTheme.appColor),
@@ -134,7 +137,7 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                 push(
                     context,
                     BoostPlusScreen(
-                      selling: widget.selling,
+                      product: widget.product,
                     ));
               },
                   height: 50,
@@ -155,22 +158,24 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
   }
 
   Future<void> getItemPerformance() async {
-    var responce = await customPostRequest
-        .httpPostRequest(url: AppUrls.allProductsUrl, body: {});
+    views = [10,7,3,2,5,6,4,3,2,1];
 
-    ProductCountModel model = ProductCountModel.fromJson(responce);
-
-    data = model.data;
-
-    data.forEach(
-      (element) {
-        views.add(element.viewsCount ?? 0.0);
-      },
-    );
-
-    setState(() {
-      loading = false;
-    });
+    // var responce = await customPostRequest
+    //     .httpPostRequest(url: AppUrls.allProductsUrl, body: {});
+    //
+    // ProductCountModel model = ProductCountModel.fromJson(responce);
+    //
+    // data = model.data;
+    //
+    // data.forEach(
+    //   (element) {
+    //     views.add(element.viewsCount ?? 0.0);
+    //   },
+    // );
+    //
+    // setState(() {
+    //   loading = false;
+    // });
   }
 }
 

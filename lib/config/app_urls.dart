@@ -9,6 +9,11 @@ class AppUrls {
   static const String verifyPhoneOtp = "verify-forgot-password-phone";
   static const String verifyPhone = "verify-phone";
   static const String verifyPhoneCode = "verify-phone-code";
+  static const String verifyEmail = "verify-email";
+  static const String verifyEmailCode = "verify-email-code";
+  static const String forgotPasswordEmail = "forgot-password-email";
+  static const String verifyForgotPasswordEmail = "verify-forgot-password-email";
+  static const String resetPassword = "reset-password-email";
   static const String categories = "categories";
   static const String subCategories = "sub-categories";
   static const String addProduct = "add-product-first-step";
@@ -26,24 +31,34 @@ class AppUrls {
   static const String getFeatureProducts = "featured-products";
   static const String getAuctionProducts = "auction-products";
   static const String getAllProducts = "get-all-products";
+  static const String getProductDetails = "product-detail";
 
   static const String getPlaceBids = "get-placed-bids";
   static const String placeBid = "place-bid";
   static const String highestBid = "get-highest-bid";
   static const String adddToFavorite = "add-wishlist-products";
   static const String removeFavorite = "remove-wishlist-products";
-  static const String getSavedProducts = "wishlist-products";
+
+  static const String toggleWishlist = "wishlist-toggle";
+  static const String getWishlistProducts = "wishlist-products";
+
+  static const String getSavedProducts = "save-for-later";
+  static const String toggleSavedProducts = "save-for-later/toggle";
 
   static const String makeOffer = "make-offer";
   static const String getOffer = "get-offer";
   static const String getBid = "get-bid";
   static const String sendMessage = "send_msg";
-  static const String getAllChats = "get/user/all/chats/";
-  static const String getConverstaion = "get/conversation/";
+  static const String getAllChats = "get/user/all/chats";
+  static const String getConversation = "get/conversation";
   static const String unReadCount = "mark/conversation/read/";
 
   static const String updateProfile = "update/user";
+  static const String updatePassword = "update/password";
   static const String getProfile = "me";
+  static const String getSellerProfile = "user/info";
+
+  static const String getSuggestion = "search/suggestions";
 
   static const String getCartItems= "cart";
   static const String addCart= "cart/add";
@@ -56,14 +71,14 @@ class AppUrls {
   static const String markProductArchive = "mark-product-archive";
   static const String markProductUnarchive = "mark-product-unarchive";
   static const String increaseProductCount = "increase-product-view";
-  static const String createConversationUrl = "get/conversation_id";
-  static const String existingConversationUrl = "get/existing/conversation_id";
+  static const String getConversationUrl = "get/conversation_id";
   static const String allProductsUrl = "get-all-products";
   static const String newPasswordUrl = "new-password";
   static const String newPasswordPhoneUrl = "new-password-phone";
   static const String getUserInfoUrl = "user/info";
   static const String rejectOfferrUrl = "reject-offer";
   static const String acceptOfferrUrl = "accept-offer";
+  static const String customOfferrUrl = "custom-offer";
   static const String sendNotificationUrl = "create/notification";
   static const String review = "user-review";
   static const String getNotification = "get/user/all/notifications/";
@@ -76,13 +91,19 @@ class AppUrls {
 
   static const String updateDeviceToken = "device-token-update";
 
+  static const String addProductReport = "add-product-report";
+
   static const String googlePayPayment = "google-pay";
+  static const String sellFaster = "sell-faster";
 
   static const String getBanners = "get-banners";
+  static const String getAdvertisementBanners = "advertisement-banner";
 
   static const String rescheduleAuctionTime = "product-reschedule-auction";
 
   static const String deleteAccount = "account/deactivate";
+
+
 
   //
 }

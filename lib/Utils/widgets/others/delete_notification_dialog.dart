@@ -7,6 +7,7 @@ import 'package:tt_offer/Controller/loading_provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
+import 'package:tt_offer/view_model/selling/selling_view_model.dart';
 
 import '../../../Controller/APIs Manager/product_api.dart';
 
@@ -76,9 +77,9 @@ Future CustomAlertDialog(
                        SizedBox(
                         height: 45.h,),
                       ],
-                      Consumer<LoadingProvider>(
-                          builder: (context, apiProvider, child) {
-                            return apiProvider.loading
+                      Consumer<SellingViewModel>(
+                          builder: (context, sellingViewModel, child) {
+                            return sellingViewModel.markSoldLoading
                               ? CircularProgressIndicator(color: AppTheme.appColor)
                               : AppButton.appButton(confirmButtonTitle!,
                                   onTap: onTap,

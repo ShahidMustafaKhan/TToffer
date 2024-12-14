@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/chat_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
@@ -14,10 +13,14 @@ import 'package:tt_offer/views/ChatScreens/offer_chat_screen.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 
-class MakeOfferScreen extends StatefulWidget {
-  final data;
+import '../../../../main.dart';
+import '../../../../models/product_model.dart';
+import '../../../../view_model/offer/offer_view_model.dart';
 
-  const MakeOfferScreen({super.key, this.data});
+class MakeOfferScreen extends StatefulWidget {
+  final Product? product;
+
+  const MakeOfferScreen({super.key, this.product});
 
   @override
   State<MakeOfferScreen> createState() => _MakeOfferScreenState();
@@ -28,20 +31,20 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
   late AppDio dio;
   AppLogger logger = AppLogger();
   var userId;
+  Product? product;
 
   @override
   void initState() {
     dio = AppDio(context);
     logger.init();
+    product = widget.product;
     getUserDetail();
-    // _priceController.text = "AED 60";
     super.initState();
   }
 
   getUserDetail() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
-      userId = pref.getString(PrefKey.userId);
+      userId = int.parse(pref.getString(PrefKey.userId)!);
     });
   }
 
@@ -49,7 +52,6 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final chatApiProvider = Provider.of<ChatApiProvider>(context);
     final screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar:  CustomAppBar1(
@@ -75,10 +77,10 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                         width: 70,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            image: widget.data["photo"].isNotEmpty
+                            image: (product?.photo?.isNotEmpty ?? false)
                                 ? DecorationImage(
                                     image: NetworkImage(
-                                        "${widget.data["photo"][0]["src"]}"),
+                                        product!.photo![0].url!),
                                     fit: BoxFit.fill)
                                 : null),
                       ),
@@ -89,11 +91,11 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          AppText.appText("${widget.data["title"]}",
+                          AppText.appText(product?.title ?? '',
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               textColor: AppTheme.txt1B20),
-                          AppText.appText("AED ${formatNumber(widget.data["fix_price"],textFiled: false)}",
+                          AppText.appText("AED ${formatNumber(product?.fixPrice?.toString() ?? '',textFiled: false)}",
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                               textColor: AppTheme.textColor),
@@ -125,47 +127,54 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                   ),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 40.0),
-                child: loader
-                    ? CircularProgressIndicator(color: AppTheme.appColor)
-                    : AppButton.appButton("Send Offer", onTap: () async {
-                      if(_priceController.text.isNotEmpty){
-                        setState(() {
-                          loader = true;
-                        });
-                        String priceWithoutDollarSign =
-                        _priceController.text.replaceAll('\$', '');
-                        await chatApiProvider.makeOffer(
-                            dio: dio,
-                            context: context,
-                            productId: widget.data["id"],
-                            sellerId: widget.data["user"]["id"],
-                            buyerId: int.parse(userId),
-                            offerPrice: int.parse(priceWithoutDollarSign));
+              Consumer<OfferViewModel>(
+                  builder: (context, offerViewModel, child) {
+                    return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40.0),
+                    child: offerViewModel.offerLoading
+                        ? CircularProgressIndicator(color: AppTheme.appColor)
+                        : AppButton.appButton("Send Offer", onTap: () async {
+                          if(_priceController.text.isNotEmpty){
+                            setState(() {
+                              loader = true;
+                            });
+                            String priceWithoutDollarSign =
+                            _priceController.text.replaceAll('\$', '');
 
-                        setState(() {
-                          loader = false;
-                        });
-                      }
-                      else{
-                        showSnackBar(context, 'Please add an offer before submitting.');
-                      }
+                            offerViewModel.makeOffer(
+                                product?.id,
+                                product?.userId,
+                                userId,
+                                int.parse(priceWithoutDollarSign))
+                                .then((value){
+                                  Navigator.of(context).pop();
+                              showSnackBar(context, "Offer placed successfully", title: 'Congratulations!');
+
+                            }).onError((error, stackTrace){
+                              showSnackBar(context, error.toString());
+                            });
+
+                          }
+                          else{
+                            showSnackBar(context, 'Please add an offer before submitting.');
+                          }
 
 
-                        // push(
-                        //     context,
-                        //     OfferChatScreen(
-                        //       offerPrice: priceWithoutDollarSign,
-                        //       isOffer: true,
-                        //     ));
-                      },
-                        height: 53,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
-                        radius: 32.0,
-                        backgroundColor: AppTheme.appColor,
-                        textColor: AppTheme.whiteColor),
+                            // push(
+                            //     context,
+                            //     OfferChatScreen(
+                            //       offerPrice: priceWithoutDollarSign,
+                            //       isOffer: true,
+                            //     ));
+                          },
+                            height: 53,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                            radius: 32.0,
+                            backgroundColor: AppTheme.appColor,
+                            textColor: AppTheme.whiteColor),
+                  );
+                }
               ),
             ],
           ),

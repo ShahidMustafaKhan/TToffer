@@ -1,11 +1,9 @@
 import 'dart:core';
 import 'dart:developer';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -13,26 +11,18 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/main.dart';
-import 'package:tt_offer/models/selling_products_model.dart';
-import 'package:tt_offer/providers/selling_purchase_provider.dart';
-import 'package:tt_offer/views/ChatScreens/chat_screen.dart';
-import 'package:tt_offer/views/Sellings/selling_purchase.dart';
-
-import '../../Controller/APIs Manager/chat_api.dart';
-import '../../Controller/APIs Manager/profile_apis.dart';
+import 'package:tt_offer/view_model/chat/chat_list_view_model/chat_list_view_model.dart';
+import 'package:tt_offer/view_model/selling/selling_view_model.dart';
 import '../../Controller/APIs Manager/send_notification_service.dart';
-import '../../Utils/widgets/loading_popup.dart';
 import '../../config/dio/app_dio.dart';
 import '../../config/keys/pref_keys.dart';
-import '../../custom_requests/bids_service.dart';
+import '../../data/response/status.dart';
 import '../../models/bids_model.dart';
 import '../../models/chat_list_model.dart';
 import '../../providers/bids_provider.dart';
-import '../../providers/chat_list_provider.dart';
 import '../../utils/utils.dart';
-import '../../utils/widgets/custom_loader.dart';
-import '../../utils/widgets/others/delete_notification_dialog.dart';
-import 'rating_screen.dart';
+import '../../view_model/bids/bids_view_model.dart';
+import '../Rating/rating_screen.dart';
 
 class NewSoldScreen extends StatefulWidget {
   final String? productId;
@@ -51,7 +41,7 @@ class NewSoldScreen extends StatefulWidget {
 }
 
 class _NewSoldScreenState extends State<NewSoldScreen> {
-  late String? id;
+  int? id;
 
   List<String> messages = [
     'Someone from TToffer',
@@ -62,10 +52,8 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
   List<String> avatar = [
     'https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3467.jpg',
     'https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3467.jpg',
-    // 'Anthony',
-    // 'Mark'
   ];
-  List<ChatListData> chatList = [];
+  List<Conversation> chatList = [];
 
   List<BidsData> bids = [];
 
@@ -74,44 +62,45 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
   int? selectedIndex;
   late final dio;
 
-  getUserDetail() async {
-    final apiProvider = Provider.of<ChatApiProvider>(context, listen: false);
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    setState(() {
-      id = pref.getString(PrefKey.userId);
+  late ChatListViewModel chatListViewModel;
 
-      apiProvider.getAllChats(dio: dio, context: context, userId: id);
+  getAllChat() async {
+    setState(() {
+
+      chatListViewModel.getAllChat(id);
     });
   }
 
   getBidsHandler() async {
+    if(widget.productId != null) {
+      final bidViewModel = Provider.of<BidsViewModel>(context, listen: false);
+      await bidViewModel.getBids(int.parse(widget.productId!));
 
-    await BidsService().getBidsService(
-        context: context, productId: int.parse(widget.productId!));
+      if(bidViewModel.bidsList.status == Status.completed){
 
-    bids = Provider.of<BidsProvider>(context, listen: false).bids;
-    Set uniqueUserIds = {};
+        bids = bidViewModel.bidsList.data?.data ?? [];
+        Set uniqueUserIds = {};
 
-    // Use the where method to filter out bids with duplicate user IDs
-    bids.retainWhere((bid) => uniqueUserIds.add(bid.userId));
+        // Use the where method to filter out bids with duplicate user IDs
+        bids.retainWhere((bid) => uniqueUserIds.add(bid.userId));
 
-    setState(() {});
-
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    setState(() {
-      id = pref.getString(PrefKey.userId);
-    });
+        setState(() {});
+      }
 
 
-    print('getBids--->${bids}');
-
+    }
   }
+
 
   @override
   void initState() {
     dio = AppDio(context);
+    id = int.tryParse(pref.getString(PrefKey.userId) ?? '');
+
+    chatListViewModel = Provider.of<ChatListViewModel>(context, listen: false);
+
     if(widget.auction == false) {
-      getUserDetail();
+      getAllChat();
     } else{
       getBidsHandler();
     }
@@ -138,7 +127,7 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        if(widget.image!=null && widget.image!.isNotEmpty)
+                        if(widget.image!=null)
                         ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: Container(
@@ -161,7 +150,7 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                                 fontSize: 17, fontWeight: FontWeight.bold),
                             const SizedBox(height: 8),
                             AppText.appText(
-                                'AED ${widget.fixPrice == null ? widget.auctionPrice.toString() : widget.fixPrice.toString()}'),
+                                'AED ${widget.auction == true ? widget.auctionPrice.toString() : widget.fixPrice.toString()}'),
                           ],
                         )
                       ],
@@ -181,10 +170,10 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                       constraints: BoxConstraints(
                         minHeight: 120.h,
                       ),
-                      child: Consumer<ChatListProvider>(
+                      child: Consumer<ChatListViewModel>(
                           builder: (context, data, child) {
-                            List<ChatListData> temp=[];
-                              for (var item in data.selling) {
+                            List<Conversation> temp=[];
+                              for (var item in data.sellingChat.data ?? []) {
                                 if (item.productId.toString() == widget.productId!) {
                                   temp.add(item);
                                 }
@@ -224,7 +213,7 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                                           const SizedBox(width: 16),
                                           AppText.appText(fromTTOffer == false ? messages[i] :
                                           chatList.isNotEmpty ? chatList[i].receiver!.id.toString() ==
-                                              id
+                                              id.toString()
                                               ? capitalizeWords(chatList[i].sender!.name!)
                                               : capitalizeWords(chatList[i].receiver!.name!) : '',
                                               textColor: selectedIndex == i ? AppTheme.yellowColor : null),
@@ -282,7 +271,7 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                                               ),
                                               const SizedBox(width: 16),
                                               AppText.appText(fromTTOffer == false  ? messages[i] :
-                                             capitalizeWords(bids[i].user!.name!),
+                                             capitalizeWords(bids[i].user?.name ?? ''),
                                                   textColor: selectedIndex == i ? AppTheme.yellowColor : null),
                                             ],
                                           ),
@@ -291,7 +280,7 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                                             color: Colors.grey.shade200,
                                           ),
                                       ],
-                                    ) : SizedBox(),
+                                    ) : const SizedBox(),
                                   );
                                 },
                               );
@@ -306,109 +295,82 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
 
 
 
-              // Padding(
-              //   padding: EdgeInsets.symmetric(vertical: 18.h,horizontal: 22.w),
-              //   child: AppText.appText('Messages', fontWeight: FontWeight.w600, fontSize: 16.sp),
-              // ),
-              // Expanded(
-              //   child: SizedBox(
-              //       child: Padding(
-              //         padding: const EdgeInsets.only(right: 5.0),
-              //         child: ChatScreen(isProductChat: true, productId: widget.productId!,),
-              //       )),
-              // ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(25,0,25,5),
-                child: Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                          color: AppTheme.appColor,
-                          borderRadius: BorderRadius.circular(20)),
-                      child: Center(
-                        child: InkWell(
+              Consumer<SellingViewModel>(
+                  builder: (context, sellingViewModel, child) {
+                    return Padding(
+                    padding: const EdgeInsets.fromLTRB(25,0,25,5),
+                    child: Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              color: AppTheme.appColor,
+                              borderRadius: BorderRadius.circular(20)),
+                          child: Center(
+                            child: InkWell(
+                              onTap: () async {
+                                sellingViewModel.markSoldProduct(null, int.parse(widget.productId!), context, (){});
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 55.0, vertical: 8),
+                                child: Text(
+                                  'Skip',
+                                  style: TextStyle(color: AppTheme.white),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        InkWell(
                           onTap: () async {
-                            // showAlertLoader(context: context);
-                            try {
-                              var responce = await customGetRequest.httpGetRequest(
-                                  url: "${AppUrls.markProductSold}/${widget.productId}");
+                            if(fromTTOffer == false && selectedIndex == 0){
 
-
-                              if (responce["success"] == true) {
-                                showSnackBar(context, responce["message"], title: 'Congratulations!');
-
-
-                                if(widget.fromNotification == false && widget.fromMyAds == false) {
-                                  Navigator.of(context).pop();
-                                }
-                                Navigator.of(context).pop();
-
+                              if(widget.auction == false && chatList.isEmpty){
+                                showSnackBar(context, "No users from TT Offer have made an offer on this product yet.");
+                              }
+                              else if(widget.auction == true && bids.isEmpty){
+                                showSnackBar(context, "No users from TT Offer have made an bid on this product yet.");
+                              }
+                              else{
+                                setState(() {
+                                  fromTTOffer = true;
+                                });
                               }
 
-                              log("responce = $responce");
-                            } catch (e) {
-                              log("excepion = ${e.toString()}");
-                              showSnackBar(context, "Something went Wrong");
                             }
+                            else{
+                              if(selectedIndex!=null) {
+
+                                await markAsSold(int.parse(widget.productId!), context , id);
+                              }
+                              else{
+                                showSnackBar(context, "Please select who bought your product or press the skip button to continue.");
+                              }
+                            }
+
+
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 55.0, vertical: 8),
-                            child: Text(
-                              'Skip',
-                              style: TextStyle(color: AppTheme.white),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: AppTheme.appColor),
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 55.0, vertical: 8),
+                                child: Text(
+                                  'Done',
+                                  style: TextStyle(color: AppTheme.white),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
+                        )
+                      ],
                     ),
-                    const Spacer(),
-                    InkWell(
-                      onTap: () async {
-                        if(fromTTOffer == false && selectedIndex == 0){
-
-                          if(widget.auction == false && chatList.isEmpty){
-                            showSnackBar(context, "No users from TT Offer have made an offer on this product yet.");
-                          }
-                          else if(widget.auction == true && bids.isEmpty){
-                            showSnackBar(context, "No users from TT Offer have made an bid on this product yet.");
-                          }
-                          else{
-                            setState(() {
-                              fromTTOffer = true;
-                            });
-                          }
-
-                        }
-                        else{
-                          if(selectedIndex!=null) {
-                            await markAsSold(int.parse(widget.productId!), context , id);
-                          }
-                          else{
-                            showSnackBar(context, "Please select who bought your product or press the skip button to continue.");
-                          }
-                        }
-
-
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: AppTheme.appColor),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 55.0, vertical: 8),
-                            child: Text(
-                              'Done',
-                              style: TextStyle(color: AppTheme.white),
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
+                  );
+                }
               )
             ],
           ),
@@ -418,9 +380,9 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
   }
 
 
-  getImageUrl(ChatListData chatList) {
+  getImageUrl(Conversation chatList) {
     String? receiverImg;
-    if (id == chatList.receiver?.id.toString()) {
+    if (id.toString() == chatList.receiver?.id.toString()) {
       receiverImg = chatList.sender?.img ?? avatar[0];
     } else {
       receiverImg = chatList.receiver?.img ?? avatar[0];
@@ -437,9 +399,9 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
     return receiverImg;
   }
 
-  getUserId(ChatListData chatList) {
+  getUserId(Conversation chatList) {
     String? userId;
-    if (id == chatList.receiver?.id.toString()) {
+    if (id.toString() == chatList.receiver?.id.toString()) {
       userId = chatList.sender?.id.toString();
     } else {
       userId = chatList.receiver?.id.toString();
@@ -448,9 +410,9 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
     return userId;
   }
 
-  getUserName(ChatListData chatList) {
+  getUserName(Conversation chatList) {
     String? userName;
-    if (id == chatList.receiver?.id.toString()) {
+    if (id.toString() == chatList.receiver?.id.toString()) {
       userName = chatList.sender?.name;
     } else {
       userName = chatList.receiver?.name;
@@ -461,153 +423,46 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
 
 
   Future<void> markAsSold(int? id, context, sellerId) async {
-    bool isLoading = false;
-    CustomAlertDialog(
-      title: "Do you want mark item as sold ?",
-      description: "",
-      cancelButtonTitle: "No",
-      confirmButtonTitle: "Yes, Mark as sold",
-      context: context,
-      loading: isLoading,
-      onTap: () async {
+           await Provider.of<SellingViewModel>(context, listen: false).markSoldProduct(fromTTOffer==true ? widget.auction == false ? int.parse(getUserId(chatList[selectedIndex!])) : bids[selectedIndex!].userId! : null, int.parse(widget.productId!), context, (){productMarkedSuccessfully(sellerId);});
+  }
+
+  void productMarkedSuccessfully(int? sellerId){
+    if(fromTTOffer){
+      SendNotification.sendNotification(
+          context: context,
+          userId: widget.auction == false ? int.parse(getUserId(chatList[selectedIndex!])) : bids[selectedIndex!].userId!,
+          buyerId: widget.auction == false ? int.parse(getUserId(chatList[selectedIndex!])) : bids[selectedIndex!].userId!,
+          sellerId: sellerId,
+          text: "Review ${capitalizeWords(widget.auction == false ? getUserName(chatList[selectedIndex!]) : bids[selectedIndex!].user!.name )} for ${(widget.title)} ",
+          type: "Review",
+          typeId: "${sellerId}0000${widget.productId}",
+        productId: int.tryParse(widget.productId ?? ''),);
+    }
+
+    deleteProductConversation();
+
+    if(widget.fromNotification==false) {
+      if(widget.fromMyAds == true){
         Navigator.of(context).pop();
-        // showAlertLoader(context: context);
-        try {
-          var responce = await customGetRequest.httpGetRequest(
-              url: "${AppUrls.markProductSold}/$id");
-
-
-          // showSnackBar(context, responce["success"]);
-
-          // if (responce.statusCode == 200) {
-          if (responce["success"] == true) {
-
-            showSnackBar(context, responce["message"], title: 'Success!');
-
-
-            // push(context, RatingScreen(selling: widget.selling));
-
-            if(fromTTOffer){
-              SendNotification.sendNotification(
-                  context: context,
-                  userId: widget.auction == false ? int.parse(getUserId(chatList[selectedIndex!])) : bids[selectedIndex!].userId!,
-                  buyerId: widget.auction == false ? getUserId(chatList[selectedIndex!]) : bids[selectedIndex!].userId!,
-                  sellerId: sellerId!,
-                  text: "Review ${capitalizeWords(widget.auction == false ? getUserName(chatList[selectedIndex!]) : bids[selectedIndex!].user!.username )} for ${(widget.title)} ",
-                  type: "Review",
-                  typeId: "${sellerId}0000${widget.productId}",
-                  status: "unread");
-            }
-
-            deleteProductConversation();
-
-            if(widget.fromNotification==false) {
-              if(widget.fromMyAds == true){
-                Navigator.of(context).pop();
-              }
-              else{
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              }
-            } else{
-              Navigator.of(context).pop();
-            }
-          //
-          }
-
-          log("responce = $responce");
-        } catch (e) {
-          log("excepion = ${e.toString()}");
-          Navigator.of(context).pop(false);
-          // showSnackBar(context, "Something went Wrong");
-        }
-      },
-    );
+      }
+      else{
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      }
+    } else{
+      Navigator.of(context).pop();
+    }
   }
 
 
   void deleteProductConversation(){
-      deleteProductRelatedConversation(widget.productId!, context);
-  }
-
-  Future<void> deleteProductRelatedConversation(String productId, context) async {
-    try {
-      var responce = await customPostRequest.httpPostRequest(
-          url: AppUrls.deleteProductConversation, body: {
-            "product_id" : productId,
-      });
-
-
-      if (responce["success"] == true) {
-
-        // push(context, RatingScreen(selling: widget.selling));
-
-        //
-      }
-
-      log("responce = $responce");
-    } catch (e) {
-      log("excepion = ${e.toString()}");
-    }
-  }
-
-  getSellingProducts(context) async {
-    log("getSellingProducts fired");
-
-    var response;
-
-    // try {
-    response = await dio.get(path: AppUrls.sellingScreen);
-    var responseData = response.data;
-    if (response.statusCode == 200) {
-      // sellingData = responseData["sold"];
-      SellingProductsModel model = SellingProductsModel.fromJson(responseData);
-
-      Provider.of<SellingPurchaseProvider>(context, listen: false)
-          .updateData(model: model);
-      // purchaseData = responseData["purchase"];
-      // archieveData = responseData["archive"];
-    }
-    // } catch (e) {
-    //   print("Something went Wrong $e");
-    //   showSnackBar(context, "Something went Wrong.");
-    // }
+    chatListViewModel.deleteProductConversation(int.tryParse(widget.productId ?? ''));
   }
 
 
 
 
-  Future<void> getUserSoldProducts(BuildContext context) async {
-    try {
-      var res = await customGetRequest.httpGetRequest(url: 'user/info/${Provider.of<ProfileApiProvider>(context, listen: false).profileData["id"]}');
-
-      if (res['data'] != null || res['success'] == true) {
-
-        List productList = res['data']['products'];
-        List<Selling> sellingModelList=[];
 
 
-
-        for (var element in productList) {
-          Selling selling = Selling.fromJson(element);
-
-          if(selling.isSold == "1"){
-            sellingModelList.add(selling);
-          }
-        }
-
-        Provider.of<SellingPurchaseProvider>(context, listen: false)
-            .updateSoldProductData(soldProductList: sellingModelList);
-
-
-      } else {
-
-      }
-    } catch (err) {
-      if (kDebugMode) {
-        print(err);
-      }
-    }
-  }
 
 }

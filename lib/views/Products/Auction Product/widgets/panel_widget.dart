@@ -13,20 +13,20 @@ import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/bids_model.dart';
 
 import '../../../../Utils/utils.dart';
+import '../../../../models/product_model.dart';
 
 class PanelWidget extends StatefulWidget {
   final ScrollController controller;
   final PanelController panelController;
-  final data;
-
-  List<BidsData> bidsData = [];
+  final Product? product;
+  final List<BidsData> bidsData;
 
   PanelWidget({
     Key? key,
     required this.controller,
     required this.panelController,
+    required this.product,
     required this.bidsData,
-    this.data,
   }) : super(key: key);
 
   @override
@@ -35,30 +35,28 @@ class PanelWidget extends StatefulWidget {
 
 class _PanelWidgetState extends State<PanelWidget> {
   DateTime? auctionEndTime;
-
+  Product? product;
   int? highestBidUser;
 
   @override
   void initState() {
     super.initState();
 
-    log("pref.getString(PrefKey.userId) = ${pref.getString(PrefKey.userId)}");
-    log("pref.getString(PrefKey.userName) = ${pref.getString(PrefKey.userName)}");
+    product = widget.product;
+
   }
 
   DateTime _parseEndingDateTime() {
-    String? endingTimeString = widget.data["ending_time"];
-    String? endingDateString = widget.data["ending_date"];
+    String? endingTimeString = product?.auctionEndingTime;
+    String? endingDateString = product?.auctionEndingDate;
     DateTime endingDate =
-        DateFormat("yyyy-MM-dd").parse("${widget.data["ending_date"]}");
+        DateFormat("yyyy-MM-dd").parse("$endingDateString");
     DateTime endingTime;
 
     if (endingTimeString!.contains("PM") || endingTimeString.contains("AM")) {
-      endingTime = DateFormat("h:mm a").parse("${widget.data["ending_time"]}");
-      print(" vkrvlrvm$endingTime");
+      endingTime = DateFormat("h:mm a").parse(endingTimeString);
     } else {
-      endingTime = DateFormat("HH:mm").parse("${widget.data["ending_time"]}");
-      print(" jf3o3jfpfp3fpk$endingTime");
+      endingTime = DateFormat("HH:mm").parse(endingTimeString);
     }
     return DateTime(
       endingDate.year,
@@ -258,7 +256,7 @@ class _PanelWidgetState extends State<PanelWidget> {
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   textColor: AppTheme.textColor00),
-              AppText.appText("AED ${formatNumber((removeLastTwoZeros(widget.data["auction_price"])))}",
+              AppText.appText("AED ${formatNumber((removeLastTwoZeros(product?.auctionInitialPrice?.toString() ?? '')))}",
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
                   textColor: AppTheme.textColor00),

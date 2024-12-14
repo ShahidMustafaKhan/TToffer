@@ -13,9 +13,9 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/custom_requests/update_account_service.dart';
+import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 
 import '../../Constants/app_logger.dart';
-import '../../Controller/APIs Manager/profile_apis.dart';
 import '../../Utils/utils.dart';
 import '../../config/app_urls.dart';
 import '../../config/dio/app_dio.dart';
@@ -39,6 +39,8 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
 
   bool loading = false;
 
+  late UserViewModel userViewModel;
+
 
 
   phoneVerifyHandler() async {
@@ -46,7 +48,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
       loading = true;
     });
     await UpdateAccountSettingService()
-        .updatePhoneService(context: context, phone: _phoneNumberController.text!);
+        .updatePhoneService(context: context, phone: _phoneNumberController.text, userViewModel: userViewModel);
     confirmPhoneVerification();
 
     setState(() {
@@ -192,16 +194,15 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
     dio = AppDio(context);
     logger.init();
 
-    final apiProvider = Provider.of<ProfileApiProvider>(context, listen: false);
+    final userViewModel = Provider.of<UserViewModel>(context, listen: false);
 
 
-     apiProvider.updatePhoneNumber(
-        dio: dio,
-        context: context, userId: userId, phone: _phoneNumberController.text.trim(),
-      ).then((value) {
-       apiProvider.updateVerification(
-         dio: dio,
-         context: context, userId: userId, phone: true,
+    UpdateAccountSettingService().updatePhoneService(
+      context: context,
+      phone: _phoneNumberController.text.trim(), userViewModel: userViewModel,
+     ).then((value) {
+      userViewModel.updateVerification(
+        userId, verifyPhone: true,
        ).then((value) => Navigator.of(context).pop()
        );
      }
@@ -214,6 +215,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
   void initState() {
      dio = AppDio(context);
      logger.init();
+     userViewModel = Provider.of<UserViewModel>(context, listen: false);
      getUserDetail();
      _phoneNumberController.text = "+971";
      super.initState();

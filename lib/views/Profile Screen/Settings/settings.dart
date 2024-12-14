@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Controller/loading_provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
+import 'package:tt_offer/data/response/api_response.dart';
 import 'package:tt_offer/views/PhoneVerify/phone_verify_screen.dart';
 import 'package:tt_offer/views/Profile%20Screen/Account%20Settigs/account_info_edit.dart';
 import 'package:tt_offer/views/Profile%20Screen/Settings/about_us.dart';
@@ -18,7 +18,9 @@ import '../../../Utils/widgets/others/delete_notification_dialog.dart';
 import '../../../config/app_urls.dart';
 import '../../../config/dio/app_dio.dart';
 import '../../../config/keys/pref_keys.dart';
+import '../../../main.dart';
 import '../../../providers/selling_purchase_provider.dart';
+import '../../../view_model/profile/user_profile/user_view_model.dart';
 import '../../Authentication screens/login_screen.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -29,36 +31,30 @@ class SettingScreen extends StatefulWidget {
 }
 
 class _SettingScreenState extends State<SettingScreen> {
-  late final ProfileApiProvider profileApi;
   var userId;
   late AppDio dio;
   AppLogger logger = AppLogger();
+
+  late UserViewModel userViewModel;
 
 
   @override
   void initState() {
     dio = AppDio(context);
     logger.init();
+    userViewModel = Provider.of<UserViewModel>(context);
     getUserDetail();
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
-    profileApi = Provider.of<ProfileApiProvider>(context);
     super.didChangeDependencies();
   }
 
-  @override
-  void dispose() {
-   profileApi.showPhoneNumberInAds(dio: dio, context: context, userId: userId, showPhone: profileApi.profileData["show_contact"] == '1');
-    super.dispose();
-  }
-
   getUserDetail() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
-      userId = pref.getString(PrefKey.userId);
+      userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
     });
   }
   @override
@@ -131,7 +127,7 @@ class _SettingScreenState extends State<SettingScreen> {
 
     // Clear shared preferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    Provider.of<ProfileApiProvider>(context, listen: false).profileData = null;
+    userViewModel.userModel = ApiResponse.notStarted();
     await prefs.clear();
 
     // Optionally, clear other caches if needed
@@ -227,7 +223,7 @@ class _SettingScreenState extends State<SettingScreen> {
         ));
   }
 
-  Widget customRow({img, txt, required Function() onTap, bool radioButton=false, Function? radioButtonTap}) {
+  Widget customRow({img, txt, required Function() onTap, bool radioButton=false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 15.0,
@@ -258,25 +254,6 @@ class _SettingScreenState extends State<SettingScreen> {
               "assets/images/arrowFor.png",
               height: 16,
             ),
-            if(radioButton==true)
-              Consumer<ProfileApiProvider>(
-                  builder: (context, profileApi, child) {
-                    return Switch(
-                    value: profileApi.profileData['show_contact']=='1',
-                    onChanged: (bool value) {
-                      if(value==true) {
-                        setState(() {
-                          profileApi.profileData['show_contact'] = '1';
-                        });
-                      }
-                      else{
-                        setState(() {
-                          profileApi.profileData['show_contact'] = '0';
-                        });                      }
-                    },
-                  );
-                }
-              ),
 
           ],
         ),

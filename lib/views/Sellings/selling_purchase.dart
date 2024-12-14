@@ -15,22 +15,21 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
-import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/providers/selling_purchase_provider.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
+import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/Sell%20Faster/sell_faster.dart';
 import 'package:tt_offer/views/Sellings/item_dashboard.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/views/Sellings/new_sold_screen.dart';
-import 'package:tt_offer/views/Sellings/rating_screen.dart';
-
-import '../../Controller/APIs Manager/profile_apis.dart';
 import '../../Utils/widgets/others/delete_notification_dialog.dart';
-import '../../custom_requests/user_info_service.dart' ;
-import '../../providers/profile_info_provider.dart' ;
+import '../../config/keys/pref_keys.dart';
+import '../../data/response/status.dart';
+import '../../models/product_model.dart';
+import '../../view_model/selling/selling_view_model.dart';
 import '../Products/Feature Product/feature_info.dart';
 import '../Products/Auction Product/auction_info.dart';
 
@@ -50,14 +49,17 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
   bool isLoading = false;
   AppLogger logger = AppLogger();
   late final dio;
-
-
-  // var sellingData;
-  // var purchaseData;
-  // var archieveData;
+  int? userId;
 
   SellingProductsModel? sellingProductsModel;
-  List<Selling>? soldProductsList;
+  List<Product>? soldProductsList;
+
+  late SellingViewModel sellingViewModel;
+
+
+  getUserId(){
+    userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
+  }
 
   @override
   void dispose() {
@@ -66,14 +68,16 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
 
   @override
   void initState() {
+    sellingViewModel = Provider.of<SellingViewModel>(context, listen: false);
+
     dio = AppDio(context);
     logger.init();
     if(widget.selectedOption!=null){
-      selectedOption = selectedOption;
+      selectedOption = widget.selectedOption!;
     }
+    getUserId();
 
-    getSellingProducts(context,dio);
-    getUserSoldProducts(context);
+    getSellingProducts(context);
     super.initState();
   }
 
@@ -85,11 +89,13 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
         title: widget.title,
         leading: false,
       ),
-      body: Consumer<SellingPurchaseProvider>(
-        builder: (context, value, child) {
-          sellingProductsModel = value.sellingProductsModel;
-          soldProductsList = value.soldProductsList;
-          if (value.isLoading) {
+      body: Consumer<SellingViewModel>(
+        builder: (context, sellingViewModel, child) {
+          List<Product>? selling = sellingViewModel.selling.data ?? [];
+          List<Product>? buying = sellingViewModel.buying.data ?? [];
+          List<Product>? history = sellingViewModel.history.data ?? [];
+
+          if (sellingViewModel.selling.status == Status.loading) {
             return Center(
               child: CircularProgressIndicator(
                 color: AppTheme.appColor,
@@ -102,27 +108,24 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
             child: Column(
               children: [
                 selectOption(),
-                if(sellingProductsModel!=null)...[
                 if (selectedOption == "Selling")
                   Expanded(
                       child: SellingPurchaseListView(
                     ischeck: 1,
-                    sellingProductsModel: sellingProductsModel,
+                    productList: selling,
                   )),
                 if (selectedOption == "Buying")
                   Expanded(
                       child: SellingPurchaseListView(
                     ischeck: 2,
-                    sellingProductsModel: sellingProductsModel,
+                    productList: buying,
                   )),
                 if (selectedOption == "History")
                   Expanded(
                       child: SellingPurchaseListView(
-                    sellingProductsModel: sellingProductsModel,
-                    soldProductList: soldProductsList,
+                    productList: history,
                     ischeck: 3,
                   )),]
-              ],
             ),
           );
         },
@@ -134,7 +137,7 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20.0),
+      padding: EdgeInsets.only(top: 21.h , bottom: 15.h),
       child: GestureDetector(
         onTapDown: (TapDownDetails details) {
           double tapPosition = details.localPosition.dx;
@@ -232,46 +235,32 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
   }
 }
 
-Future<void> getSellingProducts(context,dio) async {
-  log("getSellingProducts fired");
-
-  var response;
-
-  // try {
-  response = await dio.get(path: AppUrls.sellingScreen);
-  var responseData = response.data;
-  if (response.statusCode == 200) {
-    // sellingData = responseData["sold"];
-    SellingProductsModel model = SellingProductsModel.fromJson(responseData);
-
-    Provider.of<SellingPurchaseProvider>(context, listen: false)
-        .updateData(model: model);
-    // purchaseData = responseData["purchase"];
-    // archieveData = responseData["archive"];
-  }
-  // } catch (e) {
-  //   print("Something went Wrong $e");
-  //   showSnackBar(context, "Something went Wrong.");
-  // }
+Future<void> getSellingProducts(BuildContext context) async {
+  
+  SellingViewModel sellingViewModel = Provider.of<SellingViewModel>(context, listen: false);
+  sellingViewModel.getSellingProduct();
 }
 
 
 Future<void> getUserSoldProducts(BuildContext context) async {
   try {
-    var res = await customGetRequest.httpGetRequest(url: 'user/info/${Provider.of<ProfileApiProvider>(context, listen: false).profileData["id"]}');
+
+    int? userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
+
+    var res = await customGetRequest.httpGetRequest(url: 'user/info/$userId');
 
     if (res['data'] != null || res['success'] == true) {
 
       List productList = res['data']['products'];
-      List<Selling> sellingModelList=[];
+      List<Product> sellingModelList=[];
 
 
 
       for (var element in productList) {
-        Selling selling = Selling.fromJson(element);
+        Product product = Product.fromJson(element);
 
-        if(selling.isSold == "1"){
-          sellingModelList.add(selling);
+        if(product.isSold == "1"){
+          sellingModelList.add(product);
         }
       }
 
@@ -296,16 +285,12 @@ Future<void> getUserSoldProducts(BuildContext context) async {
 
 class SellingPurchaseListView extends StatefulWidget {
   final int? ischeck;
-  SellingProductsModel? sellingProductsModel;
-  List<Selling>? soldProductList;
+  List<Product>? productList;
 
-  // final Function getSellingProduct;
   SellingPurchaseListView({
     super.key,
     this.ischeck,
-    this.sellingProductsModel,
-    this.soldProductList,
-    // required this.getSellingProduct
+    this.productList,
   });
 
   @override
@@ -315,94 +300,22 @@ class SellingPurchaseListView extends StatefulWidget {
 
 class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
   // int listCount = 0;
-  List<Selling> data = [];
-  late final dio;
+  late List<Product> data;
+
   @override
   void initState() {
     super.initState();
-    dio = AppDio(context);
 
-    if (widget.ischeck == 1) {
-      // listCount = widget.sellingProductsModel!.data!.selling!.length;
-      data = List.from(widget.sellingProductsModel!.data!.selling!);
-
-      data.sort((a, b) {
-        DateTime dateA = DateTime.parse(a.createdAt!);
-        DateTime dateB = DateTime.parse(b.createdAt!);
-        return dateB.compareTo(dateA);
-      });
-    }
-    else if (widget.ischeck == 2) {
-      // listCount = widget.sellingProductsModel!.data!.purchase!.length;
-      data = widget.sellingProductsModel!.data!.purchase ?? [];
-
-      data.sort((a, b) {
-        DateTime dateA = DateTime.parse(a.createdAt!);
-        DateTime dateB = DateTime.parse(b.createdAt!);
-        return dateB.compareTo(dateA);
-      });
-    } else {
-      // listCount = widget.sellingProductsModel!.data!.archive!.length;
-      data = widget.sellingProductsModel!.data!.history ?? [];
-
-      data.sort((a, b) {
-        DateTime dateA = DateTime.parse(a.createdAt!);
-        DateTime dateB = DateTime.parse(b.createdAt!);
-        return dateB.compareTo(dateA);    });
-          }
-  }
-
-  @override
-  void didUpdateWidget(covariant SellingPurchaseListView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (widget.ischeck == 1) {
-      // listCount = widget.sellingProductsModel!.data!.selling!.length;
-       data = List.from(widget.sellingProductsModel!.data!.selling!);
-
-      data.sort((a, b) {
-        DateTime dateA = DateTime.parse(a.createdAt!);
-        DateTime dateB = DateTime.parse(b.createdAt!);
-        return dateB.compareTo(dateA);
-      });
-    }
-    else if (widget.ischeck == 2) {
-      // listCount = widget.sellingProductsModel!.data!.purchase!.length;
-      data = widget.sellingProductsModel!.data!.purchase ?? [];
-
-      data.sort((a, b) {
-        DateTime dateA = DateTime.parse(a.createdAt!);
-        DateTime dateB = DateTime.parse(b.createdAt!);
-        return dateB.compareTo(dateA);
-      });
-    } else {
-      // listCount = widget.sellingProductsModel!.data!.archive!.length;
-      data = widget.sellingProductsModel!.data!.history ?? [];
-
-      data.sort((a, b) {
-        DateTime dateA = DateTime.parse(a.createdAt!);
-        DateTime dateB = DateTime.parse(b.createdAt!);
-        return dateB.compareTo(dateA);
-      });
-    }
+    data = widget.productList ?? [];
   }
 
 
-  List<Selling> historyProducts(){
-    List<Selling>? data = [];
-    data.addAll(widget.sellingProductsModel!.data!.purchase ?? []);
-    data.addAll(widget.soldProductList ?? []);
 
-    data.sort((a, b) => DateTime.parse(b.createdAt!).compareTo(DateTime.parse(a.createdAt!)));
+  bool isItemPurchased(Product product){
+    int? userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
 
-
-    return data;
-  }
-
-
-  bool isItemPurchased(Selling selling){
-    if(selling.userId!=null){
-      if(selling.userId != Provider.of<ProfileApiProvider>(context, listen: false).profileData["id"]){
+    if(product.userId!=null){
+      if(product.userId.toString() != userId.toString()){
         return true;
       }
       else{
@@ -414,7 +327,28 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
 
   @override
   Widget build(BuildContext context) {
-    log("data for check ${widget.ischeck} = $data");
+    data = widget.productList ?? [];
+
+
+
+    data.sort((a, b) {
+      DateTime? dateA = a.createdAt != null ? DateTime.parse(a.createdAt!) : null;
+      DateTime? dateB = b.createdAt != null ? DateTime.parse(b.createdAt!) : null;
+
+      // Handle null cases explicitly
+      if (dateA == null && dateB == null) {
+        return 0; // Both are null, consider them equal
+      } else if (dateA == null) {
+        return 1; // Place nulls after non-null dates
+      } else if (dateB == null) {
+        return -1; // Place nulls after non-null dates
+      }
+
+      // Both dates are non-null, compare them
+      return dateB.compareTo(dateA);
+    });
+
+
 
 
     if (data.isEmpty) {
@@ -437,7 +371,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
       itemCount: data.length,
       itemBuilder: (context, index) {
         bool restrictMarkSold = false;
-        if(data[index].auctionPrice!=null && endTimeReached(data[index].endingDate!, data[index].endingTime!)==false){
+        if(data[index].auctionInitialPrice!=null && endTimeReached(data[index].auctionEndingDate ?? '', data[index].auctionEndingTime ?? '')==false){
           restrictMarkSold = true;
         }
         return InkWell(
@@ -446,15 +380,14 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
               push(
                 context,
                 ItemDashBoard(
-                  selling: data[index],
+                  product: data[index],
                 ));
             }
             else if(widget.ischeck == 2) {
-              if (data[index].auctionPrice == null) {
-                getFeatureProductDetail(productId: data[index].id);
-                // print('featureId--->${l.id}');
+              if (data[index].auctionInitialPrice == null) {
+                navigateToProductPage(productId: data[index].id);
               } else {
-                getAuctionProductDetail(productId: data[index].id);
+                navigateToProductPage(productId: data[index].id);
               }
             }
 
@@ -471,19 +404,18 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                       push(
                           context,
                           ItemDashBoard(
-                            selling: data[index],
+                            product: data[index],
                           ),
                       then: (){
-                        getSellingProducts(context, dio);
-                        getUserSoldProducts(context);
+                        getSellingProducts(context);
                       });
                     }
                     else if(widget.ischeck == 2) {
-                      if (data[index].auctionPrice == null) {
-                        getFeatureProductDetail(productId: data[index].id);
+                      if (data[index].auctionInitialPrice == null) {
+                        navigateToProductPage(productId: data[index].id);
                         // print('featureId--->${l.id}');
                       } else {
-                        getAuctionProductDetail(productId: data[index].id);
+                        navigateToProductPage(productId: data[index].id);
                       }
                     }
                   },
@@ -508,12 +440,10 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                     ),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(16),
-                                      child: data[index].photo == null ||
-                                              data[index].photo!.isEmpty ||
-                                              data[index].photo![0].src == null
+                                      child: data[index].photo?.isEmpty ?? true
                                           ? Image.asset('assets/images/gallery.png')
                                           : Image.network(
-                                              data[index].photo![0].src!,
+                                             data[index].photo![0].url!,
                                               fit: BoxFit.cover,
                                             ),
                                     ),
@@ -530,7 +460,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                               ),
 
                                             ),
-                                            child: Center(child: AppText.appText(data[index].productType == 'auction' ? "Auction" : "AED ${abbreviateNumber(data[index].fixPrice ?? '')}" ?? '', fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
+                                            child: Center(child: AppText.appText(data[index].productType == 'auction' ? "Auction" : "AED ${abbreviateNumber(data[index].fixPrice.toString() ?? '')}" ?? '', fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
                                 ],
                               ),
                             ),
@@ -567,7 +497,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                           push(
                                               context,
                                               SellFaster(
-                                                selling: data[index],
+                                                product: data[index],
                                                 fromLocation: false,
                                               ));
                                         }
@@ -585,7 +515,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                           textColor: AppTheme.yellowColor),
                                     )
                                     else
-                                      if(data[index].auctionPrice!=null || data[index].fixPrice!=null)
+                                      if(data[index].auctionInitialPrice!=null || data[index].fixPrice!=null)
                                     Container(
                                       padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
                                       decoration: BoxDecoration(
@@ -596,7 +526,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                            widget.ischeck == 2
                                                   ? 'Purchased'
                                                   : widget.ischeck == 3
-                                                      ? isItemPurchased(data[index]) ? 'Purchased' : 'Sold for AED ${formatNumber(removeLastTwoZeros(data[index].auctionPrice ?? data[index].fixPrice)) }'
+                                                      ? isItemPurchased(data[index]) ? 'Purchased' : 'Sold for AED ${formatNumber(removeLastTwoZeros(data[index].productType == 'auction' ? data[index].auctionInitialPrice.toString() : data[index].fixPrice.toString())) }'
                                                       : '',
                                           fontSize: 12,
                                           fontWeight: FontWeight.w400,
@@ -625,13 +555,13 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                                               NewSoldScreen(
                                                 title: data[index].title,
                                                 productId: data[index].id.toString(),
-                                                fixPrice: data[index].fixPrice,
-                                                auctionPrice: data[index].auctionPrice,
-                                                image: data[index].photo!=null && data[index].photo!.isNotEmpty ? data[index].photo![0].src : null,
+                                                fixPrice: data[index].fixPrice.toString(),
+                                                auctionPrice: data[index].auctionInitialPrice.toString(),
+                                                image: data[index].photo?.isNotEmpty ?? false ? data[index].photo![0].url : null,
                                                 auction: data[index].fixPrice != null ? false : true,
                                                 fromMyAds: true,
                                               ), then: (){
-                                            getSellingProducts(context, dio);
+                                            getSellingProducts(context);
                                             getUserSoldProducts(context);
                                           }
                                           );
@@ -698,7 +628,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
 
           // if (responce.statusCode == 200) {
           if (responce["success"] == true) {
-            getSellingProducts(context,dio).then((value) {
+            getSellingProducts(context).then((value) {
               showSnackBar(context, responce["message"], title: 'Success!');
               Navigator.of(context).pop(true);
             });
@@ -741,7 +671,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
 
           // if (responce.statusCode == 200) {
           if (responce["success"] == true) {
-            getSellingProducts(context,dio).then((value) => Navigator.of(context).pop(true));
+            getSellingProducts(context).then((value) => Navigator.of(context).pop(true));
           }
           else {
             Navigator.of(context).pop(true);
@@ -759,150 +689,16 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
     );
   }
 
-  void getAuctionProductDetail({productId, limit}) async {
-    final ProgressDialog pr = ProgressDialog(
-      context: context,
-      textColor: AppTheme.txt1B20,
-      backgroundColor: Colors.white54,
-      progressIndicatorColor: AppTheme.appColor,
-    );
+  void navigateToProductPage({productId, limit}) async {
 
-    setState(() {
-      pr.show();
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": productId,
-      "limit": limit,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getAuctionProducts, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          setState(() {
-            pr.dismiss();
-          });
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          var detailResponse = responseData["data"];
-          pr.dismiss();
-          push(context, AuctionInfoScreen(detailResponse: detailResponse[0]));
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        pr.dismiss();
-      });
-    }
+    final productViewModel = Provider.of<ProductViewModel>(context, listen: false);
+    productViewModel.navigateToProductPage(productId, context);
   }
 
+ 
 
-
-  void getFeatureProductDetail({productId, limit}) async {
-    final ProgressDialog pr = ProgressDialog(
-      context: context,
-      textColor: AppTheme.txt1B20,
-      backgroundColor: Colors.white54,
-      progressIndicatorColor: AppTheme.appColor,
-    );
-
-    setState(() {
-      pr.show();
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": productId,
-      "limit": limit,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getFeatureProducts, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          setState(() {
-            pr.dismiss();
-          });
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          var detailResponse = responseData["data"];
-          pr.dismiss();
-          push(
-              context,
-              FeatureInfoScreen(
-                detailResponse: detailResponse[0],
-              ));
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        pr.dismiss();
-      });
-    }
-  }
-
+  
+  
   bool endTimeReached(String endDate, String endTimeString) {
     DateTime? endTime = convertEndTimeToUserTimeZone(_parseEndingDateTime(endDate, endTimeString));
 

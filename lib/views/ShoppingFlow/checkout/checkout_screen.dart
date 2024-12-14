@@ -7,10 +7,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/models/cart_model.dart';
+import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
+import 'package:tt_offer/views/ShoppingFlow/cart/cart_screen.dart';
 
 import '../../../Constants/app_logger.dart';
-import '../../../Controller/APIs Manager/banner_api.dart' hide Data;
-import '../../../Controller/APIs Manager/cart_api.dart';
+import '../../../view_model/banner/banner_view_model.dart' hide Data;
 import '../../../Utils/resources/res/app_theme.dart';
 import '../../../Utils/utils.dart';
 import '../../../Utils/widgets/others/app_text.dart';
@@ -19,7 +20,7 @@ import '../../../config/dio/app_dio.dart';
 
 
 class CheckOutScreen extends StatefulWidget {
-  List<Data>? items;
+  List<Cart>? items;
   bool fromAccountInfo;
   CheckOutScreen({super.key, this.items, this.fromAccountInfo=false});
 
@@ -30,7 +31,6 @@ class CheckOutScreen extends StatefulWidget {
 class _CheckOutScreenState extends State<CheckOutScreen> {
 
 
-  late CartApiProvider cartProvider;
   late AppDio dio;
   AppLogger logger = AppLogger();
 
@@ -38,7 +38,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
   late int subTotal;
   late int numberOfItems;
 
-  List<Data>? items;
+  List<Cart>? items;
 
 
   @override
@@ -51,7 +51,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
     super.initState();
   }
 
-  void getTotalAmount(List<Data>? item) {
+  void getTotalAmount(List<Cart>? item) {
     numberOfItems = 0;
     total = 0;
     subTotal = 0;
@@ -78,159 +78,183 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
   Widget build(BuildContext context) {
     getTotalAmount(items);
 
-    return Scaffold(
-      appBar: CustomAppBar1(
-        title: "Checkout",
-        actionOntap: () {
-        },
-      ),
-      body:Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: SingleChildScrollView (
+    return PopScope(
+      canPop: widget.fromAccountInfo == true ? false : true,
+      onPopInvoked: (bool didPop){
+        if (!didPop) {
+          if (widget.fromAccountInfo == true) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            });
+          }}
+
+      },
+      child: Scaffold(
+        appBar: CustomAppBar1(
+          title: "Checkout",
+          backButtonTap: (){
+            if (widget.fromAccountInfo == true) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              });
+            }
+            else{
+              Navigator.of(context).pop();
+            }
+          },
+        ),
+        body:Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: SingleChildScrollView (
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Consumer<BannerViewModel>(
+                        builder: (context, bannerViewModel, child) {
+                          return bannerViewModel.firstBanner.isNotEmpty ? CarouselSlider(
+                            options: CarouselOptions(
+                              aspectRatio: 16 / 4,
+                              viewportFraction: 1,
+                              initialPage: 0,
+                              enableInfiniteScroll: true,
+                              reverse: false,
+                              autoPlay: true,
+                              autoPlayInterval: const Duration(seconds: 3),
+                              autoPlayAnimationDuration: const Duration(milliseconds: 1000),
+                              autoPlayCurve: Curves.fastOutSlowIn,
+                              enlargeCenterPage: true,
+                              scrollDirection: Axis.horizontal,
+                            ),
+                            items: bannerViewModel.firstBanner.map((String imagePath) {
+                              return LayoutBuilder(
+                                builder: (context, constraints) {
+                                  double screenWidth = MediaQuery.of(context).size.width;
+                                  double bannerHeight = screenWidth * (7 / 16);
+
+                                  return Container(
+                                    height: bannerHeight,
+                                    width: screenWidth,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: CachedNetworkImage(
+                                      imageUrl: imagePath,
+                                      fit: BoxFit.fill,
+                                      placeholder: (context, url) => Center(
+                                        child: SizedBox(
+                                          height: 30.h,
+                                          child: CircularProgressIndicator(color: AppTheme.yellowColor),
+                                        ),
+                                      ),
+                                      errorWidget: (context, url, error) => SizedBox(),
+                                      cacheKey: imagePath,
+                                      maxWidthDiskCache: 200,
+                                      fadeInDuration: const Duration(milliseconds: 500),
+                                    ),
+                                  );
+                                },
+                              );
+                            }).toList(),
+                          ) : SizedBox();
+                        }
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 16, right : 16, top: 16.h , bottom: 6.h),
+                      child: AppText.appText('Review order', fontWeight: FontWeight.bold, fontSize: 17.sp, textColor: AppTheme.textColor),
+                    ),
+                    ListView.builder(
+                      itemCount: items!.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        final item = items![index];
+                        return ShoppingCartItem(
+                          seller: item.user?.name,
+                          productName: item.product?.title,
+                          price: item.product?.fixPrice !=null ? double.parse(item.product!.fixPrice!.toString()) : null,
+                          shippingCost: 0,
+                          productImage: item.product?.photo?[0].url,
+                          deleteItem: (){
+                            items!.removeAt(index);
+                            setState(() {
+
+                            });
+                          },
+                          lastIndex: index == items!.length - 1,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Consumer<BannerController>(
-                      builder: (context, bannerController, child) {
-                        return bannerController.firstBanner.isNotEmpty ? CarouselSlider(
-                          options: CarouselOptions(
-                            aspectRatio: 16 / 4,
-                            viewportFraction: 1,
-                            initialPage: 0,
-                            enableInfiniteScroll: true,
-                            reverse: false,
-                            autoPlay: true,
-                            autoPlayInterval: const Duration(seconds: 3),
-                            autoPlayAnimationDuration: const Duration(milliseconds: 1000),
-                            autoPlayCurve: Curves.fastOutSlowIn,
-                            enlargeCenterPage: true,
-                            scrollDirection: Axis.horizontal,
-                          ),
-                          items: bannerController.firstBanner.map((String imagePath) {
-                            return LayoutBuilder(
-                              builder: (context, constraints) {
-                                double screenWidth = MediaQuery.of(context).size.width;
-                                double bannerHeight = screenWidth * (7 / 16);
+                  Divider(color: AppTheme.borderColor,),
+                  SizedBox(height: 3.h,),
 
-                                return Container(
-                                  height: bannerHeight,
-                                  width: screenWidth,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: CachedNetworkImage(
-                                    imageUrl: imagePath,
-                                    fit: BoxFit.fill,
-                                    placeholder: (context, url) => Center(
-                                      child: SizedBox(
-                                        height: 30.h,
-                                        child: CircularProgressIndicator(color: AppTheme.yellowColor),
-                                      ),
-                                    ),
-                                    errorWidget: (context, url, error) => SizedBox(),
-                                    cacheKey: imagePath,
-                                    maxWidthDiskCache: 200,
-                                    fadeInDuration: const Duration(milliseconds: 500),
-                                  ),
-                                );
-                              },
-                            );
-                          }).toList(),
-                        ) : SizedBox();
-                      }
+                  AppText.appText("Order summary", fontWeight: FontWeight.bold, fontSize: 14.sp, textColor: AppTheme.textColor),
+
+                  SizedBox(height: 12.h,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AppText.appText("Items ($numberOfItems)",  fontSize: 11.5.sp, textColor: AppTheme.blackColor),
+                      AppText.appText("AED $total", fontSize: 11.5.sp, textColor: AppTheme.blackColor),
+
+                    ],
                   ),
+                  SizedBox(height: 2.h,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AppText.appText("Shipping",  fontSize: 11.5.sp, textColor: AppTheme.blackColor),
+                      AppText.appText("AED 0", fontSize: 11.5.sp, textColor: AppTheme.blackColor),
+
+                    ],
+                  ),
+                  SizedBox(height: 11.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AppText.appText("Order Total", fontWeight: FontWeight.bold, fontSize: 13.sp, textColor: AppTheme.textColor),
+                      AppText.appText('AED $subTotal', fontWeight: FontWeight.bold, fontSize: 13.sp, textColor: AppTheme.textColor),
+                    ],
+                  ),
+                  SizedBox(height: 16.h),
+
                   Padding(
-                    padding: EdgeInsets.only(left: 16, right : 16, top: 16.h , bottom: 6.h),
-                    child: AppText.appText('Review order', fontWeight: FontWeight.bold, fontSize: 17.sp, textColor: AppTheme.textColor),
-                  ),
-                  ListView.builder(
-                    itemCount: items!.length,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      final item = items![index];
-                      return ShoppingCartItem(
-                        seller: item.product?.user?.name,
-                        productName: item.product?.title,
-                        price: item.product?.fixPrice !=null ? double.parse(item.product!.fixPrice!.toString()) : null,
-                        shippingCost: 0,
-                        productImage: item.product?.imagePath?.url,
-                        deleteItem: (){
-                          items!.removeAt(index);
-                          setState(() {
+                    padding: EdgeInsets.symmetric(horizontal: 15.w),
+                    child: AppButton.appButton('Confirm and Pay',
+                        fontSize: 13.sp,
+                        height: 42.h,
+                        fontWeight: FontWeight.w600,
+                        padding: EdgeInsets.symmetric(vertical: 11.h,),
+                        textColor: AppTheme.blackColor,
+                        backgroundColor: Colors.grey.shade400,
+                        borderColor: Colors.grey.shade400,
+                        radius: 26.sp,
+                        icon: Icons.lock
 
-                          });
-                        },
-                        lastIndex: index == items!.length - 1,
-                      );
-                    },
+                    ),
                   ),
+
                 ],
               ),
             ),
-          ),
 
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Divider(color: AppTheme.borderColor,),
-                SizedBox(height: 3.h,),
-
-                AppText.appText("Order summary", fontWeight: FontWeight.bold, fontSize: 14.sp, textColor: AppTheme.textColor),
-
-                SizedBox(height: 12.h,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AppText.appText("Items ($numberOfItems)",  fontSize: 11.5.sp, textColor: AppTheme.blackColor),
-                    AppText.appText("AED $total", fontSize: 11.5.sp, textColor: AppTheme.blackColor),
-
-                  ],
-                ),
-                SizedBox(height: 2.h,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AppText.appText("Shipping",  fontSize: 11.5.sp, textColor: AppTheme.blackColor),
-                    AppText.appText("AED 0", fontSize: 11.5.sp, textColor: AppTheme.blackColor),
-
-                  ],
-                ),
-                SizedBox(height: 11.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AppText.appText("Order Total", fontWeight: FontWeight.bold, fontSize: 13.sp, textColor: AppTheme.textColor),
-                    AppText.appText('AED $subTotal', fontWeight: FontWeight.bold, fontSize: 13.sp, textColor: AppTheme.textColor),
-                  ],
-                ),
-                SizedBox(height: 16.h),
-
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15.w),
-                  child: AppButton.appButton('Confirm and Pay',
-                      fontSize: 13.sp,
-                      height: 42.h,
-                      fontWeight: FontWeight.w600,
-                      padding: EdgeInsets.symmetric(vertical: 11.h,),
-                      textColor: AppTheme.blackColor,
-                      backgroundColor: Colors.grey.shade400,
-                      borderColor: Colors.grey.shade400,
-                      radius: 26.sp,
-                      icon: Icons.lock
-
-                  ),
-                ),
-
-              ],
-            ),
-          ),
-
-        ],
+          ],
+        ),
       ),
     );
   }

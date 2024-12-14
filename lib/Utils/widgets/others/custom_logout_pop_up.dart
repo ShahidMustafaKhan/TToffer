@@ -14,23 +14,11 @@ import 'package:tt_offer/models/bids_model.dart';
 import 'package:tt_offer/models/common_model.dart';
 import 'package:tt_offer/providers/bids_provider.dart';
 import 'package:tt_offer/utils/utils.dart';
+import 'package:tt_offer/view_model/bids/bids_view_model.dart';
 
-Future showLogOutALert(BuildContext context, var price, var productId,
-    var userId, var id, var productUserId) {
-  bool loading = false;
+Future placeBidDialog(BuildContext context, var price, var productId,
+    var userId, var productUserId) {
 
-  final bidProvider = Provider.of<BidsProvider>(context, listen: false).bids;
-
-  // void sendBidNotification() {
-  //   SendNotification.sendNotification(
-  //     context: context,
-  //     userId: int.parse(productUserId.toString()),
-  //     text: 'You have received a new Bid',
-  //     type: 'Bid',
-  //     typeId: int.parse(productId.toString()),
-  //     status: 'Bid',
-  //   );
-  // }
 
   return showDialog(
     context: context,
@@ -73,72 +61,46 @@ Future showLogOutALert(BuildContext context, var price, var productId,
                       const SizedBox(
                         height: 30,
                       ),
-                      if (loading)
-                        Center(
-                          child: CircularProgressIndicator(
-                            color: AppTheme.appColor,
-                          ),
-                        )
-                      else
-                        AppButton.appButton("Yes, Place My Bid",
-                            onTap: () async {
-                          setStatess(() {
-                            loading = true;
-                          });
-
-                          Map<String, dynamic> body = {
-                            "user_id": userId.toString(),
-                            "product_id": productId.toString(),
-                            "price": price.toString().replaceAll(',', '')
-                          };
-
-                          print('body--->${body}');
-
-                          try {
-                            var response = await AppDio(context)
-                                .post(path: AppUrls.placeBid, data: body);
-
-                            // if (response.statusCode == 200) {
-                            var responseData = response.data;
-
-                            if (responseData['status'] == "error") {
-                              showSnackBar(context, responseData['message']);
+                      Consumer<BidsViewModel>(
+                          builder: (context, bidsViewModel, child){
+                            if (bidsViewModel.bidsLoading) {
+                              return Center(
+                              child: CircularProgressIndicator(
+                                color: AppTheme.appColor,
+                              ),
+                            );
                             } else {
-                              await BidsService().getBidsService(
-                                  context: context, productId: productId);
+                              return AppButton.appButton("Yes, Place My Bid",
+                                onTap: () async {
 
-                              bidProvider.add(BidsData(
-                                id: id,
-                                userId: int.parse(userId),
-                                productId: productId,
-                                price: int.parse(price.toString().replaceAll(',', '')),
-                                createdAt: DateTime.now().toIso8601String(),
-                                updatedAt: DateTime.now().toIso8601String(),
-                              ));
 
-                              showSnackBar(context, responseData["message"], title: 'Success!');
+                                  Map<String, dynamic> data = {
+                                    "user_id": userId,
+                                    "product_id": productId,
+                                    "price": int.parse(price.toString().replaceAll(',', ''))
+                                  };
+
+                                  bidsViewModel.placeBid(data).then((value){
+                                    Navigator.of(context).pop();
+                                    showSnackBar(context, 'Bid placed successfully', title: 'Congratulations!');
+                                  }).onError((error, stackTrace){
+                                    Navigator.of(context).pop();
+                                    showSnackBar(context, error.toString());
+                                  });
+
+                                  // sendBidNotification();
+
+                                },
+                                height: 53,
+                                fontSize: 14,
+                                radius: 32.0,
+                                fontWeight: FontWeight.w500,
+                                textColor: AppTheme.whiteColor,
+                                backgroundColor: AppTheme.appColor);
                             }
-
-                            log("response in bid post = ${response.data}");
-                            // }
-                          } catch (e) {
-                            showSnackBar(context, 'An error occurred: $e');
-                          } finally {
-                            setStatess(() {
-                              loading = false;
-                            });
                           }
+                        ),
 
-                          // sendBidNotification();
-
-                          Navigator.of(context).pop();
-                        },
-                            height: 53,
-                            fontSize: 14,
-                            radius: 32.0,
-                            fontWeight: FontWeight.w500,
-                            textColor: AppTheme.whiteColor,
-                            backgroundColor: AppTheme.appColor),
                       const SizedBox(
                         height: 10,
                       ),

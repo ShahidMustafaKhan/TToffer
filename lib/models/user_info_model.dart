@@ -1,3 +1,5 @@
+import 'package:tt_offer/models/product_model.dart';
+
 class UserInfoModel {
   bool? success;
   Data? data;
@@ -158,9 +160,7 @@ class Data {
     if (products != null) {
       data['products'] = products!.map((v) => v.toJson()).toList();
     }
-    if (reviews != null) {
-      data['reviews'] = reviews!.map((v) => v.toJson()).toList();
-    }
+
     return data;
   }
 }
@@ -387,75 +387,11 @@ class ReviewsDataInfo {
     json['product'] != null ? new Product.fromJson(json['product']) : null;
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['to_user'] = this.toUser;
-    data['from_user'] = this.fromUser;
-    data['product_id'] = this.productId;
-    data['comments'] = this.comments;
-    data['rating'] = this.rating;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    if (this.fromUesr != null) {
-      data['from_uesr'] = this.fromUesr!.toJson();
-    }
-    if (this.product != null) {
-      data['product'] = this.product!.toJson();
-    }
-    return data;
-  }
+
 }
 
 
-class Product {
-  int? id;
-  int? userId;
-  String? title;
-  String? slug;
-  String? description;
-  String? productType;
-  bool? isProductExpired;
-  ImagePath? imagePath;
 
-  Product(
-      {this.id,
-        this.userId,
-        this.title,
-        this.slug,
-        this.description,
-        this.productType,
-        this.isProductExpired,
-        this.imagePath});
-
-  Product.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    userId = json['user_id'];
-    title = json['title'];
-    slug = json['slug'];
-    description = json['description'];
-    productType = json['ProductType'];
-    isProductExpired = json['IsProductExpired'];
-    imagePath = json['image_path'] != null
-        ? new ImagePath.fromJson(json['image_path'])
-        : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['title'] = this.title;
-    data['slug'] = this.slug;
-    data['description'] = this.description;
-    data['ProductType'] = this.productType;
-    data['IsProductExpired'] = this.isProductExpired;
-    if (this.imagePath != null) {
-      data['image_path'] = this.imagePath!.toJson();
-    }
-    return data;
-  }
-}
 
 class ImagePath {
   int? id;

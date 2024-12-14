@@ -12,11 +12,16 @@ class ImageNotifyProvider extends ChangeNotifier {
   List<String> imagePaths = [];
 
   String? newImagePath;
-  var vedioPath = "";
+  var videoPath = "";
   bool isCompressing = false;
 
   removeImage(int index) {
     imagePaths.removeAt(index);
+    notifyListeners();
+  }
+
+  removeVideo() {
+    videoPath = '';
     notifyListeners();
   }
 
@@ -98,14 +103,15 @@ class ImageNotifyProvider extends ChangeNotifier {
       int fileSizeInBytes = await videoFile.length();
       int fileSizeInMB = fileSizeInBytes ~/ (1024 * 1024);
 
-      if (fileSizeInMB > 2) {
-        showSnackBar(context, "Selected video file size exceeds 2 MB.");
-        return;
+      // if (fileSizeInMB > 2) {
+      //   showSnackBar(context, "Selected video file size exceeds 2 MB.");
+      //   return;
       }
-
-      vedioPath = pickedFiles.path;
+     if(pickedFiles != null) {
+       videoPath = pickedFiles.path;
+     }
       notifyListeners();
-    }
+
   }
 
 // Future<void> _compressVideo(String videoPath) async {
@@ -127,7 +133,7 @@ class ImageNotifyProvider extends ChangeNotifier {
 //     print(
 //         'Video compression successful. Compressed video saved at: $outputFilePath');
 //     setState(() {
-//       vedioPath = outputFilePath;
+//       videoPath = outputFilePath;
 //     });
 //   } else {
 //     print('Video compression failed.');

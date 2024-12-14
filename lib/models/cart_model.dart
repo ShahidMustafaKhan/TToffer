@@ -7,7 +7,7 @@ class CartModel {
   int? code;
   bool? success;
   String? message;
-  List<Data>? data;
+  List<Cart>? data;
 
   CartModel({this.code, this.success, this.message, this.data});
 
@@ -16,26 +16,27 @@ class CartModel {
     success = json['success'];
     message = json['message'];
     if (json['data'] != null) {
-      data = <Data>[];
+      data = <Cart>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(Cart.fromJson(v));
       });
     }
   }
 
 }
 
-class Data {
+class Cart {
   int? id;
   int? userId;
   int? productId;
+  int? isSaved;
   int? qty;
   String? createdAt;
   String? updatedAt;
   Product? product;
   UserModel? user;
 
-  Data(
+  Cart(
       {this.id,
         this.userId,
         this.productId,
@@ -45,7 +46,7 @@ class Data {
         this.product,
         this.user});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  Cart.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     userId = json['user_id'];
     productId = json['product_id'];
@@ -54,7 +55,7 @@ class Data {
     updatedAt = json['updated_at'];
     product =
     json['product'] != null ? Product.fromJson(json['product']) : null;
-    user = json['user'] != null ? UserModel.fromJson(json['user']) : null;
+    user = json['seller'] != null ? UserModel.fromJson(json['seller']) : null;
   }
 
 }

@@ -2,106 +2,68 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:dialogs/dialogs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
-import 'package:tt_offer/Utils/widgets/listview_container.dart';
-import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
-import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/custom_requests/bolck_user_service.dart';
-import 'package:tt_offer/custom_requests/user_info_service.dart';
 import 'package:tt_offer/main.dart';
-import 'package:tt_offer/models/category_model.dart';
-import 'package:tt_offer/models/selling_serach_model.dart';
-import 'package:tt_offer/models/user_info_model.dart';
-import 'package:tt_offer/providers/profile_info_provider.dart';
-import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
-import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
-import 'package:tt_offer/views/Profile%20Screen/profile_screen.dart';
+import 'package:tt_offer/models/product_model.dart';
 
-import '../../Controller/APIs Manager/profile_apis.dart';
+import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
+
+import 'package:tt_offer/views/Profile%20Screen/profile_screen.dart';
 import '../../Utils/utils.dart';
 import '../../config/dio/app_dio.dart';
-import '../../utils/widgets/custom_loader.dart';
+import '../../models/user_model.dart';
+import '../../view_model/profile/user_profile/user_view_model.dart';
 
 class SellerProfileScreen extends StatefulWidget {
   var detailResponse;
+  UserModel? sellerProfile;
   bool review;
 
-  SellerProfileScreen({super.key, this.detailResponse, this.review=false});
+  SellerProfileScreen({super.key, this.detailResponse, this.sellerProfile , this.review=false});
 
   @override
   State<SellerProfileScreen> createState() => _SellerProfileScreenState();
 }
 
 class _SellerProfileScreenState extends State<SellerProfileScreen> {
-  List<ProductsDataInfo> data = [];
-  List<ReviewsDataInfo> reviews = [];
+  List<Product?> products = [];
+  List<Reviews?> reviews = [];
 
-  List<ProductsDataInfo> auction = [];
-  List<ProductsDataInfo> feature = [];
-  late final dio;
 
+  late UserViewModel userViewModel;
+  UserModel? sellerProfile;
+  
   bool loader = false;
   late bool isCurrentUser;
 
-  String timeDifference = ''; // Store the calculated time difference
 
-  getUserProduct() async {
-    Provider.of<ProfileInfoProvider>(context, listen: false).rating = null;
-
-    setState(() {
-      loader = true;
-    });
-    await UserInfoService().userInfoService(
-        context: context, id: widget.detailResponse['user_id']);
-
-    setState(() {
-      loader = false;
-    });
-    data = Provider.of<ProfileInfoProvider>(context, listen: false).data;
-    reviews = Provider.of<ProfileInfoProvider>(context, listen: false).review;
-
-    print('data --> $data');
-    print('review --> $reviews');
-
-    // Clear the lists before adding data to them
-    feature.clear();
-    auction.clear();
-
-    // Calculate time difference and add to appropriate list
-    List<ProductsDataInfo> temp=[];
-    data.forEach((element) {
-      if(element.isSold!='1') {
-        temp.add(element);
-        if (element.firmOnPrice == null) {
-          auction.add(element);
-        } else if (element.auctionPrice == null) {
-          feature.add(element);
-        }
-      }
-    });
-    data = temp;
-
-    setState(() {}); // Update the UI after adding data to lists
-  }
 
   @override
   void initState() {
     super.initState();
-    if(widget.detailResponse['user_id'] == Provider.of<ProfileApiProvider>(context, listen: false).profileData["id"] ){
+    
+    sellerProfile = widget.sellerProfile;
+
+    userViewModel = Provider.of<UserViewModel>(context, listen: false);
+
+    getSellerProfile();
+    
+
+    int? userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
+
+    if(sellerProfile?.id == userId ){
       isCurrentUser=true;
     }
     else{
@@ -113,29 +75,26 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     }
 
     dio = AppDio(context);
-    log("widget.detailResponse = ${widget.detailResponse}");
-    getUserProduct();
   }
+  
+  
+  getSellerProfile() async {
+    try{
+      sellerProfile = await userViewModel.getSellerProfile(sellerProfile?.id);
 
+      reviews = sellerProfile?.reviews ?? [];
+      products = sellerProfile?.products ?? [];
 
-
-  String calculateTimeDifference(DateTime dateTime) {
-    DateTime currentDateTime = DateTime.now();
-    Duration difference = currentDateTime.difference(dateTime);
-    int days = difference.inDays;
-    int hours =
-        difference.inHours.remainder(24); // Get hours within the current day
-    int minutes = difference.inMinutes
-        .remainder(60); // Get minutes within the current hour
-
-    if (days > 0) {
-      return '$days ${days == 1 ? 'day' : 'days'} $hours ${hours == 1 ? 'hour' : 'hours'} $minutes ${minutes == 1 ? 'minute' : 'minutes'}';
-    } else if (hours > 0) {
-      return '$hours ${hours == 1 ? 'hour' : 'hours'} $minutes ${minutes == 1 ? 'minute' : 'minutes'}';
-    } else {
-      return '$minutes ${minutes == 1 ? 'minute' : 'minutes'}';
+      setState(() {
+        
+      });
+    }
+    catch(e){
+      log("get seller ${e.toString()}");
     }
   }
+  
+
 
   List<String> dataRequest = [
     'Inappropriate profile picture',
@@ -156,7 +115,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     });
 
     await BlockdeUserService().blockUserService(
-        context: context, id: widget.detailResponse['user_id'], report: report);
+        context: context, id: sellerProfile?.id, report: report);
 
     setstaet(() {
       loader = false;
@@ -382,263 +341,247 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
           title: capitalizeWords(isCurrentUser ? 'My Profile' : "Seller's Profile"),
         ),
         body: SingleChildScrollView(
-          child: Consumer<ProfileInfoProvider>(
-              builder: (context, apiProvider, child) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    upperContainer(apiProvider),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              upperContainer(),
 
-                    SizedBox(height: 1.h,),
+              SizedBox(height: 1.h,),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  buildStatItem('0', 'Bought'),
+                  buildStatItem('0', 'Sold'),
+                  buildStatItem('0', 'Followers'),
+                  buildStatItem('0', 'Following'),
+                ],
+              ),
+
+              SizedBox(height: 3.h,),
+
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 26.w),
+                child: Column(
+                  children: [
+
+                    if(sellerProfile?.emailVerifiedAt == null ||
+                        sellerProfile?.imageVerifiedAt == null ||
+                        sellerProfile?.phoneVerifiedAt == null
+                    )
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          verifiedContainer(
+                              txt: sellerProfile?.emailVerifiedAt == null
+                                  ? "Email\nis not\nVerified"
+                                  : "Email\nVerified",
+                              color: sellerProfile?.emailVerifiedAt !=
+                                  null
+                                  ? null
+                                  : Colors.red,
+                              img: "assets/images/sms.png"),
+                          SizedBox(width: 57.w,),
+                          verifiedContainer(
+                              txt: sellerProfile?.imageVerifiedAt ==
+                                  null
+                                  ? "Image\nis not\nVerified"
+                                  : "Image\nVerified",
+                              img: "assets/images/gallery.png",
+                              color: sellerProfile?.imageVerifiedAt !=
+                                  null
+                                  ? null
+                                  : Colors.red
+
+                          ),
+                          SizedBox(width: 57.w,),
+                          verifiedContainer(
+                              txt: sellerProfile?.phoneVerifiedAt ==
+                                  null
+                                  ? "Phone\nis not\nVerified"
+                                  : "Phone\nVerified",
+                              img: "assets/images/call.png",
+                              color: sellerProfile?.phoneVerifiedAt !=
+                                  null
+                                  ? null
+                                  : Colors.red),
+                        ],
+                      ),
+                    // selectOption(),
+                    const SizedBox(height: 10),
 
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        buildStatItem('0', 'Bought'),
-                        buildStatItem('0', 'Sold'),
-                        buildStatItem('0', 'Followers'),
-                        buildStatItem('0', 'Following'),
+                        SizedBox(width: 30.w,),
+                        SellerSelectOption(
+                          select: selectIndex == 0 ? true : false,
+                          onTap: () {
+                            selectIndex = 0;
+                            setState(() {});
+                          },
+                          txt: 'Products',
+                        ),
+                        const Spacer(),
+                        SellerSelectOption(
+                          select: selectIndex == 1 ? true : false,
+                          onTap: () {
+                            selectIndex = 1;
+                            setState(() {});
+                          },
+                          txt: 'Reviews',
+                        ),
+                        SizedBox(width: 30.w,),
+
                       ],
                     ),
 
-                    SizedBox(height: 3.h,),
-
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 26.w),
-                      child: Column(
-                        children: [
-
-                          if(widget.detailResponse["user"]
-                          ["email_verified_at"] ==
-                              null || widget.detailResponse["user"]
-                          ["phone_verified_at"] ==
-                              null || widget.detailResponse["user"]
-                          ["phone_verified_at"] ==
-                              null
-                          )
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                verifiedContainer(
-                                    txt: widget.detailResponse["user"]
-                                    ["email_verified_at"] ==
-                                        null
-                                        ? "Email\nis not\nVerified"
-                                        : "Email\nVerified",
-                                    color: widget.detailResponse["user"]
-                                    ["email_verified_at"] !=
-                                        null
-                                        ? null
-                                        : Colors.red,
-                                    img: "assets/images/sms.png"),
-                                SizedBox(width: 57.w,),
-                                verifiedContainer(
-                                    txt: widget.detailResponse["user"]
-                                    ["image_verified_at"] ==
-                                        null
-                                        ? "Image\nis not\nVerified"
-                                        : "Image\nVerified",
-                                    img: "assets/images/gallery.png",
-                                    color: widget.detailResponse["user"]
-                                    ["image_verified_at"] !=
-                                        null
-                                        ? null
-                                        : Colors.red
-
-                                ),
-                                SizedBox(width: 57.w,),
-                                verifiedContainer(
-                                    txt: widget.detailResponse["user"]
-                                    ["phone_verified_at"] ==
-                                        null
-                                        ? "Phone\nis not\nVerified"
-                                        : "Phone\nVerified",
-                                    img: "assets/images/call.png",
-                                    color: widget.detailResponse["user"]
-                                    ["phone_verified_at"] !=
-                                        null
-                                        ? null
-                                        : Colors.red),
-                              ],
-                            ),
-                          // selectOption(),
-                          const SizedBox(height: 10),
-
-                          Row(
+                    const SizedBox(height: 10),
+                    if (selectIndex == 0 && products.isNotEmpty)
+                      for (int i = 0; i < products.length; i++)
+                        InkWell(
+                          onTap: () {
+                            final productViewModel =  Provider.of<ProductViewModel>(context, listen: false);
+                            productViewModel.navigateToProductPage(products[i]?.id, context);
+                          },
+                          child: Row(
                             children: [
                               SizedBox(width: 30.w,),
-                              SellerSelectOption(
-                                select: selectIndex == 0 ? true : false,
-                                onTap: () {
-                                  selectIndex = 0;
-                                  setState(() {});
-                                },
-                                txt: 'Products',
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Container(
+                                    height: 80,
+                                    width: 80,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: (products[i]?.photo?.isNotEmpty ?? false)
+                                            ? NetworkImage(products[i]!
+                                            .photo![0]
+                                            .url!
+                                            .toString()) as ImageProvider
+                                            : const AssetImage(
+                                            'assets/images/gallery1.png'),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                              const Spacer(),
-                              SellerSelectOption(
-                                select: selectIndex == 1 ? true : false,
-                                onTap: () {
-                                  selectIndex = 1;
-                                  setState(() {});
-                                },
-                                txt: 'Reviews',
+                              Padding(
+                                padding:
+                                const EdgeInsets.symmetric(horizontal: 12.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      products[i]?.title?.toString() ?? '',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 17),
+                                    ),
+                                    SizedBox(height: 10.h,),
+                                    Text(
+                                      products[i]?.isSold == 1 ? 'Sold' : 'Listing',
+                                      style: GoogleFonts.poppins(
+                                          fontWeight: FontWeight.normal,
+                                          color: Color(0xff1E293B),
+                                          fontSize: 12),
+                                    ),
+                                  ],
+                                ),
                               ),
                               SizedBox(width: 30.w,),
 
                             ],
                           ),
+                        ),
 
-                          const SizedBox(height: 10),
-                          if (selectIndex == 0 && data.isNotEmpty)
-                            for (int i = 0; i < data.length; i++)
-                              InkWell(
-                                onTap: () {
-                                  if (data[i].auctionPrice == null) {
-                                    getFeatureProductDetail(productId: data[i].id);
-                                    // print('featureId--->${l.id}');
-                                  } else {
-                                    getAuctionProductDetail(productId: data[i].id);
-                                  }
-                                },
-                                child: Row(
-                                  children: [
-                                    SizedBox(width: 30.w,),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(20),
-                                        child: Container(
-                                          height: 80,
-                                          width: 80,
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: (data[i].photo != null &&
-                                                  data[i].photo!.isNotEmpty &&
-                                                  data[i].photo![0].src != null)
-                                                  ? NetworkImage(data[i]
-                                                  .photo![0]
-                                                  .src
-                                                  .toString()) as ImageProvider
-                                                  : const AssetImage(
-                                                  'assets/images/gallery1.png'),
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                      EdgeInsets.symmetric(horizontal: 12.0),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            data[i].title.toString(),
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 17),
-                                          ),
-                                          SizedBox(height: 10.h,),
-                                          Text(
-                                            data[i].isSold == 1 ? 'Sold' : 'Listing',
-                                            style: GoogleFonts.poppins(
-                                                fontWeight: FontWeight.normal,
-                                                color: Color(0xff1E293B),
-                                                fontSize: 12),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(width: 30.w,),
+                    if((selectIndex == 0 && products.isEmpty) || (selectIndex == 1 && reviews.isEmpty))
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(height: 60.h,),
+                          Center(child: Image.asset("assets/images/no_data_folder.png", height: 120.h,)),
+                          SizedBox(height: 12.h,),
+                          AppText.appText(selectIndex == 0 ? "No products" : "No reviews",
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              textColor: Colors.black),
+                          SizedBox(height: 12.h,)
+                        ],
+                      ),
 
-                                  ],
-                                ),
-                              ),
-
-                          if((selectIndex == 0 && data.isEmpty) || (selectIndex == 1 && reviews.isEmpty))
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                    if (selectIndex == 1 && reviews.isNotEmpty)
+                      for (int i = 0; i < reviews.length; i++)
+                        InkWell(
+                          onTap: () {
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Row(
                               children: [
-                                SizedBox(height: 60.h,),
-                                Center(child: Image.asset("assets/images/no_data_folder.png", height: 120.h,)),
-                                SizedBox(height: 12.h,),
-                                AppText.appText(selectIndex == 0 ? "No products" : "No reviews",
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    textColor: Colors.black),
-                                SizedBox(height: 12.h,)
-                              ],
-                            ),
-
-                          if (selectIndex == 1 && reviews.isNotEmpty)
-                            for (int i = 0; i < reviews.length; i++)
-                              InkWell(
-                                onTap: () {
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(width: 30.w,),
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(20),
-                                        child: Container(
-                                          height: 80,
-                                          width: 80,
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image:
-                                              (
-                                                  reviews[i].product!=null && reviews[i].product!.imagePath!=null && reviews[i].product!.imagePath!.src!=null &&
-                                                      reviews[i].product!.imagePath!.src!.isNotEmpty
-                                              )
-                                                  ? NetworkImage(reviews[i].product!.imagePath!.src!) as ImageProvider
-                                                  : const AssetImage(
-                                                  'assets/images/default_image.png'),
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
+                                SizedBox(width: 30.w,),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Container(
+                                    height: 80,
+                                    width: 80,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image:
+                                        (
+                                            (reviews[i]?.product?.photo?.isNotEmpty ?? false)
+                                        )
+                                            ? NetworkImage(reviews[i]!.product!.photo![0].url!) as ImageProvider
+                                            : const AssetImage(
+                                            'assets/images/default_image.png'),
+                                        fit: BoxFit.cover,
                                       ),
-                                      SizedBox(
-                                        child: Padding(
-                                          padding:
-                                          const EdgeInsets.only(left: 12.0),
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  child: Padding(
+                                    padding:
+                                    const EdgeInsets.only(left: 12.0),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          reviews[i]?.user?.name ?? '' ,
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 17),
+                                        ),
+                                        SizedBox(height: 6.h,),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            StarRating(
+                                              percentage: percentageOfFive(reviews[i]?.rating),
+                                              color: Colors.yellow,
+                                              size: 14,
+                                            ),
+                                            SizedBox(width: 7.w,),
+                                            AppText.appText("${getRating(reviews[i]?.rating.toString())}.0" ?? '',
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.normal,
+                                                textColor: const Color(0xff1E293B)),
+                                          ],
+                                        ),
+                                        SizedBox(height: 6.h,),
+                                        if(reviews[i]?.comment!=null)
+                                          Row(
                                             children: [
-                                              Text(
-                                                reviews[i].fromUesr!.name!=null ? reviews[i].fromUesr!.name! ?? '' : "",
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 17),
-                                              ),
-                                              SizedBox(height: 6.h,),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                children: [
-                                                  StarRating(
-                                                    percentage: reviews[i].rating == null ? 0 : percentageOfFive(reviews[i].rating ?? '0'),
-                                                    color: Colors.yellow,
-                                                    size: 14,
-                                                  ),
-                                                  SizedBox(width: 7.w,),
-                                                  AppText.appText("${getRating(reviews[i].rating)}.0" ?? '',
-                                                      fontSize: 10,
-                                                      fontWeight: FontWeight.normal,
-                                                      textColor: const Color(0xff1E293B)),
-                                                ],
-                                              ),
-                                              SizedBox(height: 6.h,),
-                                              if(reviews[i].comments!=null)
-                                                LayoutBuilder(
+                                              SizedBox(
+                                                width: 220.w,
+                                                child: LayoutBuilder(
                                                   builder: (context, constraints) {
-                                                    final text = reviews[i].comments ?? '';
+                                                    final text = reviews[i]?.comment ?? '';
 
                                                     // Create a TextPainter to determine the number of lines
                                                     final textPainter = TextPainter(
@@ -675,30 +618,30 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                                       overflow: TextOverflow.ellipsis,
                                                     );
                                                   },
-                                                )
+                                                ),
+                                              ),
                                             ],
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 30.w,),
-
-                                    ],
+                                          )
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              )
-                        ],
-                      ),
-                    )
 
-
-
-
-
-
+                              ],
+                            ),
+                          ),
+                        )
                   ],
-                );
-            }
-          ),
+                ),
+              )
+
+
+
+
+
+
+            ],
+          )
         ));
   }
 
@@ -736,7 +679,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     );
   }
 
-  Widget upperContainer(ProfileInfoProvider apiProvider ) {
+  Widget upperContainer() {
     return Padding(
       padding: EdgeInsets.only(top: 20.0, bottom: 16.0, left: 26.w, right: 26.w),
       child: Row(
@@ -750,30 +693,30 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                 width: 100,
                 decoration: BoxDecoration(
                     image: DecorationImage(
-                        image: widget.detailResponse['user']['img'] ==
+                        image: sellerProfile?.img ==
                                 null
                             ? const AssetImage(
                                 'assets/images/default_image.png')
-                            : NetworkImage(widget.detailResponse['user']
-                                ['img']) as ImageProvider<Object>,
+                            : NetworkImage(sellerProfile!.img!) as ImageProvider<Object>,
                         fit: BoxFit.cover),
                     borderRadius: BorderRadius.circular(16)),
               ),
               SizedBox(height: 15.h,),
               Column(
                 children: [
-                  AppText.appText(capitalizeWords(widget.detailResponse['user']['name']),
+                  AppText.appText(capitalizeWords(sellerProfile?.name ?? ''),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       textColor: AppTheme.txt1B20),
                   SizedBox(height: 4.h,),
-                  AppText.appText("Joined ${formatMonthYear(widget.detailResponse['user']["created_at"] ?? '')}",
+                  if(sellerProfile?.createdAt!=null)
+                  AppText.appText("Joined ${formatMonthYear(sellerProfile?.createdAt ?? '')}",
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
                       textColor: AppTheme.txt1B20),
-                  if(widget.detailResponse['user']["location"]!=null)...[
+                  if(sellerProfile?.location!=null)...[
                     SizedBox(height: 4.h,),
-                    AppText.appText(capitalizeWords(widget.detailResponse['user']["location"] ?? ''),
+                    AppText.appText(capitalizeWords(sellerProfile?.location ?? ''),
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
                         textColor: AppTheme.txt1B20),
@@ -783,39 +726,23 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(width: apiProvider.rating == 0 ? 40.w : 12.w,),
+                      SizedBox(width: sellerProfile?.reviewPercentage == null || sellerProfile?.reviewPercentage == 0.0 ? 40.w : 12.w,),
                       StarRating(
-                        percentage: apiProvider.rating == null ? 0 : percentageOfFive(apiProvider.rating.toString()),
+                        percentage: sellerProfile?.reviewPercentage == null || sellerProfile?.reviewPercentage == 0.0 ? 0 : sellerProfile?.reviewPercentage?.round() ?? 0,
                         color: Colors.yellow,
                         size: 25,
                       ),
                       SizedBox(width: 3.w,),
-                      if(apiProvider.rating != null)
+                      if(sellerProfile?.reviewPercentage != null)
                       AppText.appText(
-                          apiProvider.rating == null || apiProvider.rating == 0 ? 'not rated yet' : apiProvider.rating!.toStringAsFixed(1),
-                          fontSize: apiProvider.rating == 0 ? 11.sp : 12.sp,
+                          starCount(sellerProfile?.reviewPercentage),
+                          fontSize: sellerProfile?.reviewPercentage == null || sellerProfile?.reviewPercentage == 0.0 ? 11.sp : 12.sp,
                           fontWeight: FontWeight.normal,
                           textColor: AppTheme.txt1B20),
                     ],
                   ),
                   //   Row(
-                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //     crossAxisAlignment: CrossAxisAlignment.center,
-                  //     children: [
-                  //       SizedBox(width: 12.w,),
-                  //       StarRating(
-                  //       percentage: percentageOfFive(apiProvider.rating!=null ? apiProvider.rating.toString() : '0'),
-                  //       color: Colors.yellow,
-                  //       size: 25,
-                  //     ),
-                  //     SizedBox(width: 3.w,),
-                  //     AppText.appText("(${apiProvider.rating ?? 0}/5)",
-                  //         textAlign: TextAlign.center,
-                  //         fontSize: 12.sp,
-                  //         fontWeight: FontWeight.w400,
-                  //         textColor: AppTheme.txt1B20),
-                  //   ],
-                  // ),
+
                   SizedBox(height: 8.h,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -854,153 +781,6 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
         return '0';
       }
       return rating;
-    }
-  }
-
-  void getAuctionProductDetail({productId, limit}) async {
-    final ProgressDialog pr = ProgressDialog(
-      context: context,
-      textColor: AppTheme.txt1B20,
-      backgroundColor: Colors.white54,
-      progressIndicatorColor: AppTheme.appColor,
-    );
-
-    setState(() {
-      pr.show();
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": productId,
-      "limit": limit,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getAuctionProducts, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          setState(() {
-            pr.dismiss();
-          });
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          var detailResponse = responseData["data"];
-          pr.dismiss();
-          push(context, AuctionInfoScreen(detailResponse: detailResponse[0]));
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        pr.dismiss();
-      });
-    }
-  }
-
-  bool isLoading = false;
-
-  bool isAuctionProduct = false;
-
-  void getFeatureProductDetail({productId, limit}) async {
-    final ProgressDialog pr = ProgressDialog(
-      context: context,
-      textColor: AppTheme.txt1B20,
-      backgroundColor: Colors.white54,
-      progressIndicatorColor: AppTheme.appColor,
-    );
-
-    setState(() {
-      pr.show();
-      isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": productId,
-      "limit": limit,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getFeatureProducts, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          setState(() {
-            pr.dismiss();
-          });
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          var detailResponse = responseData["data"];
-          pr.dismiss();
-          push(
-              context,
-              FeatureInfoScreen(
-                detailResponse: detailResponse[0],
-              ));
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        pr.dismiss();
-      });
     }
   }
 

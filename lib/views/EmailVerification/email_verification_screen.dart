@@ -2,17 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
-import 'package:tt_offer/Constants/app_logger.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
-import 'package:tt_offer/config/dio/app_dio.dart';
-import 'package:tt_offer/custom_requests/custom_post_request.dart';
-import 'package:tt_offer/custom_requests/update_account_service.dart';
-import 'package:tt_offer/models/otp_model.dart';
 import 'package:tt_offer/utils/utils.dart';
 import 'package:tt_offer/utils/resources/res/app_theme.dart';
 import 'package:tt_offer/utils/widgets/others/custom_app_bar.dart';
+
+import '../../view_model/profile/user_profile/user_view_model.dart';
+import '../../view_model/verification/verificaiton_view_model.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   const EmailVerificationScreen({Key? key}) : super(key: key);
@@ -26,68 +23,46 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController otpController = TextEditingController();
 
+  late VerificationViewModel verificationViewModel;
+
+
+
   bool loading = false;
-  OtpModel? otpModel;
+  bool enterOtp = false;
+
+
 
   Future<void> emailVerification() async {
-    try {
-      setState(() {
-        loading = true;
-      });
 
-      Map<String, dynamic> body = {'email': emailController.text.trim()};
+    verificationViewModel.verifyEmail(emailController.text.trim())
+        .then((value){
+          setState(() {
+            enterOtp = true;
+          });
+          showSnackBar(context, 'A verification code has been sent to your email.', title: "Congratulations!");})
+        .onError((error, stackTrace) {
+          showSnackBar(context, error.toString());
+    });
 
-      var res = await CustomPostRequest()
-          .httpPostRequest(url: 'verify-email', body: body);
-
-      setState(() {
-        loading = false;
-      });
-
-      if (res['status'] == 'success') {
-        showSnackBar(context, 'Email Verification OTP sent to your email', title : 'Congratulations!');
-        // Assuming you have logic to update otpModel with the received OTP
-        setState(() {
-          otpModel = OtpModel(
-              otp: res['otp']); // Update otpModel with the received OTP
-        });
-      } else {
-        showSnackBar(context, 'The email field must be a valid email address');
-      }
-    } catch (err) {
-      print('Error: $err');
-      showSnackBar(context, 'Error occurred: $err');
-      setState(() {
-        loading = false;
-      });
-    }
   }
 
   verifyEmailHandler() async {
-    setState(() {
-      loading = true;
-    });
-    bool res = await UpdateAccountSettingService()
-        .verifyEmail(context: context, email: emailController.text);
-    if (res) {
-      showSnackBar(context, 'Email verify successfully');
-      dio = AppDio(context);
-      logger.init();
-      Provider.of<ProfileApiProvider>(context, listen: false).getProfile(
-        dio: dio,
-        context: context,
-      );
-      Navigator.of(context).pop();
+    verificationViewModel.verifyEmailOtp(emailController.text.trim(), int.tryParse(otpController.text))
+        .then((value){
+          Provider.of<UserViewModel>(context, listen: false).getUserProfile();
+          Navigator.of(context).pop();
+      showSnackBar(context, 'Email verified successfully.', title: "Congratulations!");})
+        .onError((error, stackTrace) {
+      showSnackBar(context, error.toString());});
     }
-    setState(() {
-      loading = false;
-    });
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    verificationViewModel = Provider.of<VerificationViewModel>(context, listen: false);
   }
-
-
-
-  late AppDio dio;
-  AppLogger logger = AppLogger();
 
 
 
@@ -95,12 +70,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        dio = AppDio(context);
-        logger.init();
-            Provider.of<ProfileApiProvider>(context, listen: false).getProfile(
-              dio: dio,
-              context: context,
-            );
+        Provider.of<UserViewModel>(context, listen: false).getUserProfile();
         return true; // Allow the pop action
       },
       child: Scaffold(
@@ -108,7 +78,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         appBar: CustomAppBar1(title: 'Email Verification'),
         body: SafeArea(
           child: Center(
-            child: otpModel == null || otpModel!.otp == null
+            child: enterOtp == false
                 ? Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -140,9 +110,11 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      loading
-                          ? CircularProgressIndicator(color: AppTheme.appColor)
-                          : ElevatedButton(
+                      Consumer<VerificationViewModel>(
+                          builder: (context, verificationViewModel, child) {
+                            return verificationViewModel.loading
+                                ? CircularProgressIndicator(color: AppTheme.appColor)
+                                : ElevatedButton(
                               onPressed: emailVerification,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.appColor,
@@ -152,7 +124,11 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                                 child: Text('Submit',
                                     style: TextStyle(color: Colors.white)),
                               ),
-                            ),
+                            );
+                          })
+
+
+
                     ],
                   )
                 : Column(
@@ -184,16 +160,13 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                         child: Pinput(length: 6, controller: otpController),
                       ),
                       const SizedBox(height: 10),
-                      loading
-                          ? CircularProgressIndicator(color: AppTheme.appColor)
-                          : ElevatedButton(
+                      Consumer<VerificationViewModel>(
+                          builder: (context, verificationViewModel, child) {
+                            return verificationViewModel.loading
+                                ? CircularProgressIndicator(color: AppTheme.appColor)
+                                : ElevatedButton(
                               onPressed: () {
-                                if (otpController.text ==
-                                    otpModel!.otp.toString()) {
-                                  verifyEmailHandler();
-                                } else {
-                                  showSnackBar(context, 'Incorrect otp');
-                                }
+                                verifyEmailHandler();
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.appColor,
@@ -203,7 +176,10 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                                 child: Text('Verify Now',
                                     style: TextStyle(color: Colors.white)),
                               ),
-                            ),
+                            );
+                          }),
+
+
                     ],
                   ), // Display OTP when available
           ),

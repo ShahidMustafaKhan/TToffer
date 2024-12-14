@@ -5,13 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/custom_requests/report_service.dart';
 import 'package:tt_offer/utils/resources/res/app_theme.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
 
 import '../main.dart';
+import '../models/product_model.dart';
 import '../models/user_info_model.dart';
+import '../view_model/product/product/product_viewmodel.dart';
 import '../views/BottomNavigation/navigation_bar.dart';
 
 void showSnackBar(BuildContext context, String text, {String title = "Oops!", bool error = true}) {
@@ -212,7 +215,13 @@ String formatYear(String? dateString) {
     return lastTwoWords;
   }
 
-String timeAgo(String dateTimeString) {
+String timeAgo(String? dateTimeString) {
+
+  if(dateTimeString == null){
+    return '';
+  }
+
+
   DateTime dateTime = DateTime.parse(dateTimeString);
   Duration difference = DateTime.now().difference(dateTime);
 
@@ -291,91 +300,44 @@ Widget phoneField({required TextEditingController controller, required BuildCont
   );
 }
 
-int percentageOfFive(String value) {
-  // Convert the string input to a double
-  double number = double.parse(value);
+String starCount(double? percentage) {
+  // Ensure the percentage is within valid range
+  if (percentage == null || percentage == 0.0 || percentage < 0 || percentage > 100) {
+    return "not rated yet";
+  }
 
-  // Calculate the percentage with respect to 5
-  int percentage = ((number / 5) * 100).round();
+  // Calculate the value out of 5
+  String star = ((percentage / 100) * 5).toStringAsFixed(1).replaceAll(".0", "");
+
+  return "($star/5)";
+}
+
+
+
+int percentageOfFive(int? rating) {
+  if (rating == null) {
+    return 0;
+  }
+
+  // Calculate the percentage
+  int percentage = ((rating / 5) * 100).toInt();
 
   return percentage;
 }
 
-Future<double> getUserRating(String userId) async {
 
-  var response = await customGetRequest.httpGetRequest(url: 'user/info/$userId');
-
-  print(response);
-  print(response);
-
-  if (response['data'] != null && response['success'] == true) {
-
-    if(response['data']['reviews'] != null) {
-      List reviewList = response['data']['reviews'];
-      return calculateAverageRating(reviewList);
-    }
-
-    else {
-      return 0;
-    }
-
-
-
-  } else {
-
-    if (kDebugMode) {
-      print('Failed to load user info for user ID ');
-    }
-
-    return 0;
-  }
-}
-
-
-
-double calculateAverageRating(List reviewList) {
-
-  double totalRating = 0;
-  int count = 0;
-
-  for (var review in reviewList) {
-    if (review["rating"] != null) {
-      totalRating += double.parse(review["rating"].toString() ?? '0');
-      count++;
-    }
-  }
-
-  // Calculate the average and return as an integer
-  return count > 0 ? (totalRating / count) : 0;
-}
-
-double calculateAverageRatingReviewList(List<ReviewsDataInfo> reviewList ) {
-
-  double totalRating = 0;
-  int count = 0;
-
-  for (var review in reviewList) {
-    if (review.rating != null) {
-      totalRating += double.parse(review.rating.toString() ?? '0');
-      count++;
-    }
-  }
-
-  // Calculate the average and return as an integer
-  return count > 0 ? (totalRating / count) : 0;
-}
 
 
 String formatDate(DateTime date) {
   return DateFormat('yyyy-MM-dd').format(date);
 }
 
-String convertToDubaiTime(TimeOfDay picked, BuildContext context){
+String convertToUTC(TimeOfDay picked, BuildContext context){
   DateTime now = DateTime.now();
   DateTime selectedTime = DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
 
   // Convert the selected time to Dubai time zone (UTC+4)
-  DateTime dubaiTime = selectedTime.toUtc().add(const Duration(hours: 4));
+  DateTime dubaiTime = selectedTime.toUtc();
 
   // Format the time to display
   final dubaiFormattedTime = TimeOfDay.fromDateTime(dubaiTime).format(context);
@@ -383,10 +345,10 @@ String convertToDubaiTime(TimeOfDay picked, BuildContext context){
   return convertTo24HourFormat(dubaiFormattedTime);
 }
 
-String convertToDubaiTimeDateTime(DateTime picked, BuildContext context){
+String convertToUTCTimeDateTime(DateTime picked, BuildContext context){
 
   // Convert the selected time to Dubai time zone (UTC+4)
-  DateTime dubaiTime = picked.toUtc().add(const Duration(hours: 4));
+  DateTime dubaiTime = picked.toUtc();
 
   // Format the time to display
   final dubaiFormattedTime = TimeOfDay.fromDateTime(dubaiTime).format(context);
@@ -416,6 +378,25 @@ String convertTo24HourFormat(String time12Hour) {
   String hourStr = hour.toString().padLeft(2, '0');
 
   return '$hourStr:$minutes';
+}
+
+String productPrice(Product? product){
+  if(product == null){
+    return '';
+  }
+
+  if(product.productType == 'featured'){
+    return "AED ${abbreviateNumber(product.fixPrice?.toString() ?? '')}";
+  }
+  else if(product.productType == 'auction'){
+    return "AED ${abbreviateNumber(product.auctionInitialPrice?.toString() ?? '')}";
+  }
+  else if(product.productType == 'looking' || product.productType == 'hiring'){
+    return "AED ${abbreviateNumber(product.minSalary?.toString() ?? '500')} - AED ${abbreviateNumber(product.maxSalary?.toString() ?? '900')}";
+  }
+  else{
+    return '';
+  }
 }
 
 
@@ -474,6 +455,11 @@ String abbreviateNumber(String numberStr) {
 
 
 String formatTimestamp(String timestamp, {bool full=false}) {
+
+  if(timestamp.isEmpty){
+    return '';
+  }
+
   DateTime now = DateTime.now();
   DateTime time = DateTime.parse(timestamp);
 
@@ -646,42 +632,37 @@ void reportProduct(BuildContext context, int productId, int userId){
                                         .underline),
                               ),
                             ),
-                            loader == true
-                                ? CupertinoActivityIndicator(
-                              color:
-                              AppTheme.appColor,
-                              animating: true,
-                              radius: 12,
-                            )
-                                : TextButton(
-                                onPressed: () {
-                                  if(selectData!= null){
-                                  setstates((){
-                                    loader = true;
-                                  });
-
-                                  ReportService.reportProductService(context: context,
-                                  productId: productId,
-                                  userId: userId,
-                                  note: commentController.text,
-                                  subject: selectData
-                                  ).then((value){
-                                    setstates((){
-                                      loader = false;
-                                    });
-                                  });}
-                                  else{
-                                  }
-                                },
-                                child: Text(
-                                  'Send',
-                                  style: TextStyle(
-                                      color: AppTheme
-                                          .appColor,
-                                      decoration:
-                                      TextDecoration
-                                          .underline),
-                                )),
+                            Consumer<ProductViewModel>(
+                                builder: (context, productViewModel, child) {
+                                  return
+                                    productViewModel.loading == true
+                                    ? CupertinoActivityIndicator(
+                                  color:
+                                  AppTheme.appColor,
+                                  animating: true,
+                                  radius: 12,
+                                )
+                                    : TextButton(
+                                    onPressed: () {
+                                      if(selectData!= null){
+                                      ReportService.reportProductService(context: context,
+                                      productId: productId,
+                                      userId: userId,
+                                      note: commentController.text,
+                                      subject: selectData);
+                                      }
+                                    },
+                                    child: Text(
+                                      'Send',
+                                      style: TextStyle(
+                                          color: AppTheme
+                                              .appColor,
+                                          decoration:
+                                          TextDecoration
+                                              .underline),
+                                    ));
+                              }
+                            ),
                           ],
                         )
                       ],

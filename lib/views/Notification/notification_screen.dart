@@ -4,31 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/notification_api.dart';
+import 'package:tt_offer/view_model/notification/notification_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
-import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
-import 'package:tt_offer/Utils/widgets/others/custom_logout_pop_up.dart';
-import 'package:tt_offer/Utils/widgets/others/delete_notification_dialog.dart';
 import 'package:tt_offer/Utils/widgets/others/no_data_found.dart';
 import 'package:tt_offer/custom_requests/notification_delete_request.dart';
 import 'package:tt_offer/models/notifications_model.dart';
 import 'package:tt_offer/providers/notification_provider.dart';
-import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
+import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/widgets/reschdule_acution_time.dart';
 
 import '../../Constants/app_logger.dart';
-import '../../Controller/APIs Manager/chat_api.dart';
-import '../../Controller/APIs Manager/profile_apis.dart';
 import '../../config/app_urls.dart';
 import '../../config/dio/app_dio.dart';
-import '../../models/selling_products_model.dart' as selling_model;
-import '../Products/Auction Product/auction_info.dart';
+import '../../config/keys/pref_keys.dart';
+import '../../main.dart';
+import '../../view_model/profile/user_profile/user_view_model.dart';
 import '../ChatScreens/offer_chat_screen.dart';
-import '../Sellings/new_sold_screen.dart';
-import '../Sellings/rating_screen.dart';
+import '../Rating/rating_screen.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -133,16 +128,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
 
   getUserId() async {
-    if(Provider.of<ProfileApiProvider>(context, listen: false).profileData!=null){
-      userId = Provider.of<ProfileApiProvider>(context, listen: false).profileData["id"];}
-    else{
-      await Provider.of<ProfileApiProvider>(context, listen: false).getProfile(dio: dio, context: context);
-      userId = Provider.of<ProfileApiProvider>(context, listen: false).profileData["id"];}
+
+    userId = pref.getString(PrefKey.userId);
+
+    if(userId != null){
+      final userViewModel =  Provider.of<UserViewModel>(context, listen: false);
+      await userViewModel.getUserProfile();
+      userId = userViewModel.userModel.data?.id.toString();
+    }
+
   }
 
   @override
   Widget build(BuildContext context) {
-    final chatApi = Provider.of<ChatApiProvider>(context);
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
       appBar: AppBar(
@@ -151,13 +149,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
         backgroundColor: Colors.white,
         forceMaterialTransparency: true,
         elevation: 0,
-        // leading: InkWell(
-        //     onTap: () {
-        //       checks.first = false;
-        //       showCheck = !showCheck;
-        //       setState(() {});
-        //     },
-        //     child: const Center(child: Text('Clear'))),
         actions: [
           checks.isNotEmpty // Check if 'checks' is not empty
               ? checks.first == false // Check the first element if not empty
@@ -207,7 +198,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                   userImgUrl: notification[index].user!.img ,
                                   conversationId: notification[index].typeId.toString(),
                                   title: notification[index].user!.name ?? '',
-                                  recieverId: notification[index].user!.id!,
+                                  receiverId: notification[index].user!.id!,
                                 ));
 
                           }
@@ -215,24 +206,24 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             push(
                                 context,
                                 OfferChatScreen(
-                                  conversationId: notification[index].typeId,
+                                  conversationId: notification[index].typeId.toString(),
                                 ));
                           }
                         }
                         else if(notification[index].type == 'Review'){
                           push(context, RatingScreen(
-                            name: notification[index].user!.name,
-                            sellerId: notification[index].user!.id.toString(),
-                            img: notification[index].user!.img,
-                            location: notification[index].user!.location,
-                            // joinDate: notification[index].user!.createdAt,
-                            productId: notification[index].typeId!.toString().split('0000')[1],
+                            name: notification[index].user?.name,
+                            sellerId: notification[index].fromUserId.toString(),
+                            img: notification[index].user?.img,
+                            location: notification[index].user?.location,
+                            joinDate: notification[index].user?.createdAt,
+                            productId: notification[index].typeId?.toString().split('0000')[1],
 
                           ));
                         }
 
                         else if(notification[index].type == 'auction'){
-                          getBid(dio: dio, context: context, offerId: notification[index].typeId, markSold: false);
+                          getProductDetail(productId:  notification[index].typeId, );
                         }
 
                         else if(notification[index].type == 'Auction Expire'){
@@ -242,7 +233,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                           ));                            }
 
                         else if(notification[index].text.toString().contains('higher bid to claim this product')){
-                          getAuctionProductDetail(productId: notification[index].typeId);
+                          getProductDetail(productId: notification[index].typeId);
                         }
                       },
                       onLongPress: () {
@@ -380,9 +371,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     height: 60.w,
                                     width: 60.w,
                                     decoration: BoxDecoration(
-                                      color: getNotificationImage(index)=='product' || getNotificationImage(index)=='user' ? Colors.transparent : Colors.amber,
-                                      image:  getNotificationImage(index)=='product' || getNotificationImage(index)=='user' ? DecorationImage(
-                                        image: NetworkImage(getNotificationImage(index)=='product' ? notification[index].product!.imagePath!.url.toString() :  notification[index].user!.img!),
+                                      color: notification[index].product?.photo?.isNotEmpty ?? false ? Colors.transparent : Colors.amber,
+                                      image:  notification[index].product?.photo?.isNotEmpty ?? false ? DecorationImage(
+                                        image: NetworkImage(notification[index].product!.photo![0].url!),
                                         fit: BoxFit.fill,
                                       ) : const DecorationImage(
                                         image: AssetImage('assets/images/gallery.png',
@@ -391,20 +382,20 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                       borderRadius: BorderRadius.circular(16.r),
                                     ),
                                   ),
-                                  if(notification[index].product!=null)
-                                  Positioned(
-                                      bottom: 0,
-                                      child: Container(
-                                          height: 25.h,
-                                          width: 60.w,
-                                          decoration: BoxDecoration(
-                                            color: Colors.black38,
-                                            borderRadius: BorderRadius.only(
-                                              bottomLeft: Radius.circular(16.r),
-                                              bottomRight: Radius.circular(16.r),
-                                            )
-                                          ),
-                                          child: Center(child: AppText.appText(notification[index].product!.productType == 'auction' ? "Auction" : "AED ${abbreviateNumber(notification[index].product!.fixPrice.toString() ?? '')}" ?? '', fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
+                                  // if(notification[index].product!=null)
+                                  // Positioned(
+                                  //     bottom: 0,
+                                  //     child: Container(
+                                  //         height: 25.h,
+                                  //         width: 60.w,
+                                  //         decoration: BoxDecoration(
+                                  //           color: Colors.black38,
+                                  //           borderRadius: BorderRadius.only(
+                                  //             bottomLeft: Radius.circular(16.r),
+                                  //             bottomRight: Radius.circular(16.r),
+                                  //           )
+                                  //         ),
+                                  //         child: Center(child: AppText.appText(notification[index].product!.productType == 'auction' ? "Auction" : "AED ${abbreviateNumber(notification[index].product!.fixPrice.toString() ?? '')}" ?? '', fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
                                 ],
                               ),
                               SizedBox(width: 11.w),
@@ -506,277 +497,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
 
-  Future<void> getOffer({
-    offerId,
-    required dio,
-    required context,
-  }) async {
-    setState(() {
-      pr.show();
-      isLoading = true;
-    });
-    var response;
-    var allOfferData;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": offerId,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getOffer, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        isLoading = false;
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        isLoading = false;
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
 
-        isLoading = false;
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
+  void getProductDetail({productId}) async {
 
-        isLoading = false;
-      } else if (response.statusCode == responseCode422) {
-        isLoading = false;
-      } else if (response.statusCode == responseCode200) {
-        isLoading = false;
-        if(responseData["data"].isNotEmpty ) {
-          allOfferData = responseData["data"];
-          if(allOfferData["product"]["fix_price"] !=null) {
-            getFeatureProductDetail(productId:allOfferData["product"]["id"]);
-          }
-          else{
-            getAuctionProductDetail(productId:allOfferData["product"]["id"]);
-          }
-        }
-      }
-    } catch (e) {
-      showSnackBar(context, "Something went Wrong.");
-      isLoading = false;
-    }
-  }
-
-  String getNotificationImage(int index){
-    if(notification[index].product != null && notification[index].product!.imagePath!= null && notification[index].product!.imagePath!= null && notification[index].product!.imagePath!.url!= null){
-      return 'product';
-    }
-    else if(notification[index].user != null && notification[index].user!.img != null && notification[index].user!.img != null && notification[index].user!.img != null){
-      return 'user';
-    }
-    else{
-      return 'default';
-    }
-  }
-
-  Future<void> getBid({
-    offerId,
-    required bool markSold,
-    required dio,
-    required context,
-  }) async {
-    setState(() {
-      pr.show();
-      isLoading = true;
-    });
-    var response;
-    var allOfferData;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": offerId,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getBid, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        isLoading = false;
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        isLoading = false;
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        isLoading = false;
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        isLoading = false;
-      } else if (response.statusCode == responseCode422) {
-        isLoading = false;
-      } else if (response.statusCode == responseCode200) {
-        isLoading = false;
-        setState(() {
-        });
-        if(responseData["data"].isNotEmpty ) {
-          allOfferData = responseData["data"];
-          getAuctionProductDetail(productId:allOfferData["product_id"] , markAsSold: markSold);
-
-
-        }
-      }
-    } catch (e) {
-      showSnackBar(context, "Something went Wrong.");
-      isLoading = false;
-    }
-  }
-
-  void getAuctionProductDetail({productId, limit, bool markAsSold = false}) async {
-
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": productId,
-      "limit": limit,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getAuctionProducts, data: params);
-      var responseData = response.data;
-
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          setState(() {
-            pr.dismiss();
-          });
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          var detailResponse = responseData["data"];
-          pr.dismiss();
-          if(detailResponse.isEmpty){
-            showSnackBar(context, "Product no longer exists.");
-          }
-          else {
-            if(markAsSold == false){
-              push(context, AuctionInfoScreen(detailResponse: detailResponse[0]));}
-            else{
-              push(
-                  context,
-                  NewSoldScreen(
-                    title: detailResponse[0]['title'],
-                    productId: detailResponse[0]['id'].toString(),
-                    fixPrice: detailResponse[0]['fix_price'],
-                    auctionPrice: detailResponse[0]['auction_price'],
-                    image: detailResponse[0]['photo']!=null && detailResponse[0]['photo'].isNotEmpty ? detailResponse[0]['photo'][0]['src'] : null,
-                    auction: detailResponse[0]['fix_price'] != null ? false : true,
-                    fromNotification: true,
-                  ));
-            }
-          }
-
-
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        pr.dismiss();
-      });
-    }
-  }
-
-  void getFeatureProductDetail({productId, limit}) async {
-
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": productId,
-      "limit": limit,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getFeatureProducts, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          setState(() {
-            pr.dismiss();
-          });
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          pr.dismiss();
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          var detailResponse = responseData["data"];
-          pr.dismiss();
-          if(detailResponse.isEmpty){
-            showSnackBar(context, "The product is no longer available.");
-          }
-          else {
-            push(context, FeatureInfoScreen(detailResponse: detailResponse[0]));
-          }
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        pr.dismiss();
-      });
-    }
+    final productViewModel = Provider.of<ProductViewModel>(context, listen: false);
+    productViewModel.navigateToProductPage(productId is String ? int.parse(productId) : productId, context);
   }
 
 

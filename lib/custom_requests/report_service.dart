@@ -1,45 +1,33 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
+import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 
 class ReportService {
   static Future reportProductService(
       {required BuildContext context, int? userId, int? productId, String? note, String? subject}) async {
-    try {
 
-      Map<String, dynamic> body = {
+      Map<String, dynamic> data = {
         "user_id": userId,
         "product_id": productId,
-        "subject": productId,
+        "subject": subject,
         "note": note,
-        "status": "1",
       };
 
-      var res = await CustomPostRequest().httpPostRequest(
-          url:  'add-product-report', body: body);
+      final productViewModel = Provider.of<ProductViewModel>(context, listen: false);
 
-      if (res['status'] == "success") {
+      productViewModel.submitProductReport(data).then((value){
         Navigator.of(context).pop();
 
-        showSnackBar(
-            context,
-            'Reported Successfully',
-                 error : false);
+        showSnackBar(context, 'Report submitted successfully', title: 'Congratulations!');
 
-        return true;
-      } else {
+      }).onError((error, stackTrace){
         Navigator.of(context).pop();
 
-        showSnackBar(
-            context,
-            res['error'],
-            );
-        return false;
-      }
-    } catch (err) {
-      print(err);
-      return false;
-    }
+        showSnackBar(context, error.toString());
+
+      });
   }
 }

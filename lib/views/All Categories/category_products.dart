@@ -9,9 +9,10 @@ import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/no_data_found.dart';
 import 'package:tt_offer/data/response/status.dart';
-import 'package:tt_offer/detail_model/property_for_sale_model.dart';
+import 'package:tt_offer/detail_model/attribute_model.dart';
 import 'package:tt_offer/models/cart_model.dart';
 import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
+import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_container.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_container.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
@@ -38,44 +39,40 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
   AppLogger logger = AppLogger();
   bool isLoading = false;
   late List<Product>? auctionList;
-  var filteredList;
+  late List<Product>? filteredList;
+
+  late ProductViewModel productViewModel;
 
   @override
   void initState() {
     dio = AppDio(context);
     logger.init();
-    final apiProvider =
+    productViewModel =
         Provider.of<ProductViewModel>(context, listen: false);
-    apiProvider.getAuctionProducts();
+    productViewModel.getAuctionProducts();
+    productViewModel.getFeatureProducts();
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final apiProvider = Provider.of<ProductViewModel>(context);
     final screenWidth = MediaQuery.of(context).size.width;
     if(widget.all==true){
-      auctionList = apiProvider.auctionProductList.data?.data?.productList
+      auctionList = productViewModel.auctionProductList.data?.data?.productList
           ?.where((item) => item.category?.id.toString() == widget.catId.toString())
           .toList();
 
-      filteredList = apiProvider.featureProductList.data?.data?.productList?.where((item) {
+      filteredList = productViewModel.featureProductList.data?.data?.productList?.where((item) {
         return item.category?.id.toString() == widget.catId.toString();
       }).toList();
     }
     else {
-      auctionList = apiProvider.auctionProductList.data?.data?.productList?.where((item) {
-        // ProductAttributes productAttributes =
-        // ProductAttributes.fromJson(item['attributes']);
-        // return productAttributes.subcategory == widget.catNAme;
+      auctionList = productViewModel.auctionProductList.data?.data?.productList?.where((item) {
         return item.subCategory?.id.toString() == widget.subCatId.toString();
       }).toList();
 
-      filteredList = apiProvider.featureProductList.data?.data?.productList?.where((item) {
-        // ProductAttributes productAttributes =
-        // ProductAttributes.fromJson(item['attributes']);
-        // return productAttributes.subcategory == widget.catNAme;
+      filteredList = productViewModel.featureProductList.data?.data?.productList?.where((item) {
         return item.subCategory?.id.toString() == widget.subCatId.toString();
       }).toList();
     }
@@ -87,64 +84,68 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
         leading: true,
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            selectOption(),
-            if (selectedOption == "Auction")
-              apiProvider.auctionProductList.status == Status.loading
-                  ? LoadingDialog()
-                  : apiProvider.auctionProductList.data?.data?.productList?.isEmpty ?? true  ? NoDataFound.noDataFound()
-                  : Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          mainAxisSpacing: 15.h,
-                          crossAxisSpacing: 12,
-                          crossAxisCount: 2,
-                          childAspectRatio: screenWidth / (3.2 * 220),
+        child: Consumer<ProductViewModel>(
+            builder: (context, apiProvider, child) {
+              return Column(
+              children: [
+                selectOption(),
+                if (selectedOption == "Auction")
+                  apiProvider.auctionProductList.status == Status.loading
+                      ? LoadingDialog()
+                      : auctionList?.isEmpty ?? true  ? NoDataFound.noDataFound()
+                      : Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: GridView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              mainAxisSpacing: 15.h,
+                              crossAxisSpacing: 12,
+                              crossAxisCount: 2,
+                              childAspectRatio: screenWidth / (3.2 * 220),
+                            ),
+                            shrinkWrap: true,
+                            itemCount: auctionList?.length,
+                            itemBuilder: (context, int index) {
+                              return GestureDetector(
+                                  onTap: () {
+                                    push(context, AuctionInfoScreen(product: auctionList?[index],));
+                                   },
+                                  child: AuctionProductContainer(
+                                    product: auctionList?[index],
+                                  ));
+                            },
+                          ),
                         ),
-                        shrinkWrap: true,
-                        itemCount: apiProvider.auctionProductList.data?.data?.productList?.length,
-                        itemBuilder: (context, int index) {
-                          return GestureDetector(
-                              onTap: () {
-                                getAuctionProductDetail(apiProvider.auctionProductList.data?.data?.productList?[index].id);
-                              },
-                              child: AuctionProductContainer(
-                                product: apiProvider.auctionProductList.data?.data?.productList?[index],
-                              ));
-                        },
-                      ),
-                    ),
-            if (selectedOption == "Featured")
-              apiProvider.featureProductList.status == Status.completed
-                  ? LoadingDialog()
-                  : filteredList.isEmpty ? NoDataFound.noDataFound()
-                  : Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          mainAxisSpacing: 15.h,
-                          crossAxisSpacing: 12,
-                          crossAxisCount: 2,
-                          childAspectRatio: screenWidth / (2.6 * 220),
+                if (selectedOption == "Featured")
+                  apiProvider.featureProductList.status == Status.loading
+                      ? LoadingDialog()
+                      : filteredList?.isEmpty ?? true ? NoDataFound.noDataFound()
+                      : Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: GridView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              mainAxisSpacing: 15.h,
+                              crossAxisSpacing: 12,
+                              crossAxisCount: 2,
+                              childAspectRatio: screenWidth / (2.6 * 220),
+                            ),
+                            shrinkWrap: true,
+                            itemCount: filteredList?.length ?? 0,
+                            itemBuilder: (context, int index) {
+                              return GestureDetector(
+                                  onTap: () {
+                                    push(context, FeatureInfoScreen(product: filteredList?[index],));
+                                  },
+                                  child: FeatureProductContainer(
+                                    product: filteredList?[index],
+                                  ));
+                            },
+                          ),
                         ),
-                        shrinkWrap: true,
-                        itemCount: filteredList.length,
-                        itemBuilder: (context, int index) {
-                          return GestureDetector(
-                              onTap: () {
-                                getFeatureProductDetail(filteredList[index]["id"]);
-                              },
-                              child: FeatureProductContainer(
-                                data: filteredList[index],
-                              ));
-                        },
-                      ),
-                    ),
-          ],
+              ],
+            );
+          }
         ),
       ),
     );
@@ -161,20 +162,14 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
           if (tapPosition < screenWidth * 0.45) {
             setState(() {
               if (selectedOption != 'Auction') {
-                final apiProvider =
-                    Provider.of<ProductsApiProvider>(context, listen: false);
-                apiProvider.getAuctionProducts(
-                    dio: dio, context: context, cateId: widget.catId);
+                productViewModel.getAuctionProducts();
               }
               selectedOption = 'Auction';
             });
           } else if (tapPosition < screenWidth * 0.9) {
             setState(() {
               if (selectedOption == 'Auction') {
-                final apiProvider =
-                    Provider.of<ProductsApiProvider>(context, listen: false);
-                apiProvider.getFeatureProducts(
-                    dio: dio, context: context, cateId: widget.catId);
+                productViewModel.getFeatureProducts();
               }
               selectedOption = 'Featured';
             });
@@ -239,133 +234,5 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
     );
   }
 
-  void getAuctionProductDetail(productId) async {
-    setState(() {
-      isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": productId,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getAuctionProducts, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          setState(() {
-            isLoading = false;
-          });
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
 
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          var detailResponse = responseData["data"];
-          push(
-              context,
-              AuctionInfoScreen(
-                detailResponse: detailResponse[0],
-              ));
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  void getFeatureProductDetail(productId) async {
-    setState(() {
-      isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": productId,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getFeatureProducts, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          setState(() {
-            isLoading = false;
-          });
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          var detailResponse = responseData["data"];
-          push(
-              context,
-              FeatureInfoScreen(
-                detailResponse: detailResponse[0],
-              ));
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
 }

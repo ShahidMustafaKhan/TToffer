@@ -4,19 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
+import 'package:tt_offer/data/response/api_response.dart';
 import 'package:tt_offer/main.dart';
+import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 import 'package:tt_offer/views/Authentication%20screens/login_screen.dart';
-import 'package:tt_offer/views/Boost%20Plus%20Screens/boost_plus_screen.dart';
 import 'package:tt_offer/views/Boost%20Plus%20Screens/boost_work.dart';
 import 'package:tt_offer/views/ContactPage/contact_page.dart';
 import 'package:tt_offer/views/EmailVerification/email_verification_screen.dart';
@@ -24,14 +23,16 @@ import 'package:tt_offer/views/PhoneVerify/phone_verify_screen.dart';
 import 'package:tt_offer/views/Profile%20Screen/Account%20Settigs/account_setting.dart';
 import 'package:tt_offer/views/Profile%20Screen/Settings/settings.dart';
 import 'package:tt_offer/views/Profile%20Screen/custom_link.dart';
-import 'package:tt_offer/views/Profile%20Screen/payment%20Screens/payment_screen.dart';
 import 'package:tt_offer/views/Profile%20Screen/saved_products.dart';
+import 'package:tt_offer/views/Profile%20Screen/wish_list_products.dart';
 import 'package:tt_offer/views/Sellings/selling_purchase.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 
 import '../../Utils/widgets/custom_loader.dart';
 import '../../Utils/widgets/others/delete_notification_dialog.dart';
+import '../../data/response/status.dart';
+import '../../models/user_model.dart';
 import '../../providers/selling_purchase_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -43,80 +44,54 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String? pickedFilePath;
-  var userId;
+  int? userId;
   late AppDio dio;
   AppLogger logger = AppLogger();
 
-  String? phone;
+  late UserViewModel userViewModel;
 
-  getPhone() {
-    phone = pref.getString(PrefKey.phoneFirebase);
-    print('phone---->$phone');
-    setState(() {});
-  }
-
-  confirmImageVerification() async{
-    dio = AppDio(context);
-    logger.init();
-
-    final apiProvider = Provider.of<ProfileApiProvider>(context, listen: false);
-
-    apiProvider.updateVerification(
-      dio: dio,
-      context: context, userId: userId, phone: false,
-    );
-
-  }
 
   @override
   void initState() {
     dio = AppDio(context);
     logger.init();
-    final profileApi = Provider.of<ProfileApiProvider>(context, listen: false);
-    profileApi.getProfile(
-      dio: dio,
-      context: context,
-    );
+
+    userViewModel = Provider.of<UserViewModel>(context, listen: false);
+    userViewModel.getUserProfile();
     getUserDetail();
-    getPhone();
 
     super.initState();
   }
 
 
-  int percentageOfFive(String value) {
+  int percentageOfFive(double value) {
     // Convert the string input to a double
-    double number = double.parse(value);
+
 
     // Calculate the percentage with respect to 5
-    int percentage = ((number / 5) * 100).round();
+    int percentage = ((value / 5) * 100).round();
 
     return percentage;
   }
 
   getUserDetail() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
-      userId = pref.getString(PrefKey.userId);
+      userId = int.parse(pref.getString(PrefKey.userId)!);
     });
   }
 
   pickImage() async {
-    final profileApi = Provider.of<ProfileApiProvider>(context, listen: false);
-
     final ImagePicker picker = ImagePicker();
 
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       setState(() {
         pickedFilePath = image.path;
-        profileApi.updateProfile(
-            dio: dio,
-            context: context,
-            userId: userId,
-            profile: true,
-            imgPath: pickedFilePath).then((value){
-          confirmImageVerification();
+        userViewModel.updateUserProfileAndImage(userId, pickedFilePath ?? '').then((value){
+          showSnackBar(context, 'Profile updated Successfully!', title: 'Congratulations!');
+          userViewModel.updateVerification(userId);
+        }).onError((error, stackTrace){
+          showSnackBar(context, error.toString());
         });
       });
     }
@@ -151,17 +126,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
             )
           ],
         ),
-        body: Consumer<ProfileApiProvider>(
-            builder: (context, profileApi, child) {
+        body: Consumer<UserViewModel>(
+            builder: (context, userViewModel, child) {
+              UserModel? userModel = userViewModel.userModel.data;
               return SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  profileApi.profileData == null
+                  userViewModel.userModel.status == Status.loading
                       ? LoadingDialog()
                       : Column(
                           children: [
-                            upperContainer(),
+                            upperContainer(userModel),
 
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -175,13 +151,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                             SizedBox(height: 3.h,),
 
-                            if(profileApi
-                                .profileData["email_verified_at"] ==
-                                null || profileApi
-                                .profileData["image_verified_at"] ==
-                                null || profileApi
-                                .profileData["phone_verified_at"] ==
-                                null)
+                            if(userModel?.emailVerifiedAt == null ||
+                                userModel?.imageVerifiedAt == null ||
+                                userModel?.phoneVerifiedAt == null)
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 14.w),
                               child: Row(
@@ -189,58 +161,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   verifiedContainer(
-                                      onTap: profileApi
-                                                  .profileData["email_verified_at"] ==
-                                              null
+                                      onTap: userModel?.emailVerifiedAt == null
                                           ? () {
                                               push(context,
                                                   const EmailVerificationScreen());
                                             }
                                           : null,
-                                      txt: profileApi
-                                                  .profileData["email_verified_at"] ==
-                                              null
+                                      txt: userModel?.emailVerifiedAt == null
                                           ? "Email\nis not\nVerified"
                                           : "Email\nVerified",
                                       img: "assets/images/sms.png",
-                                      color: profileApi
-                                                  .profileData["email_verified_at"] ==
-                                              null
+                                      color: userModel?.emailVerifiedAt == null
                                           ? Colors.red
                                           : null),
                                   verifiedContainer(
-                                    onTap: profileApi
-                                        .profileData["image_verified_at"] ==
-                                        null
+                                    onTap: userModel?.imageVerifiedAt == null
                                         ? ()=>pickImage() : null,
                                       img: "assets/images/gallery.png",
-                                      color: profileApi
-                                                  .profileData["image_verified_at"] ==
-                                              null
+                                      color: userModel?.imageVerifiedAt == null
                                           ? Colors.red
                                           : null,
-                                      txt: profileApi
-                                                  .profileData["image_verified_at"] ==
-                                              null
+                                      txt: userModel?.imageVerifiedAt == null
                                           ? "Image\nis not\nVerified"
                                           : "Image\nVerified"),
                                   verifiedContainer(
-                                      onTap: profileApi
-                                                  .profileData["phone_verified_at"] ==
-                                              null
+                                      onTap: userModel?.phoneVerifiedAt == null
                                           ? () {
                                               push(context, PhoneVerifyScreen());
                                             }
                                           : null,
-                                      txt: profileApi
-                                                  .profileData["phone_verified_at"] ==
-                                              null
+                                      txt: userModel?.phoneVerifiedAt == null
                                           ? "Phone\nis not\nVerified"
                                           : "Phone\nVerified",
                                       img: "assets/images/call.png",
-                                      color: profileApi
-                                                  .profileData["phone_verified_at"] ==
-                                              null
+                                      color: userModel?.phoneVerifiedAt == null
                                           ? Colors.red
                                           : null),
                                   // if(profileApi
@@ -289,14 +243,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   //     txt: "Search alerts",
                   //     img: "assets/images/notification.png"),
                   const CustomDivider(),
+                  headingText(txt: "Wishlist"),
+                  customRow(
+                      onTap: () {
+                        push(context, const WishListItemsScreen());
+                      },
+                      txt: "Wishlist items",
+                      img: "assets/images/heart.png"),
+                  // customRow(
+                  //     onTap: () {},
+                  //     txt: "Search alerts",
+                  //     img: "assets/images/notification.png"),
+                  const CustomDivider(),
                   headingText(txt: "Account"),
                   customRow(
                       onTap: () {
                         push(context, const AccountSettingScreen(), then: (){
-                          profileApi.getProfile(
-                            dio: dio,
-                            context: context,
-                          );
+                          userViewModel.getUserProfile();
                         });
                       },
                       txt: "Account Settings",
@@ -312,7 +275,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         push(
                             context,
                             CustomLinkScreen(
-                              link: profileApi.profileData['username'] ?? '',
+                              link: userModel?.username,
                             ));
                       },
                       txt: "Custom Profile Link",
@@ -359,7 +322,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         await SharedPreferences.getInstance();
         pref.clear();
         Provider.of<SellingPurchaseProvider>(context, listen: false).sellingProductsModel = null;
-        Provider.of<ProfileApiProvider>(context, listen: false).profileData = null;
+        userViewModel.userModel =  ApiResponse.notStarted();
         pushUntil(context, const SigInScreen());
       },
     );
@@ -385,7 +348,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 
   Widget verifiedContainer({img, txt, color, Function()? onTap}) {
-    final profileApi = Provider.of<ProfileApiProvider>(context, listen: false);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20.0),
@@ -502,8 +464,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget upperContainer() {
-    final profileApi = Provider.of<ProfileApiProvider>(context, listen: false);
+  Widget upperContainer(UserModel? userModel) {
     return Padding(
       padding: const EdgeInsets.only(top: 20.0, bottom: 13.0),
       child: Row(
@@ -533,12 +494,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   fit: BoxFit.fill,
                                 ),
                               )
-                            : profileApi.profileData["img"] != null
+                            : userModel?.img != null
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(16),
                                     child: Image.network(
                                       fit: BoxFit.fill,
-                                      "${profileApi.profileData["img"]}",
+                                      userModel!.img!,
                                     ))
                                 : Image.asset(
                                   fit: BoxFit.cover,
@@ -568,18 +529,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 SizedBox(height: 12.h,),
-                AppText.appText(capitalizeWords(profileApi.profileData["name"]),
+                AppText.appText(capitalizeWords(userModel?.name ?? ''),
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     textColor: AppTheme.txt1B20),
                 SizedBox(height: 4.h,),
-                AppText.appText("Joined ${formatMonthYear(profileApi.profileData["created_at"])}",
+                AppText.appText("Joined ${formatMonthYear(userModel?.createdAt)}",
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                     textColor: AppTheme.txt1B20),
-                if(profileApi.profileData["location"]!=null)...[
+                if(userModel?.location!=null)...[
                 SizedBox(height: 4.h,),
-                AppText.appText("${profileApi.profileData["location"] ?? ''}",
+                AppText.appText(userModel?.location?? '',
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                     textColor: AppTheme.txt1B20)],
@@ -588,16 +549,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(width: Provider.of<ProfileApiProvider>(context, listen: false).userRating == 0.0 ? 40.w : 12.w,),
+                    SizedBox(width: userModel?.reviewPercentage == null || userModel?.reviewPercentage == 0.0 ? 40.w : 12.w,),
                     StarRating(
-                      percentage: percentageOfFive(Provider.of<ProfileApiProvider>(context, listen: false).userRating.toString()),
+                      percentage: userModel?.reviewPercentage?.round() ?? 0,
                       color: Colors.yellow,
                       size: 25,
                     ),
                     SizedBox(width: 3.w,),
                     AppText.appText(
-                    Provider.of<ProfileApiProvider>(context, listen: false).userRating == 0 ? 'not rated yet' : Provider.of<ProfileApiProvider>(context, listen: false).userRating.toStringAsFixed(1),
-                            fontSize: Provider.of<ProfileApiProvider>(context, listen: false).userRating == 0 ? 11.sp : 12.sp,
+                            starCount(userModel?.reviewPercentage),
+                            fontSize: userModel?.reviewPercentage == null || userModel?.reviewPercentage == 0.0 ? 11.sp : 12.sp,
                             fontWeight: FontWeight.normal,
                             textColor: AppTheme.txt1B20),
                   ],

@@ -290,7 +290,7 @@ class _SearchPageState extends State<SearchPage> {
         setState(() {
           var detailResponse = responseData["data"];
           pr.dismiss();
-          push(context, AuctionInfoScreen(detailResponse: detailResponse[0]));
+          push(context, AuctionInfoScreen(product: detailResponse[0]));
         });
       }
     } catch (e) {
@@ -363,7 +363,7 @@ class _SearchPageState extends State<SearchPage> {
           push(
               context,
               FeatureInfoScreen(
-                detailResponse: detailResponse[0],
+                product: detailResponse[0],
               ));
         });
       }

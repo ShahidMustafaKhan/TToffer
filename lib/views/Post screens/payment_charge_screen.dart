@@ -10,10 +10,12 @@ import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/providers/payment_fee_provider.dart';
 import 'package:tt_offer/utils/utils.dart';
 
-class StripePaymentChargeScreen extends StatefulWidget {
-  Selling? selling;
+import '../../models/product_model.dart';
 
-  StripePaymentChargeScreen({super.key, this.selling});
+class StripePaymentChargeScreen extends StatefulWidget {
+  final Product? product;
+
+  const StripePaymentChargeScreen({super.key, this.product});
 
   @override
   _StripePaymentChargeScreenState createState() =>
@@ -63,7 +65,7 @@ class _StripePaymentChargeScreenState extends State<StripePaymentChargeScreen> {
         context: context,
         amount: '4',
         currency: 'usd',
-        selling: widget.selling,
+        product: widget.product,
         token: token);
     setState(() {
       loading = false;

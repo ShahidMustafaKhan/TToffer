@@ -1,5 +1,6 @@
 import 'package:country_list_pick/country_list_pick.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -13,6 +14,7 @@ import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 
+import '../../view_model/verification/verificaiton_view_model.dart';
 import 'otp_phone_screen.dart';
 
 class ForgotEmailPass extends StatefulWidget {
@@ -26,11 +28,14 @@ class ForgotEmailPass extends StatefulWidget {
 class _ForgotEmailPassState extends State<ForgotEmailPass> {
   final TextEditingController _emailController = TextEditingController();
 
+
+  late VerificationViewModel verificationViewModel;
   bool _isLoading = false;
-  AppLogger logger = AppLogger();
+
   @override
   void initState() {
-    logger.init();
+    verificationViewModel = Provider.of<VerificationViewModel>(context, listen: false);
+
     if(widget.phone == true){
       _emailController.text = "+971";
     }
@@ -81,16 +86,19 @@ class _ForgotEmailPassState extends State<ForgotEmailPass> {
 
               if(widget.phone == true)
                 phoneField(controller: _emailController, context: context),
-              _isLoading == true
-                  ? Padding(
-                   padding: const EdgeInsets.symmetric(vertical: 40.0),
-                    child: Center(
+
+              Consumer<VerificationViewModel>(
+                  builder: (context, verificationViewModel, child) {
+                    return verificationViewModel.loading == true
+                        ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40.0),
+                      child: Center(
                         child: CircularProgressIndicator(
                           color: AppTheme.appColor,
                         ),
                       ),
-                  )
-                  : Padding(
+                    )
+                        : Padding(
                       padding: const EdgeInsets.symmetric(vertical: 40.0),
                       child: AppButton.appButton("Send OTP", onTap: () {
                         if(widget.phone == false) {
@@ -134,7 +142,7 @@ class _ForgotEmailPassState extends State<ForgotEmailPass> {
                           fontSize: 14,
                           backgroundColor: AppTheme.appColor,
                           textColor: AppTheme.whiteColor),
-                    )
+                    );}),
             ],
           ),
         ),
@@ -143,76 +151,23 @@ class _ForgotEmailPassState extends State<ForgotEmailPass> {
   }
 
   void forgotPassword() async {
-    setState(() {
-      _isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {"email": _emailController.text};
-    try {
-      response = await dio.post(path: AppUrls.forgotEmailPass, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        if (responseData["status"] == false) {
-          setState(() {
-            _isLoading = false;
-          });
 
-          return;
-        } else {
-          setState(() {
-            _isLoading = false;
-          });
-          pushReplacement(
-              context,
-              OTPScreen(
-                validOtp: responseData["otp"].toString(),
-                email: _emailController.text.trim(),
-              ));
-        }
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    verificationViewModel.forgetPasswordEmailVerification(_emailController.text.trim())
+        .then((value){
+      pushReplacement(
+          context,
+          OTPScreen(
+            email: _emailController.text.trim(),
+          ));
+      showSnackBar(context, 'A verification code has been sent to your email.', title: "Congratulations!");})
+        .onError((error, stackTrace) {
+      showSnackBar(context, error.toString());
+    });
+
   }
 
   void forgotPasswordPhone() async {
-    setState(() {
-      _isLoading = true;
-    });
+
     var response;
     int responseCode200 = 200; // For successful request.
     int responseCode400 = 400; // For Bad Request.

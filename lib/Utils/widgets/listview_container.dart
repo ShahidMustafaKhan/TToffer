@@ -12,18 +12,28 @@ import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/main.dart';
 
+import '../../models/product_model.dart';
 import '../../models/selling_products_model.dart';
 
 class ListViewContainer extends StatefulWidget {
-  const ListViewContainer({super.key, required this.selling});
+  const ListViewContainer({super.key, required this.product});
 
-  final Selling selling;
+  final Product? product;
 
   @override
   State<ListViewContainer> createState() => _ListViewContainerState();
 }
 
 class _ListViewContainerState extends State<ListViewContainer> {
+
+  Product? product;
+
+  @override
+  void initState() {
+    product = widget.product;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -44,12 +54,10 @@ class _ListViewContainerState extends State<ListViewContainer> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: widget.selling.photo == null ||
-                        widget.selling.photo!.isEmpty ||
-                        widget.selling.photo![0].src == null
+                    child: (product?.photo?.isEmpty ?? true)
                         ? Image.asset('assets/images/gallery.png')
                         : Image.network(
-                      widget.selling.photo![0].src!,
+                      product!.photo![0].url!,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -63,7 +71,7 @@ class _ListViewContainerState extends State<ListViewContainer> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      AppText.appText(widget.selling.title ?? '',
+                      AppText.appText(product?.title ?? '',
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           textColor: AppTheme.txt1B20),
@@ -73,7 +81,7 @@ class _ListViewContainerState extends State<ListViewContainer> {
                       SizedBox(
                         // width: widget.selling.status== 1 ? 165.w : 270.w,
                         child: AppText.appText(
-                            widget.selling.location ?? "",
+                            "AED ${product?.productType == 'auction' ? product?.auctionInitialPrice?.toString() ?? '' : product?.fixPrice.toString() ?? ''}",
                             fontSize: 12,
                             overflow: TextOverflow.ellipsis,
                             fontWeight: FontWeight.w400,

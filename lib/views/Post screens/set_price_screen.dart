@@ -25,14 +25,17 @@ import 'package:tt_offer/views/Post%20screens/indicator.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 
+import '../../models/product_model.dart';
+
 class SetPostPriceScreen extends StatefulWidget {
   final productId;
   String title;
-  Selling? selling;
+  Product? product;
   String? categoryName;
+  String? productType;
 
   SetPostPriceScreen(
-      {super.key, this.productId, required this.title, this.selling, this.categoryName});
+      {super.key, this.productId, required this.title, this.product, this.categoryName, this.productType});
 
   @override
   State<SetPostPriceScreen> createState() => _SetPostPriceScreenState();
@@ -58,16 +61,17 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
   var endTime;
   var startTimeDubai;
   var endTimeDubai;
-  bool _isLoading = false;
-  late AppDio dio;
-  AppLogger logger = AppLogger();
-  int _toggleValue = 0;
+
   bool hideSelectedOptions = false;
   bool showSellToUsOption = false;
   bool isSelectedCategoryJob = false;
+  
+  Product? product;
 
   @override
   void initState() {
+    
+    product = widget.product;
 
 
     if(widget.categoryName == "Jobs" ) {
@@ -89,27 +93,25 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     firstTimeProductId=widget.productId;
     firstTimeProductId=widget.productId;
     _priceController.text = "";
-    dio = AppDio(context);
-    logger.init();
 
 
 
     // Define a DateFormat with the expected date format
     DateFormat dateFormat = DateFormat('MM-dd-yyyy');
 
-    if (widget.selling != null) {
-      _priceController.text = formatNumber(widget.selling!.fixPrice.toString().replaceAll(".00", ""), textFiled:true);
-      _startingPriceController.text = formatNumber(widget.selling!.auctionPrice.toString().replaceAll(".00", ""), textFiled:false);
-      _startingPriceController.text = formatNumber(widget.selling!.auctionPrice.toString().replaceAll(".00", ""), textFiled:false);
+    if (product != null) {
+      _priceController.text = formatNumber(product!.fixPrice.toString().replaceAll(".00", ""), textFiled:true);
+      _startingPriceController.text = formatNumber(product!.auctionInitialPrice.toString().replaceAll(".00", ""), textFiled:false);
+      _startingPriceController.text = formatNumber(product!.auctionInitialPrice.toString().replaceAll(".00", ""), textFiled:false);
 
       try {
         // Parse startingDate and endingDate strings
-        startDate = dateFormat.parse(widget.selling!.startingDate!);
-        endDate = dateFormat.parse(widget.selling!.endingDate!);
+        startDate = dateFormat.parse(product!.auctionStartingDate!);
+        endDate = dateFormat.parse(product!.auctionEndingDate!);
 
         // Assuming startingTime and endingTime are in "HH:mm" format
-        startTime = DateFormat('HH:mm').parse(convertTo12HourFormat(widget.selling!.startingTime!));
-        endTime = DateFormat('HH:mm').parse(convertTo12HourFormat(widget.selling!.endingTime!));
+        startTime = DateFormat('HH:mm').parse(convertTo12HourFormat(product!.auctionStartingTime!));
+        endTime = DateFormat('HH:mm').parse(convertTo12HourFormat(product!.auctionEndingTime!));
       } catch (e) {
         print('Error parsing dates: $e');
         // Handle parsing errors here
@@ -121,18 +123,20 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
 
   // getPaymentStatus() async {
   //   await PaymentStatusService()
-  //       .paymentStatusService(context: context, selling: widget.selling);
+  //       .paymentStatusService(context: context, selling: product);
   // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Consumer<PostProductViewModel>(
-            builder: (context, provider, child){
-              return provider.thirdStepLoading == true
-                ? LoadingDialog()
+      bottomNavigationBar: Consumer<PostProductViewModel>(
+          builder: (context, provider, child){
+            return Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: provider.thirdStepLoading == true
+                ? const SizedBox(
+                  height: 53,
+                  child: Center(child: CircularProgressIndicator()))
                 : Visibility(
                   visible : selectedOption != "Sell to Us",
                   child: AppButton.appButton("Next", onTap: () async {
@@ -165,9 +169,9 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
                       radius: 32.0,
                       backgroundColor: AppTheme.appColor,
                       textColor: AppTheme.whiteColor),
-                );
-          }
-        ),
+                ),
+            );
+        }
       ),
       appBar: CustomAppBar1(
         title: "Price",
@@ -178,7 +182,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
         },
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        padding: EdgeInsets.symmetric(horizontal: hideSelectedOptions == false && product==null  ? 20.0 : 0),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -196,10 +200,12 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
 
               ),
               SizedBox(
-                height: hideSelectedOptions == false && widget.selling==null ? 20 : 0,
+                height: hideSelectedOptions == false && product==null ? 20 : 0,
               ),
-              if(hideSelectedOptions == false && widget.selling==null)
-              selectOption(),
+              if(hideSelectedOptions == false && product==null)
+              selectOption()
+              else
+                SizedBox(width: MediaQuery.of(context).size.width,),
               if (selectedOption == "Fixed Price") if(isSelectedCategoryJob == true) jobColumn() else fixedColumn(),
               if (selectedOption == "Auction") auctionColumn(),
               if (selectedOption == "Sell to Us") uXColumn(),
@@ -214,11 +220,11 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: showSellToUsOption == false && widget.selling != null ? 0 : 20.0),
+      padding: EdgeInsets.symmetric(vertical: showSellToUsOption == false && product != null ? 0 : 20.0),
       child: GestureDetector(
         onTapDown: (TapDownDetails details) {
           double tapPosition = details.localPosition.dx;
-          if(widget.selling != null){
+          if(product != null){
             if(showSellToUsOption == true){
               if (tapPosition < screenWidth * 0.5) {
                 setState(() {
@@ -272,7 +278,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
 
         },
         child: Container(
-          height: showSellToUsOption == false && widget.selling != null ? 0 : 38,
+          height: showSellToUsOption == false && product != null ? 0 : 38,
           width: screenWidth,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100),
@@ -301,7 +307,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
                   ),
                 ),
               ),
-              if(showSellToUsOption == true && widget.selling == null)
+              if(showSellToUsOption == true && product == null)
               Expanded(
                 flex: 1,
                 child: Container(
@@ -322,7 +328,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
                   ),
                 ),
               ),
-              if(showSellToUsOption == true || widget.selling == null)
+              if(showSellToUsOption == true || product == null)
                 Expanded(
                 flex: 1,
                 child: Container(
@@ -747,7 +753,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
 
       setState(() {
         startTime = picked.format(context);
-        startTimeDubai = convertToDubaiTime(picked, context);
+        startTimeDubai = convertToUTC(picked, context);
       });
     }
   }
@@ -770,7 +776,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     if (picked != null) {
       setState(() {
         endTime = picked.format(context);
-        endTimeDubai = convertToDubaiTime(picked, context);
+        endTimeDubai = convertToUTC(picked, context);
       });
     }
   }
@@ -933,7 +939,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
       "auction_ending_time": endTimeDubai,
       "sell_to_us": sellDate,
       if(selectedOption == "Fixed Price")
-        "product_type" : "featured"
+        "product_type" : widget.productType ?? "featured"
       else
         "product_type" : "auction",
     };
@@ -976,14 +982,14 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     }
 
 
-       provider.addProductThirdStep(params, update: widget.selling != null || isBack == true).then((value){
+       provider.addProductThirdStep(params, update: product != null || isBack == true).then((value){
          Navigator.push(context, CupertinoPageRoute(builder: (_) =>
              PostLocationScreen(
-               selling: widget.selling,
+               product: product,
                selectedCategory: widget.categoryName,
-               productId: widget.selling == null
+               productId: product == null
                    ? value.data!.productId
-                   : widget.selling!.id,
+                   : product!.id,
                amount: selectedOption == "Fixed Price" ? isSelectedCategoryJob ? maxSalary! : int.parse(_priceController.text.replaceAll(',', '')) : int.parse(_startingPriceController.text.replaceAll(',', '')),
                title: widget.title,
 

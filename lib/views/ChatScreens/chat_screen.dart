@@ -6,17 +6,17 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/chat_api.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
+import 'package:tt_offer/data/response/status.dart';
+import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/chat_list_model.dart';
-import 'package:tt_offer/providers/chat_list_provider.dart';
+import 'package:tt_offer/view_model/chat/chat_list_view_model/chat_list_view_model.dart';
+import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 
 import '../../Utils/utils.dart';
 import 'offer_chat_screen.dart';
@@ -34,10 +34,11 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   late AppDio dio;
   AppLogger logger = AppLogger();
-  var userId;
+  int? userId;
   Timer? _timer;
   String selectedOption = 'Selling';
   String emptyMessage = 'Start a chat and it will appear\n   here. If you\'re looking for   \n  something, try to find it on \n                 TTOffer.\nOr post a random ad and act\n     fast! Don\'t miss a deal!';
+  late ChatListViewModel chatListViewModel;
 
   @override
   void dispose() {
@@ -47,6 +48,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void initState() {
+    chatListViewModel = Provider.of<ChatListViewModel>(context, listen: false);
+
     dio = AppDio(context);
     logger.init();
     getUserId();
@@ -58,30 +61,30 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
   getUserId() async {
-    if(Provider.of<ProfileApiProvider>(context, listen: false).profileData!=null){
-      userId = Provider.of<ProfileApiProvider>(context, listen: false).profileData["id"];}
-    else{
-      await Provider.of<ProfileApiProvider>(context, listen: false).getProfile(dio: dio, context: context);
-      userId = Provider.of<ProfileApiProvider>(context, listen: false).profileData["id"];}
-  }
+    userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
 
-  List<ChatListData> chatList = [];
+    if(userId != null){
+      final userViewModel = Provider.of<UserViewModel>(context, listen: false);
+      await userViewModel.getUserProfile();
+      userId = userViewModel.userModel.data?.id;
+    }
+
+    }
+
+
+  List<Conversation> chatList = [];
 
   getUserDetail() async {
-    final apiProvider = Provider.of<ChatApiProvider>(context, listen: false);
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    setState(() {
-      var id = pref.getString(PrefKey.userId);
-
-      apiProvider.getAllChats(dio: dio, context: context, userId: id);
-    });
+       var id = pref.getString(PrefKey.userId);
+      chatListViewModel.getAllChat(int.tryParse(id ?? ''));
   }
 
   void startTimer() {
+    if(widget.isProductChat == false){
     _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
-      final apiProvider = Provider.of<ChatApiProvider>(context, listen: false);
-        apiProvider.getAllChats(dio: dio, context: context, userId: userId);
+      getUserDetail();
     });
+  }
   }
 
   void stopTimer() {
@@ -92,13 +95,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final chatApi = Provider.of<ChatApiProvider>(context);
-    var chatWidget = Consumer<ChatListProvider>(
-      builder: (context, data, child) {
+    var chatWidget = Consumer<ChatListViewModel>(
+      builder: (context, chatListViewModel, child) {
+        List<Conversation>? sellingChatList = chatListViewModel.sellingChat.data;
+        List<Conversation>? buyingChatList = chatListViewModel.buyingChat.data;
 
-        if (data.loading) {
+        if ((selectedOption =='Selling' && chatListViewModel.sellingChat.status == Status.loading) || (selectedOption =='Buying' && chatListViewModel.buyingChat.status == Status.loading) ) {
           return LoadingDialog();
-        } else if (selectedOption=='Selling' ? data.selling.isEmpty : data.buying.isEmpty  ) {
+        } else if ((selectedOption =='Selling' && (sellingChatList?.isEmpty ?? true))  || (selectedOption =='Buying' && (buyingChatList?.isEmpty ?? true) )) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -118,10 +122,10 @@ class _ChatScreenState extends State<ChatScreen> {
           );
         }
         if(widget.isProductChat==false) {
-          chatList = selectedOption=='Selling' ? data.selling : data.buying;
+          chatList = selectedOption=='Selling' ? sellingChatList ?? [] : buyingChatList ?? [];
         } else{
-          List<ChatListData> temp=[];
-          for (var item in selectedOption=='Selling' ? data.selling : data.buying) {
+          List<Conversation> temp=[];
+          for (var item in selectedOption=='Selling' ? sellingChatList ?? [] : buyingChatList ?? []) {
             if (item.productId.toString() == widget.productId) {
               temp.add(item);
             }
@@ -144,48 +148,34 @@ class _ChatScreenState extends State<ChatScreen> {
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {
-                if(chatList[index].receiver!.id == userId){
-                  chatApi.changeUnReadMessagesStatus(
-                    dio: dio,
-                    context: context,
-                    conversationId: chatList[index].conversationId,
-                  );
-                }
+
+                // if(chatList[index].receiver!.id == userId){
+                //   chatListViewModel.markReadChat(chatList[index].conversationId);
+                // }
 
                 push(
                     context,
                     OfferChatScreen(
-                      userImgUrl: chatList[index].receiver!.id == userId
-                          ? chatList[index].sender!.img
-                          : chatList[index].receiver!.img,
+                      userImgUrl: chatList[index].receiver?.id == userId
+                          ? chatList[index].sender?.img
+                          : chatList[index].receiver?.img,
+                      userRating: chatList[index].receiver?.id == userId
+                          ? chatList[index].sender?.reviewPercentage
+                          : chatList[index].receiver?.reviewPercentage,
                       conversationId: chatList[index].conversationId,
-                          title: chatList[index].receiver!.id == userId
-                              ? chatList[index].sender!.name
-                              : chatList[index].receiver!.name,
-                          recieverId:
-                             chatList[index].receiver!.id == userId
-                                  ?  int.parse(chatList[index].senderId!)
-                                  : int.parse(chatList[index].receiverId!),
-                          sellerId: int.parse(chatList[index].sellerId!),
-                          buyerId:  int.parse(chatList[index].buyerId!),
-                           productId: chatList[index].productId! ,
+                          title: chatList[index].receiver?.id == userId
+                              ? chatList[index].sender?.name
+                              : chatList[index].receiver?.name,
+                          receiverId:
+                             chatList[index].receiver?.id == userId
+                                  ?  chatList[index].senderId
+                                  : chatList[index].receiverId,
+                          sellerId: chatList[index].sellerId,
+                          buyerId:  chatList[index].buyerId,
+                           productId: chatList[index].productId ,
                     ));
 
-                // chatApi.getConversation(
-                //     dio: dio,
-                //     context: context,
-                //     conversationId: chatList[index].conversationId,
-                //     title: chatList[index].receiver!.id == userId
-                //         ? chatList[index].sender!.name
-                //         : chatList[index].receiver!.name,
-                //     recieverId:
-                //         chatList[index].receiver!.id == userId
-                //             ? chatList[index].senderId
-                //             : chatList[index].receiverId,
-                //     sellingId: chatList[index].sellerId,
-                //     buyerId:  chatList[index].buyerId,
-                //
-                // ).then((value) => chatApi.getAllChats(dio: dio, context: context, userId: userId));
+
               },
               child: Padding(
                 padding:
@@ -197,8 +187,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     children: [
                       if(getImageUrl(chatList[index]) == null)
                         SvgPicture.asset('assets/images/Avatar.svg',
-                            width: 35.w,
-                            height: 35.w
+                            width: 55.w,
+                            height: 55.w
                         )
                       else
                         Container(
@@ -222,9 +212,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       Expanded(
                         child: Row(
                           children: [
-
-                            const SizedBox(
-                              width: 20,
+                            SizedBox(
+                              width: getImageUrl(chatList[index]) == null ? 11.w : 20.w,
                             ),
                          Expanded(child:  SizedBox(
                           child: Column(
@@ -235,14 +224,17 @@ class _ChatScreenState extends State<ChatScreen> {
                                 children: [
                                   Expanded(
                                     child: AppText.appText(
-                                        chatList[index].receiver!.id ==
+                                        chatList[index].receiver?.id ==
                                             userId
-                                            ? capitalizeWords(chatList[index].sender!.name!)
-                                            : capitalizeWords(chatList[index].receiver!.name!),
+                                            ? capitalizeWords(chatList[index].sender?.name ?? '')
+                                            : capitalizeWords(chatList[index].receiver?.name ?? ''),
                                         fontSize: 14.5.sp,
+                                        maxlines: 1,
                                         fontWeight: FontWeight.w700,
                                         textColor: AppTheme.blackColor),
                                   ),
+                                  SizedBox(width: 8.w,),
+                                  if(chatList[index].createdAt!= null)
                                   AppText.appText(
                                       formatTimestamp("${chatList[index].createdAt}"),
                                       fontSize: 10.5.sp,
@@ -253,12 +245,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ],
                               ),
 
+
                               SizedBox(
                                 width: MediaQuery.of(context).size.width * 0.45,
                                 child: AppText.appText(
                                     msg(chatList[index].message ?? "Image",
-                                        chatList[index].senderId! == userId.toString(),
-                                        chatList[index].sender!.name ?? ''
+                                        chatList[index].senderId == userId,
+                                        chatList[index].sender?.name ?? ''
                                     ),
 
                                     // capitalizeWholeTitle(chatList[index].message ?? "Image",
@@ -270,9 +263,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                     fontSize: 12.3.sp,
                                     overflow: TextOverflow.ellipsis,
                                     fontWeight: chatList[index].unReadMsgsCount != null &&
-                                        chatList[index].unReadMsgsCount != 0 && chatList[index].receiver!.id == userId ? FontWeight.w700 :FontWeight.w400,
+                                        chatList[index].unReadMsgsCount != 0 && chatList[index].receiver?.id == userId ? FontWeight.w700 :FontWeight.w400,
                                     textColor: chatList[index].unReadMsgsCount != null &&
-                                        chatList[index].unReadMsgsCount != 0 && chatList[index].receiver!.id == userId ? AppTheme.blackColor : Color(0xff626C7B)),
+                                        chatList[index].unReadMsgsCount != 0 && chatList[index].receiver?.id == userId ? AppTheme.blackColor : Color(0xff626C7B)),
                               ),
                             ],
                           ),
@@ -284,6 +277,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
                       Stack(
                         children: [
+                          if(chatList[index].imagePath?.src!=null)
                           Container(
                             width: 55.w,
                             decoration: BoxDecoration(
@@ -299,7 +293,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 child: Container(
                                     height: 25.h,
                                     width: 55.w,
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                         color: Colors.black38,
 
                                     ),
@@ -370,7 +364,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  getImageUrl(ChatListData chatList) {
+  getImageUrl(Conversation chatList) {
     String? receiverImg;
     if (userId == chatList.receiver?.id) {
       receiverImg = chatList.sender?.img;

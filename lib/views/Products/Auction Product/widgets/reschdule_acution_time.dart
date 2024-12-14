@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -19,6 +21,7 @@ import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/custom_requests/payment_status_service.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
+import 'package:tt_offer/view_model/bids/bids_view_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/enter_location_screen.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
@@ -26,6 +29,7 @@ import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 
 import '../../../../Controller/APIs Manager/product_api.dart';
+import '../../../../view_model/product/product/product_viewmodel.dart';
 import '../../../Sellings/new_sold_screen.dart';
 
 class RescheduleTimeProduct extends StatefulWidget {
@@ -56,81 +60,71 @@ class _RescheduleTimeProductState extends State<RescheduleTimeProduct> {
   var endTime;
   var startDubaiTime;
   var endDubaiTime;
-  bool _isLoading = false;
-  bool _isLoadingAcceptBtn = false;
-  late AppDio dio;
-  AppLogger logger = AppLogger();
-  int _toggleValue = 0;
+  late ProductViewModel productViewModel;
+
   bool showLastBid = false;
 
   @override
   void initState() {
 
+    productViewModel = Provider.of<ProductViewModel>(context, listen: false);
+
     firstTimeProductId=int.parse(widget.productId);
-    dio = AppDio(context);
-    logger.init();
     getHighestBid();
-
-
-
-    // Define a DateFormat with the expected date format
-    DateFormat dateFormat = DateFormat('MM-dd-yyyy');
-
-
 
 
     super.initState();
   }
 
-  // getPaymentStatus() async {
-  //   await PaymentStatusService()
-  //       .paymentStatusService(context: context, selling: widget.selling);
-  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: _isLoading == true
-            ? LoadingDialog()
-            : AppButton.appButton("Confirm", onTap: () async {
-              DateTime now = DateTime.now();
-              DateFormat formatter = DateFormat.jm();
+      bottomNavigationBar: Consumer<ProductViewModel>(
+          builder: (context, productViewModel, child) {
+            return  Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: AppButton.appButton("Confirm", onTap: () async {
+                    DateTime now = DateTime.now();
+                    DateFormat formatter = DateFormat.jm();
 
-              // Format the DateTime object
-              startTime = formatter.format(now);
+                    // Format the DateTime object
+                    startTime = formatter.format(now);
 
 
-              startDate = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second);
-              startDubaiTime = convertToDubaiTimeDateTime(startDate!, context);
+                    startDate = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second);
+                    startDubaiTime = convertToUTCTimeDateTime(startDate!, context);
 
-              if (endDate == null) {
-                showSnackBar(context, "Please enter extended date!");
+                    if (endDate == null) {
+                      showSnackBar(context, "Please enter extended date!");
 
-              }
-              else if(endTime == null){
-                showSnackBar(context, "Please enter extended time!");
-              }
-              else if (startDate!.difference(endDate!).inDays >= 1) {
-                showSnackBar(context, "Extended date cannot be earlier than the current date!");
+                    }
+                    else if(endTime == null){
+                      showSnackBar(context, "Please enter extended time!");
+                    }
+                    else if (startDate!.difference(endDate!).inDays >= 1) {
+                      showSnackBar(context, "Extended date cannot be earlier than the current date!");
 
-              }
-              // else if(startTime!.difference(endTime!).inSeconds > 1) {
-              //   showSnackBar(context, "Extended time cannot be earlier than the current time.");
-              //
-              // }
-              else{
-                extendProductTime();
-              }
+                    }
+                    // else if(startTime!.difference(endTime!).inSeconds > 1) {
+                    //   showSnackBar(context, "Extended time cannot be earlier than the current time.");
+                    //
+                    // }
+                    else{
+                      extendProductTime();
+                    }
 
-              },
-                height: 53,
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-                radius: 32.0,
-                backgroundColor: AppTheme.appColor,
-                textColor: AppTheme.whiteColor),
+                    },
+                      height: 53,
+                      loading: productViewModel.extendTimeLoading == true,
+                      loadingColor: AppTheme.whiteColor,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      radius: 32.0,
+                      backgroundColor: AppTheme.appColor,
+                      textColor: AppTheme.whiteColor),
+                );
+        }
       ),
       appBar: CustomAppBar1(
         title: "Extend Auction Time",
@@ -220,21 +214,27 @@ class _RescheduleTimeProductState extends State<RescheduleTimeProduct> {
 
                 SizedBox(height: 15.h,),
 
-                _isLoadingAcceptBtn ? const CircularProgressIndicator() :
-                AppButton.appButton(
-                    "Accept",
-                    onTap: (){
-                      getAuctionProductDetail(productId: widget.productId, context: context);
-                    },
-                    height: 40.h,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 15,
-                    radius: 40.0,
-                    backgroundColor: AppTheme.appColor ,
-                    textColor: AppTheme.whiteColor,
-                    borderColor: AppTheme.appColor ,
+              Consumer<ProductViewModel>(
+                  builder: (context, productViewModel, child) {
+                    return  productViewModel.loading ? const CircularProgressIndicator() :
+                    AppButton.appButton(
+                      "Accept",
+                      onTap: (){
+                        getAuctionProductDetail(productId: widget.productId, context: context);
+                      },
+                      height: 40.h,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                      radius: 40.0,
+                      backgroundColor: AppTheme.appColor ,
+                      textColor: AppTheme.whiteColor,
+                      borderColor: AppTheme.appColor ,
 
-                ),
+                    );
+                  }),
+
+
+
 
                 SizedBox(height: 7.h,),
 
@@ -255,69 +255,17 @@ class _RescheduleTimeProductState extends State<RescheduleTimeProduct> {
 
 
   void getHighestBid() async {
-      var response;
-      int responseCode200 = 200; // For successful request.
-      int responseCode400 = 400; // For Bad Request.
-      int responseCode401 = 401; // For Unauthorized access.
-      int responseCode404 = 404; // For For data not found
-      int responseCode422 = 422; // For For data not found
-      int responseCode500 = 500; // Internal server error.
-      Map<String, dynamic> params = {
-        "product_id": "${widget.productId}",
-      };
 
-      try {
-        response = await dio.post(
-            path: AppUrls.highestBid,
-            data: params);
+      final bidViewModel = Provider.of<BidsViewModel>(context, listen: false);
 
-        var responseData = response.data;
-        if (response.statusCode == responseCode400) {
-          showSnackBar(context, "${responseData["msg"]}");
-          setState(() {
-            _isLoading = false;
-          });
-        } else if (response.statusCode == responseCode401) {
-          showSnackBar(context, "${responseData["msg"]}");
-          setState(() {
-            _isLoading = false;
-          });
-        } else if (response.statusCode == responseCode404) {
-          showSnackBar(context, "${responseData["msg"]}");
-          setState(() {
-            _isLoading = false;
-          });
-        } else if (response.statusCode == responseCode500) {
-          showSnackBar(context, "${responseData["msg"]}");
-          setState(() {
-            _isLoading = false;
-          });
-        } else if (response.statusCode == responseCode422) {
-          setState(() {
-            _isLoading = false;
-          });
-        } else if (response.statusCode == responseCode200) {
+      bidViewModel.getHighestBids(int.parse(widget.productId.toString())).then((value){
+        _bidController.text = "AED ${value["data"]["price"]}";
+        showLastBid = true;
+        setState(() {});
+      }).onError((err, stackTrace){
+        debugPrint("highest bid api ${err.toString()}");
+      });
 
-
-           if(responseData == null || responseData["data"]==null){
-             showLastBid = false;
-           }
-           else {
-             _bidController.text = "AED ${responseData["data"]["price"]}";
-             showLastBid = true;
-           }
-           setState(() {
-             _isLoading = false;
-           });
-
-        }
-      } catch (e) {
-        print("Something went Wrong $e");
-        showSnackBar(context, "Something went Wrong.");
-        setState(() {
-          _isLoading = false;
-        });
-      }
     }
 
 
@@ -362,77 +310,22 @@ class _RescheduleTimeProductState extends State<RescheduleTimeProduct> {
   }
 
   void getAuctionProductDetail({productId, limit, context, bool markAsSold = false}) async {
-    setState(() {
-      _isLoadingAcceptBtn = true;
+
+    productViewModel.getProductDetails(int.parse(productId.toString())).then((value) {
+      push(
+          context,
+          NewSoldScreen(
+            title: value?.title,
+            productId: value?.id.toString(),
+            fixPrice: value?.fixPrice.toString(),
+            auctionPrice: value?.auctionInitialPrice.toString(),
+            image: value?.photo?.isNotEmpty ?? false ? value!.photo![0].url! : null,
+            auction: value?.productType == "auction" ? true : false,
+          ));
+
+    }).onError((error, stackTrace){
+      showSnackBar(context, error.toString());
     });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": productId,
-      "limit": limit,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getAuctionProducts, data: params);
-      var responseData = response.data;
-
-      if (response.statusCode == responseCode400) {
-        setState(() {
-          _isLoadingAcceptBtn = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        setState(() {
-          _isLoadingAcceptBtn = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        setState(() {
-          _isLoadingAcceptBtn = false;
-        });
-
-      } else if (response.statusCode == responseCode500) {
-
-        setState(() {
-          _isLoadingAcceptBtn = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          _isLoadingAcceptBtn = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        var detailResponse = responseData["data"];
-        setState(() {
-          _isLoadingAcceptBtn = false;
-        });
-
-        if(detailResponse.isEmpty){
-        }
-        else {
-            push(
-                context,
-                NewSoldScreen(
-                  title: detailResponse[0]['title'],
-                  productId: detailResponse[0]['id'].toString(),
-                  fixPrice: detailResponse[0]['fix_price'],
-                  auctionPrice: detailResponse[0]['auction_price'],
-                  image: detailResponse[0]['photo']!=null && detailResponse[0]['photo'].isNotEmpty ? detailResponse[0]['photo'][0]['src'] : null,
-                  auction: detailResponse[0]['fix_price'] != null ? false : true,
-                ));
-
-        }
-
-
-      }
-    } catch (e) {
-      setState(() {
-        _isLoadingAcceptBtn = false;
-      });
-      print("Something went Wrong ${e}");
-
-    }
   }
 
 
@@ -603,7 +496,7 @@ class _RescheduleTimeProductState extends State<RescheduleTimeProduct> {
     if (picked != null) {
       setState(() {
         endTime = picked.format(context);
-        endDubaiTime = convertToDubaiTime(picked, context);
+        endDubaiTime = convertToUTC(picked, context);
 
       });
     }
@@ -636,19 +529,7 @@ class _RescheduleTimeProductState extends State<RescheduleTimeProduct> {
 
 
   extendProductTime() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500;
-    Map<String, dynamic> params = {
+    Map<String, dynamic> data = {
       "product_id": widget.productId,
       "starting_date": formatDate(startDate!),
       "starting_time": startDubaiTime,
@@ -656,57 +537,14 @@ class _RescheduleTimeProductState extends State<RescheduleTimeProduct> {
       "ending_time": endDubaiTime,
     };
 
-
-    try {
-      response = await dio.post(
-          path:  AppUrls.rescheduleAuctionTime,
-          data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          _isLoading = false;
-        });
-
-        Provider.of<ProductsApiProvider>(context, listen: false).getAuctionProducts(
-          dio: dio,
-          context: context,
-        );
-
-        showSnackBar(context, "${responseData["msg"]}", title: 'Congratulations!');
-        Navigator.of(context).pop();
-
-
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    productViewModel.rescheduleAuctionTime(data)
+        .then((value) {
+      showSnackBar(context, "Auction Time Reschedule Successfully",
+          title: 'Congratulations!');
+      Navigator.of(context).pop();
+    })
+        .onError((error, stackTrace) {
+      showSnackBar(context, error.toString());
+    });
   }
 }

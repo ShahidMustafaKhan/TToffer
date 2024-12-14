@@ -19,14 +19,14 @@ class GoogleMapView extends StatefulWidget {
 }
 
 class _GoogleMapViewState extends State<GoogleMapView> {
-  LatLng? destLocation = const LatLng(40.7128, -74.0060);
+  LatLng? destLocation = const LatLng(25.2048, 55.2708);
   Location location = Location();
   loc.LocationData? _currentPosition;
   final Completer<GoogleMapController?> _controller = Completer();
   String? _address;
   TextEditingController searchController = TextEditingController();
   List<dynamic> predictions = [];
-  LatLng selectedLocation = LatLng(37.7749, -122.4194);
+  LatLng selectedLocation = const LatLng(37.7749, -122.4194);
   String apiKey = 'AIzaSyDvTeGBMZwiNI1acJ-biduXVem8XTS26Uw';
 
   GoogleMapController? mapController;
@@ -50,25 +50,17 @@ class _GoogleMapViewState extends State<GoogleMapView> {
 
             // Check if the location matches the pattern
             if (!locationPattern.hasMatch(searchController.text)) {
-              // Show SnackBar if the format is incorrect
-
               showSnackBar(context, 'Please enter full location.');
 
             } else {
-              // The location is valid, you can handle the valid case if needed
               Navigator.of(context).pop(searchController.text);
 
             }
 
-            // Navigator.of(context).pushAndRemoveUntil(
-            //     MaterialPageRoute(
-            //       builder: (context) => NavigationScreen(
-            //           destLocation!.latitude, destLocation!.longitude),
-            //     ),
-            //         (route) => false);
           }),
       body: Stack(
         children: [
+          if(destLocation != null)
           GoogleMap(
             zoomControlsEnabled: false,
             initialCameraPosition: CameraPosition(
@@ -214,10 +206,7 @@ class _GoogleMapViewState extends State<GoogleMapView> {
           'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$text&key=$apiKey',
         ),
       );
-      print(response.statusCode);
-      print(response.statusCode);
-      print(response.statusCode);
-      print(response.body);
+
 
       if (response.statusCode == 200) {
         setState(() {

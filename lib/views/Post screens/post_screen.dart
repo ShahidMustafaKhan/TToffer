@@ -1,16 +1,12 @@
-import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -19,22 +15,19 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
-import 'package:tt_offer/models/selling_products_model.dart';
-import 'package:tt_offer/providers/selling_purchase_provider.dart';
 import 'package:tt_offer/view_model/product/post_product/post_product_viewmodel.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/add_post_detail.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
-import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
-
-import '../../main.dart';
+import '../../Utils/widgets/video_player.dart';
+import '../../models/product_model.dart';
 
 class PostScreen extends StatefulWidget {
-  Selling? selling;
+  final Product? product;
 
-  PostScreen({this.selling});
+  const PostScreen({super.key, this.product});
 
   @override
   State<PostScreen> createState() => _PostScreenState();
@@ -49,17 +42,22 @@ class _PostScreenState extends State<PostScreen> {
   bool isBack = false;
   String? productId;
 
+  Product? product;
+
   @override
   void initState() {
+    product = widget.product;
+
     dio = AppDio(context);
     logger.init();
     getUserId();
 
 
-    if (widget.selling != null) _titleController.text = widget.selling!.title!;
-    if (widget.selling != null) {
-      _descController.text = widget.selling!.description!;
+    if (product != null) _titleController.text = product!.title ?? '';
+    if (product != null) {
+      _descController.text = product!.description ?? '';
     }
+
 
     super.initState();
   }
@@ -83,14 +81,14 @@ class _PostScreenState extends State<PostScreen> {
     return PopScope(
       onPopInvoked: (value){
         imageProvider.imagePaths=[];
-        imageProvider.vedioPath='';
+        imageProvider.videoPath='';
         imageProvider.isCompressing=false;
       },
       child: Scaffold(
         backgroundColor: AppTheme.whiteColor,
         resizeToAvoidBottomInset: true,
         appBar: CustomAppBar1(
-          title: widget.selling != null ? 'Update Post' : "Post an Item",
+          title: product != null ? 'Update Post' : "Post an Item",
           leading: false,
           action: true,
           img: "assets/images/cross.png",
@@ -99,7 +97,7 @@ class _PostScreenState extends State<PostScreen> {
           },
         ),
         body: Padding(
-          padding: EdgeInsets.fromLTRB(20.0,0,20,0),
+          padding: const EdgeInsets.fromLTRB(20.0,0,20,0),
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -121,7 +119,7 @@ class _PostScreenState extends State<PostScreen> {
                       textColor: AppTheme.textColor,
                       imagePath: "assets/svg/camera.svg",
                       // imgHeight: 20,
-                      containerWidth: 120.w,
+                      containerWidth: 110,
                       height: 48,
                       space: 20.0),
                 ),
@@ -136,7 +134,7 @@ class _PostScreenState extends State<PostScreen> {
                     textColor: AppTheme.textColor,
                     imagePath: "assets/images/gallery1.png",
                     imgHeight: 20,
-                    containerWidth: 120.w,
+                    containerWidth: 110,
                     height: 48,
                     space: 20.0),
                 Padding(
@@ -151,7 +149,7 @@ class _PostScreenState extends State<PostScreen> {
                       imagePath: "assets/images/video.png",
                       imgHeight: 20,
                       height: 48,
-                      containerWidth: 120.w,
+                      containerWidth: 110,
                       space: 20.0),
                 ),
                 imageProvider.isCompressing == true
@@ -218,10 +216,11 @@ class _PostScreenState extends State<PostScreen> {
                               },
                             ),
                           ),
-                widget.selling != null && imageProvider.imagePaths.isEmpty
+
+                product != null && imageProvider.imagePaths.isEmpty
                     ? Wrap(
                         children: [
-                          for (var l in widget.selling!.photo!)
+                          for (var l in product!.photo!)
                             Stack(
                               children: [
                                 Padding(
@@ -232,7 +231,7 @@ class _PostScreenState extends State<PostScreen> {
                                     width: 100,
                                     decoration: BoxDecoration(
                                       image: DecorationImage(
-                                        image: NetworkImage(l.src.toString()),
+                                        image: NetworkImage(l.url.toString()),
                                         fit: BoxFit.cover,
                                       ),
                                       borderRadius: BorderRadius.circular(10),
@@ -248,10 +247,10 @@ class _PostScreenState extends State<PostScreen> {
                                           .imageDeleteService(
                                         context: context,
                                         id: l.id!,
-                                        productId: int.parse(l.productId!),
+                                        productId: l.productId!,
                                       );
                                       setState(() {
-                                        widget.selling!.photo!.remove(l);
+                                        product?.photo!.remove(l);
                                       });
                                     },
                                     child: const Card(
@@ -263,13 +262,65 @@ class _PostScreenState extends State<PostScreen> {
                             ),
                         ],
                       )
-                    : widget.selling != null ||
+                    : product != null ||
                             imageProvider.imagePaths.isNotEmpty
                         ? const SizedBox.shrink()
-                        : AppText.appText("Add your cover photo first",
+                        : imageProvider.videoPath.isNotEmpty ? const SizedBox.shrink() :
+                            AppText.appText("Add your cover photo first",
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                             textColor: AppTheme.textColor),
+
+                if(imageProvider.videoPath.isNotEmpty)
+                  Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 10.0,
+                            bottom: 10,
+                            top: 10,
+                            right: 5),
+                        child: Container(
+                          height: 120,
+                          width: 100,
+                          decoration: BoxDecoration(
+                            color: AppTheme.hintTextColor,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: VideoPlayerWidget(
+                              videoPath: imageProvider.videoPath, // Add your video path here
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        right: 1,
+                        top: 1,
+                        child: InkWell(
+                          child: Container(
+                            decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle),
+                            child: const Padding(
+                              padding: EdgeInsets.all(3.0),
+                              child: Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 14,
+                              ),
+                            ),
+                          ),
+                          onTap: () {
+                            imageProvider.removeVideo();
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+
+
                 LableTextField(
                   labelTxt: "Title",
                   hintTxt: "NAME, BRAND, MODEL, ETC.",
@@ -304,7 +355,7 @@ class _PostScreenState extends State<PostScreen> {
                             padding: const EdgeInsets.only(top: 20.0),
                             child: AppButton.appButton("Next", onTap: () async {
                               if (imageProvider.imagePaths.isEmpty &&
-                                  widget.selling == null) {
+                                  product == null) {
                                 showSnackBar(context, "Add at least one image");
                                 return; // Exit the onTap callback if conditions are not met
                               }
@@ -324,17 +375,17 @@ class _PostScreenState extends State<PostScreen> {
                                 "user_id": userId,
                                 "title": _titleController.text,
                                 "description": _descController.text,
-                                if (widget.selling != null) "product_id": widget.selling!.id.toString(),
+                                if (product != null) "product_id": product?.id.toString(),
                                 if (isBack == true) "product_id": ourProductId.toString(),
                               };
 
                               String? videoPath;
 
-                               if (imageProvider.vedioPath.isNotEmpty) {
-                                videoPath = imageProvider.vedioPath;
+                               if (imageProvider.videoPath.isNotEmpty) {
+                                videoPath = imageProvider.videoPath;
                               }
 
-                              provider.addProductFirstStep(data, imageProvider.imagePaths, update: widget.selling != null || isBack == true, videoPath : videoPath).then((value){
+                              provider.addProductFirstStep(data, imageProvider.imagePaths, videoPath : videoPath, update: widget.product != null).then((value){
                                 var productId = value.data?.productId;
                                 ourProductId = productId;
 
@@ -342,7 +393,7 @@ class _PostScreenState extends State<PostScreen> {
                                     PostDetailScreen(
                                       productId: value.data?.productId,
                                       title: _titleController.text,
-                                      selling: widget.selling,
+                                      product: product,
                                     ))).then((value){
                                   setState(() {
                                     isBack = true;
@@ -410,3 +461,7 @@ class _PostScreenState extends State<PostScreen> {
   }
 
 }
+
+
+
+

@@ -7,19 +7,20 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/views/Authentication%20screens/login_screen.dart';
 
 import '../Constants/app_logger.dart';
-import '../Controller/APIs Manager/notification_api.dart';
+import '../view_model/notification/notification_api.dart';
 import '../config/app_urls.dart';
 import '../config/dio/app_dio.dart';
 import '../config/keys/pref_keys.dart';
 import '../main.dart';
 import '../providers/screen_state_notifier.dart';
+import '../view_model/product/product/product_viewmodel.dart';
 import '../views/Products/Feature Product/feature_info.dart';
 import '../views/Products/Auction Product/auction_info.dart';
 import '../views/Products/Auction Product/widgets/reschdule_acution_time.dart';
 import '../views/ChatScreens/offer_chat_screen.dart';
 import '../views/Notification/notification_screen.dart';
 import '../views/Sellings/new_sold_screen.dart';
-import '../views/Sellings/rating_screen.dart';
+import '../views/Rating/rating_screen.dart';
 
 class FirebaseMessagingService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -97,20 +98,14 @@ class FirebaseMessagingService {
     if(authenticationToken!=null){
       if(title == 'conversation' || title ==  'Make Offer' || title ==  'MakeOffer'){
         push(context, OfferChatScreen(
-          conversationId: typeId,
+          conversationId: typeId.toString(),
         ));}
-      // else if(title == 'MakeOffer'){
-      //   getOffer(dio: dio, context: context, offerId: typeId);
-      // }
+
 
       else if(title == 'auction'){
-        getBid(dio: dio, context: context, offerId:  typeId,
-            markSold: false);
+        getProductDetail(context: context, productId:  typeId,);
       }
 
-      else if(title.contains('Final Price')){
-        getAuctionProductDetail(productId:  typeId, context: context);
-      }
 
       else if(title  == 'Review'){
         push(context, RatingScreen(
@@ -127,12 +122,7 @@ class FirebaseMessagingService {
     }
     else{
       if(title == 'auction'){
-        getBid(dio: dio, context: context, offerId:  typeId,
-            markSold: false);
-      }
-
-      else if(title.contains('Final Price')){
-        getAuctionProductDetail(productId:  typeId, context: context);
+        getProductDetail(context: context, productId:  typeId,);
       }
 
       else{
@@ -181,55 +171,11 @@ class FirebaseMessagingService {
   }
 
 
-  Future<void> getBid({
-    offerId,
-    required dio,
-    required context,
-    required bool markSold,
-  }) async {
+  void getProductDetail({productId, required BuildContext context}) async {
 
-    var response;
-    var allOfferData;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": offerId,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getBid, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-      } else if (response.statusCode == responseCode401) {
-      } else if (response.statusCode == responseCode404) {
-
-      } else if (response.statusCode == responseCode500) {
-
-      } else if (response.statusCode == responseCode422) {
-      } else if (response.statusCode == responseCode200) {
-        if(responseData["data"].isNotEmpty ) {
-          allOfferData = responseData["data"];
-          getAuctionProductDetail(productId:allOfferData["product_id"], context: context,  markAsSold: markSold);
-
-        }
-      }
-    } catch (e) {
-      showSnackBar(context, "Something went Wrong.");
-    }
+    final productViewModel = Provider.of<ProductViewModel>(context, listen: false);
+    productViewModel.navigateToProductPage(productId is String ? int.parse(productId) : productId, context);
   }
 
-  void getAuctionProductDetail({productId, limit, context, bool markAsSold = false}) async {
 
-    push(context, AuctionInfoScreen(productId: productId.toString() , fromDynamicLink: true,));
-  }
-
-  void getFeatureProductDetail({productId, limit, context}) async {
-
-    push(context, FeatureInfoScreen(productId: productId.toString() , fromDynamicLink: true,));
-
-  }
-  
 }

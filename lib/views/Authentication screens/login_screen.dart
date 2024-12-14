@@ -53,12 +53,14 @@ class _SigInScreenState extends State<SigInScreen> {
                   },
                       height: 44,
                       imgHeight: 20,
+                      containerWidth: 88,
                       imagePath: "assets/images/call.png"),
                   AppButton.appButtonWithLeadingImage("Continue with Email",
                       onTap: () {
                     push(context, const EmailLoginScreen());
                   },
                       height: 44,
+                      containerWidth: 88,
                       imgHeight: 20,
                       imagePath: "assets/images/sms.png"),
                   GestureDetector(

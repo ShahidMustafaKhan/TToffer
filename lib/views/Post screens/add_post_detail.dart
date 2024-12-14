@@ -1,4 +1,3 @@
-// ignore_for_file: prefer_typing_uninitialized_variables
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +18,7 @@ import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
-import 'package:tt_offer/detail_model/property_for_sale_model.dart';
+import 'package:tt_offer/detail_model/attribute_model.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
@@ -31,13 +30,15 @@ import 'package:tt_offer/views/Post%20screens/set_price_screen.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 
+import '../../models/product_model.dart';
+
 class PostDetailScreen extends StatefulWidget {
   final productId;
   String title;
-  Selling? selling;
+  Product? product;
 
   PostDetailScreen(
-      {super.key, this.productId, required this.title, this.selling});
+      {super.key, this.productId, required this.title, this.product});
 
   @override
   State<PostDetailScreen> createState() => _PostDetailScreenState();
@@ -59,10 +60,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   final TextEditingController _salaryController = TextEditingController();
   final TextEditingController _typeController = TextEditingController();
 
-  bool _isLoading = false;
-  AppLogger logger = AppLogger();
-  late final dio;
-
   var catagoryData;
   var subCatagoryData;
 
@@ -70,10 +67,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   @override
   void initState() {
-    logger.init();
-    dio = AppDio(context);
-
-
 
     subCategoriesHandler();
     super.initState();
@@ -717,7 +710,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   //ElectronicAmplience
 
   String? selectDealer;
-  String? selectJobType = "Hiring";
+  String? selectJobType = "hiring";
 
 
 
@@ -796,7 +789,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   KidsAttributes? kidsAttributes;
   AnimalsAttributes? animalsAttributes;
   FurnitureAttributes? furnitureAttributes;
-  ElectronicApplicanceAttributes? electronicApplicanceAttributes;
+  ElectronicApplianceAttributes? electronicApplicanceAttributes;
 
 
   final ScrollController _scrollController = ScrollController();
@@ -809,13 +802,27 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     );
   }
 
+  void _scrollByPx(double px) {
+    final double newOffset = _scrollController.offset + px;
+
+    _scrollController.animateTo(
+      newOffset.clamp(
+        _scrollController.position.minScrollExtent,
+        _scrollController.position.maxScrollExtent,
+      ), // Ensures the new offset stays within scroll bounds
+      duration: const Duration(seconds: 1),
+      curve: Curves.easeOut,
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
 
     print("object$_selectedCategory");
     return Consumer2<CategoryProvider, SubCategoriesProvider>(
         builder: (context, category, subCat, _) {
-      final parseData = widget.selling?.attributes ?? {};
+      final parseData = widget.product?.attributes ?? {};
 
       if(_selectedCategory=='Mobiles'){
         if(_selectedSubCategory != 'Accessories') {
@@ -847,13 +854,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
 
 
-
-
       catModel = category.category;
       subCatModel = subCat.subCategories;
 
       if (!_dataInitialized &&
-          widget.selling != null) {
+          widget.product != null) {
         vehicleAttributes = VehicleAttributes.fromJson(parseData);
         mobileAttributes = MobileAttributes.fromJson(parseData);
         fashionAttributes = FashionAttributes.fromJson(parseData);
@@ -865,10 +870,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         animalsAttributes = AnimalsAttributes.fromJson(parseData);
         furnitureAttributes = FurnitureAttributes.fromJson(parseData);
         electronicApplicanceAttributes =
-            ElectronicApplicanceAttributes.fromJson(parseData);
+            ElectronicApplianceAttributes.fromJson(parseData);
 
-        _selectedCategory = widget.selling?.category!.name!;
-        _selectedSubCategory = widget.selling?.subCategory!.name!;
+        _selectedCategory = widget.product?.category!.name!;
+        _selectedSubCategory =widget.product?.subCategory!.name!;
+
+        catagoryId =widget.product!.categoryId.toString();
+        subCatagoryId =widget.product!.subCategory!.id.toString();
 
 
         brand = mobileAttributes?.brand ?? '';
@@ -889,13 +897,15 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         maintenanceFeeController.text = propertyAttributes!.maintenanceFee;
         occupancyStatus = propertyAttributes!.occupancyStatus;
         area.text = propertyAttributes!.area;
-        features = propertyAttributes!.features;
+        if(propertyAttributes!.features is List) {
+          features = propertyAttributes!.features;
+        }
         selectMakeModel = vehicleAttributes!.makeModel;
         yearBuiltController.text = vehicleAttributes!.year;
         conditionSelect = 'New';
         kilometresController.text = vehicleAttributes!.mileAge;
         yearBuiltController.text = vehicleAttributes!.year;
-        fuelTypeSelect = vehicleAttributes!.FuelType;
+        fuelTypeSelect = vehicleAttributes!.fuelType;
         colorSelect = vehicleAttributes!.color;
         kilometresController.text = vehicleAttributes!.mileAge;
         completion = propertyAttributes!.completion;
@@ -905,23 +915,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         conditionSelect = electronicApplicanceAttributes!.condition;
         colorSelect = electronicApplicanceAttributes!.color;
 
-        catagoryId = vehicleAttributes!.categoryId;
-        catagoryId = propertyAttributes!.categoryId;
-        catagoryId = mobileAttributes!.categoryId;
-        catagoryId = electronicApplicanceAttributes!.categoryId;
-        catagoryId = bikeAttributes!.categoryId;
-        catagoryId = jobAttributes!.categoryId;
-        catagoryId = servicesAttributes!.categoryId;
-        catagoryId = animalsAttributes!.categoryId;
-        catagoryId = furnitureAttributes!.categoryId;
-        catagoryId = fashionAttributes!.categoryId;
-        catagoryId = kidsAttributes!.categoryId;
 
         print('catCat------>${catagoryId}');
 
         engineCapacity = bikeAttributes!.engineCapacity;
         modelController.text = bikeAttributes!.model;
-        subCatagoryId = bikeAttributes!.subCategoryId;
+
 
         jobType = jobAttributes!.type;
         descriptionController.text = jobAttributes!.description;
@@ -930,21 +929,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         companyNameController.text = jobAttributes!.companyName;
 
         car = servicesAttributes!.car;
-        subCatagoryId = servicesAttributes!.subCategoryId;
 
         age = animalsAttributes!.age;
         _breedController.text = animalsAttributes!.breed;
-        subCatagoryId = animalsAttributes!.subCategoryId;
 
         _typeController.text = furnitureAttributes!.type;
         colorSelect = furnitureAttributes!.color;
 
         fabric = fashionAttributes!.fabric;
         suitType = fashionAttributes!.suitType;
-        subCatagoryId = fashionAttributes!.subCategoryId;
 
         toyController.text = kidsAttributes!.toy;
-        subCatagoryId = kidsAttributes!.subCategoryId;
 
         // Mark data as initialized
         _dataInitialized = true;
@@ -1321,11 +1316,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           padding : EdgeInsets.symmetric(horizontal: 40.w, vertical: 2.h),
                           fontSize: 15,
                           radius: 40.0,
-                          backgroundColor: selectJobType == "Hiring" ? AppTheme.yellowColor : null,
-                          textColor: selectJobType == "Hiring"? AppTheme.whiteColor : null,
-                          borderColor:  selectJobType == "Hiring" ? AppTheme.yellowColor : null,
+                          backgroundColor: selectJobType == "hiring" ? AppTheme.yellowColor : null,
+                          textColor: selectJobType == "hiring"? AppTheme.whiteColor : null,
+                          borderColor:  selectJobType == "hiring" ? AppTheme.yellowColor : null,
                           onTap:(){
-                            selectJobType = "Hiring" ;
+                            selectJobType = "hiring" ;
                             setState(() {});}
                       ),
                     ),
@@ -1338,11 +1333,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           fontWeight: FontWeight.w500,
                           fontSize: 15,
                           radius: 40.0,
-                          borderColor:  selectJobType == "Looking" ? AppTheme.yellowColor : null,
-                          backgroundColor: selectJobType == "Looking" ? AppTheme.yellowColor : null,
-                          textColor: selectJobType == "Looking" ? AppTheme.whiteColor : null,
+                          borderColor:  selectJobType == "looking" ? AppTheme.yellowColor : null,
+                          backgroundColor: selectJobType == "looking" ? AppTheme.yellowColor : null,
+                          textColor: selectJobType == "looking" ? AppTheme.whiteColor : null,
                           onTap:(){
-                            selectJobType = "Looking";
+                            selectJobType = "looking";
                             setState(() {});}
                       )
                       ,
@@ -1543,7 +1538,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           //     },
                           //     title: 'Salary',
                           //     textEditingController: _salaryController),
-                          if(selectJobType == 'Hiring' )
+                          if(selectJobType == 'hiring' )
                           customRow(
                               onTap: () {
                                 makeSalaryPeriodBottom(context);
@@ -1560,13 +1555,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                 selectText:
                                 experienceLevel ?? 'Select Experience Level'),
                           customRowTextField(
-                              title: selectJobType == 'Hiring' ? 'Company Name' : 'Linkedin Profile(link)',
+                              title: selectJobType == 'hiring' ? 'Company Name' : 'Linkedin Profile(link)',
                               textEditingController: selectJobType == 'Hiring' ?  companyNameController : linkedinProfileController),
                           customRow(
                               onTap: () {
                                 makePossitionTypeBottom(context);
                               },
-                              title: selectJobType == 'Hiring' ? 'Position Type' : 'Preferred Employment Type',
+                              title: selectJobType == 'hiring' ? 'Position Type' : 'Preferred Employment Type',
                               selectText: possitionType),
                           // customRow(
                           //     onTap: () {
@@ -1714,6 +1709,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             onTap: () {
                             },
                             title: 'Area/Size' ,
+                            textInputType: TextInputType.number,
                             hintText: 'sqft',
                            textEditingController: area),
 
@@ -1745,7 +1741,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         customRowTextField(
                           onTap: () {
                           },
-                          title: 'Total closing fee', textEditingController: totalClosingFeeController,),
+                          textInputType: TextInputType.number,
+                          title: 'Total closing fee',  textEditingController: totalClosingFeeController, ),
                         customRowTextField(
                           onTap: () {
                           },
@@ -1753,22 +1750,27 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         customRowTextField(
                           onTap: () {
                           },
+                          textInputType: TextInputType.number,
                           title: 'Annual community fee', textEditingController: annualCommunityFeeController,),
                         customRowTextField(
                           onTap: () {
                           },
+                          textInputType: TextInputType.number,
                           title: 'Property Reference ID #', textEditingController: propertyReferenceController,),
                         customRowTextField(
                           onTap: () {
                           },
+                          textInputType: TextInputType.number,
                           title: 'Buy Transfer Fee', textEditingController: buyTransferController,),
                         customRowTextField(
                           onTap: () {
                           },
+                          textInputType: TextInputType.number,
                           title: 'Seller Transfer Fee', textEditingController: sellTransferController,),
                         customRowTextField(
                           onTap: () {
                           },
+                          textInputType: TextInputType.number,
                           title: 'Maintenance Fee', textEditingController: maintenanceFeeController,),
                         customRow(
                             onTap: () {
@@ -1869,43 +1871,42 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
                 Consumer<PostProductViewModel>(
                     builder: (context, provider, child){
-                      return provider.secondStepLoading == true
-                        ? LoadingDialog()
-                        : Padding(
+                      return  Padding(
                             padding: const EdgeInsets.symmetric(vertical: 40.0),
-                            child: AppButton.appButton("Next", onTap: () {
-                              print("object $catagoryId  $subCatagoryId");
+                            child: provider.secondStepLoading == true
+                                ? const CircularProgressIndicator()
+                                : AppButton.appButton("Next", onTap: () {
                               addProductDetail(_selectedCategory == 'Mobiles'
                                   ? mobileJson
                                   : _selectedCategory == 'Property for Sale'
-                                      ? propertyForSaleJson
-                                      : _selectedCategory == 'Vehicles'
-                                          ? vehiclesJson
-                                          : _selectedCategory == 'Property for Rent'
-                                              ? propertyForRentJson
-                                              : _selectedCategory == 'Bikes'
-                                                  ? bikeJson
-                                                  : _selectedCategory == 'Jobs'
-                                                      ? jobJson
-                                                      : _selectedCategory ==
-                                                              'Services'
-                                                          ? servicesJson
-                                                          : _selectedCategory ==
-                                                                  'Animals'
-                                                              ? animalsJson
-                                                              : _selectedCategory ==
-                                                                      'Furniture & home decor'
-                                                                  ? furnitureJson
-                                                                  : _selectedCategory ==
-                                                                          'Fashion & beauty'
-                                                                      ? fashionJson
-                                                                      : _selectedCategory ==
-                                                                              'Kids'
-                                                                          ? kidsJson
-                                                                          : _selectedCategory ==
-                                                                                  'Electronics & Appliance'
-                                                                              ? electricApplianceJson
-                                                                              : {}, provider);
+                                  ? propertyForSaleJson
+                                  : _selectedCategory == 'Vehicles'
+                                  ? vehiclesJson
+                                  : _selectedCategory == 'Property for Rent'
+                                  ? propertyForRentJson
+                                  : _selectedCategory == 'Bikes'
+                                  ? bikeJson
+                                  : _selectedCategory == 'Jobs'
+                                  ? jobJson
+                                  : _selectedCategory ==
+                                  'Services'
+                                  ? servicesJson
+                                  : _selectedCategory ==
+                                  'Animals'
+                                  ? animalsJson
+                                  : _selectedCategory ==
+                                  'Furniture & home decor'
+                                  ? furnitureJson
+                                  : _selectedCategory ==
+                                  'Fashion & beauty'
+                                  ? fashionJson
+                                  : _selectedCategory ==
+                                  'Kids'
+                                  ? kidsJson
+                                  : _selectedCategory ==
+                                  'Electronics & Appliance'
+                                  ? electricApplianceJson
+                                  : {}, provider);
                             },
                                 height: 53,
                                 fontWeight: FontWeight.w500,
@@ -1983,7 +1984,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     );
   }
 
-  Widget customRowTextField({Function()? onTap, String? title, required TextEditingController textEditingController, String hintText=''}) {
+  Widget customRowTextField({Function()? onTap, String? title, required TextEditingController textEditingController, String hintText='', TextInputType? textInputType}) {
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
       child: GestureDetector(
@@ -2008,7 +2009,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     _selectedCategory == 'Property for Rent' || _selectedCategory == 'Animals' || _selectedCategory == 'Furniture & home decor' ||
               _selectedCategory == 'Property for Sale' ? 12 :  _selectedCategory == 'Vehicles' ? 8 : 18,
               ),
-            PostTextField(textEditingController: textEditingController, txt: title, textInputType: _selectedCategory == 'Kids' || _selectedCategory == 'Animals' || _selectedCategory == 'Bikes' || (_selectedCategory == 'Property For Sale' || title != 'Year Built') ? TextInputType.name : TextInputType.number, hintText: hintText,)
+            PostTextField(textEditingController: textEditingController, txt: title, textInputType: textInputType ?? (_selectedCategory == 'Kids' || _selectedCategory == 'Animals' || _selectedCategory == 'Bikes' || (_selectedCategory == 'Property For Sale' || title != 'Year Built') ? TextInputType.name : TextInputType.number), hintText: hintText,)
             ],
           ),
         ),
@@ -2235,6 +2236,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
               });
               jobType = jobTypeList[_selectedSubCategory]![index];
+              _scrollToBottom();
             },
             child: Row(
               children: [
@@ -2245,6 +2247,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   activeColor: AppTheme.appColor,
                   value: jobType ==  jobTypeList[_selectedSubCategory]![index],
                   onChanged: (bool? value) {
+                    Navigator.of(context).pop();
                     setStatee(() {
                       if (value != null && value) {
                         jobType = jobTypeList[_selectedSubCategory]![index];
@@ -2252,6 +2255,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         jobType = null;
                       }
                     });
+                    _scrollToBottom();
+
                   },
                 ),
                 AppText.appText(jobTypeList[_selectedSubCategory]![index],
@@ -3035,6 +3040,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               setState(() {
                 bedrooms = _selectedSubCategory == 'Houses' ? bedroomHousesList[index] : bedroomList[index];
               });
+              _scrollByPx(300);
             },
             child: Row(
               children: [
@@ -3053,6 +3059,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         bedrooms = null;
                       }
                     });
+                    _scrollByPx(300);
                   },
                 ),
                 AppText.appText((_selectedSubCategory == 'Houses' ? bedroomHousesList[index] : bedroomList[index]),
@@ -3158,7 +3165,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               setState(() {
                 bathroom = bathroomList[index];
               });
-              _scrollToBottom();
+              _scrollByPx(200);
             },
             child: Row(
               children: [
@@ -3177,7 +3184,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         bathroom = null;
                       }
                     });
-                    _scrollToBottom();
+                    _scrollByPx(200);
                   },
                 ),
                 AppText.appText(bathroomList[index],
@@ -3324,7 +3331,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               setState(() {
 
               });
-              _scrollToBottom();
+              _scrollByPx(300);
 
             },
             child: Row(
@@ -3344,7 +3351,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         furnished = null;
                       }
                     });
-                    _scrollToBottom();
+                    _scrollByPx(300);
                   },
                 ),
                 AppText.appText(furnishedList[index],
@@ -3514,6 +3521,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               setState(() {
                 selectMakeModel = makeModel[index];
               });
+              _scrollByPx(300);
             },
             child: Row(
               children: [
@@ -3532,6 +3540,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         selectMakeModel = null;
                       }
                     });
+                    _scrollByPx(300);
                   },
                 ),
                 AppText.appText(makeModel[index],
@@ -3877,7 +3886,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
 
   void makePossitionTypeBottom(BuildContext context) {
-    return customBottomSheet(context, selectJobType == 'Hiring' ? 'Position Type' : 'Preferred Employment Type', _searchController,
+    return customBottomSheet(context, selectJobType == 'hiring' ? 'Position Type' : 'Preferred Employment Type', _searchController,
         _possitiontype(), possitionType ?? '');
   }
 
@@ -4073,127 +4082,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       setState(() {
         selectedValue = selectedValue;
         if((title != 'Job Type' && title != 'Zone For' && title != "Subcategories") && selectedValue.isNotEmpty) {
-          _scrollToBottom();
+          // _scrollBy100Px();
         }
       });
     });
   }
 
-  void getCatagories({search}) async {
-    setState(() {
-      _isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "search": "$search",
-      "limit": null,
-    };
-    try {
-      response = await dio.post(path: AppUrls.categories, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          catagoryData = responseData;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong $e");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
 
-  void getSubCatagories({search}) async {
-    setState(() {
-      _isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "category_id": "",
-      "search": null,
-      "limit": null,
-      "id": "",
-    };
-    try {
-      response = await dio.post(path: AppUrls.subCategories, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          subCatagoryData = responseData;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong $e");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
 
   void addProductDetail(Map<String, dynamic> mapData, PostProductViewModel provider ) async {
     if ((_selectedCategory == 'Property for Rent' || _selectedCategory == 'Vehicles' ||
@@ -4215,13 +4110,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
 
       provider.addProductSecondStep(
-          mapData, update: widget.selling != null || isBack == true).then((value){
+          mapData, update: widget.product != null || isBack == true).then((value){
         Navigator.push(context, CupertinoPageRoute(builder: (_) =>
             SetPostPriceScreen(
-                selling: widget.selling,
+                product: widget.product,
                 productId: value.data!.productId,
                 title: widget.title,
-                categoryName: _selectedCategory
+                categoryName: _selectedCategory,
+                productType: _selectedCategory == 'Jobs' ? selectJobType : null,
             ))).then((value){
           setState(() {
             isBack = true;
@@ -4287,7 +4183,7 @@ class ImageDeleteService {
       required int id,
       required int productId}) async {
     try {
-      Map body = {'id': id, 'product_id': productId};
+      Map body = {'photo_id': id, 'product_id': productId};
 
       // Assuming CustomPostRequest().httpPostRequest returns a Map
       var res = await CustomPostRequest()
@@ -4316,184 +4212,6 @@ class ImageDeleteService {
   }
 }
 
-// void _showSubCategoryBottomSheet(BuildContext context) {
-//   showModalBottomSheet(
-//     context: context,
-//     builder: (BuildContext context) {
-//       return StatefulBuilder(
-//         builder: (BuildContext context, StateSetter setState) {
-//           return Container(
-//             decoration: BoxDecoration(
-//                 color: AppTheme.whiteColor,
-//                 borderRadius: BorderRadius.circular(30)),
-//             padding: const EdgeInsets.all(16),
-//             child: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               crossAxisAlignment: CrossAxisAlignment.stretch,
-//               children: [
-//                 Align(
-//                   alignment: Alignment.center,
-//                   child: AppText.appText(
-//                     "Sub Categories",
-//                     fontSize: 20,
-//                     fontWeight: FontWeight.bold,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 16),
-//                 CustomAppFormField(
-//                   radius: 15.0,
-//                   prefixIcon: Image.asset(
-//                     "assets/images/search.png",
-//                     height: 17,
-//                     color: AppTheme.textColor,
-//                   ),
-//                   texthint: "Search",
-//                   controller: _searchController,
-//                 ),
-//                 const SizedBox(height: 16),
-//                 Expanded(
-//                   child: _buildSubCategoryList(setState),
-//                 ),
-//               ],
-//             ),
-//           );
-//         },
-//       );
-//     },
-//   ).then((value) {
-//     setState(() {
-//       _selectedSubCategory = _selectedSubCategory;
-//     });
-//   });
-// }
-//
-// Widget _buildSubCategoryList(StateSetter setState) {
-//   return ListView.builder(
-//     shrinkWrap: true,
-//     itemCount: subCatagoryData.length,
-//     itemBuilder: (context, index) {
-//       return Row(
-//         children: [t
-//           Checkbox(
-//             shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(20)),
-//             checkColor: AppTheme.whiteColor,
-//             activeColor: AppTheme.appColor,
-//             value: _selectedSubCategory == subCatagoryData[index]["name"],
-//             onChanged: (bool? value) {
-//               setState(() {
-//                 if (value != null && value) {
-//                   _selectedSubCategory = subCatagoryData[index]["name"];
-//                   subCatagoryId = subCatagoryData[index]["id"];
-//                   print('subbbbb----->${subCatagoryId}');
-//                 } else {
-//                   _selectedSubCategory = "";
-//                 }
-//               });
-//             },
-//           ),
-//           AppText.appText(subCatagoryData[index]["name"],
-//               fontSize: 16,
-//               fontWeight: FontWeight.w500,
-//               textColor: AppTheme.textColor),
-//         ],
-//       );
-//     },
-//   );
-// }
-//
-// /////////////////////////////  Condition bottom sheet ///////////////////////
-// void _showConditionBottomSheet(BuildContext context) {
-//   showModalBottomSheet(
-//     context: context,
-//     builder: (BuildContext context) {
-//       return StatefulBuilder(
-//         builder: (BuildContext context, StateSetter setState) {
-//           return Container(
-//             decoration: BoxDecoration(
-//                 color: AppTheme.whiteColor,
-//                 borderRadius: BorderRadius.circular(30)),
-//             padding: const EdgeInsets.all(16),
-//             child: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               crossAxisAlignment: CrossAxisAlignment.stretch,
-//               children: [
-//                 Align(
-//                   alignment: Alignment.center,
-//                   child: AppText.appText(
-//                     "Condition",
-//                     fontSize: 20,
-//                     fontWeight: FontWeight.bold,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 16),
-//                 CustomAppFormField(
-//                   radius: 15.0,
-//                   prefixIcon: Image.asset(
-//                     "assets/images/search.png",
-//                     height: 17,
-//                     color: AppTheme.textColor,
-//                   ),
-//                   texthint: "Search",
-//                   controller: _searchController,
-//                 ),
-//                 const SizedBox(height: 16),
-//                 Expanded(
-//                   child: _buildConditionList(setState),
-//                 ),
-//               ],
-//             ),
-//           );
-//         },
-//       );
-//     },
-//   ).then((value) {
-//     setState(() {
-//       _selectedCondition = _selectedCondition;
-//     });
-//   });
-// }
-//
-// Widget _buildConditionList(StateSetter setState) {
-//   List<String> conditions = [
-//     "New",
-//     "Good",
-//     "Open Box",
-//     "Refurnished",
-//     "For Part or Not Working"
-//   ];
-//
-//   return ListView.builder(
-//     shrinkWrap: true,
-//     itemCount: conditions.length,
-//     itemBuilder: (context, index) {
-//       return Row(
-//         children: [
-//           Checkbox(
-//             shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(20)),
-//             checkColor: AppTheme.whiteColor,
-//             activeColor: AppTheme.appColor,
-//             value: _selectedCondition == conditions[index],
-//             onChanged: (bool? value) {
-//               setState(() {
-//                 if (value != null && value) {
-//                   _selectedCondition = conditions[index];
-//                 } else {
-//                   _selectedCondition = "";
-//                 }
-//               });
-//             },
-//           ),
-//           AppText.appText(conditions[index],
-//               fontSize: 16,
-//               fontWeight: FontWeight.w500,
-//               textColor: AppTheme.textColor),
-//         ],
-//       );
-//     },
-//   );
-// }
 
 Widget customCheckBox(bool val, Function(bool?)? onChanged, String? title) {
   return SizedBox(

@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-class FullImagePage extends StatefulWidget {
-  final dynamic detailResponse;
+import '../../../models/product_model.dart';
 
-  FullImagePage({Key? key, required this.detailResponse}) : super(key: key);
+class FullImagePage extends StatefulWidget {
+  final Product? product;
+
+  FullImagePage({Key? key, required this.product}) : super(key: key);
 
   @override
   State<FullImagePage> createState() => _FullImagePageState();
@@ -15,17 +17,20 @@ class FullImagePage extends StatefulWidget {
 class _FullImagePageState extends State<FullImagePage> {
   int _currentPage = 0;
   late CarouselController _carouselController;
+  Product? product;
 
 
   @override
   void initState() {
-    super.initState();
+    product = widget.product;
     _carouselController = CarouselController();
+
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    var photos = widget.detailResponse["photo"] as List;
+    List<Photo>? photos = product?.photo;;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -34,29 +39,30 @@ class _FullImagePageState extends State<FullImagePage> {
         child: Stack(
           children: [
             Center(
-              child: photos.length == 1
+              child: (photos?.length ?? 0) == 1
                   ? InteractiveViewer(
                       // boundaryMargin: const EdgeInsets.all(20.0),
                       minScale: 0.5,
                       maxScale: 4.0,
                       panEnabled: true,
                       trackpadScrollCausesScale: true,
-                      child: Image.network(
-                        photos[0]["src"] as String,
+                      child: (product?.photo?.isNotEmpty ?? false)
+                          ? Image.network(
+                        product!.photo![0].url!,
                         fit: BoxFit.cover,
-                      ),
+                      ) : const SizedBox(),
                     )
                   : Stack(
                 children: [
                   CarouselSlider(
-                    items: photos.map<Widget>((photoUrl) {
+                    items: photos?.map<Widget>((photoUrl) {
                       return InteractiveViewer(
                         minScale: 0.5,
                         maxScale: 2.0,
                         panEnabled: true,
                         trackpadScrollCausesScale: true,
                         child: Image.network(
-                          photoUrl["src"] as String,
+                          photoUrl.url as String,
                           fit: BoxFit.fill,
                         ),
                       );
@@ -74,7 +80,7 @@ class _FullImagePageState extends State<FullImagePage> {
                       },
                     ),
                   ),
-                  if(photos.length>1 && _currentPage!=0)
+                  if((photos?.length ?? 0) > 1 && _currentPage!=0)
                   Positioned(
                     left: 8,
                     top: 0,
@@ -86,7 +92,7 @@ class _FullImagePageState extends State<FullImagePage> {
                       },
                     ),
                   ),
-                  if(photos.length>1 && _currentPage!=(photos.length-1))
+                  if((photos?.length ?? 0) > 1 && _currentPage!=((photos?.length ?? 0) - 1))
                     Positioned(
                     right: 8,
                     top: 0,
@@ -102,7 +108,7 @@ class _FullImagePageState extends State<FullImagePage> {
                 ],
               ),
             ),
-            if(photos.length>1)
+            if((photos?.length ?? 0) > 1)
             Positioned(
               bottom: 35.h,
               left: 0,
@@ -110,7 +116,7 @@ class _FullImagePageState extends State<FullImagePage> {
               child: Center(
                 child: AnimatedSmoothIndicator(
                   activeIndex: _currentPage,
-                  count: photos.length,
+                  count: (photos?.length ?? 0),
                   effect: const ScrollingDotsEffect(
                     activeDotColor: Colors.blue,
                     dotColor: Colors.grey,

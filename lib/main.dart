@@ -1,7 +1,5 @@
-import 'dart:developer';
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -13,18 +11,12 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/cart_api.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/chat_api.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Controller/provider_class.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
-import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/custom_requests/custom_get_request.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
-import 'package:tt_offer/custom_requests/firebase_messaging_service.dart';
-import 'package:tt_offer/detail_model/property_for_sale_model.dart';
 import 'package:tt_offer/firebase_options.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/sub_categories_model.dart';
@@ -33,30 +25,49 @@ import 'package:tt_offer/providers/chat_list_provider.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
 import 'package:tt_offer/providers/notification_provider.dart';
 import 'package:tt_offer/providers/payment_fee_provider.dart';
-import 'package:tt_offer/providers/profile_info_provider.dart';
 import 'package:tt_offer/providers/screen_state_notifier.dart';
 import 'package:tt_offer/providers/search_provider.dart';
 import 'package:tt_offer/providers/selling_purchase_provider.dart';
 import 'package:tt_offer/repository/auth_api/auth_repository.dart';
+import 'package:tt_offer/repository/banner_api/banner_repository.dart';
+import 'package:tt_offer/repository/bids_api/bids_repository.dart';
+import 'package:tt_offer/repository/cart_api/cart_repository.dart';
+import 'package:tt_offer/repository/chat_api/chat_repository.dart';
+import 'package:tt_offer/repository/notification/notification_repository.dart';
+import 'package:tt_offer/repository/offer_api/offer_repository.dart';
+import 'package:tt_offer/repository/payment_api/payment_repository.dart';
 import 'package:tt_offer/repository/product_api/get_product_api/get_product_repository.dart';
 import 'package:tt_offer/repository/product_api/post_products_api/post_product_repository.dart';
+import 'package:tt_offer/repository/profile_api/user_profile/profile_repository.dart';
+import 'package:tt_offer/repository/selling_api/selling_repository.dart';
+import 'package:tt_offer/repository/suggestion_api/suggestion_repository.dart';
+import 'package:tt_offer/repository/verification_api/verification_repository.dart';
 import 'package:tt_offer/search_location_page.dart';
 import 'package:tt_offer/splash_screen.dart';
+import 'package:tt_offer/view_model/bids/bids_view_model.dart';
+import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
+import 'package:tt_offer/view_model/chat/chat_list_view_model/chat_list_view_model.dart';
+import 'package:tt_offer/view_model/chat/chat_list_view_model/chat_view_model.dart';
 import 'package:tt_offer/view_model/google_auth/google_auth_view_model.dart';
 import 'package:tt_offer/view_model/login/login_view_model.dart';
+import 'package:tt_offer/view_model/notification/notification_view_model.dart';
+import 'package:tt_offer/view_model/offer/offer_view_model.dart';
+import 'package:tt_offer/view_model/payment/payment_view_model.dart';
 import 'package:tt_offer/view_model/product/post_product/post_product_viewmodel.dart';
 import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
+import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 import 'package:tt_offer/view_model/register/register_view_model.dart';
+import 'package:tt_offer/view_model/selling/selling_view_model.dart';
+import 'package:tt_offer/view_model/suggestion/suggestion_view_model.dart';
+import 'package:tt_offer/view_model/verification/verificaiton_view_model.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
 import 'package:tt_offer/repository/google_auth/authentication.dart';
 import 'package:tt_offer/views/Authentication%20screens/GoogleSignIn/google_signin_provider.dart';
-import 'package:tt_offer/views/SearchPage/search_page.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 
-import 'Controller/APIs Manager/banner_api.dart';
+import 'view_model/banner/banner_view_model.dart';
 import 'Controller/loading_provider.dart';
 import 'Utils/utils.dart';
 import 'custom_requests/dynmaic_link_service.dart';
@@ -182,6 +193,17 @@ Future<void> main() async {
   getIt.registerLazySingleton<GoogleAuthRepository>(() => GoogleAuthRepository());
   getIt.registerLazySingleton<PostProductRepository>(() => PostProductRepository());
   getIt.registerLazySingleton<ProductRepository>(() => ProductRepository());
+  getIt.registerLazySingleton<BidsRepository>(() => BidsRepository());
+  getIt.registerLazySingleton<OfferRepository>(() => OfferRepository());
+  getIt.registerLazySingleton<CartRepository>(() => CartRepository());
+  getIt.registerLazySingleton<ProfileRepository>(() => ProfileRepository());
+  getIt.registerLazySingleton<ChatRepository>(() => ChatRepository());
+  getIt.registerLazySingleton<SellingRepository>(() => SellingRepository());
+  getIt.registerLazySingleton<NotificationRepository>(() => NotificationRepository());
+  getIt.registerLazySingleton<PaymentRepository>(() => PaymentRepository());
+  getIt.registerLazySingleton<VerificationRepository>(() => VerificationRepository());
+  getIt.registerLazySingleton<BannerRepository>(() => BannerRepository());
+  getIt.registerLazySingleton<SuggestionRepository>(() => SuggestionRepository());
 
   WidgetsFlutterBinding.ensureInitialized();
   Stripe.publishableKey =
@@ -259,10 +281,6 @@ class _MyAppState extends State<MyApp> {
                 create: (_) => ImageNotifyProvider()),
             ChangeNotifierProvider<ProductsApiProvider>(
                 create: (_) => ProductsApiProvider()),
-            ChangeNotifierProvider<ChatApiProvider>(
-                create: (_) => ChatApiProvider()),
-            ChangeNotifierProvider<ProfileApiProvider>(
-                create: (_) => ProfileApiProvider()),
             ChangeNotifierProvider<NotificationProvider>(
                 create: (_) => NotificationProvider()),
             ChangeNotifierProvider(create: (_) => SellingPurchaseProvider()),
@@ -270,19 +288,28 @@ class _MyAppState extends State<MyApp> {
             ChangeNotifierProvider(create: (_) => ChatProvider()),
             ChangeNotifierProvider(create: (_) => SearchProvider()),
             ChangeNotifierProvider(create: (_) => BidsProvider()),
-            ChangeNotifierProvider(create: (_) => ProfileInfoProvider()),
             ChangeNotifierProvider(create: (_) => PaymentFeeProvider()),
             ChangeNotifierProvider(create: (_) => CategoryProvider()),
             ChangeNotifierProvider(create: (_) => SubCategoriesProvider()),
             ChangeNotifierProvider(create: (_) => ScreenStateNotifier()),
-            ChangeNotifierProvider(create: (_) => BannerController()),
             ChangeNotifierProvider(create: (_) => LoadingProvider()),
-            ChangeNotifierProvider(create: (_) => CartApiProvider()),
             ChangeNotifierProvider(create: (_) => LoginViewModel(authRepository: getIt())),
             ChangeNotifierProvider(create: (_) => RegisterViewModel(authRepository: getIt())),
             ChangeNotifierProvider(create: (_) => GoogleAuthViewModel(googleAuthRepository: getIt())),
             ChangeNotifierProvider(create: (_) => PostProductViewModel(postProductRepository: getIt())),
             ChangeNotifierProvider(create: (_) => ProductViewModel(productRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => BidsViewModel(bidsRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => OfferViewModel(offerRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => CartViewModel(cartRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => UserViewModel(profileRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => ChatListViewModel(chatRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => SellingViewModel(sellingRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => ChatViewModel(chatRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => NotificationViewModel(notificationRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => PaymentViewModel(paymentRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => VerificationViewModel(verificationRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => BannerViewModel(bannerRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => SuggestionViewModel(suggestionRepository: getIt())),
           ],
           child: MaterialApp(
             navigatorKey: navigatorKey,

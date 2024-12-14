@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
@@ -11,9 +12,11 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/no_data_found.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
+import 'package:tt_offer/data/response/status.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/sub_categories_model.dart';
+import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/all_auction_procucts.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_container.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
@@ -22,6 +25,7 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
 
 import '../../Utils/widgets/custom_radio_button.dart';
+import '../../models/product_model.dart';
 
 class ViewSearchedProducts extends StatefulWidget {
   const ViewSearchedProducts({super.key});
@@ -32,31 +36,27 @@ class ViewSearchedProducts extends StatefulWidget {
 
 class _ViewSearchedProductsState extends State<ViewSearchedProducts> {
 
-  late AppDio dio;
-  AppLogger logger = AppLogger();
-
-
-
-  @override
-  void initState() {
-    dio = AppDio(context);
-    logger.init();
-
-
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
 
-    return  Consumer<ProductsApiProvider>(
-          builder: (context, apiProvider, child) {
+    return  Consumer<ProductViewModel>(
+          builder: (context, productViewModel, child) {
+            List<Product>? searchProduct = productViewModel.searchProductList.data?.data?.productList;
+            if(productViewModel.searchProductList.status == Status.loading) {
+              return const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(child: CircularProgressIndicator())
+                ],
+              );
+            }
             return SingleChildScrollView(
               child: Column(
                 children: [
-                  if(apiProvider.allProductsData != null)
+                  SizedBox(height: 45.h,),
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: GridView.builder(
@@ -68,33 +68,33 @@ class _ViewSearchedProductsState extends State<ViewSearchedProducts> {
                         childAspectRatio: screenWidth / (3.8 * 150),
                       ),
                       shrinkWrap: true,
-                      itemCount: apiProvider.allProductsData.length,
+                      itemCount: searchProduct?.length ?? 0,
                       itemBuilder: (context, int index) {
                         return GestureDetector(
                             onTap: () {
-                              if(apiProvider.allProductsData[index]['fix_price'] != null) {
+                              if(searchProduct?[index].productType == 'featured') {
                                 push(
                                   context,
                                   FeatureInfoScreen(
-                                    detailResponse: apiProvider.allProductsData[index],
+                                    product: searchProduct?[index],
                                   ));
                               }
-                              else if(apiProvider.allProductsData[index]["auction_price"] != null) {
+                              else if(searchProduct?[index].productType == 'auction') {
                                 push(
                                     context,
                                     AuctionInfoScreen(
-                                      detailResponse: apiProvider.allProductsData[index],
+                                      product: searchProduct?[index],
                                     ));
                               }
 
                             },
                             child: FeatureProductContainer(
-                              data: apiProvider.allProductsData[index],
+                              product: searchProduct?[index],
                             ));
                       },
                     ),
                   ),
-                  if(apiProvider.allProductsData!=null && apiProvider.allProductsData.isEmpty && apiProvider.allProductsData.isLoading==false)
+                  if(searchProduct != null && searchProduct.isEmpty)
                     NoDataFound.noDataFound()
 
                 ],

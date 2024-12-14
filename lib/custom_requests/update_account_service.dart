@@ -3,136 +3,92 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/main.dart';
+import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 
 class UpdateAccountSettingService {
+
   Future updateProfileNameService(
-      {required BuildContext context, required String name}) async {
-    try {
+      {required BuildContext context, required String name, required UserViewModel userViewModel}) async {
       String? id = pref.getString(PrefKey.userId);
-      print('idd--->${id}');
 
       Map body = {'user_id': id, 'name': name};
 
-      var res = await CustomPostRequest()
-          .httpPostRequest(url: 'update/user', body: body);
+      userViewModel.updateUserProfile(body).then((value){
+        showSnackBar(context, 'Updated Successfully', title : 'Congratulations!');
+      }).onError((error, stackTrace) {
+        showSnackBar(context, error.toString());
+      });
 
-      if (res['success'] == true) {
-        // showSnackBar(context, 'Updated Successfully');
-        return true;
-      } else {
-        return false;
-      }
-    } catch (err) {
-      print(err);
-      return false;
-    }
   }
 
   Future updateEmailService(
-      {required BuildContext context, required String email}) async {
-    try {
+      {required BuildContext context, required String email, required UserViewModel userViewModel}) async {
+
       String? id = pref.getString(PrefKey.userId);
 
       Map body = {'user_id': id, 'email': email};
 
-      var res = await CustomPostRequest()
-          .httpPostRequest(url: 'update/user', body: body);
-
-      if (res['success'] == true) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (err) {
-      print(err);
-      return false;
-    }
+      userViewModel.updateUserProfile(body).then((value){
+        showSnackBar(context, 'Updated Successfully', title : 'Congratulations!');
+      }).onError((error, stackTrace) {
+        showSnackBar(context, error.toString());
+      });
   }
 
   Future updatePasswordService(
       {required BuildContext context,
-      required String newPassword,
-      String? email}) async {
-    try {
-      // String? email = pref.getString(PrefKey.email);
-      String? id = pref.getString(PrefKey.userId);
+      required String newPassword, required String oldPassword, required UserViewModel userViewModel,}) async {
 
-      Map body = {"email": email, "password": newPassword};
+      Map body = {"old_password": oldPassword, "password": newPassword};
 
-      var res = await CustomPostRequest()
-          .httpPostRequest(url: 'new-password', body: body);
-
-      if (res['status'] == 'success') {
-        showSnackBar(context, 'Password updated', error : false);
-        return true;
-      } else {
-        return false;
-      }
-    } catch (err) {
-      print(err);
-      return false;
-    }
+      userViewModel.updatePassword(body).then((value){
+        showSnackBar(context, 'Password Updated Successfully', title : 'Congratulations!');
+      }).onError((error, stackTrace) {
+        showSnackBar(context, error.toString());
+      });
   }
 
   Future updateLocationService(
-      {required BuildContext context, required String location}) async {
-    try {
+      {required BuildContext context, required String location, required UserViewModel userViewModel}) async {
       String? id = pref.getString(PrefKey.userId);
 
       Map body = {'user_id': id, 'location': location};
 
-      var res = await CustomPostRequest()
-          .httpPostRequest(url: 'update/user', body: body);
 
-      if (res['success'] == true) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (err) {
-      print(err);
-      return false;
-    }
+      userViewModel.updateUserProfile(body).then((value){
+        showSnackBar(context, 'Updated Successfully', title : 'Congratulations!');
+      }).onError((error, stackTrace) {
+        showSnackBar(context, error.toString());
+      });
   }
 
-  Future<bool> updatePhoneService({
+  Future<void> updatePhoneService({
     required BuildContext context,
-    required String phone,
+    required String phone, required UserViewModel userViewModel
   }) async {
-    try {
       String? userId = pref.getString(PrefKey.userId);
 
       if (userId == null) {
-        return false;
+        return ;
       }
 
       Map<String, dynamic> body = {
         "user_id": userId,
-        "phone_verified_at": "2024-04-05",
+        "phone_verified_at": DateTime.now.toString(),
         "phone": phone,
       };
 
-      var res = await CustomPostRequest().httpPostRequest(
-        url: 'update/user',
-        body: body,
-      );
 
-      if (res != null && res['success'] == true) {
-        showSnackBar(context, 'Phone verified successfully', error : false);
-        return true;
-      } else {
-        return false;
-      }
-    } catch (err) {
-      print('Error updating phone: $err');
-      return false;
-    }
+      userViewModel.updateUserProfile(body).then((value){
+        showSnackBar(context, 'Updated Successfully', title : 'Congratulations!');
+      }).onError((error, stackTrace) {
+        showSnackBar(context, error.toString());
+      });
   }
 
 
   Future verifyEmail(
-      {required BuildContext context, required String email}) async {
-    try {
+      {required BuildContext context, required String email, required UserViewModel userViewModel}) async {
       String? id = pref.getString(PrefKey.userId);
 
       Map<String, dynamic> body = {
@@ -140,19 +96,10 @@ class UpdateAccountSettingService {
         'email_verified_at': DateTime.now().toString(),
       };
 
-      var res = await CustomPostRequest()
-          .httpPostRequest(url: 'update/user', body: body);
-
-      if (res != null && res['success'] == true) {
-        // Check if res is not null before accessing 'success'
-        showSnackBar(context, 'Email verified successfully', error : false);
-        return true;
-      } else {
-        return false;
-      }
-    } catch (err) {
-      print(err);
-      return false;
-    }
-  }
+      userViewModel.updateUserProfile(body).then((value){
+        showSnackBar(context, 'Updated Successfully', title : 'Congratulations!');
+      }).onError((error, stackTrace) {
+        showSnackBar(context, error.toString());
+      });
+}
 }

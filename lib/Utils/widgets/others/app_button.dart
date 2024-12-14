@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -17,6 +18,8 @@ class AppButton {
       Color? textColor,
       Color? imageColor,
       double? fontSize,
+      bool loading = false,
+      Color? loadingColor,
       GestureTapCallback? onTap,
       FontWeight? fontWeight,
       FontStyle? fontStyle,
@@ -55,7 +58,8 @@ class AppButton {
                         ? AppTheme.blackColor
                         : AppTheme.appColor),
                     width: borderWidth)),
-        child: Row(
+        child: loading == true ? CircularProgressIndicator(color: loadingColor ) :
+        Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if(imagePath!=null)
@@ -147,7 +151,7 @@ class AppButton {
   static Widget appButtonWithLeadingImage(String text,
       {double? height,
       double? width,
-      double? containerWidth,
+      required double containerWidth,
       space,
       borderColor,
       double? imgHeight,
@@ -187,37 +191,39 @@ class AppButton {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                width: containerWidth,
-                child: Row(
-                  children: [
-                    if(imagePath!.endsWith(".svg"))
-                    SvgPicture.asset(
-                      imagePath,
-                      height: imgHeight,
-                      color: borderColor?? null,
-                    ),
-                    if(imagePath.endsWith(".png"))
-                      Image.asset(
+              SizedBox(width: containerWidth.w,),
+              Expanded(
+                child: SizedBox(
+                  child: Row(
+                    children: [
+                      if(imagePath!.endsWith(".svg"))
+                      SvgPicture.asset(
                         imagePath,
                         height: imgHeight,
-                        color: borderColor?? null,
+                        color: borderColor,
                       ),
-                    SizedBox(
-                      width: space ?? 10,
-                    ),
-                    AppText.appText(text,
-                        fontFamily: fontFamily,
-                        fontSize: fontSize,
-                        textAlign: textAlign,
-                        fontWeight: fontWeight,
-                        textColor: textColor,
-                        overflow: overflow,
-                        letterSpacing: letterSpacing,
-                        textBaseline: textBaseline,
-                        fontStyle: fontStyle,
-                        underLine: underLine),
-                  ],
+                      if(imagePath.endsWith(".png"))
+                        Image.asset(
+                          imagePath,
+                          height: imgHeight,
+                          color: borderColor,
+                        ),
+                      SizedBox(
+                        width: space ?? 12,
+                      ),
+                      AppText.appText(text,
+                          fontFamily: fontFamily,
+                          fontSize: fontSize,
+                          textAlign: textAlign,
+                          fontWeight: fontWeight,
+                          textColor: textColor,
+                          overflow: overflow,
+                          letterSpacing: letterSpacing,
+                          textBaseline: textBaseline,
+                          fontStyle: fontStyle,
+                          underLine: underLine),
+                    ],
+                  ),
                 ),
               )
 

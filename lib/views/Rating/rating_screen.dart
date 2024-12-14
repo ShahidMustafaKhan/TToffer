@@ -5,21 +5,16 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/main.dart';
-import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/utils/utils.dart';
-import 'package:tt_offer/views/Profile%20Screen/profile_screen.dart';
-
+import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 import '../../Controller/APIs Manager/send_notification_service.dart';
 import '../../Utils/widgets/others/app_text.dart';
-import '../../config/app_urls.dart';
 import '../../config/keys/pref_keys.dart';
-import '../../custom_requests/user_info_service.dart';
-import '../../models/user_info_model.dart';
-import '../../providers/profile_info_provider.dart';
-import '../BottomNavigation/navigation_bar.dart';
+
+import '../../models/user_model.dart';
+
 
 class RatingScreen extends StatefulWidget {
   final String? sellerId;
@@ -40,30 +35,31 @@ class _RatingScreenState extends State<RatingScreen> {
   double? starValue;
   TextEditingController textEditingController = TextEditingController();
 
+  late UserViewModel userViewModel;
+
   @override
   void initState() {
+    userViewModel = Provider.of<UserViewModel>(context, listen: false);
     getUserDetails();
     super.initState();
   }
 
   getUserDetails() async {
-    if(widget.name == null){
-      UserInfoModel? data;
+      UserModel? sellerModel;
 
-      await UserInfoService().userInfoService(
-          context: context, id: int.parse(widget.sellerId!));
+      sellerModel = await userViewModel.getSellerProfile(int.tryParse(widget.sellerId ?? ''));
 
-      data = Provider.of<ProfileInfoProvider>(context, listen: false).userInfoModel;
 
-      widget.name = data!.data!.name;
-      widget.img = data.data!.img;
-      widget.location =data.data!.location;
-      widget.joinDate =data.data!.createdAt;
-      setState(() {
+      widget.name = sellerModel?.name;
+      widget.img = sellerModel?.img;
+      widget.location = sellerModel?.location;
+      widget.joinDate = sellerModel?.createdAt;
 
-      });
+      if(mounted) {
+        setState(() {});
+      }
 
-    }
+
   }
 
   @override
@@ -128,7 +124,7 @@ class _RatingScreenState extends State<RatingScreen> {
                         color: Color(0xff006DEF),
                       ),
                       half: const Icon(
-                        Icons.star_half,
+                        Icons.star,
                         color: Color(0xff006DEF),
                       ),
                       empty: const Icon(
@@ -137,8 +133,6 @@ class _RatingScreenState extends State<RatingScreen> {
                       )),
                   onRatingUpdate: (double value) {
                     starValue = value;
-                    print('starValuew--->$starValue');
-
                     setState(() {});
                   },
                 ),
@@ -189,33 +183,37 @@ class _RatingScreenState extends State<RatingScreen> {
                         ),
                       ),
                       SizedBox(width: 37.w,),
-                      Expanded(child: InkWell(
-                        onTap: () async {
-                          ratingService(context);
-                        },
-                        child: loading
-                            ? SizedBox(
-                             width: 32.w,
+                      Expanded(child: Consumer<UserViewModel>(
+                          builder: (context, userViewModel, child) {
+                            return InkWell(
+                            onTap: () async {
+                              ratingService(context);
+                            },
+                            child: userViewModel.reviewLoading
+                                ? SizedBox(
+                                 width: 32.w,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                    color: AppTheme.appColor),
+                                  ),
+                                )
+                                : Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: AppTheme.appColor),
                               child: Center(
-                                child: CircularProgressIndicator(
-                                color: AppTheme.appColor),
-                              ),
-                            )
-                            : Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: AppTheme.appColor),
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 9.h),
-                              child: Text(
-                                'Post Seller',
-                                style: TextStyle(color: AppTheme.white),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 9.h),
+                                  child: Text(
+                                    'Post Seller',
+                                    style: TextStyle(color: AppTheme.white),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
+                          );
+                        }
                       ))
 
                     ],
@@ -232,45 +230,32 @@ class _RatingScreenState extends State<RatingScreen> {
   bool loading = false;
 
   Future ratingService(BuildContext context) async {
-    try {
-      Map<String, dynamic> body = {
-        "to_user": widget.sellerId.toString(),
-        "from_user": widget.sellerId.toString(),
-        "rating": starValue.toString(),
-        "comments" : textEditingController.text.toString(),
-        "product_id" : widget.productId
+
+      Map<String, dynamic> data = {
+        "seller_id": int.tryParse(widget.sellerId ?? ''),
+        "reviewer_id": int.tryParse(pref.getString(PrefKey.userId) ?? ''),
+        "rating": starValue?.ceil(),
+        "comments" : textEditingController.text,
+        "product_id" : int.tryParse(widget.productId ?? '')
       };
 
-      setState(() {
-        loading = true;
-      });
-
-      var res = await customPostRequest.httpPostRequest(
-          url: AppUrls.review, body: body);
-
-      if (res != null) {
-        Navigator.of(context).pop();
+      userViewModel.addReview(data).then((value){
         showSnackBar(context, 'Review Added Successfully', title: 'Congratulations!');
-          SendNotification.sendNotification(
-              context: context,
-              userId: int.parse(widget.sellerId!),
-              sellerId: widget.sellerId.toString(),
-              text: reviewText(starValue ?? 0.0),
-              type: "Customer Review",
-              productId: widget.productId.toString(),
-              typeId: starValue.toString().replaceAll(".0", ""),
-              status: "unread", buyerId: pref.getString(PrefKey.userId)!);
-      } else {
-        return false;
-      }
-
-      setState(() {
-        loading = false;
+        Navigator.of(context).pop();
+        SendNotification.sendNotification(
+            context: context,
+            userId: int.parse(widget.sellerId!),
+            sellerId: int.tryParse(widget.sellerId ?? ''),
+            text: reviewText(starValue ?? 0.0),
+            type: "Customer Review",
+            productId: int.tryParse(widget.productId ?? ''),
+            typeId: starValue.toString(),
+            buyerId: int.tryParse(pref.getString(PrefKey.userId)!));
+      }).onError((error, stackTrace){
+        showSnackBar(context, error.toString());
       });
-    } catch (err) {
-      print(err);
-      return false;
-    }
+
+
   }
 
   String reviewText(double rating){

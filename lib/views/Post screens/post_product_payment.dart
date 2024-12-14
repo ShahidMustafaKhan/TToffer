@@ -17,10 +17,12 @@ import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/Post%20screens/post_card_payment.dart';
 import 'package:http/http.dart' as http;
 
+import '../../models/product_model.dart';
+
 class PostProductPayment extends StatefulWidget {
   String title;
 
-  Selling? selling;
+  Product? product;
   final productId;
   int amount;
 
@@ -28,7 +30,7 @@ class PostProductPayment extends StatefulWidget {
       {required this.amount,
       required this.productId,
       required this.title,
-      this.selling});
+      this.product});
 
   @override
   State<PostProductPayment> createState() => _PostProductPaymentState();
@@ -64,11 +66,9 @@ class _PostProductPaymentState extends State<PostProductPayment> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(16),
-                            child: widget.selling != null &&
-                                    widget.selling!.photo != null &&
-                                    widget.selling!.photo!.isNotEmpty
+                            child: widget.product?.photo?.isNotEmpty ?? false
                                 ? Image.network(
-                                    widget.selling!.photo![0].src!,
+                                     widget.product!.photo![0].url!,
                                     fit: BoxFit.cover,
                                   )
                                 : Image.file(
@@ -85,7 +85,7 @@ class _PostProductPaymentState extends State<PostProductPayment> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             AppText.appText(
-                                widget.selling != null ? widget.title : title!,
+                                widget.product != null ? widget.title : title!,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 textColor: AppTheme.txt1B20),
@@ -145,13 +145,13 @@ class _PostProductPaymentState extends State<PostProductPayment> {
   }
 
   fasterProductHandler(String? day, String? amount, String? currency) {
-    SellFasterStripeService().sellFasterStripeService(
-        context: context,
-        productId: widget.productId!,
-        nod: day,
-        amount: amount,
-        currency: currency,
-        token: '123');
+    // SellFasterStripeService().sellFasterStripeService(
+    //     context: context,
+    //     productId: widget.productId!,
+    //     nod: day,
+    //     amount: amount,
+    //     currency: currency,
+    //     token: '123');
   }
 
   Map<String, dynamic>? paymentIntentData;

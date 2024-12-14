@@ -12,10 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/send_notification_service.dart';
 import 'package:tt_offer/Controller/provider_class.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -23,27 +20,20 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_logout_pop_up.dart';
-import 'package:tt_offer/custom_requests/bids_service.dart';
-import 'package:tt_offer/detail_model/property_for_sale_model.dart';
+import 'package:tt_offer/data/response/status.dart';
+import 'package:tt_offer/detail_model/attribute_model.dart';
 import 'package:tt_offer/models/bids_model.dart';
-import 'package:tt_offer/providers/bids_provider.dart';
-import 'package:tt_offer/views/Products/widgets/full_image_page.dart';
+import 'package:tt_offer/view_model/bids/bids_view_model.dart';
+import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/widgets/panel_widget.dart';
-import 'package:tt_offer/views/Seller%20Profile/seller_profile.dart';
-import 'package:tt_offer/config/app_urls.dart';
+
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-import '../../../Controller/APIs Manager/profile_apis.dart';
-import '../../../custom_requests/dynmaic_link_service.dart';
-import '../../../main.dart';
 import '../../../models/product_model.dart';
-import '../Feature Product/feature_container.dart';
 import '../../Authentication screens/login_screen.dart';
 import '../../BottomNavigation/navigation_bar.dart';
-import '../../ChatScreens/offer_chat_screen.dart';
-import '../../Profile Screen/profile_screen.dart';
+
 import '../widgets/action_buttons.dart';
 import '../widgets/description_widget.dart';
 import '../widgets/divider.dart';
@@ -54,13 +44,12 @@ import '../widgets/product_image.dart';
 import '../widgets/seller_detail_widget.dart';
 
 class AuctionInfoScreen extends StatefulWidget {
-  var detailResponse;
   Product? product;
   String? productId;
   bool fromDynamicLink;
   bool popToBottomNav;
 
-  AuctionInfoScreen({super.key, this.detailResponse, this.product, this.fromDynamicLink=false,this.popToBottomNav=false, this.productId});
+  AuctionInfoScreen({super.key, this.product, this.fromDynamicLink=false,this.popToBottomNav=false, this.productId});
 
   @override
   State<AuctionInfoScreen> createState() => _AuctionInfoScreenState();
@@ -94,10 +83,9 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     "use custom bid",
   ];
 
-  static List wrapList1 = [];
   late AppDio dio;
   AppLogger logger = AppLogger();
-  var userId;
+  int? userId;
   var productId;
   int highestPrice = 0;
   @override
@@ -135,32 +123,144 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
   late KidsAttributes kidsAttributes;
   late AnimalsAttributes animalsAttributes;
   late FurnitureAttributes furnitureAttributes;
-  late ElectronicApplicanceAttributes electronicApplicanceAttributes;
+  late ElectronicApplianceAttributes electronicApplicanceAttributes;
+
+  late List<String> attributeKeyList;
+  List<String> attributeValueList = [];
+
+  void initializeAttributeKeyList(String categoryName, String subCategoryName, JobAttributes jobAttributes) {
+    switch (categoryName) {
+      case 'Animals':
+        attributeKeyList = [
+          'Age',
+          'Breed',
+        ];
+        break;
+
+      case 'Jobs':
+        if (jobAttributes.hireStatus == 'Hiring') {
+          attributeKeyList = [
+            'Company Name',
+            'Position Type',
+            'Salary Period',
+            'Education',
+            'Description',
+          ];
+        } else {
+          attributeKeyList = [
+            'Linkedin Profile',
+            'Preferred Employment Type',
+            'Experience Level',
+            'Education',
+            'Description',
+          ];
+        }
+        break;
+
+      case 'Fashion & beauty':
+      case 'Services':
+      case 'Kids':
+        attributeKeyList = [
+          'Description',
+        ];
+        break;
+
+      case 'Electronics & Appliance':
+        attributeKeyList = [
+          'Brand',
+          'Color',
+        ];
+        break;
+
+      case 'Furniture & home decor':
+        attributeKeyList = [
+          'Type',
+          'Color',
+        ];
+        break;
+
+      case 'Mobiles':
+        attributeKeyList = [
+          'Brand',
+          subCategoryName == 'Accessories'
+              ? 'Color'
+              : 'Storage Capacity',
+          if(subCategoryName != 'Accessories')
+           'Color'
+
+        ];
+        break;
+
+      case 'Vehicles':
+        attributeKeyList = [
+          'Fuel Type',
+          'Color',
+          'Kilometers',
+          'Make',
+          'Year',
+        ];
+        break;
+
+      case 'Bikes':
+        if (subCategoryName == 'Bikes Accessories') {
+          attributeKeyList = [
+            'Accessories Description',
+          ];
+        } else {
+          attributeKeyList = [
+            'Model',
+            'Engine Capacity',
+          ];
+        }
+        break;
+
+      case 'Property for Sale':
+        attributeKeyList = [
+          'Furnished',
+          'Area',
+          'Bathrooms',
+          'Completion',
+          subCategoryName == 'Commercial Space' ? 'Zone For' : 'Bedrooms',
+          'Year Built',
+        ];
+        break;
+
+      case 'Property for Rent':
+        attributeKeyList = [
+          'Furnished',
+          'Area',
+          'Bathrooms',
+          subCategoryName == 'Commercial Space' ? 'Zone For' : 'Bedrooms',
+          'Year Built',
+        ];
+        break;
+
+      default:
+        attributeKeyList = [];
+    }
+  }
+
 
   @override
   void initState() {
     // final String AttributesJson = widget.detailResponse;
+    product = widget.product;
 
     dio = AppDio(context);
     logger.init();
 
-    getProductData();
-
-    product = widget.product;
     categoryName = product?.category?.name;
     subCategoryName = product?.subCategory?.name;
+
+    getProductData();
+
+
 
 
 
     super.initState();
   }
 
-  setUserRating() async {
-    userRating = await getUserRating(widget.product!.userId!.toString());
-    setState(() {
-
-    });
-  }
 
   Future<void> getProductData() async {
     if(widget.product!= null){
@@ -169,7 +269,6 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
         getUserId();
         getBidsHandler();
         startTimer();
-        setUserRating();
         // markProductView();
       });
 
@@ -182,7 +281,6 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
         getUserId();
         getBidsHandler();
         startTimer();
-        setUserRating();
         // markProductView();
       });
 
@@ -203,102 +301,10 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     animalsAttributes = AnimalsAttributes.fromJson(attributesJson);
     furnitureAttributes = FurnitureAttributes.fromJson(attributesJson);
     electronicApplicanceAttributes =
-        ElectronicApplicanceAttributes.fromJson(attributesJson);
+        ElectronicApplianceAttributes.fromJson(attributesJson);
 
 
-    wrapList1 = [
-      '${categoryName == 'Animals'  ? animalsAttributes.age : categoryName == 'Jobs' ?
-      jobAttributes.hireStatus == 'Hiring' ?  jobAttributes.companyName : jobAttributes.linkedinProfile  : categoryName == 'Fashion & beauty' ? furnitureAttributes.description : categoryName == 'Services' ? servicesAttributes.description : "Condition" ?? 'NA' }',
-      (categoryName == 'Furniture & home decor'
-          ? furnitureAttributes.type
-          :  categoryName == 'Mobiles'
-          ? mobileAttributes.brand
-          : categoryName == 'Vehicles'
-          ? vehicleAttributes.FuelType
-          : categoryName == 'Property for Sale' ||
-          categoryName == 'Property for Rent'
-          ? propertyAttributes.furnished
-          : categoryName == 'Jobs'
-          ? jobAttributes.possitionType
-          : categoryName == 'Bikes'
-          ? bikeAttributes.model
-          : categoryName == 'Kids'
-          ? kidsAttributes.description
-          : categoryName ==
-          'Electronics & Appliance'
-          ? electronicApplicanceAttributes.brand
-          : categoryName == 'Animals'
-          ? animalsAttributes.breed
-          :''),
-
-      (categoryName == 'Electronics & Appliance'
-          ? electronicApplicanceAttributes.color
-          : categoryName == 'Furniture & home decor'
-          ? furnitureAttributes.color
-          :   categoryName == 'Mobiles'
-          ? subCategoryName == 'Accessories' ? mobileAttributes.color : mobileAttributes.storage
-          : categoryName == 'Vehicles'
-          ? vehicleAttributes.color
-          : categoryName ==
-          'Property for Sale' ||
-          categoryName ==
-              'Property for Rent'
-          ? propertyAttributes.area.isNotEmpty ? '${propertyAttributes.area} sqft' : ''
-          : categoryName == 'Jobs'
-          ? jobAttributes.type
-          : categoryName == 'Bikes'
-          ? (categoryName == 'Bikes Accessories' ? bikeAttributes.description : bikeAttributes.engineCapacity)
-          : ''),
-      (categoryName == 'Mobiles'
-          ? mobileAttributes.color
-          : categoryName == 'Property for Sale' ||
-          categoryName == 'Property for Rent'
-          ? propertyAttributes.bathroom.isNotEmpty ? propertyAttributes.bathroom == 'no bathroom' ? propertyAttributes.bathroom : '${propertyAttributes.bathroom} BA' : ''
-          : categoryName == 'Jobs'
-          ? jobAttributes.hireStatus == 'Hiring' ? jobAttributes.salaryPeriod : jobAttributes.experience:
-      categoryName == 'Vehicles'
-          ? vehicleAttributes.mileAge
-          : ''),
-      (categoryName == 'Property for Sale' &&
-          categoryName != 'Property for Rent'
-          ? propertyAttributes.completion
-          : categoryName != 'Property for Sale' &&
-          categoryName == 'Property for Rent'
-          ? propertyAttributes.yearBuilt
-          : categoryName == 'Jobs'
-          ? jobAttributes.education
-          : categoryName == 'Vehicles'
-          ? vehicleAttributes.makeModel
-          : ''),
-      propertyAttributes.catName == 'Property for Sale' ||
-          propertyAttributes.catName == 'Property for Rent'
-          ?  subCategoryName == 'Commercial Space' ?
-      propertyAttributes.zoneFor :
-      propertyAttributes.bedroom.isNotEmpty ? '${propertyAttributes.bedroom} ${propertyAttributes.bedroom!= "Studio" ? "BDRM" : ''}' : ''
-          : categoryName == 'Vehicles'
-          ? vehicleAttributes.year
-          : categoryName == 'Jobs'
-          ? jobAttributes.description : '',
-      categoryName == 'Property for Sale'
-          ? propertyAttributes.yearBuilt :
-      propertyAttributes.catName == 'Property for Rent' ? propertyAttributes.features
-          : '',
-
-      categoryName == 'Property for Sale' ?
-      propertyAttributes.features
-          :
-      categoryName == 'Vehicles'
-          ? vehicleAttributes.makeModel
-          :  '',
-
-      categoryName == 'Vehicles' ? vehicleAttributes.year : '',
-      categoryName == 'Vehicles'
-          ? vehicleAttributes.makeModel
-          : '',
-      categoryName == 'Vehicles' ? vehicleAttributes.mileAge : '',
-
-
-    ];
+    initializeAttributeKeyList(categoryName! , subCategoryName! , jobAttributes);
 
      // if(authorizationToken!=null && widget.detailResponse["wishlist"]!=null){
      // isFav = widget.detailResponse["wishlist"].isNotEmpty
@@ -339,7 +345,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
 
   getUserId() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    userId = pref.getString(PrefKey.userId);
+    userId = int.tryParse(pref.getString(PrefKey.userId)!);
     authorizationToken = pref.getString(PrefKey.authorization);
     setState(() {
 
@@ -353,25 +359,18 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
   bool loading = false;
 
   getBidsHandler() async {
-    setState(() {
-      loading = true;
-    });
-    await BidsService().getBidsService(
-        context: context, productId: int.parse(widget.productId.toString()));
+    if(product?.id != null) {
+      final bidViewModel = Provider.of<BidsViewModel>(context, listen: false);
+      await bidViewModel.getBids(product!.id!);
 
-    bids = Provider.of<BidsProvider>(context, listen: false).bids;
+      if(bidViewModel.bidsList.status == Status.completed){
 
-    setState(() {});
-
-    setState(() {
-      loading = false;
-    });
-
-    setState(() {});
+        bids = bidViewModel.bidsList.data?.data ?? [];
+        setState(() {
+        });
+      }
+    }
   }
-
-
-  List<String> wrapListAd = [];
 
   int? loopLimit;
 
@@ -401,117 +400,127 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
           subCategoryName == 'Parts' ? 1 : 2)
           : 2;
 
-      List<String> wrapList = [
-        categoryName == 'Animals'
-            ? 'Age'
-            : categoryName == 'Jobs'
-            ? jobAttributes.hireStatus == 'Hiring'
-            ? 'Company Name'
-            : 'Linkedin Profile'
-            : categoryName == 'Fashion & beauty' ||
-            categoryName == 'Services'
-            ? 'description'
-            : 'Condition',
-        categoryName == 'Electronics & Appliance'
-            ? 'Brand'
-            : categoryName == 'Furniture & home decor'
-            ? "Type"
-            : categoryName == 'Animals'
-            ? 'Breed'
-            : categoryName == 'Mobiles'
-            ? 'Brand'
-            : categoryName == 'Vehicles'
-            ? 'Fuel Type'
-            : categoryName ==
-            'Property for Sale' ||
-            categoryName ==
-                'Property for Rent'
-            ? 'Furnished'
-            : categoryName == 'Jobs'
-            ? jobAttributes.hireStatus == 'Hiring'
-            ? 'Position Type'
-            : 'Preferred Employment Type'
-            : categoryName == 'Bikes'
-            ? 'Model'
-            : categoryName== 'Kids'
-            ? 'description'
-            : '',
-        categoryName == 'Electronics & Appliance'
-            ? 'Color'
-            : categoryName == 'Furniture & home decor'
-            ? "Color"
-            : categoryName == 'Mobiles'
-            ? 'Storage Capacity'
-            : categoryName == 'Vehicles'
-            ? 'Color'
-            : categoryName == 'Property for Sale' ||
-            categoryName ==
-                'Property for Rent'
-            ? 'Area'
-            : categoryName == 'Jobs'
-            ? 'Job Type'
-            : categoryName == 'Bikes'
-            ? subCategoryName == 'Bikes Accessories'
-            ? 'Accessories description'
-            : 'Engine Capacity'
-            : '',
-        categoryName == 'Mobiles'
-            ? "Color" :
-        categoryName == 'Vehicles' ? 'Kilometers'
-            : categoryName == 'Property for Sale' ||
-            categoryName == 'Property for Rent'
-            ? 'Bathrooms'
-            : categoryName == 'Jobs'
-            ? jobAttributes.hireStatus == 'Hiring'
-            ? 'Salary Period'
-            : 'Experience Level'
-            : '',
-        categoryName == 'Property for Sale' &&
-            categoryName != 'Property for Rent'
-            ? 'Completion' :
-        categoryName != 'Property for Sale' &&
-            categoryName == 'Property for Rent'
-            ? 'YearBuilt' :
-        categoryName == 'Vehicles' ? 'Make'
-            : categoryName == 'Jobs'
-            ? 'Education'
-            : '',
-        categoryName == 'Property for Sale' ||
-            categoryName == 'Property for Rent'
-            ? subCategoryName == 'Commercial Space'
-            ? 'Zone For'
-            : 'Bedrooms'
-            : categoryName == 'Vehicles' ? 'Year'
-            : categoryName == 'Jobs'
-            ? 'Description' : '',
-        categoryName == 'Property for Sale'
-            ? 'YearBuilt' :
-        categoryName == 'Property for Rent' ? 'Features'
-            : '',
-        categoryName == 'Property for Sale'
-            ? 'Features' :
-        ''
+      Map<String, List<String>> sortedAttributes = {
+        'Animals': [
+          animalsAttributes.age,
+          animalsAttributes.breed,
+          '', // Placeholder for any additional attribute
+        ],
+        'Jobs': [
+          jobAttributes.hireStatus == 'Hiring'
+              ? jobAttributes.companyName
+              : jobAttributes.linkedinProfile,
+          jobAttributes.positionType,
+          jobAttributes.hireStatus == 'Hiring'
+              ? jobAttributes.salaryPeriod
+              : jobAttributes.experience,
+          jobAttributes.education,
+          jobAttributes.description,
+        ],
+        'Fashion & beauty': [
+          furnitureAttributes.description ?? '-',
+        ],
+        'Services': [
+          servicesAttributes.description ?? '-',
+        ],
+        'Furniture & home decor': [
+          furnitureAttributes.type,
+          furnitureAttributes.color,
+        ],
+        'Mobiles': [
+          mobileAttributes.brand,
+          subCategoryName == 'Accessories'
+              ? mobileAttributes.color
+              : mobileAttributes.storage,
+          mobileAttributes.color,
+        ],
+        'Vehicles': [
+          vehicleAttributes.fuelType,
+          vehicleAttributes.color,
+          vehicleAttributes.mileAge,
+          vehicleAttributes.makeModel,
+          vehicleAttributes.year,
+        ],
+        'Property for Sale': [
+          propertyAttributes.furnished,
+          propertyAttributes.area.isNotEmpty
+              ? '${propertyAttributes.area} sqft'
+              : '',
+          propertyAttributes.bathroom.isNotEmpty
+              ? propertyAttributes.bathroom == 'no bathroom'
+              ? propertyAttributes.bathroom
+              : '${propertyAttributes.bathroom} BA'
+              : '',
+          propertyAttributes.completion.isNotEmpty ? propertyAttributes.completion : '',
+          if(subCategoryName == 'Commercial Space')
+            propertyAttributes.zoneFor.isNotEmpty
+                ? propertyAttributes.zoneFor
+                : ''
+          else
+            propertyAttributes.bedroom.isNotEmpty
+                ? '${propertyAttributes.bedroom} ${propertyAttributes.bedroom != "Studio" ? "BDRM" : ''}'
+                : '',
+          propertyAttributes.yearBuilt,
 
-      ];
+          // propertyAttributes.features,
+        ],
+        'Property for Rent': [
+          propertyAttributes.furnished,
+          propertyAttributes.area.isNotEmpty
+              ? '${propertyAttributes.area} sqft'
+              : '',
+          propertyAttributes.bathroom.isNotEmpty
+              ? propertyAttributes.bathroom == 'no bathroom'
+              ? propertyAttributes.bathroom
+              : '${propertyAttributes.bathroom} BA'
+              : '',
+          if(subCategoryName == 'Commercial Space')
+            propertyAttributes.zoneFor.isNotEmpty
+                ? propertyAttributes.zoneFor
+                : ''
+          else
+            propertyAttributes.bedroom.isNotEmpty
+                ? '${propertyAttributes.bedroom} ${propertyAttributes.bedroom != "Studio" ? "BDRM" : ''}'
+                : '',
+          propertyAttributes.yearBuilt,
+        ],
+        'Bikes': [
+          if (subCategoryName == 'Bikes Accessories')
+            bikeAttributes.description ?? '-'
+          else
+            bikeAttributes.model,
+          bikeAttributes.engineCapacity,
+        ],
+        'Kids': [
+          kidsAttributes.description ?? '-',
+        ],
+        'Electronics & Appliance': [
+          electronicApplicanceAttributes.brand,
+          electronicApplicanceAttributes.color,
+        ],
+      };
+
+      attributeValueList = sortedAttributes[categoryName] ?? [];
+      
       isProperty = categoryName == 'Property for Sale'
           || categoryName == 'Property for Rent';
-      wrapListAd = wrapList;
+     
 
 
       if (categoryName == 'Property for Sale' ||
           categoryName == 'Property for Rent' ||
           categoryName == 'Services' ||
           categoryName == 'Fashion') {
-        wrapList.remove('Condition');
-        wrapList1.remove('Condition');
+        attributeKeyList.remove('Condition');
+        attributeValueList.remove('Condition');
       }
 
 
       // if (categoryName == 'Property for Rent') {
-      //   for (int i = 0; i < wrapList.length; i++) {
-      //     if (wrapList[i].isEmpty) {
-      //       wrapList1.removeAt(i);
-      //       wrapList.removeAt(i);
+      //   for (int i = 0; i < attributeKeyList.length; i++) {
+      //     if (attributeKeyList[i].isEmpty) {
+      //       attributeValueList.removeAt(i);
+      //       attributeKeyList.removeAt(i);
       //     }
       //   }
       // }
@@ -520,31 +529,31 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
           (subCategoryName == 'Bicycles' ||
               subCategoryName == 'Bikes Accessories' ||
               subCategoryName == 'Parts')) {
-        if (wrapList.contains("Engine Capacity")) {
-          wrapList1.remove('-');
-          wrapList.remove("Engine Capacity");
+        if (attributeKeyList.contains("Engine Capacity")) {
+          attributeValueList.remove('-');
+          attributeKeyList.remove("Engine Capacity");
         }
       }
 
       if (categoryName == 'Mobiles' &&
           (subCategoryName == 'Accessories' ||
               subCategoryName == 'Smart Watches')) {
-        if (wrapList.contains("Storage Capacity")) {
-          wrapList1.remove('-');
-          wrapList.remove("Storage Capacity");
+        if (attributeKeyList.contains("Storage Capacity")) {
+          attributeValueList.remove('-');
+          attributeKeyList.remove("Storage Capacity");
         }
       }
 
       if (categoryName == 'Vehicles' &&
           (subCategoryName == 'Car Accessories' ||
               subCategoryName == 'Parts')) {
-        if (wrapList.contains("Fuel Type")) {
-          wrapList1.remove('-');
-          wrapList.remove("Fuel Type");
+        if (attributeKeyList.contains("Fuel Type")) {
+          attributeValueList.remove('-');
+          attributeKeyList.remove("Fuel Type");
         }
-        if (wrapList.contains("Kilometers")) {
-          wrapList1.remove('-');
-          wrapList.remove("Kilometers");
+        if (attributeKeyList.contains("Kilometers")) {
+          attributeValueList.remove('-');
+          attributeKeyList.remove("Kilometers");
         }
       }
 
@@ -556,9 +565,9 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
         }
       }
 
-      for (int i = 0; i < wrapList1.length; i++) {
-        if (wrapList1[i] == null || wrapList1[i].isEmpty) {
-          wrapList1[i] = '-';
+      for (int i = 0; i < attributeValueList.length; i++) {
+        if (attributeValueList[i] == null || attributeValueList[i].isEmpty) {
+          attributeValueList[i] = '-';
         }
       }
     }
@@ -586,7 +595,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
               borderRadius: BorderRadius.circular(32),
               body: bodyColumn(),
               panelBuilder: (controller) => PanelWidget(
-                    data: widget.product,
+                    product: widget.product,
                     controller: controller,
                     panelController: panelController,
                     bidsData: bids,
@@ -598,6 +607,8 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
 
   Widget auctionBottomCard() {
     final open = Provider.of<NotifyProvider>(context);
+
+    // return SizedBox();
 
     return Card(
       margin: EdgeInsets.zero,
@@ -630,11 +641,11 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                       String bid;
                       List newBidList;
                       if(index<4 && highestPrice != 0){
-                        newBidList = calculateBidList(highestPrice, [20,40,60,80,100]);
+                        newBidList = calculatePercentIncrements(highestPrice);
                         bid = (newBidList[index]).toString();
                       }
                       else{
-                        newBidList = calculateBidList(widget.product!.auctionInitialPrice!, [20,40,60,80,100]);
+                        newBidList = calculatePercentIncrements(product?.auctionInitialPrice);
                         bid = (newBidList[index]).toString();
                       }
                       return Padding(
@@ -708,21 +719,20 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                             onTap: () async {
 
                               if(authorizationToken!=null){
-                              if(userId.toString() != widget.product?.userId.toString()) {
+                              if(userId != widget.product?.userId) {
                                 if((double.parse(widget.product?.auctionInitialPrice?.toString() ?? '')) < double.parse(open.bidPrice.replaceAll(',', '')) ) {
                                   if (isPriceLessThanOrEqualToExistingBids(
                                       double.parse(
                                           open.bidPrice.replaceAll(',', ''))) ==
                                       false) {
-                                    await showLogOutALert(
+                                    await placeBidDialog(
                                         context,
-                                        _priceController.text ?? bidList[0],
-                                        productId,
+                                        _priceController.text,
+                                        product?.id,
                                         userId,
-                                        widget.productId,
-                                        widget.product?.userId);
-                                    sendNotifications();
-                                    getProductDetail();
+                                        product?.id,);
+                                    // sendNotifications();
+                                    // getProductDetail();
                                     getBidsHandler();
                                     _priceController.text = '';
                                     open.bidPrice = '';
@@ -764,11 +774,9 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                             if (open.field == false) {
                               open.sheetTrue();
                               panelController.open();
-                              // open.makeField();
-                              // _panelKey.currentState!.re;
                             } else {
                               if(_priceController.text.isNotEmpty) {
-                                open.bidPrices(price: _priceController.text);
+                                  open.bidPrices(price: _priceController.text);
                               }
                               else{
                                 showSnackBar(context, 'Please enter amount', title: 'Input Required');
@@ -840,17 +848,30 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     return false;
   }
 
+  bool isTwentyPercentAboveHighestBid(int? value, int? highestBid) {
 
-  List<int> calculateBidList(int highestBid, List<int> baseValues) {
+    value ??= 0;
+    highestBid ??= 0;
 
-    // Calculate the new bid values
-    List<int> newBidList = [];
-    for (int value in baseValues) {
-      int newBid = highestBid + value;
-      newBidList.add(newBid);
+    // Calculate 20% of the highest bid
+    int threshold = (highestBid * 20 ~/ 100) + highestBid;
+
+    // Check if the value is greater than or equal to the threshold
+    return value >= threshold;
+  }
+
+
+  List<int> calculatePercentIncrements(int? value) {
+
+    if(value == null){
+      return [];
     }
 
-    return newBidList;
+    // Define the percentage increments as a list
+    final percentages = [20, 40, 60, 80, 100];
+
+    // Map each percentage to its incremented value and return the result as a list
+    return percentages.map((percentage) => value + (value * percentage ~/ 100)).toList();
   }
 
 
@@ -884,12 +905,12 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                         ProductDetailsWidget(product: product),
                         const AddDivider(),
                         ProductAttributesWidget(
-                          wrapListAd: wrapListAd,
-                          wrapList1: wrapList1,
+                          attributeKeyList: attributeKeyList,
+                          attributeValueList: attributeValueList,
                           subCategoryName: subCategoryName,
                           userRating: userRating,
                           isProperty: isProperty,
-                          loopLimit: loopLimit,
+                          loopLimit: attributeKeyList.length-1,
                           propertyOwner: propertyAttributes.owner,
                           hireStatus: jobAttributes.hireStatus,
                         ),
@@ -897,7 +918,6 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                         SellerDetailWidget(
                           authorizationToken: authorizationToken,
                           product: product,
-                          userRating: userRating,
                         ),
                         const AddDivider(),
                         DescriptionWidget(product: product),
@@ -909,8 +929,8 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                           userId: userId,
                         ),
                         if (userId.toString() != widget.product?.userId.toString() ||
-                            propertyAttributes.catName == 'Property for Rent' ||
-                            propertyAttributes.catName == 'Property for Sale')
+                            categoryName == 'Property for Rent' ||
+                            categoryName == 'Property for Sale')
                           const AddDivider(),
                       ],
                     ),
@@ -933,109 +953,25 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     );
   }
 
-
-
   Future<void> getProductDetail({bool dynamicLink = false}) async {
+
+    final productViewModel = Provider.of<ProductViewModel>(context, listen: false);
+
     setState(() {
-      isLoading = true;
+      isPageLoading = true;
     });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": dynamicLink==true ? widget.productId! : product?.id,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getAuctionProducts, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          setState(() {
-            isLoading = false;
-            if(dynamicLink==true){
-              isPageLoading = false;
-            }
-          });
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          isLoading = false;
-          if(dynamicLink==true){
-            isPageLoading = false;
-          }
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          isLoading = false;
-          if(dynamicLink==true){
-            isPageLoading = false;
-          }
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          isLoading = false;
-          if(dynamicLink==true){
-            isPageLoading = false;
-          }
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          isLoading = false;
-          if(dynamicLink==true){
-            isPageLoading = false;
-          }
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          isLoading = false;
 
-          widget.product = responseData["data"][0];
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        isLoading = false;
-        isPageLoading = false;
-      });
-    }
+    product = await productViewModel.getProductDetails(product != null ? product?.id : int.parse(widget.productId ?? ''));
+    categoryName = product?.category?.name;
+    subCategoryName = product?.subCategory?.name;
+
+    setState(() {
+      isPageLoading = false;
+    });
+
   }
 
-  void sendNotifications() {
-    Set<String> notifiedUsers = {}; // Create a set to store user IDs
 
-    for (var bid in bids) {
-      String userId = bid.userId!.toString();
-
-      // Check if the user hasn't been notified yet and is not the current user
-      if (!notifiedUsers.contains(userId) && userId != Provider.of<ProfileApiProvider>(context, listen: false).profileData['id'].toString()) {
-
-        // Send notification
-        SendNotification.sendNotification(
-          context: context,
-          userId: int.parse(userId),
-          sellerId: userId,
-          buyerId: pref.getString(PrefKey.userId)!,
-          text: "Make a higher bid to claim this product!",
-          type: "${capitalizeWords(Provider.of<ProfileApiProvider>(context, listen: false).profileData['name'])} made a higher bid",
-          typeId: bid.productId!.toString(),
-          status: "unread",
-        );
-
-        // Add the user to the set after sending the notification
-        notifiedUsers.add(userId);
-      }
-    }
-  }
 
 
 

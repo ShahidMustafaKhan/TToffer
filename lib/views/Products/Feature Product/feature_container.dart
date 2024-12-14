@@ -9,19 +9,19 @@ import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
-import 'package:tt_offer/detail_model/property_for_sale_model.dart';
+import 'package:tt_offer/detail_model/attribute_model.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_container.dart';
 
 import '../../../Utils/utils.dart';
 import '../../../config/dio/app_dio.dart';
 import '../../../models/product_model.dart';
+import '../../../view_model/profile/user_profile/user_view_model.dart';
 
 class FeatureProductContainer extends StatefulWidget {
-  var data;
   Product? product;
 
-   FeatureProductContainer({super.key, this.data, this.product});
+   FeatureProductContainer({super.key, this.product});
 
   @override
   State<FeatureProductContainer> createState() =>
@@ -30,20 +30,17 @@ class FeatureProductContainer extends StatefulWidget {
 
 class _FeatureProductContainerState extends State<FeatureProductContainer> {
   String timeDifference = ''; // Store the calculated time difference
-  var userId;
+  int? userId;
   String? authorizationToken;
   bool isFav = false;
-  late final dio;
+
 
   Product? product;
 
 
   getUserId() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    setState(() {
-      userId = pref.getString(PrefKey.userId);
+      userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
       authorizationToken = pref.getString(PrefKey.authorization);
-    });
   }
 
   ProductsApiProvider? apiProvider;
@@ -51,23 +48,15 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
   @override
   void initState() {
     super.initState();
-    dio = AppDio(context);
     apiProvider = Provider.of<ProductsApiProvider>(context, listen: false);
 
     product = widget.product;
 
-    // if(widget.data!=null && widget.data["wishlist"]!=null) {
-    // isFav = widget.data["wishlist"].isNotEmpty
-    //     ? true
-    //     : false;}
-
-
-
     getUserId();
-    // Convert API date to DateTime
+    if(product?.createdAt != null){
     DateTime dateTime = DateTime.parse(product?.createdAt ?? '');
-    // Calculate time difference
     timeDifference = calculateTimeDifference(dateTime);
+    }
   }
 
   String calculateTimeDifference(DateTime dateTime) {
@@ -88,27 +77,24 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
     }
   }
 
-  addOrRemoveWishItemFromDB(){
-    widget.data["wishlist"].isNotEmpty
-        ? removeFavourite(
-        wishId: widget.data["wishlist"][0]["id"])
-        : addToFavourite();
-  }
+
 
   @override
   Widget build(BuildContext context) {
+
+    product = widget.product;
+
+    getUserId();
+    if(product?.createdAt != null){
+      DateTime dateTime = DateTime.parse(product?.createdAt ?? '');
+      timeDifference = calculateTimeDifference(dateTime);
+    }
 
     VehicleAttributes vehicleAttributes =
         VehicleAttributes.fromJson(product?.attributes);
     PropertyAttributes propertyAttributes =
     PropertyAttributes.fromJson(product?.attributes);
 
-
-    // if(widget.data!=null && widget.data["wishlist"]!=null) {
-    //   isFav = widget.data["wishlist"].isNotEmpty
-    //     ? true
-    //     : false;
-    // }
 
 
     return Container(
@@ -127,10 +113,10 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                 topLeft: Radius.circular(8),
                 topRight: Radius.circular(8),
               ),
-              image: product?.imagePath?.url?.isNotEmpty ?? false
+              image: product?.photo?.isNotEmpty ?? false
                   ? DecorationImage(
                       image:
-                          NetworkImage( product!.imagePath!.url!),
+                          NetworkImage("${product?.photo?[0].url}"),
                       fit: BoxFit.fill,
                     )
                   : null,
@@ -168,43 +154,46 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
 
 
                       if(authorizationToken != null)
-                      GestureDetector(
-                        behavior: HitTestBehavior.deferToChild,
-                        onTap: () {
-                          // addOrRemoveWishItem();
-                          addOrRemoveWishItemFromDB();
-                        },
-                        child: Align(
-                          alignment: Alignment.topRight,
-                          child: Padding(
-                            padding: EdgeInsets.only(top: 6.h, right: 8.w),
-                            child: Container(
-                                height: 22.w,
-                                width: 22.w,
-                                decoration: BoxDecoration(
-                                    shape: BoxShape.circle, color: AppTheme.whiteColor),
-                                child: isFav==false
-                                    ? Icon(
-                                  Icons.favorite_border,
-                                  size: 14.w,
-                                  color: AppTheme.textColor,
-                                )
-                                    : Icon(
-                                  size: 14.w,
-                                  Icons.favorite_sharp,
-                                  color: Colors.red,
-                                )),
-                          ),
-                        ),
+                        Consumer<UserViewModel>(
+                            builder: (context, userViewModel , child) {
+                              return GestureDetector(
+                            behavior: HitTestBehavior.deferToChild,
+                            onTap: () {
+                              userViewModel.toggleWishList(userId, product?.id, context);
+                            },
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: Padding(
+                                padding: EdgeInsets.only(top: 6.h, right: 8.w),
+                                child: Container(
+                                    height: 22.w,
+                                    width: 22.w,
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle, color: AppTheme.whiteColor),
+                                    child: userViewModel.isProductInWishList(product?.id) == false
+                                        ? Icon(
+                                      Icons.favorite_border,
+                                      size: 14.w,
+                                      color: AppTheme.textColor,
+                                    )
+                                        : Icon(
+                                      size: 14.w,
+                                      Icons.favorite_sharp,
+                                      color: Colors.red,
+                                    )),
+                              ),
+                            ),
+                          );
+                        }
                       ),
                     ],
                   ),
                   CustomPaint(
                       painter: PriceTagPainter(),
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 24, right: 14),
+                        padding: EdgeInsets.only(left: product?.productType == 'looking' || product?.productType == 'hiring' ? 18 : 24, right: product?.productType == 'looking' || product?.productType == 'hiring'  ? 5 : 14),
                         child: AppText.appText(
-                            "AED ${abbreviateNumber(product?.fixPrice?.toString() ?? '')}",
+                            productPrice(product),
                           textColor: Colors.white,
                           fontSize: 14.sp
 
@@ -244,16 +233,17 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                     if(product?.category?.name == 'Property for Sale' ||
                         product?.category?.name
                             == 'Property for Rent' || product?.category?.name == 'Vehicles')
-
                       product?.category?.name == 'Vehicles'
                           ? Row(
                         children: [
                           ImageText(
-                              txt: vehicleAttributes.year, image: 'calender.png'),
+                              txt: vehicleAttributes.makeModel == '' ? '0' : vehicleAttributes.makeModel,
+                              image: 'calender.png'),
                           ImageText(
-                              txt: vehicleAttributes.mileAge, image: 'road.png'),
+                              txt: vehicleAttributes.mileAge == '' ? '0' : vehicleAttributes.mileAge,
+                              image: 'road.png'),
                           ImageText(
-                              txt: vehicleAttributes.FuelType,
+                              txt: vehicleAttributes.fuelType == '' ? '0' : vehicleAttributes.fuelType,
                               image: 'petrol.png'),
                         ],
                       )
@@ -262,7 +252,7 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                           ? Row(
                         children: [
                           ImageText(
-                              txt: propertyAttributes.bathroom ?? "0",
+                              txt: propertyAttributes.bathroom == '' ? "0" : propertyAttributes.bathroom,
                               image: 'bath.png'),
                           ImageText(
                               txt: propertyAttributes.bedroom == '' ? "0" : propertyAttributes.bedroom,
@@ -303,7 +293,7 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Expanded(
-                            child: AppText.appText(timeAgo(product?.createdAt ?? ''),
+                            child: AppText.appText(timeAgo(product?.createdAt),
                                 fontSize: 11,
                                 overflow: TextOverflow.ellipsis,
                                 fontWeight: FontWeight.w700,
@@ -334,150 +324,9 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
 
   bool isLoading = false;
 
-
-  void addToFavourite() async {
-    setState(() {
-      isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "user_id": userId,
-      "product_id": widget.data["id"],
-    };
-    try {
-      response = await dio.post(path: AppUrls.adddToFavorite, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          setState(() {
-            isLoading = false;
-          });
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          isLoading = false;
-          // isFav = true;
-
-          apiProvider!.getFeatureProducts(
-            dio: dio,
-            context: context,
-          );
-
-          // getAuctionProductDetail();
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  void removeFavourite({wishId}) async {
-    setState(() {
-      isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": wishId,
-      // "product_id": widget.detailResponse["id"],
-    };
-    try {
-      response = await dio.post(path: AppUrls.removeFavorite, data: params);
-
-      var responseData = response.data;
-      // apiProvider!.getAuctionProducts(
-      //   dio: dio,
-      //   context: context,
-      // );
-
-
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          setState(() {
-            isLoading = false;
-          });
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          isLoading = false;
-          // isFav = false;
-
-          apiProvider!.getFeatureProducts(
-            dio: dio,
-            context: context,
-          );
-
-          // getAuctionProductDetail();
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
 }
+
+
 class PriceTagPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

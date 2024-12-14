@@ -1,3 +1,5 @@
+import 'package:tt_offer/models/user_model.dart';
+
 class BidsModel {
   bool? success;
   List<BidsData>? data;
@@ -16,15 +18,7 @@ class BidsModel {
     message = json['message'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['success'] = this.success;
-    if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
-    }
-    data['message'] = this.message;
-    return data;
-  }
+
 }
 
 class BidsData {
@@ -34,7 +28,7 @@ class BidsData {
   int? price;
   String? createdAt;
   String? updatedAt;
-  User? user;
+  UserModel? user;
 
   BidsData(
       {this.id,
@@ -52,22 +46,9 @@ class BidsData {
     price = json['price'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    user = json['user'] != null ? User.fromJson(json['user']) : null;
+    user = json['user'] != null ? UserModel.fromJson(json['user']) : null;
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['product_id'] = this.productId;
-    data['price'] = this.price;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    if (this.user != null) {
-      data['user'] = this.user!.toJson();
-    }
-    return data;
-  }
 }
 
 class User {

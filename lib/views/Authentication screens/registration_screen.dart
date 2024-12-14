@@ -169,13 +169,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 RegExp(r'^\+\d{1,3}\d{9,15}$').hasMatch(emailPhone);
                             if (isPhoneNumber || isEmail) {
                               if (_passwordController.text.isNotEmpty) {
-                                if (_passwordController.text.isNotEmpty) {
 
                                   Map<String, dynamic> data = {
                                     "name": "${_fNameController.text} ${_lNameController.text}",
+                                    if(isEmail)
                                     "email": _emailController.text,
                                     "username": _userNameController.text,
                                     "password": _passwordController.text,
+                                    if(isPhoneNumber)
                                     "phone": _emailController.text,
                                   };
 
@@ -189,10 +190,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   }).onError((error, stackTrace){
                                     showSnackBar(context, error.toString());
                                   });
-                                } else {
-                                  showSnackBar(
-                                      context, "Password length is minimum 8");
-                                }
                               } else {
                                 showSnackBar(context, "Enter Password");
                               }

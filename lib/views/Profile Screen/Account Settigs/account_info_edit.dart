@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
@@ -15,6 +15,8 @@ import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/custom_requests/update_account_service.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
+
+import '../../../view_model/profile/user_profile/user_view_model.dart';
 
 class AccountEditInfoScreen extends StatefulWidget {
   final title;
@@ -44,6 +46,9 @@ class AccountEditInfoScreen extends StatefulWidget {
 
 class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
   TextEditingController controller = TextEditingController();
+  TextEditingController oldPasswordController = TextEditingController();
+
+  late UserViewModel userViewModel;
 
   bool loading = false;
 
@@ -51,15 +56,11 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
     setState(() {
       loading = true;
     });
-    var res = await UpdateAccountSettingService().updateProfileNameService(
+
+     await UpdateAccountSettingService().updateProfileNameService(
       context: context,
-      name: controller.text,
+      name: controller.text, userViewModel: userViewModel,
     );
-    print('userId--->${PrefKey.userId}');
-    print('boolll_--->${res}');
-    if (res) {
-      showSnackBar(context, 'Updated Successfully', error: false);
-    }
 
     setState(() {
       loading = false;
@@ -70,12 +71,9 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
     setState(() {
       loading = true;
     });
-    var res = await UpdateAccountSettingService()
-        .updateEmailService(context: context, email: controller.text);
+    await UpdateAccountSettingService()
+        .updateEmailService(context: context, email: controller.text, userViewModel: userViewModel);
 
-    if (res) {
-      showSnackBar(context, 'Updated Successfully', error: false);
-    }
 
     setState(() {
       loading = false;
@@ -88,25 +86,18 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
     // Check if the location matches the pattern
     if (!locationPattern.hasMatch(controller.text)) {
       // Show SnackBar if the format is incorrect
-
       showSnackBar(context, 'Please enter full location.');
       return;
-
     }
-
-
 
     setState(() {
       loading = true;
     });
-    var res = await UpdateAccountSettingService()
-        .updateLocationService(context: context, location: controller.text);
+     await UpdateAccountSettingService()
+        .updateLocationService(context: context, location: controller.text, userViewModel: userViewModel);
 
-    await pref.setString('myLocation', controller.text);
+     await pref.setString('myLocation', controller.text);
 
-    if (res) {
-      showSnackBar(context, 'Updated Successfully', error: false);
-    }
 
     setState(() {
       loading = false;
@@ -117,12 +108,8 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
     setState(() {
       loading = true;
     });
-    var res = await UpdateAccountSettingService().updatePasswordService(
-        context: context, newPassword: controller.text, email: widget.emailSt);
-
-    if (res) {
-      showSnackBar(context, 'Updated Successfully', error: false);
-    }
+    await UpdateAccountSettingService().updatePasswordService(
+        context: context, newPassword: controller.text, oldPassword: oldPasswordController.text, userViewModel: userViewModel);
 
     setState(() {
       loading = false;
@@ -135,16 +122,13 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    userViewModel =  Provider.of<UserViewModel>(context, listen: false);
+
     return WillPopScope(
       onWillPop: () async {
-        dio = AppDio(context);
-        logger.init();
-        final profileApi =
-            Provider.of<ProfileApiProvider>(context, listen: false);
-        await profileApi.getProfile(
-          dio: dio,
-          context: context,
-        );
+
+        await userViewModel.getUserProfile();
         return true; // Allow the pop action
       },
       child: Scaffold(
@@ -157,7 +141,7 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                padding: EdgeInsets.symmetric(vertical: widget.password == true ? 0 : 20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -167,8 +151,8 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             textColor: AppTheme.text09),
-                    const SizedBox(
-                      height: 10,
+                    SizedBox(
+                      height: widget.password == true ? 0 : 10,
                     ),
                     widget.password == true
                         ? const SizedBox.shrink()
@@ -181,12 +165,26 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
                   ],
                 ),
               ),
-              if (widget.password == true)
+              if(widget.password == true)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      AppText.appText("Old Password",
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          textColor: AppTheme.text09),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      CustomAppFormField(
+                        texthint: "",
+                        controller: oldPasswordController,
+                        borderColor: AppTheme.borderColor,
+                        hintTextColor: AppTheme.hintTextColor,
+                      ),
+                      SizedBox(height: 16.h,),
                       AppText.appText("New Password",
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -199,38 +197,43 @@ class _AccountEditInfoScreenState extends State<AccountEditInfoScreen> {
                         controller: controller,
                         borderColor: AppTheme.borderColor,
                         hintTextColor: AppTheme.hintTextColor,
-                      )
+                      ),
+                      SizedBox(height: 7.h,)
                     ],
                   ),
                 ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: loading
-                    ? CircularProgressIndicator(color: AppTheme.appColor)
-                    : AppButton.appButton(
-                        widget.email == true
-                            ? "Change Email"
-                            : widget.password == true
-                                ? "Change password"
-                                : widget.location == true
-                                    ? "Update Location"
-                                    : "Update", onTap: () {
-                        widget.userName == true
-                            ? updateNameHandler()
-                            : widget.email == true
-                                ? updateEmailHandler()
-                                : widget.location == true
-                                    ? updateLocationHandler()
-                                    : widget.password == true
-                                        ? updatePasswordHandler()
-                                        : null;
-                      },
-                        height: 53,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
-                        radius: 32.0,
-                        backgroundColor: AppTheme.appColor,
-                        textColor: AppTheme.whiteColor),
+              Consumer<UserViewModel>(
+                  builder: (context, userViewModel, child) {
+                    return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: userViewModel.updateProfileLoading
+                        ? CircularProgressIndicator(color: AppTheme.appColor)
+                        : AppButton.appButton(
+                            widget.email == true
+                                ? "Change Email"
+                                : widget.password == true
+                                    ? "Change password"
+                                    : widget.location == true
+                                        ? "Update Location"
+                                        : "Update", onTap: () {
+                            widget.userName == true
+                                ? updateNameHandler()
+                                : widget.email == true
+                                    ? updateEmailHandler()
+                                    : widget.location == true
+                                        ? updateLocationHandler()
+                                        : widget.password == true
+                                            ? updatePasswordHandler()
+                                            : null;
+                          },
+                            height: 53,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                            radius: 32.0,
+                            backgroundColor: AppTheme.appColor,
+                            textColor: AppTheme.whiteColor),
+                  );
+                }
               )
             ],
           ),

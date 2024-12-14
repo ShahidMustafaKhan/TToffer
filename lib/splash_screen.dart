@@ -16,7 +16,7 @@ import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
 
 import 'Constants/app_logger.dart';
-import 'Controller/APIs Manager/banner_api.dart';
+import 'view_model/banner/banner_view_model.dart';
 import 'config/dio/app_dio.dart';
 import 'custom_requests/firebase_messaging_service.dart';
 import 'main.dart';

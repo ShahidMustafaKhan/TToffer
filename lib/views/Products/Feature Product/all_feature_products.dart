@@ -13,6 +13,7 @@ import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/sub_categories_model.dart';
+import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/all_auction_procucts.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_container.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
@@ -20,6 +21,7 @@ import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 
 import '../../../Utils/widgets/custom_radio_button.dart';
+import '../../../models/product_model.dart';
 
 class ViewFeaturedProducts extends StatefulWidget {
   const ViewFeaturedProducts({super.key});
@@ -45,8 +47,8 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
 
   List<CategoryModel> catModel = [];
   List<SubCategoriesModel> subCat = [];
-  late final apiProvider;
-  var featureProductList = [];
+  late ProductViewModel productViewModel;
+  List<Product?>? featureProductList = [];
   var condition = [];
   String selectedCondition = "Select By Condition";
 
@@ -78,12 +80,12 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
     getSubCat();
     sortNewestOnTop();
 
-    apiProvider = Provider.of<ProductsApiProvider>(context, listen: false);
-    apiProvider.getFeatureProducts(
-      dio: dio,
-      context: context,
-    );
-      featureProductList = apiProvider.allfeatureProductsData;
+    productViewModel = Provider.of<ProductViewModel>(context, listen: false);
+    productViewModel.getFeatureProducts();
+
+    featureProductList = productViewModel.featureProductList.data?.data?.productList ?? [];
+
+
 
     super.initState();
   }
@@ -120,8 +122,8 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
       appBar: CustomAppBar1(
         title: "Featured Products",
       ),
-      body: Consumer<ProductsApiProvider>(
-          builder: (context, apiProvider, child) {
+      body: Consumer<ProductViewModel>(
+          builder: (context, productViewModel, child) {
             return SingleChildScrollView(
             child: Column(
               children: [
@@ -180,26 +182,26 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                             childAspectRatio: screenWidth / (3.8 * 150),
                           ),
                           shrinkWrap: true,
-                          itemCount: featureProductList.length,
+                          itemCount: featureProductList?.length ?? 0,
                           itemBuilder: (context, int index) {
                             return GestureDetector(
                                 onTap: () {
                                   push(
                                       context,
                                       FeatureInfoScreen(
-                                        detailResponse: featureProductList[index],
+                                        product: featureProductList?[index],
                                       ));
 
                                   // getFeatureProductDetail(
                                   //     featureProductList[index]["id"]);
                                 },
                                 child: FeatureProductContainer(
-                                  data: featureProductList[index],
+                                  product: featureProductList?[index],
                                 ));
                           },
                         ),
                       ),
-                if(featureProductList.isEmpty && apiProvider.isLoading==false)
+                if(featureProductList?.isEmpty ?? true)
                   NoDataFound.noDataFound()
 
               ],
@@ -313,6 +315,7 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                       Navigator.of(context).pop();
                     }
                     else{
+                      subCategory=null;
                       catId = catModel[index-1].id;
                       category=catModel[index-1].id.toString();
                       catName = catModel[index-1].title;
@@ -349,6 +352,7 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                       // subCatId = subCat[i].id;
                       subCatId = subCat[i].title;
                       print('newSub---->${subCatId}');
+
 
                       selectedIndexes[catModel[index-1].id!] = i;
                       subCategory = subCat[i].id.toString();
@@ -606,23 +610,23 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
   }
 
   void sortNewestOnTop() {
-    featureProductList.sort((a, b) => b['created_at'].compareTo(a['created_at']));
+    featureProductList?.sort((a, b) => b!.createdAt!.compareTo(a!.createdAt!));
     setState(() {
 
     });  }
 
   void sortNewestOnBottom() {
-    featureProductList.sort((a, b) => a['created_at'].compareTo(b['created_at']));
+    featureProductList?.sort((a, b) => a!.createdAt!.compareTo(b!.createdAt!));
     setState(() {});
   }
 
   void sortLowestPriceOnTop() {
-    featureProductList.sort((a, b) => double.parse(a['fix_price']).compareTo(double.parse(b['fix_price'])));
+    featureProductList?.sort((a, b) => double.parse(a!.fixPrice.toString()).compareTo(double.parse(b!.fixPrice.toString())));
     setState(() {});
   }
 
   void sortLowestPriceOnBottom() {
-    featureProductList.sort((a, b) => double.parse(b['fix_price']).compareTo(double.parse(a['fix_price'])));
+    featureProductList?.sort((a, b) => double.parse(b!.fixPrice.toString()).compareTo(double.parse(a!.fixPrice.toString())));
     setState(() {});
   }
 // Notify listeners about the updated state
@@ -639,30 +643,30 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
     String? minPrice,
     String? maxPrice,
   }) {
-    featureProductList = apiProvider.allfeatureProductsData.where((product) {
+    featureProductList = productViewModel.featureProductList.data?.data?.productList?.where((product) {
       bool matches = true;
 
       if (selectedCondition != 'Select By Condition' && categoryName!= 'All Category') {
-        matches = matches && (product['condition'] == selectedCondition);
+        matches = matches && (product.condition == selectedCondition);
       }
 
       if (_locationController.text.isNotEmpty) {
-        List<dynamic> locationParts = product['location'].toLowerCase().split(',').map((s) => s.trim()).toList();
+        List<dynamic> locationParts = product.location!.toLowerCase().split(',').map((s) => s.trim()).toList();
         String searchText = _locationController.text.toLowerCase();
 
         matches = matches && locationParts.any((part) => part.contains(searchText));
       }
 
       if (category != null) {
-        matches = matches && (product['category_id'] == category);
+        matches = matches && (product.category?.id.toString() == category);
       }
 
       if (subCategory != null) {
-        matches = matches && (product['sub_category_id'] == subCategory);
+        matches = matches && (product.subCategory?.id.toString() == subCategory);
       }
 
       if (minPrice != null || maxPrice != null) {
-        int price = int.parse(product['fix_price'].split('.')[0]);
+        int price = int.parse(product.fixPrice.toString().split('.')[0]);
 
         if (minPrice != null && maxPrice != null) {
           matches = matches && (price >= int.parse(minPrice) && price <= int.parse(maxPrice));

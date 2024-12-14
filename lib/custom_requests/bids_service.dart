@@ -5,7 +5,12 @@ import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/bids_model.dart';
 import 'package:tt_offer/providers/bids_provider.dart';
 
+import '../config/app_urls.dart';
+import '../data/network/network_api_services.dart';
+
 class BidsService {
+
+
   Future getBidsService({required BuildContext context,required int  productId}) async {
     try {
       Map<String, dynamic> body = {'product_id': productId};

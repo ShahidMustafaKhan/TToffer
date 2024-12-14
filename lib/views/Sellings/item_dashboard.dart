@@ -1,39 +1,29 @@
-import 'dart:developer';
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
-import 'package:tt_offer/config/app_urls.dart';
-import 'package:tt_offer/main.dart';
-import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
-import 'package:tt_offer/utils/widgets/others/delete_notification_dialog.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
 import 'package:tt_offer/views/ChatScreens/chat_screen.dart';
 import 'package:tt_offer/views/Post%20screens/post_screen.dart';
 import 'package:tt_offer/views/Sell%20Faster/sell_faster.dart';
 import 'package:tt_offer/views/Sellings/item_performance.dart';
 import 'package:tt_offer/views/Sellings/new_sold_screen.dart';
-import 'package:tt_offer/views/Sellings/selling_purchase.dart';
-
-import '../../config/dio/app_dio.dart';
+import '../../models/product_model.dart';
 import '../Products/Auction Product/widgets/reschdule_acution_time.dart';
 
 class ItemDashBoard extends StatefulWidget {
-  const ItemDashBoard({super.key, required this.selling});
+  const ItemDashBoard({super.key, required this.product});
 
-  final Selling selling;
+  final Product? product;
 
   @override
   State<ItemDashBoard> createState() => _ItemDashBoardState();
@@ -41,15 +31,16 @@ class ItemDashBoard extends StatefulWidget {
 
 class _ItemDashBoardState extends State<ItemDashBoard> {
   bool loading = false;
-  late final dio;
   bool restrictEdit = false;
   bool restrictMarkSold = false;
 
+  Product? product;
+
   @override
   void initState() {
-    dio = AppDio(context);
-    // TODO: implement initState
-    if(widget.selling.auctionPrice!=null && endTimeReached(widget.selling.endingDate!, widget.selling.endingTime!)==false){
+    product = widget.product;
+
+    if(product?.auctionInitialPrice!=null && endTimeReached(product?.auctionEndingDate ?? '', product?.auctionEndingTime ?? '')==false){
       restrictEdit = true;
       restrictMarkSold = true;
     }
@@ -84,7 +75,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                         )),
                     InkWell(
                       onTap: () {
-                        push(context, SellFaster(selling: widget.selling));
+                        push(context, SellFaster(product: product));
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -110,17 +101,21 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                             ),
                           ),
                           SizedBox(
-                            child: AppButton.appButtonWithLeadingImage(
-                              "Sell Faster",
-                              imagePath: "assets/images/sellFaster.png",
-                              imgHeight: 14,
-                              fontSize: 10,
-                              height: 30.h,
-                              width: 30.h,
-                              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-                              fontWeight: FontWeight.w400,
-                              backgroundColor: AppTheme.appColor,
-                              textColor: AppTheme.whiteColor,
+                            width: 107.w,
+                            child: SizedBox(
+                              child: AppButton.appButtonWithLeadingImage(
+                                "Sell Faster",
+                                imagePath: "assets/images/sellFaster.png",
+                                imgHeight: 14,
+                                fontSize: 10,
+                                height: 30.h,
+                                width: 30.h,
+                                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                                fontWeight: FontWeight.w400,
+                                backgroundColor: AppTheme.appColor,
+                                textColor: AppTheme.whiteColor,
+                                containerWidth: 4
+                              ),
                             ),
                           ),
                           SizedBox(width: 10.w,)
@@ -183,7 +178,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                                           push(
                                               context,
                                               PostScreen(
-                                                  // selling: widget.selling,
+                                                  product: widget.product,
                                                   ));
                                         },
                                         child: AppText.appText("Sell Another",
@@ -236,9 +231,9 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                     );
                   },
                   child: customListview(
-                      img: widget.selling.photo!.isNotEmpty ? widget.selling.photo![0].src.toString() : '',
-                      title: widget.selling.title,
-                      subtitle: widget.selling.fixPrice ??  widget.selling.auctionPrice),
+                      img: (product?.photo?.isNotEmpty ?? false) ? product!.photo![0].url! : '',
+                      title: product?.title ?? '',
+                      subtitle: product?.productType == 'featured' ? product?.fixPrice :  product?.auctionInitialPrice),
                 ),
               ),
               Padding(
@@ -252,7 +247,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                         push(
                             context,
                             FeatureInfoScreen(
-                              detailResponse: widget.selling.toJson(),
+                              product: product,
                             ));
                       },
                       child: customContainer(
@@ -261,14 +256,14 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                     InkWell(
                       onTap: () {
                         if(restrictEdit == false) {
-                          if(widget.selling.auctionPrice!=null){
+                          if(product?.auctionInitialPrice!=null){
                             push(context, RescheduleTimeProduct(
-                              productId: widget.selling.id.toString(),
+                              productId: product?.id.toString(),
 
                             ));
                           }
                           else{
-                            push(context, PostScreen(selling: widget.selling));}
+                            push(context, PostScreen(product: product,));}
                         }
                         else{
                           showSnackBar(context, 'You cannot edit this product until the auction has ended.');
@@ -283,12 +278,12 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                           push(
                             context,
                             NewSoldScreen(
-                              title: widget.selling.title,
-                              productId: widget.selling.id.toString(),
-                              fixPrice: widget.selling.fixPrice,
-                              auctionPrice: widget.selling.auctionPrice,
-                              image: widget.selling.photo!=null && widget.selling.photo!.isNotEmpty ? widget.selling.photo![0].src : null,
-                              auction: widget.selling.fixPrice != null ? false : true,
+                              title: product?.title,
+                              productId: product?.id.toString(),
+                              fixPrice: product?.fixPrice.toString(),
+                              auctionPrice: product?.auctionInitialPrice.toString(),
+                              image: product?.photo?.isNotEmpty ?? false ? product!.photo![0].url! : null,
+                              auction: product?.productType == 'auction' ? true : false,
                             ));
                         }
                         else{
@@ -305,7 +300,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                         push(
                             context,
                             SellFaster(
-                              selling: widget.selling,
+                              product: product,
                             ));
                       },
                       child: customContainer(
@@ -326,7 +321,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                       push(
                           context,
                           ItemPerformanceScreen(
-                            selling: widget.selling,
+                            product: product,
                           ));
                     },
                     txt: "Item Performance",
@@ -346,7 +341,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                   height: 300,
                   child: Padding(
                     padding: const EdgeInsets.only(right: 2.0),
-                    child: ChatScreen(isProductChat: true, productId: widget.selling.id.toString(),),
+                    child: ChatScreen(isProductChat: true, productId: product?.id.toString(),),
                   )),
 
               // ListView.builder(
@@ -414,7 +409,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
     Duration userTimeZoneOffset = DateTime.now().timeZoneOffset;
 
     // Define the time zone offset for UTC+4 (Dubai time)
-    const dubaiTimeZoneOffset = Duration(hours: 4);
+    const dubaiTimeZoneOffset = Duration();
 
     // Calculate the difference between user time zone and Dubai time zone
     Duration timeDifference = userTimeZoneOffset - dubaiTimeZoneOffset;
@@ -423,49 +418,6 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
     return endTime.add(timeDifference);
   }
 
-
-  Future<void> markAsSold(int? id, context) async {
-    bool isLoading = false;
-    CustomAlertDialog(
-      title: "Update Item Status",
-      description: "Do you want mark item as sold ?",
-      cancelButtonTitle: "No",
-      confirmButtonTitle: "Yes, Mark as sold",
-      context: context,
-      loading: isLoading,
-      onTap: () async {
-        Navigator.of(context).pop();
-        showAlertLoader(context: context);
-        try {
-          var responce = await customGetRequest.httpGetRequest(
-              url: "${AppUrls.markProductSold}/$id");
-
-          // showSnackBar(context, responce["success"]);
-
-          // if (responce.statusCode == 200) {
-          if (responce["success"] == true) {
-            showSnackBar(context, responce["message"], title: 'Success!');
-
-            getSellingProducts(context,dio).then((value) => Navigator.of(context).pop(true));
-          }
-          else{
-            showSnackBar(context, responce["message"]);
-
-            Navigator.of(context).pop(true);
-          }
-
-          //
-          // }
-
-          log("responce = $responce");
-        } catch (e) {
-          log("excepion = ${e.toString()}");
-          Navigator.of(context).pop(false);
-          showSnackBar(context, "Something went Wrong");
-        }
-      },
-    );
-  }
 
   Widget customRow({img, txt, required Function() onTap}) {
     return GestureDetector(
@@ -551,7 +503,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                     child: img.isEmpty
                         ? Image.asset('assets/images/gallery.png')
                         : Image.network(
-                      widget.selling.photo![0].src!,
+                            img,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -570,7 +522,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                     const SizedBox(
                       height: 5,
                     ),
-                    AppText.appText("AED ${formatNumber((removeLastTwoZeros(subtitle)))}",
+                    AppText.appText("AED ${formatNumber((removeLastTwoZeros(subtitle.toString())))}",
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         textColor: subTitleColor ?? AppTheme.txt1B20),
@@ -590,33 +542,4 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
     );
   }
 
-  Future<void> markArchived(int id, setStatesss) async {
-    setStatesss(() {
-      loading = true;
-    });
-
-    try {
-      var responce = await customGetRequest.httpGetRequest(
-          url: "${AppUrls.markProductArchive}/$id");
-
-      setStatesss(() {
-        loading = false;
-      });
-
-
-
-      showSnackBar(context, responce["message"]);
-
-      log("responce of markArchived = $responce");
-
-      getSellingProducts(context,dio).then((value) =>  Navigator.of(context).pop());
-    } catch (e) {
-      setStatesss(() {
-        loading = false;
-      });
-      Navigator.of(context).pop();
-
-      showSnackBar(context, "Something went Wrong");
-    }
-  }
 }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 
+import '../models/product_model.dart';
+
 class SellingPurchaseProvider extends ChangeNotifier {
   SellingProductsModel? sellingProductsModel;
-  List<Selling>? soldProductsList;
+  List<Product>? soldProductsList;
 
   bool isLoading = true;
 
@@ -13,7 +15,7 @@ class SellingPurchaseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateSoldProductData({required List<Selling> soldProductList}) {
+  void updateSoldProductData({required List<Product> soldProductList}) {
     soldProductsList = soldProductList;
     notifyListeners();
   }

@@ -12,7 +12,7 @@ class BlockdeUserService {
       var res = await CustomPostRequest().httpPostRequest(
           url: report == true ? 'report-a-user' : 'block-a-user', body: body);
 
-      if (res['success'] == true) {
+      if (res['status'] == true) {
         Navigator.of(context).pop();
 
         showSnackBar(
@@ -26,6 +26,7 @@ class BlockdeUserService {
         return false;
       }
     } catch (err) {
+      showSnackBar(context, err.toString());
       print(err);
       return false;
     }

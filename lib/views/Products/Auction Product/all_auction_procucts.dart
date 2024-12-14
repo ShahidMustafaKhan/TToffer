@@ -1,28 +1,21 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
-import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
-import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/data/response/status.dart';
-import 'package:tt_offer/detail_model/property_for_sale_model.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/sub_categories_model.dart';
 import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_container.dart';
-import 'package:tt_offer/views/Products/Feature%20Product/all_feature_products.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
 import '../../../models/product_model.dart';
 
@@ -84,11 +77,9 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
     dio = AppDio(context);
     logger.init();
     productViewModel = Provider.of<ProductViewModel>(context, listen: false);
-    productViewModel.getAuctionProducts(
+    productViewModel.getAuctionProducts();
 
-    );
-
-    auctionProductList = productViewModel.auctionProductList?.data?.data?.productList;
+    auctionProductList = productViewModel.auctionProductList.data?.data?.productList ?? [];
 
     super.initState();
   }
@@ -187,25 +178,23 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
                       childAspectRatio: screenWidth / (3.8 * 175),
                     ),
                     shrinkWrap: true,
-                    itemCount: productViewModel.auctionProductList.data?.data?.productList?.length ?? 0,
+                    itemCount: auctionProductList?.length ?? 0,
                     itemBuilder: (context, int index) {
                       return GestureDetector(
                           onTap: () {
                             push(
                                 context,
                                 AuctionInfoScreen(
-                                 detailResponse: productViewModel.auctionProductList.data?.data?.productList?[index],
+                                 product: auctionProductList?[index],
                                 ));
-                            // getAuctionProductDetail(apiProvider
-                            //     .allauctionProductsData[index]["id"]);
                           },
                           child: AuctionProductContainer(
-                            product:productViewModel.auctionProductList.data?.data?.productList?[index],
+                            product:auctionProductList?[index],
                           ));
                     },
                   ),
                 ),
-                if(productViewModel.auctionProductList.status == Status.error || (productViewModel.auctionProductList.data?.data?.productList?.isEmpty ?? true))
+                if(productViewModel.auctionProductList.status == Status.error || (auctionProductList?.isEmpty ?? true))
                   NoDataFound.noDataFound()
               ],
             ),
@@ -240,7 +229,7 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
 
   void _showCategoryBottomSheet(BuildContext context) {
     final apiProvider =
-    Provider.of<ProductsApiProvider>(context, listen: false);
+    Provider.of<ProductViewModel>(context, listen: false);
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -293,8 +282,7 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
   }
 
   Widget buildCategoryList(StateSetter setState) {
-    final apiProvider =
-    Provider.of<ProductsApiProvider>(context, listen: false);
+
     isExpanded ??= List.filled(catModel.length, false);
 
     return ListView.builder(
@@ -319,6 +307,7 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
 
                     }
                     else{
+                      subCategory=null;
                       catId = catModel[index-1].id;
                       category=catModel[index-1].id.toString();
                       catName = catModel[index-1].title;
@@ -614,94 +603,28 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
     );
   }
 
-  void getAuctionProductDetail(productId) async {
-    setState(() {
-      isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "id": productId,
-    };
-    try {
-      response = await dio.post(path: AppUrls.getAuctionProducts, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          setState(() {
-            isLoading = false;
-          });
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          var detailResponse = responseData["data"];
-
-
-
-          push(
-              context,
-              AuctionInfoScreen(
-                detailResponse: detailResponse[0],
-              ));
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong ${e}");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
 
   void sortNewestOnTop() {
-    // productViewModel.auctionProductList.data?.data?.productList?.sort((a, b) => b..compareTo(a['created_at']));
+    auctionProductList?.sort((a, b) => b!.createdAt!.compareTo(a!.createdAt!));
     setState(() {
 
     });  }
 
   void sortNewestOnBottom() {
-    // auctionProductList.sort((a, b) => a['created_at'].compareTo(b['created_at']));
+    auctionProductList?.sort((a, b) => a!.createdAt!.compareTo(b!.createdAt!));
     setState(() {});
   }
 
   void sortLowestPriceOnTop() {
-    // auctionProductList.sort((a, b) => double.parse(a['auction_price']).compareTo(double.parse(b['auction_price'])));
+    auctionProductList?.sort((a, b) => double.parse(a!.auctionInitialPrice.toString()).compareTo(double.parse(b!.auctionInitialPrice.toString())));
     setState(() {});
   }
 
   void sortLowestPriceOnBottom() {
-    // auctionProductList.sort((a, b) => double.parse(b['auction_price']).compareTo(double.parse(a['auction_price'])));
+    auctionProductList?.sort((a, b) => double.parse(b!.auctionInitialPrice.toString()).compareTo(double.parse(a!.auctionInitialPrice.toString())));
     setState(() {});
   }
+// Notify listeners about the updated state
 
 
   void filterProductsByPrice({
@@ -723,21 +646,14 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
       }
 
       if (_locationController.text.isNotEmpty) {
-        List<dynamic> locationParts = product.location != null
-            ? product.location!
-            .toLowerCase()
-            .split(',')
-            .map((s) => s.trim())
-            .toList()
-            : [];
-
+        List<dynamic> locationParts = product.location!.toLowerCase().split(',').map((s) => s.trim()).toList();
         String searchText = _locationController.text.toLowerCase();
 
         matches = matches && locationParts.any((part) => part.contains(searchText));
       }
 
       if (category != null) {
-        matches = matches && (product.categoryId.toString() == category);
+        matches = matches && (product.category?.id.toString() == category);
       }
 
       if (subCategory != null) {

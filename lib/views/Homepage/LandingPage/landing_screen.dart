@@ -1,39 +1,34 @@
-import 'dart:developer';
 
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:dialogs/dialogs.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:tt_offer/Constants/app_logger.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/profile_apis.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/custom_requests/search_service.dart';
+import 'package:tt_offer/data/response/api_response.dart';
 import 'package:tt_offer/data/response/status.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/selling_serach_model.dart';
 import 'package:tt_offer/providers/search_provider.dart';
 import 'package:tt_offer/utils/resources/res/app_theme.dart';
+import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
+import 'package:tt_offer/view_model/suggestion/suggestion_view_model.dart';
 import 'package:tt_offer/views/Homepage/LandingPage/widgets/auction_products_section.dart';
 import 'package:tt_offer/views/Homepage/LandingPage/widgets/banner_section.dart';
 import 'package:tt_offer/views/Homepage/LandingPage/widgets/category_section.dart';
-import 'package:tt_offer/views/Homepage/LandingPage/widgets/custom_row.dart';
 import 'package:tt_offer/views/Homepage/LandingPage/widgets/feature_products_section.dart';
-import 'package:tt_offer/views/All%20Categories/all_caetgories.dart';
-import 'package:tt_offer/views/All%20Categories/catagory_container.dart';
-import 'package:tt_offer/views/All%20Categories/sub_categories_screen.dart';
 import 'package:tt_offer/views/Homepage/home_app_bar.dart';
-import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/views/Homepage/search_screen.dart';
 import 'package:tt_offer/views/SearchPage/search_page.dart';
-import '../../../Controller/APIs Manager/cart_api.dart';
-import '../../../Controller/APIs Manager/notification_api.dart';
+import '../../../Utils/widgets/others/app_field.dart';
+import '../../../providers/notification_provider.dart';
+import '../../../view_model/notification/notification_api.dart';
 import '../../../view_model/product/product/product_viewmodel.dart';
+import '../../../view_model/profile/user_profile/user_view_model.dart';
+import '../../Notification/notification_screen.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -44,33 +39,35 @@ class LandingScreen extends StatefulWidget {
 
 class _LandingScreenState extends State<LandingScreen> {
 
-  final TextEditingController _searchController = TextEditingController();
   late ProductViewModel productViewModel;
+  late UserViewModel userViewModel;
   String? authenticationToken;
-  late CartApiProvider cartProvider;
+  int? userId;
+
+  final TextEditingController _searchController = TextEditingController();
+
 
   @override
   void initState() {
 
     handler();
-    final profileApi = Provider.of<ProfileApiProvider>(context, listen: false);
-    final productViewModel = Provider.of<ProductViewModel>(context, listen: false);
-    profileApi.getProfile(
-      dio: dio,
-      context: context,
-    );
+    userViewModel = Provider.of<UserViewModel>(context, listen: false);
+    productViewModel = Provider.of<ProductViewModel>(context, listen: false);
 
-
+    userViewModel.getUserProfile();
     productViewModel.getAuctionProducts();
     productViewModel.getFeatureProducts();
+    userViewModel.getWishList();
+
 
     getNotificationHandler();
 
-    cartProvider = Provider.of<CartApiProvider>(context, listen: false);
+    final cartViewModel = Provider.of<CartViewModel>(context, listen: false);
     authenticationToken = pref.getString(PrefKey.authorization);
+    userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
 
-    if(authenticationToken!=null) {
-      cartProvider.getCartItems(dio: dio, context: context);
+    if(authenticationToken!=null && userId!=null) {
+      cartViewModel.getCartList(userId);
     }
 
 
@@ -81,6 +78,7 @@ class _LandingScreenState extends State<LandingScreen> {
 
     productViewModel.getAuctionProducts();
     productViewModel.getFeatureProducts();
+    userViewModel.getWishList();
   }
 
   List<SearchData> provider = [];
@@ -89,46 +87,15 @@ class _LandingScreenState extends State<LandingScreen> {
     await BlockedUserServices().getBlockedUser(context: context);
   }
 
-  void searchHandler(BuildContext context) async {
-    showDialog(
-        context: context,
-        barrierColor: Colors.transparent,
-        builder: (context) => AlertDialog(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(
-                    color: AppTheme.appColor,
-                  ),
-                ],
-              ),
-            ));
-
-    bool res = await SearchService().searchService(
-      context: context,
-      query: _searchController.text.trim(),
-    );
-    Navigator.pop(context);
-
-    if (res) {
-      push(context, const SearchPage(), then: (){
-        getData();
-      });
-    }
-
-    provider = Provider.of<SearchProvider>(context, listen: false).selling;
-    print('provider---->${provider}');
-    setState(() {});
-  }
-
   getNotificationHandler() async {
     await NotificationService().notificationService(context: context);
   }
 
-
-
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
 
   @override
@@ -137,13 +104,17 @@ class _LandingScreenState extends State<LandingScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: AppTheme.whiteColor,
-      appBar: CustomAppBar(context: context, authenticationCode: authenticationToken, searchHandler: (){ searchHandler(context);}, searchController: _searchController, setState: setState,),
-      body: _searchController.text.isNotEmpty ?
-              const ViewSearchedProducts() :
+      appBar: CustomAppBar(context: context, authenticationCode: authenticationToken, setState: setState,),
+      body:
+      Consumer<ProductViewModel>(
+          builder: (context, productViewModel, child) {
+            return Stack(
+            children: [
+              if(( _searchController.text.isNotEmpty && (productViewModel.searchProductList.status == Status.loading || (productViewModel.searchProductList.status == Status.completed))))
+                const ViewSearchedProducts()
+              else
               Padding(
-                padding: EdgeInsets.only(
-                  top: 20.h,
-                ),
+                padding: EdgeInsets.only(top: 55.h),
                 child: const SingleChildScrollView(
                   child: Column(
                     children: [
@@ -167,8 +138,149 @@ class _LandingScreenState extends State<LandingScreen> {
                     ],
                   ),
                 ),
-              )
+              ),
 
+              Padding(
+                padding: const EdgeInsets.only(left: 25, right: 25),
+                child: Stack(
+                  children: [
+                    if(_searchController.text.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 40, right: 46, left: 4),
+                        child: Column(
+                          children: [
+                            Consumer<SuggestionViewModel>(
+                                builder: (context, suggestionViewModel, child) {
+                                  if(suggestionViewModel.suggestionList.isNotEmpty) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(color: Colors.grey.shade300),
+                                        borderRadius: BorderRadius.vertical(bottom: Radius.circular(8.r)),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            spreadRadius: 1,
+                                            blurRadius: 3,
+                                            offset: Offset(0, 2), // changes position of shadow
+                                          ),
+                                        ],
+                                      ),
+                                      child: ListView.builder(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        shrinkWrap: true,
+                                        itemCount: suggestionViewModel.suggestionList.length > 7  ? 7 : suggestionViewModel.suggestionList.length,
+                                        itemBuilder: (context, index) {
+                                          return ListTile(
+                                            leading: const Icon(Icons.history),
+                                            title: Text(
+                                              suggestionViewModel.suggestionList[index]['title'] ?? '',
+                                              style: const TextStyle(color: Colors.black, fontSize: 14.0),
+                                            ),
+                                            // subtitle: Text(
+                                            //   predictions[index]['description'],
+                                            //   style: TextStyle(fontSize: 12.0),
+                                            // ),
+                                            onTap: () {
+                                              setState((){});
+                                              _searchController.text = suggestionViewModel.suggestionList[index]['title'] ?? '';
+                                              productViewModel.searchAllProducts(search: suggestionViewModel.suggestionList[index]['title']);
+                                              suggestionViewModel.emptySuggestionList(notify: true);
+
+                                              // fetchPlaceDetails(predictions[index]['place_id']);
+                                              // setState(() {
+                                              //   searchController.text = predictions[index]['description'];
+                                              //   predictions = [];
+                                              // });
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  } else {
+                                    return const SizedBox();
+                                  }
+                                }
+                            ),
+                          ],
+                        ),
+                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomAppFormField(
+                            onChanged: (value){
+                              if(value.isNotEmpty && value.length >= 3){
+                                Provider.of<SuggestionViewModel>(context, listen: false).searchSuggestion(value,context);
+                              }
+                              if(value.isEmpty){
+                                Provider.of<SuggestionViewModel>(context, listen: false).emptySuggestionList(notify: true);
+                                Provider.of<ProductViewModel>(context, listen: false).setSearchProduct(ApiResponse.notStarted());
+
+                              }
+                              setState((){});
+                            },
+                            radius: 15.0,
+                            hintStyle: TextStyle(
+                                color: AppTheme.textColor,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w400),
+                            prefixIcon: Image.asset(
+                              "assets/images/search.png",
+                              height: 22.h,
+                              color: AppTheme.textColor,
+                            ),
+                            texthint: "What are you looking for?",
+                            // controller: searchController,
+                            cPadding: 9.h, controller: _searchController,
+                            // contentPadding : EdgeInsets.only(left: 10, right : 10 , top: 6.h , bottom: 0.h)
+                          ),
+                        ),
+                        SizedBox(width: 20.w,),
+                        Consumer<NotificationProvider>(
+                            builder: (context, apiProvider, child) {
+                              return Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  GestureDetector(
+                                      onTap: () {
+                                        push(context, const NotificationScreen());
+                                      },
+                                      child: Image.asset(
+                                        "assets/images/notification.png",
+                                        height: 26,
+                                      )),
+                                  if(apiProvider.unreadNotificationIndicator==true)
+                                    Positioned(
+                                      top: -3,
+                                      right: -3,
+                                      child: Container(
+                                        height: 19, // Adjust the size as needed
+                                        width: 19,  // Adjust the size as needed
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(child: AppText.appText('${apiProvider.unreadNotificationCount}', textColor: Colors.white, fontSize: 8.sp, fontWeight: FontWeight.bold)),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            }
+                        )
+
+                      ],
+                    ),
+
+
+
+                  ],
+                ),
+              ),
+            ],
+          );
+        }
+      )
 
     );
   }

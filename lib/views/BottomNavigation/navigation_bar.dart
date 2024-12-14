@@ -8,30 +8,26 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/banner_api.dart';
+import 'package:tt_offer/view_model/banner/banner_view_model.dart';
 import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/utils/utils.dart';
+import 'package:tt_offer/view_model/chat/chat_list_view_model/chat_list_view_model.dart';
+import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/ChatScreens/chat_screen.dart';
 import 'package:tt_offer/views/Homepage/LandingPage/landing_screen.dart';
 import 'package:tt_offer/views/Post%20screens/post_screen.dart';
 import 'package:tt_offer/views/Profile%20Screen/profile_screen.dart';
 import 'package:tt_offer/views/Sellings/selling_purchase.dart';
-
-import '../../Constants/app_logger.dart';
-import '../../Controller/APIs Manager/chat_api.dart';
-import '../../Controller/APIs Manager/profile_apis.dart';
 import '../../Utils/widgets/others/congragulations_dialog.dart';
 import '../../Utils/widgets/others/delete_notification_dialog.dart';
 import '../../config/app_urls.dart';
-import '../../config/dio/app_dio.dart';
 import '../../config/keys/pref_keys.dart';
 import '../../custom_requests/firebase_messaging_service.dart';
 import '../../main.dart';
-import '../../models/chat_list_model.dart';
-import '../../providers/chat_list_provider.dart';
 import '../../providers/screen_state_notifier.dart';
+import '../../view_model/profile/user_profile/user_view_model.dart';
 import '../Authentication screens/login_screen.dart';
 
 class BottomNavView extends StatefulWidget {
@@ -48,9 +44,7 @@ class BottomNavView extends StatefulWidget {
 class _BottomNavViewState extends State<BottomNavView> {
   late int selectedIndex;
   bool showUnreadMessageIndicator=false;
-  late AppDio dio;
-  AppLogger logger = AppLogger();
-  var userId;
+  int? userId;
   var token;
   var authorizationToken;
 
@@ -73,7 +67,7 @@ class _BottomNavViewState extends State<BottomNavView> {
     else{
       final imageProvider =
       Provider.of<ImageNotifyProvider>(context, listen: false);
-      imageProvider.vedioPath = "";
+      imageProvider.videoPath = "";
       imageProvider.imagePaths.clear();
       setState(() {
         selectedIndex = index;
@@ -96,13 +90,15 @@ class _BottomNavViewState extends State<BottomNavView> {
 
 
   getAllChat() async {
-    final apiProvider = Provider.of<ChatApiProvider>(context, listen: false);
+    final chatListViewModel = Provider.of<ChatListViewModel>(context, listen: false);
 
     token = pref.getString('device-token');
 
       if(authorizationToken != null) {
-        apiProvider.getAllChats(
-            dio: dio, context: context, userId: userId, updateChatOnly: true);
+        chatListViewModel.getAllChat(userId).then((value){
+          chatListViewModel.checkForUnReadMessages(chatListViewModel.buyingChat.data ?? [], userId);
+          chatListViewModel.checkForUnReadMessages(chatListViewModel.sellingChat.data ?? [], userId);
+        });
         if (token != null && token.isNotEmpty) {
           updateDeviceToken(
               dio: dio, context: context, userId: userId, token: token);
@@ -116,22 +112,16 @@ class _BottomNavViewState extends State<BottomNavView> {
 
     authorizationToken = pref.getString(PrefKey.authorization);
 
-    userId = pref.getString(PrefKey.userId);
+    userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
   }
 
   @override
   void initState() {
     selectedIndex = widget.index ?? 0;
 
-
-    dio = AppDio(context);
-    logger.init();
-
-
     asynchronousMethod();
 
-    Provider.of<BannerController>(context, listen: false).getAllBanner(dio: dio, context: context);
-
+    Provider.of<BannerViewModel>(context, listen: false).callBannerApi();
 
     super.initState();
   }
@@ -141,6 +131,8 @@ class _BottomNavViewState extends State<BottomNavView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if(widget.showDialog) {
         congratulationAlertDialog(title: 'Congratulations!', description: "Your ad posted successfully.", context: context, loading: false, onTap: () => Navigator.of(context).pop());
+        Provider.of<ProductViewModel>(context, listen: false).getFeatureProducts();
+        Provider.of<ProductViewModel>(context, listen: false).getAuctionProducts();
       }
     });
     super.didChangeDependencies();
@@ -158,8 +150,8 @@ class _BottomNavViewState extends State<BottomNavView> {
 
  getUserProfile(){
     if(authorizationToken!=null) {
-      final profileApi = Provider.of<ProfileApiProvider>(context, listen: false);
-      profileApi.getProfile(dio: dio, context: context);
+      final profileApi = Provider.of<UserViewModel>(context, listen: false);
+      profileApi.getUserProfile();
     }
  }
 
@@ -273,13 +265,13 @@ class _BottomNavViewState extends State<BottomNavView> {
                   },
                 ),
                 SizedBox(width: 25.w,),
-                Consumer<ChatApiProvider>(
+                Consumer<ChatListViewModel>(
                     builder: (context, data, child) {
                     return BottomNavBarCard(
                       image1: 'assets/svg/ic_message.svg',
                       image2: 'assets/svg/ic_message_dark.svg',
                       title: 'CHATS',
-                      showIndicator: data.showUnReadMessageIndicator,
+                      showIndicator: data.unReadMessagesIndicator,
                       changes: selectedIndex == 1 ? true : false,
                       onTap: () {
                         _onItemTapped(1);
@@ -298,10 +290,10 @@ class _BottomNavViewState extends State<BottomNavView> {
                   },
                 ),
                 SizedBox(width: 25.w,),
-                Consumer<ProfileApiProvider>(
-                    builder: (context, profileApi, child) {
+                Consumer<UserViewModel>(
+                    builder: (context, userViewModel, child) {
                       return BottomNavBarCard(
-                      image1: profileApi.profileData!=null && profileApi.profileData["img"]!=null ? profileApi.profileData["img"]: 'assets/svg/ic_profile.svg',
+                      image1: userViewModel.userModel.data !=null && userViewModel.userModel.data?.img!=null ? userViewModel.userModel.data?.img: 'assets/svg/ic_profile.svg',
                       image2: 'assets/svg/ic_profile_dark.svg',
                       title: 'ACCOUNT',
                       changes: selectedIndex == 3 ? true : false,

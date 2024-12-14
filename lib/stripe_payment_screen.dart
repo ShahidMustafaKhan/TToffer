@@ -10,6 +10,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pay/pay.dart';
+import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
@@ -18,15 +19,18 @@ import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/custom_requests/sell-faster_stripe_api.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/utils/utils.dart';
+import 'package:tt_offer/view_model/payment/payment_view_model.dart';
+
+import 'models/product_model.dart';
 
 class StripePaymentScreen extends StatefulWidget {
-  Selling? selling;
+  Product? product;
   String? amount;
   String? currency;
   String? day;
 
   StripePaymentScreen(
-      {super.key, this.selling, this.amount, this.day, this.currency});
+      {super.key, this.product, this.amount, this.day, this.currency});
 
   @override
   _StripePaymentScreenState createState() => _StripePaymentScreenState();
@@ -37,6 +41,7 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
   CardFieldInputDetails? _card;
 
   bool loading = false;
+  late PaymentViewModel paymentViewModel;
 
   void _handlePayPress() async {
     if (_formKey.currentState?.validate() == true && _card != null) {
@@ -68,20 +73,16 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
 
   fasterProductHandler(
       String day, String amount, String currency, String token) async {
-    setState(() {
-      loading = true;
-    });
 
     await SellFasterStripeService().sellFasterStripeService(
         context: context,
-        productId: widget.selling!.id,
+        paymentViewModel: paymentViewModel,
+        productId: widget.product?.id,
         nod: day,
         amount: amount,
         currency: currency,
         token: token);
-    setState(() {
-      loading = false;
-    });
+
   }
 
   String? selectedValue;
@@ -95,6 +96,12 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
   String? _errorCardNumberText;
   String? _errorCardDateText;
   String? _errorCardCvcText;
+
+  @override
+  void initState() {
+   paymentViewModel = Provider.of<PaymentViewModel>(context, listen: false);
+   super.initState();
+  }
 
 
 
@@ -163,367 +170,180 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.h),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            children: [
+              SizedBox(height: 10.h,),
+              ImageWithRadio(
+                val: '2',
+                groupValue: selectedValue,
+                image: 'visa',
+                title: 'Visa',
+                onChanged: (val) {
+                  setState(() {
+                    selectedValue = val;
+                    selectPayment = 'Visa';
+                  });
+                },
+              ),
+
+              Visibility(
+                  visible: selectPayment == 'Visa',
+                  child: inputCardDetails()),
+
+              SizedBox(height: 7.h,),
+
+              SvgPicture.asset('assets/svg/divider.svg'),
+
+              SizedBox(height: 10.h,),
+
+              ImageWithRadio(
+                val: '3',
+                groupValue: selectedValue,
+                image: 'master',
+                title: 'Master',
+                onChanged: (val) {
+                  setState(() {
+                    selectedValue = val;
+                    selectPayment = 'Master';
+                  });
+                },
+              ),
+
+              Visibility(
+                  visible: selectPayment == 'Master',
+                  child: inputCardDetails()),
+
+
+              SizedBox(height: 7.h,),
+
+              SvgPicture.asset('assets/svg/divider.svg'),
+
+              SizedBox(height: 10.h,),
+
+
+              ImageWithRadio(
+                val: '4',
+                groupValue: selectedValue,
+                image: 'google1',
+                title: 'Google Pay',
+                onChanged: (val) {
+                  setState(() {
+                    selectedValue = val;
+                    selectPayment = 'Google';
+                  });
+                },
+              ),
+            ],
+          ),
+          SizedBox(height: 7.h,),
+
+        SvgPicture.asset('assets/svg/divider.svg'),
+
+
+                    SizedBox(height: 10.h,),
+
+          if (Platform.isIOS)
+            ImageWithRadio(
+              val: '1',
+              groupValue: selectedValue,
+              image: 'apple1',
+              title: 'Apple Pay',
+              onChanged: (val) {
+                setState(() {
+                  selectedValue = val;
+                  selectPayment = 'Apple';
+                });
+              },
+            ),
+
+          if (Platform.isIOS)
+            ApplePayButton(
+              paymentItems: [
+                PaymentItem(
+                  label: 'Total',
+                  amount: widget.amount!,
+                  status: PaymentItemStatus.final_price,
+                ),
+              ],
+              paymentConfigurationAsset: 'apple_pay_config.json',
+              width: 200,
+              height: 60,
+              margin: const EdgeInsets.only(top: 10.0, bottom: 0, left: 4),
+              onPaymentResult: onGooglePayResult,
+              loadingIndicator: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+
+          selectPayment == 'Google' && Platform.isAndroid
+              ? GooglePayButton(
+                  // paymentConfiguration: PaymentConfiguration.fromJsonString(
+                  //     'defaultApplePayConfigString'),
+                  paymentItems: [
+                    PaymentItem(
+                      label: 'Total',
+                      amount: widget.amount!,
+                      status: PaymentItemStatus.final_price,
+                    ),
+                  ],
+                  paymentConfigurationAsset: 'google_pay_configuration.json',
+                  width: 200,
+                  height: 60,
+                  type: GooglePayButtonType.plain,
+                  margin:
+                      const EdgeInsets.only(top: 10.0, bottom: 0, left: 4),
+                  onPaymentResult: onGooglePayResult,
+                  loadingIndicator: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              : SizedBox.shrink(),
+
+          SizedBox(height: 8,),
+
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 10.h,),
-                ImageWithRadio(
-                  val: '2',
-                  groupValue: selectedValue,
-                  image: 'visa',
-                  title: 'Visa',
-                  onChanged: (val) {
+                AppText.appText("TToffer Gift Card", fontWeight: FontWeight.w600, fontSize: 15.5.sp, textColor: const Color(0xff1E293B)),
+                SizedBox(height: 8.h,),
+
+                TextField(
+                  keyboardType: const TextInputType.numberWithOptions(),
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textColor,
+                  ),
+                  decoration: InputDecoration(
+                    hintStyle: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: AppTheme.textColor.withOpacity(0.6), // Slight opacity for hint
+                    ),
+                    hintText: "Enter TTOffer gift card",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 10.w),
+                  ),
+                  onChanged: (_) {
                     setState(() {
-                      selectedValue = val;
-                      selectPayment = 'Visa';
-                    });
-                  },
-                ),
-
-                Visibility(
-                    visible: selectPayment == 'Visa',
-                    child: inputCardDetails()),
-
-                SizedBox(height: 7.h,),
-
-                SvgPicture.asset('assets/svg/divider.svg'),
-
-                SizedBox(height: 10.h,),
-
-                ImageWithRadio(
-                  val: '3',
-                  groupValue: selectedValue,
-                  image: 'master',
-                  title: 'Master',
-                  onChanged: (val) {
-                    setState(() {
-                      selectedValue = val;
-                      selectPayment = 'Master';
-                    });
-                  },
-                ),
-
-                Visibility(
-                    visible: selectPayment == 'Master',
-                    child: inputCardDetails()),
-
-
-                SizedBox(height: 7.h,),
-
-                SvgPicture.asset('assets/svg/divider.svg'),
-
-                SizedBox(height: 10.h,),
-
-
-                ImageWithRadio(
-                  val: '4',
-                  groupValue: selectedValue,
-                  image: 'google1',
-                  title: 'Google Pay',
-                  onChanged: (val) {
-                    setState(() {
-                      selectedValue = val;
-                      selectPayment = 'Google';
+                      // Update logic here
                     });
                   },
                 ),
               ],
             ),
-            SizedBox(height: 7.h,),
+          ),
 
-          SvgPicture.asset('assets/svg/divider.svg'),
-
-
-        SizedBox(height: 10.h,),
-
-            if (Platform.isIOS)
-              ImageWithRadio(
-                val: '1',
-                groupValue: selectedValue,
-                image: 'apple1',
-                title: 'Apple Pay',
-                onChanged: (val) {
-                  setState(() {
-                    selectedValue = val;
-                    selectPayment = 'Apple';
-                  });
-                },
-              ),
-
-            if (Platform.isIOS)
-              ApplePayButton(
-                paymentItems: [
-                  PaymentItem(
-                    label: 'Total',
-                    amount: widget.amount!,
-                    status: PaymentItemStatus.final_price,
-                  ),
-                ],
-                paymentConfigurationAsset: 'apple_pay_config.json',
-                width: 200,
-                height: 60,
-                margin: const EdgeInsets.only(top: 10.0, bottom: 0, left: 4),
-                onPaymentResult: onGooglePayResult,
-                loadingIndicator: const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              ),
-
-            selectPayment == 'Google' && Platform.isAndroid
-                ? GooglePayButton(
-                    // paymentConfiguration: PaymentConfiguration.fromJsonString(
-                    //     'defaultApplePayConfigString'),
-                    paymentItems: [
-                      PaymentItem(
-                        label: 'Total',
-                        amount: widget.amount!,
-                        status: PaymentItemStatus.final_price,
-                      ),
-                    ],
-                    paymentConfigurationAsset: 'google_pay_configuration.json',
-                    width: 200,
-                    height: 60,
-                    type: GooglePayButtonType.plain,
-                    margin:
-                        const EdgeInsets.only(top: 10.0, bottom: 0, left: 4),
-                    onPaymentResult: onGooglePayResult,
-                    loadingIndicator: const Center(
-                      child: CircularProgressIndicator(),
+        ],
                     ),
-                  )
-                : SizedBox.shrink(),
-
-            SizedBox(height: 8,),
-
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppText.appText("TToffer Gift Card", fontWeight: FontWeight.w600, fontSize: 15.5.sp, textColor: const Color(0xff1E293B)),
-                  SizedBox(height: 8.h,),
-
-                  TextField(
-                    keyboardType: const TextInputType.numberWithOptions(),
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textColor,
-                    ),
-                    decoration: InputDecoration(
-                      hintStyle: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: AppTheme.textColor.withOpacity(0.6), // Slight opacity for hint
-                      ),
-                      hintText: "Enter TTOffer gift card",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0), // Rounded corners
-                      ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 10.w),
-                    ),
-                    onChanged: (_) {
-                      setState(() {
-                        // Update logic here
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-
-
-
-
-
-            // if (selectPayment == 'Apple' || selectPayment == 'Google')
-            //   Padding(
-            //     padding: const EdgeInsets.all(8.0),
-            //     child: Column(
-            //       children: [
-            //         CustomAppFormField(
-            //             texthint: 'Card Name', controller: cardName),
-            //         const SizedBox(height: 15),
-            //         CustomAppFormField(
-            //             texthint: 'Card Number', controller: cardNumber),
-            //         const SizedBox(height: 15),
-            //         Row(
-            //           children: [
-            //             Expanded(
-            //                 child: CustomAppFormField(
-            //                     texthint: 'mm/yy', controller: month)),
-            //             const SizedBox(width: 10),
-            //             Expanded(
-            //                 child: CustomAppFormField(
-            //                     texthint: 'Last name', controller: cvc)),
-            //           ],
-            //         ),
-            //         const SizedBox(height: 30),
-            //         AppButton.appButton('Pay Now',
-            //             height: 50, textColor: Colors.white)
-            //       ],
-            //     ),
-            //   )
-            // else
-            //   const SizedBox.shrink(),
-
-            // selectPayment == 'Master' || selectPayment == 'Visa'
-            //     ? Padding(
-            //   padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 16.h),
-            //   child: Form(
-            //     key: _formKey,
-            //     child:  Column(
-            //       crossAxisAlignment: CrossAxisAlignment.start,
-            //       children: [
-            //         // Card Name Title
-            //         AppText.appText(
-            //           'Card name',
-            //             fontSize: 12.sp,
-            //             fontWeight: FontWeight.w600,
-            //             textColor: Colors.black,
-            //         ),
-            //         SizedBox(height: 8.h),
-            //         // Card Name TextField
-            //         customTextField(
-            //             hintText: 'Card Name',
-            //             controller: cardName,
-            //             keyboardType: TextInputType.text,
-            //             onChanged: _validateCardName,
-            //             errorText: _errorCardNameText
-            //         ),
-            //         SizedBox(height: 16.h),
-            //
-            //         AppText.appText(
-            //           'Card Number',
-            //           fontSize: 12.sp,
-            //           fontWeight: FontWeight.w600,
-            //           textColor: Colors.black,
-            //         ),
-            //         SizedBox(height: 8.h),
-            //         // Card Name TextField
-            //         customTextField(
-            //           hintText: '2323 2342 4234 4324',
-            //           controller: cardNumber,
-            //           keyboardType: TextInputType.number,
-            //           onChanged: (value) {
-            //             _validateCardNumber(value);
-            //             final formattedText = value.replaceAll(' ', '');
-            //             if (formattedText.length <= 16) {
-            //               final newText = formattedText.replaceAllMapped(
-            //                 RegExp(r'.{1,4}'),
-            //                     (match) => '${match.group(0)} ',
-            //               ).trim();
-            //               cardNumber.value = TextEditingValue(
-            //                 text: newText,
-            //                 selection: TextSelection.collapsed(offset: newText.length),
-            //               );
-            //             }
-            //           },
-            //           errorText: _errorCardNumberText
-            //
-            //         ),
-            //
-            //         SizedBox(height: 16.h),
-            //
-            //         Row(
-            //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //           crossAxisAlignment: CrossAxisAlignment.start,
-            //           children: [
-            //             Expanded(
-            //               child: Column(
-            //                 crossAxisAlignment: CrossAxisAlignment.start,
-            //                 children: [
-            //                   AppText.appText(
-            //                     'MM/YY',
-            //                     fontSize: 12.sp,
-            //                     fontWeight: FontWeight.w600,
-            //                     textColor: Colors.black,
-            //                   ),
-            //                   SizedBox(height: 8.h),
-            //                   // Card Name TextField
-            //                   customTextField(
-            //                       hintText: 'mm/yy',
-            //                       controller: month,
-            //                       keyboardType: TextInputType.number,
-            //                       onChanged:  (value) {
-            //                         final newText = _formatExpiryDate(value);
-            //                         month.value = TextEditingValue(
-            //                           text: newText,
-            //                           selection: TextSelection.collapsed(offset: newText.length),
-            //                         );
-            //                         _validateExpiryDate(newText);
-            //                       },
-            //                       errorText: _errorCardDateText
-            //
-            //                   ),
-            //                 ],
-            //               ),
-            //             ),
-            //             SizedBox(width: 17.w,),
-            //             Expanded(
-            //               child: Column(
-            //                 crossAxisAlignment: CrossAxisAlignment.start,
-            //                 children: [
-            //                   AppText.appText(
-            //                     'CVC',
-            //                     fontSize: 12.sp,
-            //                     fontWeight: FontWeight.w600,
-            //                     textColor: Colors.black,
-            //                   ),
-            //                   SizedBox(height: 8.h),
-            //                   // Card Name TextField
-            //                   customTextField(
-            //                       hintText: 'CVC',
-            //                       controller: cvc,
-            //                       keyboardType: TextInputType.number,
-            //                       onChanged: _validateCVC,
-            //                       errorText: _errorCardCvcText
-            //                   ),
-            //                 ],
-            //               ),
-            //             ),
-            //           ],
-            //         ),
-            //
-            //         SizedBox(height: 40.h),
-            //
-            //         AppButton.appButton('Pay Now',
-            //             onTap: (){
-            //           if(cardNumber.text.isNotEmpty && cardName.text.isNotEmpty && month.text.isNotEmpty && cvc.text.isNotEmpty) {
-            //             if (_errorCardCvcText == null &&
-            //                 _errorCardNumberText == null &&
-            //                 _errorCardNameText == null && _errorCardDateText ==
-            //                 null) {
-            //               _card = CardFieldInputDetails(
-            //                 expiryMonth: int.parse(month.text.split('/')[0]),
-            //                 expiryYear: int.parse(month.text.split('/')[1]),
-            //                 complete: true,
-            //                 cvc: cvc.text,
-            //                 number: cardNumber.text,
-            //               );
-            //
-            //               _handlePayPress();
-            //             }
-            //           }
-            //             },
-            //             backgroundColor: AppTheme.appColor,
-            //             textColor: Colors.white,
-            //             radius: 32.r,
-            //             fontSize: 13.sp,
-            //             padding: EdgeInsets.symmetric(vertical: 15.w))
-            //
-            //       ],
-            //     ),
-            //   ),
-            // )
-            //     : const SizedBox.shrink(),
-
-          ],
-        ),
       ),
     );
   }
@@ -589,41 +409,45 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
 
   Widget inputCardDetails(){
     return
-        Visibility(
-          visible: selectPayment == 'Master' || selectPayment == 'Visa',
-          child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                CardFormField(
-                  onCardChanged: (card) {
-                    _card = card;
-                  },
-                  style: CardFormStyle(
-                      borderRadius: 10,
-                      backgroundColor: Colors.white,
-                      borderColor: Colors.black,
-                      placeholderColor: const Color(0xff1E293B),
-                      textColor: Colors.black,
-                      borderWidth: 1),
-                ),
-                loading
-                    ? CircularProgressIndicator(
-                    color: AppTheme.appColor)
-                    : AppButton.appButton('Pay',
-                    backgroundColor: AppTheme.appColor,
-                    height: 53,
-                    radius: 32.r,
-                    textColor: Colors.white,
-                    onTap: _handlePayPress),
-              ],
-            ),
-          ),
+      Consumer<PaymentViewModel>(
+          builder: (context, paymentViewModel, child) {
+            return Visibility(
+              visible: selectPayment == 'Master' || selectPayment == 'Visa',
+              child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    CardFormField(
+                      onCardChanged: (card) {
+                        _card = card;
+                      },
+                      style: CardFormStyle(
+                          borderRadius: 10,
+                          backgroundColor: Colors.white,
+                          borderColor: Colors.black,
+                          placeholderColor: const Color(0xff1E293B),
+                          textColor: Colors.black,
+                          borderWidth: 1),
+                    ),
+                    paymentViewModel.loading
+                        ? CircularProgressIndicator(
+                        color: AppTheme.appColor)
+                        : AppButton.appButton('Pay',
+                        backgroundColor: AppTheme.appColor,
+                        height: 53,
+                        radius: 32.r,
+                        textColor: Colors.white,
+                        onTap: _handlePayPress),
+                  ],
                 ),
               ),
+                    ),
+                  ),
+            );
+          }
         );
   }
 
@@ -646,10 +470,11 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
         if (kDebugMode) {
           print('Payment was successful');
         }
-        // Call your backend processing with the payment token
+
         await SellFasterStripeService().sellFasterGooglePay(
             context: context,
-            productId: widget.selling!.id,
+          paymentViewModel: paymentViewModel,
+          productId: widget.product?.id,
             nod: widget.day!,
             amount: widget.amount!,
             currency: widget.currency!,
@@ -658,13 +483,12 @@ class _StripePaymentScreenState extends State<StripePaymentScreen> {
             lastFour: last4Digits,
              );
       } else {
-        // Payment failed or token is invalid
         if (kDebugMode) {
           print('Payment failed: Invalid token');
         }
       }
     } catch (e) {
-      // Handle any errors during the process
+       showSnackBar(context, e.toString());
       if (kDebugMode) {
         print('Error processing payment: $e');
       }

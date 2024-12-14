@@ -87,6 +87,8 @@ dependencies:
   timezone:
   firebase_dynamic_links:
   share_plus:
+  video_player:
+
 
 
 
