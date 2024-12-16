@@ -43,7 +43,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                             GestureDetector(
                               onTap: (){
                                 if(authenticationCode != null) {
-                                  push(context, CartScreen());
+                                  push(context, const CartScreen());
                                 } else {
                                   push(context, const SigInScreen());
                                 }

@@ -69,7 +69,6 @@ void showSnackBar(BuildContext context, String text, {String title = "Oops!", bo
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
 
-
 bool isProductBoosted(String? dateString) {
   if (dateString == null) {
     return false;
@@ -83,7 +82,6 @@ bool isProductBoosted(String? dateString) {
     return false;
   }
 }
-
 
 push(context, screen, {Function()? then}) {
   Navigator.push(context, CupertinoPageRoute(builder: (_) => screen)).then((value){
@@ -132,7 +130,6 @@ String formatNumber(String numberString, {bool textFiled = false}) {
   return formattedNumber;
 }
 
-
 String capitalizeWords(String input) {
   if (input.isEmpty) return input;
 
@@ -141,7 +138,6 @@ String capitalizeWords(String input) {
     return word[0].toUpperCase() + word.substring(1).toLowerCase();
   }).join(' ');
 }
-
 
 String capitalizeWholeTitle(String input, String title) {
   // Define a helper function to capitalize each word
@@ -199,8 +195,7 @@ String formatYear(String? dateString) {
   }
 }
 
-
-  String getLastTwoWords(String input) {
+String getLastTwoWords(String input) {
     // Split the string by spaces
     List<String> words = input.split(' ');
 
@@ -242,8 +237,6 @@ String timeAgo(String? dateTimeString) {
   }
 }
 
-
-
 String removeLastTwoZeros(String amount) {
   if (amount.endsWith('.00')) {
     return amount.substring(0, amount.length - 3);
@@ -252,7 +245,6 @@ String removeLastTwoZeros(String amount) {
   }
   return amount;
 }
-
 
 Widget phoneField({required TextEditingController controller, required BuildContext context}) {
   String initialCountry = "ae";
@@ -312,8 +304,6 @@ String starCount(double? percentage) {
   return "($star/5)";
 }
 
-
-
 int percentageOfFive(int? rating) {
   if (rating == null) {
     return 0;
@@ -324,9 +314,6 @@ int percentageOfFive(int? rating) {
 
   return percentage;
 }
-
-
-
 
 String formatDate(DateTime date) {
   return DateFormat('yyyy-MM-dd').format(date);
@@ -399,7 +386,6 @@ String productPrice(Product? product){
   }
 }
 
-
 String convertTo12HourFormat(String time24Hour) {
   // Split the time into hours and minutes
   List<String> timeParts = time24Hour.split(':');
@@ -432,7 +418,6 @@ void _navigateToBottomNavView(BuildContext context) {
   );
 }
 
-
 String abbreviateNumber(String numberStr) {
   if(numberStr.isEmpty){
     return '';
@@ -452,7 +437,6 @@ String abbreviateNumber(String numberStr) {
     return numberStr;
   }
 }
-
 
 String formatTimestamp(String timestamp, {bool full=false}) {
 
@@ -672,6 +656,13 @@ void reportProduct(BuildContext context, int productId, int userId){
               ),
             );
           }));
+}
+
+loadingIndicator({double rightPadding = 0}){
+  return Padding(
+    padding: EdgeInsets.only(right: rightPadding.w),
+    child: CupertinoActivityIndicator(color: AppTheme.appColor, animating: true, radius: 12,),
+  );
 }
 
 

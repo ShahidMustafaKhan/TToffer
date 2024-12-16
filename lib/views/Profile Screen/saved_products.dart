@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
+import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/models/saved_model.dart';
+import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
 import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 
@@ -51,7 +53,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: SavedItemListView(
-          func: getUserId,
+          userId: userId,
         ),
       ),
     );
@@ -60,11 +62,11 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
 }
 
 class SavedItemListView extends StatefulWidget {
-  final Function() func;
+  final int? userId;
 
   const SavedItemListView({
     super.key,
-    required this.func,
+    required this.userId,
   });
 
   @override
@@ -116,7 +118,10 @@ class _SavedItemListViewState extends State<SavedItemListView> {
                       padding: const EdgeInsets.symmetric(vertical: 20.0),
                       child: GestureDetector(
                         onTap: () {
-                          Provider.of<ProductViewModel>(context, listen: false).navigateToProductPage(savedItemList[index].product?.id, context);
+                          Provider.of<ProductViewModel>(context, listen: false).navigateToProductPage(
+                              savedItemList[index].product?.id,
+                              context
+                          );
                         },
                         child: SizedBox(
                           height: 70,
@@ -125,7 +130,7 @@ class _SavedItemListViewState extends State<SavedItemListView> {
                             children: [
                               Row(
                                 children: [
-                                  if(savedItemList[index].product?.photo?.isNotEmpty ?? false)
+                                  if (savedItemList[index].product?.photo?.isNotEmpty ?? false)
                                     Container(
                                       height: 70,
                                       width: 70,
@@ -141,57 +146,63 @@ class _SavedItemListViewState extends State<SavedItemListView> {
                                         ),
                                       ),
                                     ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
+                                  const SizedBox(width: 10),
                                   SizedBox(
-                                    width: 265.w,
+                                    width: 200.w, // Adjust width to make space for the button
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         AppText.appText(
-                                            savedItemList[index].product?.title ?? '',
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            textColor: AppTheme.txt1B20),
+                                          savedItemList[index].product?.title ?? '',
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          textColor: AppTheme.txt1B20,
+                                        ),
                                         AppText.appText(
-                                           "AED ${savedItemList[index].product?.productType == 'auction' ? savedItemList[index].product?.auctionInitialPrice?.toString() ?? '' : savedItemList[index].product?.fixPrice?.toString() }",
-                                            fontSize: 12.5,
-                                            maxlines: 1,
-                                            fontWeight: FontWeight.w500,
-                                            overflow: TextOverflow.ellipsis,
-                                            textColor: AppTheme.appColor),
+                                          "AED ${savedItemList[index].product?.productType == 'auction' ? savedItemList[index].product?.auctionInitialPrice?.toString() ?? '' : savedItemList[index].product?.fixPrice?.toString()}",
+                                          fontSize: 12.5,
+                                          maxlines: 1,
+                                          fontWeight: FontWeight.w500,
+                                          overflow: TextOverflow.ellipsis,
+                                          textColor: AppTheme.appColor,
+                                        ),
                                         Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              AppText.appText(
-                                                  formatTimestamp(
-                                                      "${savedItemList[index].product?.createdAt}"),
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w400,
-                                                  textColor: AppTheme.appColor),
-                                              // AppText.appText(
-                                              //     formatTimestamp(
-                                              //         "${savedItemList[index].createdAt}"),
-                                              //     fontSize: 12,
-                                              //     fontWeight: FontWeight.w400,
-                                              //     textColor: AppTheme.lighttextColor)
-                                            ]
-                                        )
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            AppText.appText(
+                                              formatTimestamp("${savedItemList[index].product?.createdAt}"),
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400,
+                                              textColor: AppTheme.appColor,
+                                            ),
+                                          ],
+                                        ),
                                       ],
                                     ),
                                   ),
                                 ],
+                              ),
+                              // Add the remove button here
+                              Consumer<CartViewModel>(
+                                  builder: (context, cartViewModel, child) {
+                                    return userViewModel.toggleSaveLoadingList.isNotEmpty && userViewModel.toggleSaveLoadingList[index] == true ? loadingIndicator(rightPadding: 10) : IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () {
+                                      userViewModel.toggleSavedItem(widget.userId, savedItemList[index].product?.id, context, saveItemIndex: index);
+                                      },
+                                  );
+                                }
                               ),
                             ],
                           ),
                         ),
                       ),
                     ),
-                    const CustomDivider()
+                    const CustomDivider(),
                   ],
                 );
+
               },
             );
           }

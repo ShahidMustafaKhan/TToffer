@@ -229,7 +229,7 @@ class _BottomNavViewState extends State<BottomNavView> {
                     else {
                       Navigator.push(context,
                           MaterialPageRoute(
-                              builder: (context) => PostScreen()));
+                              builder: (context) => const PostScreen()));
                     }
                   },
                   child: Container(
@@ -237,6 +237,7 @@ class _BottomNavViewState extends State<BottomNavView> {
                       width: 46.w,
                       decoration: const BoxDecoration(
                          shape: BoxShape.circle,
+                        color: Colors.white
                      ),
                   child: SvgPicture.asset('assets/svg/add.svg',),
                   ),),
@@ -279,7 +280,7 @@ class _BottomNavViewState extends State<BottomNavView> {
                     );
                   }
                 ),
-                Spacer(),
+                const Spacer(),
                 BottomNavBarCard(
                   image1: 'assets/svg/ic_tag.svg',
                   image2: 'assets/svg/ic_tag_dark.svg',

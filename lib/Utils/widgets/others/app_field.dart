@@ -105,6 +105,7 @@ class _CustomAppFormFieldState extends State<CustomAppFormField> {
           color: AppTheme.white,
           borderRadius: BorderRadius.circular(widget.radius ?? 10)),
       child: TextFormField(
+        validator: widget.validator,
         focusNode: widget.focusNode,
         cursorColor: Colors.black,
         enabled: widget.enable,
@@ -122,6 +123,7 @@ class _CustomAppFormFieldState extends State<CustomAppFormField> {
         cursorWidth: 2,
         keyboardType: widget.type ?? TextInputType.name,
         decoration: InputDecoration(
+          errorText: widget.errorText,
             suffixIcon: widget.suffixIcon,
             suffixIconConstraints:
                 const BoxConstraints(maxHeight: 20, minWidth: 40),

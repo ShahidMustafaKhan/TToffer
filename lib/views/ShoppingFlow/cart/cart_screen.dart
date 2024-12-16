@@ -263,27 +263,21 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                             SizedBox(height: 16.h),
                             InkWell(
-                              onTap: (){
-
-                                if(cartModel?.data?.isNotEmpty ?? false){
-                                  getLastAddress(cartDataList: cartModel?.data);
-                                }
-
-                              },
+                              onTap: cartModel?.data?.isNotEmpty ?? false ? ()=> getLastAddress(cartDataList: cartModel?.data) : null,
                               child: cartViewModel.loading ? const CircularProgressIndicator() : Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 15.w),
                                 child: AppButton.appButton('Go to checkout',
                                 fontSize: 13.sp,
+                                fontWeight: cartModel?.data?.isNotEmpty ?? false ? null : FontWeight.w600,
                                 padding: EdgeInsets.symmetric(vertical: 11.h,),
-                                textColor: AppTheme.whiteColor,
-                                 backgroundColor: AppTheme.appColor,
-                                  borderColor: AppTheme.appColor,
+                                textColor: cartModel?.data?.isNotEmpty ?? false ? AppTheme.whiteColor : AppTheme.blackColor ,
+                                 backgroundColor: cartModel?.data?.isNotEmpty ?? false ? AppTheme.appColor : Colors.grey.shade400,
+                                  borderColor: cartModel?.data?.isNotEmpty ?? false ? AppTheme.appColor : Colors.grey.shade400,
                                   radius: 26.sp
-
                                 ),
                               ),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                           ],
                         ),
                       ),
@@ -367,15 +361,15 @@ class ShoppingCartItem extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppText.appText('Seller: ${capitalizeWords(seller ?? '')}', fontWeight: FontWeight.bold, textColor: AppTheme.textColor),
-          SizedBox(height: 25.h),
+          // AppText.appText('Seller: ${capitalizeWords(seller ?? '')}', fontWeight: FontWeight.bold, textColor: AppTheme.textColor),
+          // SizedBox(height: 25.h),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if(productImage!=null)
               Container(
                 width: 100.w,
-                height: 100.w,
+                height: 115.w,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(15.r)),
                   image: DecorationImage(
@@ -386,12 +380,13 @@ class ShoppingCartItem extends StatelessWidget {
                   )
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppText.appText(productName ?? '', fontWeight: FontWeight.w600, fontSize: 13.sp, textColor: AppTheme.textColor),
+                    SizedBox(height: 3.h),
+                    AppText.appText(capitalizeWords(productName ?? ''), fontWeight: FontWeight.w600, fontSize: 13.sp, textColor: AppTheme.textColor),
                     SizedBox(height: 4.h),
                     AppText.appText("Qty 1", fontWeight: FontWeight.w400, fontSize: 11.5.sp, textColor: Colors.grey.shade600),
                     const SizedBox(height: 8),
@@ -399,24 +394,26 @@ class ShoppingCartItem extends StatelessWidget {
                       AppText.appText("AED ${price!.toStringAsFixed(0)}", fontWeight: FontWeight.bold, fontSize: 14.sp, textColor: AppTheme.textColor),
 
                     if(shippingCost!=null)
-                      AppText.appText('+ US \$${shippingCost!.toStringAsFixed(0)}', fontSize: 12.sp, textColor: Colors.grey.shade600),
+                      AppText.appText('+ AED \$${shippingCost!.toStringAsFixed(0)}', fontSize: 12.sp, textColor: Colors.grey.shade600),
 
 
                     Padding(
-                      padding: EdgeInsets.only(top: 15.h, bottom: 6.h, left: 6.w, right: 15.w),
+                      padding: EdgeInsets.only(top: 7.h, bottom: 6.h, left: 3.w, right: 15.w),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          buyItNowLoading.isNotEmpty && buyItNowLoading[index!] == true ?  const CircularProgressIndicator() :
+                          buyItNowLoading.isNotEmpty && buyItNowLoading[index!] == true ?  Center(
+                            child: CupertinoActivityIndicator(color: AppTheme.appColor, animating: true, radius: 12,),
+                          ) :
                           GestureDetector(
                               onTap: (){buyItNow();},
                               child: AppText.appText('Buy it now', fontSize: 11.5.sp, textColor: Colors.blue.shade700, fontWeight: FontWeight.w600)),
-                          saveLaterLoading.isNotEmpty && saveLaterLoading[index!] == true ? const CircularProgressIndicator() :
+                          saveLaterLoading.isNotEmpty && saveLaterLoading[index!] == true ? CupertinoActivityIndicator(color: AppTheme.appColor, animating: true, radius: 12,) :
                           GestureDetector(
                               onTap: (){toggleSaveItem();},
                               child: AppText.appText(savedForLater == true ? 'Remove from save' : 'Save for later', fontSize: 11.5.sp,textColor: Colors.blue.shade700, fontWeight: FontWeight.w600)),
-                          removeCartItemLoading.isNotEmpty && removeCartItemLoading[index!] == true ?  const CircularProgressIndicator() :
+                          removeCartItemLoading.isNotEmpty && removeCartItemLoading[index!] == true ? CupertinoActivityIndicator(color: AppTheme.appColor, animating: true, radius: 12,) :
                           GestureDetector(
                               onTap: (){deleteItem();},
                               child: AppText.appText('Remove', fontSize: 11.5.sp, textColor: Colors.blue.shade700, fontWeight: FontWeight.w600)),

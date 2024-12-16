@@ -630,7 +630,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 10.0),
+                padding: const EdgeInsets.only(left: 20.0),
                 child: SizedBox(
                   height: 30,
                   child: ListView.builder(
@@ -694,7 +694,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                 height: 20,
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

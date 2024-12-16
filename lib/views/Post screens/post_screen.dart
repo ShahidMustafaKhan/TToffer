@@ -44,6 +44,12 @@ class _PostScreenState extends State<PostScreen> {
 
   Product? product;
 
+  String? titleError;
+  String? descriptionError;
+
+  final _formKey = GlobalKey<FormState>(); // Key to identify the form
+
+
   @override
   void initState() {
     product = widget.product;
@@ -321,31 +327,59 @@ class _PostScreenState extends State<PostScreen> {
                   ),
 
 
-                LableTextField(
-                  labelTxt: "Title",
-                  hintTxt: "NAME, BRAND, MODEL, ETC.",
-                  keyboard: TextInputType.visiblePassword,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp(r'[ -~]'), // This regex allows all printable ASCII characters
+                Column(
+                  children: [
+                    LableTextField(
+                      labelTxt: "Title",
+                      hintTxt: "NAME, BRAND, MODEL, ETC.",
+                      keyboard: TextInputType.visiblePassword,
+                      errorText: titleError,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[ -~]'), // This regex allows all printable ASCII characters
+                        ),
+                      ],
+                      controller: _titleController,
+                      onChanged: (value) {
+                        _capitalizeWords(value);
+
+                        if (value.isEmpty) {
+                          titleError = "Title is required.";
+                        }
+                        else{
+                          titleError = null;
+                        }
+                        setState(() {});
+                      },
+                    ),
+                    LableTextField(
+                      labelTxt: "Description",
+                      hintTxt: "DESCRIBE YOUR PRODUCT",
+                      controller: _descController,
+                      errorText: descriptionError,
+                      keyboard: TextInputType.visiblePassword,
+                      onChanged: (value) {
+                        _capitalizeFirstWord(value);
+                        if (value.isEmpty) {
+                          descriptionError = "Description is required.";
+                        }
+                        else if (value.length < 10) {
+                          descriptionError = "Description must be at least 10 characters long.";
+                        }
+                        else{
+                          descriptionError = null;
+                        }
+                        setState(() {});
+                      },
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[ -~]'), // This regex allows all printable ASCII characters
+                        ),
+                      ],
+                      maxLines: 3,
+                      height: 100.0,
                     ),
                   ],
-                  onChanged: _capitalizeWords,
-                  controller: _titleController,
-                ),
-                LableTextField(
-                  labelTxt: "Description",
-                  hintTxt: "DESCRIBE YOUR PRODUCT",
-                  controller: _descController,
-                  keyboard: TextInputType.visiblePassword,
-                  onChanged: _capitalizeFirstWord,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp(r'[ -~]'), // This regex allows all printable ASCII characters
-                    ),
-                  ],
-                  maxLines: 3,
-                  height: 100.0,
                 ),
                 Consumer<PostProductViewModel>(
                     builder: (context, provider, child){
@@ -360,53 +394,46 @@ class _PostScreenState extends State<PostScreen> {
                                 return; // Exit the onTap callback if conditions are not met
                               }
 
-                              if (_titleController.text.isEmpty) {
-                                showSnackBar(context, "Enter title");
-                                return; // Exit the onTap callback if title is empty
+                              if (titleError!=null || descriptionError!=null) {
+                                return; // Exit the onTap callback if conditions are not met
                               }
 
-                              if (_descController.text.isEmpty) {
-                                showSnackBar(context, "Enter Description");
-                                return; // Exit the onTap callback if description is empty
-                              }
+                                // If all fields are valid
+                                Map<String, dynamic> data = {
+                                  "user_id": userId,
+                                  "title": _titleController.text,
+                                  "description": _descController.text,
+                                  if (product != null) "product_id": product?.id.toString(),
+                                  if (isBack == true) "product_id": ourProductId.toString(),
+                                };
 
+                                String? videoPath;
 
-                              Map<String, dynamic> data = {
-                                "user_id": userId,
-                                "title": _titleController.text,
-                                "description": _descController.text,
-                                if (product != null) "product_id": product?.id.toString(),
-                                if (isBack == true) "product_id": ourProductId.toString(),
-                              };
-
-                              String? videoPath;
-
-                               if (imageProvider.videoPath.isNotEmpty) {
-                                videoPath = imageProvider.videoPath;
-                              }
-
-                              provider.addProductFirstStep(data, imageProvider.imagePaths, videoPath : videoPath, update: widget.product != null).then((value){
-                                var productId = value.data?.productId;
-                                ourProductId = productId;
-
-                                Navigator.push(context, CupertinoPageRoute(builder: (_) =>
-                                    PostDetailScreen(
-                                      productId: value.data?.productId,
-                                      title: _titleController.text,
-                                      product: product,
-                                    ))).then((value){
-                                  setState(() {
-                                    isBack = true;
-                                  });
-                                });
-
-                              }).onError((error, stackTrace){
-                                showSnackBar(context, error.toString());
-                                if (kDebugMode) {
-                                  print(error.toString());
+                                if (imageProvider.videoPath.isNotEmpty) {
+                                  videoPath = imageProvider.videoPath;
                                 }
-                              });
 
+                                provider.addProductFirstStep(data, imageProvider.imagePaths, videoPath : videoPath, update: widget.product != null).then((value){
+                                  var productId = value.data?.productId;
+                                  ourProductId = productId;
+
+                                  Navigator.push(context, CupertinoPageRoute(builder: (_) =>
+                                      PostDetailScreen(
+                                        productId: value.data?.productId,
+                                        title: _titleController.text,
+                                        product: product,
+                                      ))).then((value){
+                                    setState(() {
+                                      isBack = true;
+                                    });
+                                  });
+
+                                }).onError((error, stackTrace){
+                                  showSnackBar(context, error.toString());
+                                  if (kDebugMode) {
+                                    print(error.toString());
+                                  }
+                                });
 
                             },
                                 height: 53,

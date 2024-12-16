@@ -110,7 +110,7 @@ class _LandingScreenState extends State<LandingScreen> {
           builder: (context, productViewModel, child) {
             return Stack(
             children: [
-              if(( _searchController.text.isNotEmpty && (productViewModel.searchProductList.status == Status.loading || (productViewModel.searchProductList.status == Status.completed))))
+              if(( _searchController.text.isNotEmpty && productViewModel.searchProductList.status != Status.notStarted))
                 const ViewSearchedProducts()
               else
               Padding(
@@ -177,21 +177,12 @@ class _LandingScreenState extends State<LandingScreen> {
                                               suggestionViewModel.suggestionList[index]['title'] ?? '',
                                               style: const TextStyle(color: Colors.black, fontSize: 14.0),
                                             ),
-                                            // subtitle: Text(
-                                            //   predictions[index]['description'],
-                                            //   style: TextStyle(fontSize: 12.0),
-                                            // ),
                                             onTap: () {
                                               setState((){});
                                               _searchController.text = suggestionViewModel.suggestionList[index]['title'] ?? '';
                                               productViewModel.searchAllProducts(search: suggestionViewModel.suggestionList[index]['title']);
                                               suggestionViewModel.emptySuggestionList(notify: true);
 
-                                              // fetchPlaceDetails(predictions[index]['place_id']);
-                                              // setState(() {
-                                              //   searchController.text = predictions[index]['description'];
-                                              //   predictions = [];
-                                              // });
                                             },
                                           );
                                         },
@@ -213,12 +204,20 @@ class _LandingScreenState extends State<LandingScreen> {
                               if(value.isNotEmpty && value.length >= 3){
                                 Provider.of<SuggestionViewModel>(context, listen: false).searchSuggestion(value,context);
                               }
-                              if(value.isEmpty){
+                              if(value.isEmpty || value.length < 3){
                                 Provider.of<SuggestionViewModel>(context, listen: false).emptySuggestionList(notify: true);
-                                Provider.of<ProductViewModel>(context, listen: false).setSearchProduct(ApiResponse.notStarted());
-
                               }
+                              if(value.isEmpty){
+                                Provider.of<ProductViewModel>(context, listen: false).setSearchProduct(ApiResponse.notStarted());
+                              }
+
                               setState((){});
+                            },
+                            onFieldSubmitted: (value){
+                              if(value.isNotEmpty){
+                                productViewModel.searchAllProducts(search: value);
+                                Provider.of<SuggestionViewModel>(context, listen: false).emptySuggestionList(notify: true);
+                              }
                             },
                             radius: 15.0,
                             hintStyle: TextStyle(

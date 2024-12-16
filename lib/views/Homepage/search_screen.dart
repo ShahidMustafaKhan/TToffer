@@ -56,7 +56,6 @@ class _ViewSearchedProductsState extends State<ViewSearchedProducts> {
             return SingleChildScrollView(
               child: Column(
                 children: [
-                  SizedBox(height: 45.h,),
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: GridView.builder(
@@ -94,7 +93,7 @@ class _ViewSearchedProductsState extends State<ViewSearchedProducts> {
                       },
                     ),
                   ),
-                  if(searchProduct != null && searchProduct.isEmpty)
+                  if(productViewModel.searchProductList.status == Status.error || searchProduct != null && searchProduct.isEmpty)
                     NoDataFound.noDataFound()
 
                 ],

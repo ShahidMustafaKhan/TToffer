@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
@@ -15,7 +16,9 @@ class LableTextField extends StatefulWidget {
   final maxLines;
   final onTap;
   final keyboard;
+  final String? errorText;
   final ValueChanged<String>? onChanged;
+  final FormFieldValidator? validator;
   final bool readOnly;
   final FocusNode? focusNode;
   final List<TextInputFormatter>? inputFormatters;
@@ -24,6 +27,7 @@ class LableTextField extends StatefulWidget {
       {super.key,
       this.labelTxt,
       this.controller,
+      this.errorText,
       this.width,
       this.pass,
       this.hintTxt,
@@ -31,7 +35,7 @@ class LableTextField extends StatefulWidget {
       this.height,
       this.onTap,
       this.keyboard,
-      this.maxLines, this.onChanged, this.readOnly=false, this.focusNode, this.inputFormatters});
+      this.maxLines, this.onChanged, this.readOnly=false, this.focusNode, this.inputFormatters, this.validator});
 
   @override
   State<LableTextField> createState() => _LableTextFieldState();
@@ -62,20 +66,25 @@ class _LableTextFieldState extends State<LableTextField> {
                   controller: widget.controller,
                 )
               : CustomAppFormField(
-
                   maxline: widget.maxLines,
                   focusNode: widget.focusNode,
                   height: widget.height,
                   onChanged:  widget.onChanged,
                   onTap: widget.onTap,
                   readOnly: widget.readOnly,
+                  validator: widget.validator,
                   type: widget.keyboard,
                   width: widget.width ?? MediaQuery.of(context).size.width,
                   texthint: "${widget.hintTxt}",
                   controller: widget.controller,
                   borderColor: AppTheme.borderColor,
                   hintTextColor: AppTheme.hintTextColor,
-                )
+                ),
+          if(widget.errorText != null)
+          Padding(
+            padding: EdgeInsets.only(left: 5.w, top: 2.h),
+            child: AppText.appText(widget.errorText ?? '', textColor: Colors.red, fontSize: 11.sp),
+          )
         ],
       ),
     );
