@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
@@ -17,6 +17,7 @@ import 'package:tt_offer/models/sub_categories_model.dart';
 import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_container.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
+import '../../../Utils/widgets/grid_delegate.dart';
 import '../../../models/product_model.dart';
 
 import '../../../Utils/widgets/custom_radio_button.dart';
@@ -171,11 +172,11 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
                   padding: const EdgeInsets.all(20.0),
                   child: GridView.builder(
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      mainAxisSpacing: 20,
-                      crossAxisSpacing: 10,
-                      crossAxisCount: 2,
-                      childAspectRatio: screenWidth / (3.8 * 175),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 10,
+                        crossAxisCount: 2,
+                        height: 300.h
                     ),
                     shrinkWrap: true,
                     itemCount: auctionProductList?.length ?? 0,
@@ -528,8 +529,6 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
   TextEditingController maxPrice = TextEditingController();
 
   void _showLocationBottomSheet(BuildContext context) {
-    final apiProvider =
-    Provider.of<ProductsApiProvider>(context, listen: false);
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {

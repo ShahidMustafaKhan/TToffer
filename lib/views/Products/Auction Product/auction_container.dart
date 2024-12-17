@@ -7,19 +7,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tt_offer/Constants/app_logger.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
-import 'package:tt_offer/config/app_urls.dart';
-import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/detail_model/attribute_model.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
 
 import '../../../config/keys/pref_keys.dart';
-import '../../../data/response/api_response.dart';
 import '../../../models/product_model.dart';
 import '../../../view_model/product/product/product_viewmodel.dart';
 import '../../../view_model/profile/user_profile/user_view_model.dart';
@@ -51,7 +46,6 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
       authorizationToken = pref.getString(PrefKey.authorization);
   }
 
-  ProductsApiProvider? apiProvider;
 
 
   @override
@@ -61,8 +55,6 @@ class _AuctionProductContainerState extends State<AuctionProductContainer> {
     
     getUserId();
 
-
-     apiProvider = Provider.of<ProductsApiProvider>(context, listen: false);
 
 
     super.initState();

@@ -47,7 +47,6 @@ class _PostScreenState extends State<PostScreen> {
   String? titleError;
   String? descriptionError;
 
-  final _formKey = GlobalKey<FormState>(); // Key to identify the form
 
 
   @override
@@ -388,11 +387,24 @@ class _PostScreenState extends State<PostScreen> {
                         : Padding(
                             padding: const EdgeInsets.only(top: 20.0),
                             child: AppButton.appButton("Next", onTap: () async {
+
+                              if(_titleController.text.isEmpty){
+                                titleError = "Title is required.";
+                                setState(() {});
+                              }
+
+                              if(_descController.text.isEmpty){
+                                descriptionError = "Description is required.";
+                                setState(() {});
+                              }
+
                               if (imageProvider.imagePaths.isEmpty &&
                                   product == null) {
                                 showSnackBar(context, "Add at least one image");
                                 return; // Exit the onTap callback if conditions are not met
                               }
+
+
 
                               if (titleError!=null || descriptionError!=null) {
                                 return; // Exit the onTap callback if conditions are not met

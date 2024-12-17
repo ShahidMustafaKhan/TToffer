@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/loading_popup.dart';
@@ -21,6 +21,7 @@ import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 
 import '../../../Utils/widgets/custom_radio_button.dart';
+import '../../../Utils/widgets/grid_delegate.dart';
 import '../../../models/product_model.dart';
 
 class ViewFeaturedProducts extends StatefulWidget {
@@ -175,11 +176,11 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                         padding: const EdgeInsets.all(20.0),
                         child: GridView.builder(
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            mainAxisSpacing: 20,
-                            crossAxisSpacing: 10,
-                            crossAxisCount: 2,
-                            childAspectRatio: screenWidth / (3.8 * 150),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
+                              mainAxisSpacing: 15.h,
+                              crossAxisSpacing: 12,
+                              crossAxisCount: 2,
+                              height: 245.h
                           ),
                           shrinkWrap: true,
                           itemCount: featureProductList?.length ?? 0,
@@ -236,8 +237,6 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
   }
 
   void _showCategoryBottomSheet(BuildContext context) {
-    final apiProvider =
-        Provider.of<ProductsApiProvider>(context, listen: false);
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -290,8 +289,6 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
   }
 
   Widget buildCategoryList(StateSetter setState) {
-    final apiProvider =
-        Provider.of<ProductsApiProvider>(context, listen: false);
     isExpanded ??= List.filled(catModel.length, false);
 
     return ListView.builder(

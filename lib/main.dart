@@ -11,7 +11,6 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Controller/provider_class.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
@@ -279,9 +278,7 @@ class _MyAppState extends State<MyApp> {
             ChangeNotifierProvider<NotifyProvider>(create: (_) => NotifyProvider()),
             ChangeNotifierProvider<ImageNotifyProvider>(
                 create: (_) => ImageNotifyProvider()),
-            ChangeNotifierProvider<ProductsApiProvider>(
-                create: (_) => ProductsApiProvider()),
-            ChangeNotifierProvider<NotificationProvider>(
+                   ChangeNotifierProvider<NotificationProvider>(
                 create: (_) => NotificationProvider()),
             ChangeNotifierProvider(create: (_) => SellingPurchaseProvider()),
             ChangeNotifierProvider(create: (_) => ChatListProvider()),

@@ -9,7 +9,6 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/view_model/selling/selling_view_model.dart';
 
-import '../../../Controller/APIs Manager/product_api.dart';
 
 Future CustomAlertDialog(
     {required String title,

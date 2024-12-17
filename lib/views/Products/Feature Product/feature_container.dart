@@ -3,25 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
-import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/detail_model/attribute_model.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_container.dart';
 
 import '../../../Utils/utils.dart';
-import '../../../config/dio/app_dio.dart';
 import '../../../models/product_model.dart';
 import '../../../view_model/profile/user_profile/user_view_model.dart';
 
 class FeatureProductContainer extends StatefulWidget {
-  Product? product;
+  final Product? product;
 
-   FeatureProductContainer({super.key, this.product});
+   const FeatureProductContainer({super.key, this.product});
 
   @override
   State<FeatureProductContainer> createState() =>
@@ -43,12 +39,10 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
       authorizationToken = pref.getString(PrefKey.authorization);
   }
 
-  ProductsApiProvider? apiProvider;
 
   @override
   void initState() {
     super.initState();
-    apiProvider = Provider.of<ProductsApiProvider>(context, listen: false);
 
     product = widget.product;
 
@@ -211,12 +205,6 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // AppText.appText("AED ${formatNumber(removeLastTwoZeros(widget.data["fix_price"] ?? ''))}",
-                    //     fontSize: 17,
-                    //     fontWeight: FontWeight.w700,
-                    //     textColor: AppTheme.textColor),
-                    // const SizedBox(height: 5),
-
                     SizedBox(
                       // height: 40,
                       width: MediaQuery.sizeOf(context).width * .4,
@@ -226,8 +214,6 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                           fontWeight: FontWeight.w700,
                           textColor: AppTheme.textColor),
                     ),
-
-                    // const SizedBox(height: 3),
 
 
                     if(product?.category?.name == 'Property for Sale' ||
@@ -307,9 +293,6 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
             ),
           ),
           SizedBox(height: 5.h,)
-
-
-
 
 
 

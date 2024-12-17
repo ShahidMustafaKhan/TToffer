@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
-import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/views/All%20Categories/catagory_container.dart';
-import 'package:tt_offer/views/All%20Categories/category_products.dart';
-
 import '../../utils/utils.dart';
 import 'sub_categories_screen.dart';
 

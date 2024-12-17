@@ -1,13 +1,10 @@
-import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
-import 'package:tt_offer/Controller/APIs%20Manager/product_api.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/detail_model/attribute_model.dart';
 import 'package:tt_offer/main.dart';
@@ -440,12 +437,6 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     return PopScope(
         canPop: widget.popToBottomNav == true ? false : true,
         onPopInvoked: (didPop) {
-          final apiProvider =
-              Provider.of<ProductsApiProvider>(context, listen: false);
-          apiProvider.getFeatureProducts(
-            dio: dio,
-            context: context,
-          );
           if(widget.popToBottomNav == true) {
             pushUntil(context, const BottomNavView());
           }

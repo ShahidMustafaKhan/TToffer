@@ -24,61 +24,62 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Consumer<SuggestionViewModel>(
         builder: (context, suggestionViewModel, child) {
           return Padding(
-          padding: EdgeInsets.only(left: 25.0, top: 40.h, right: 25),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  AppText.appText('TTOffer',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24.sp
+            padding: EdgeInsets.only(left: 25.0, bottom: 11.h, right: 25),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    AppText.appText('TTOffer',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24.sp
 
-                  ),
-                  Consumer<CartViewModel>(
-                      builder: (context, cartViewModel, child) {
-                        return Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            GestureDetector(
-                              onTap: (){
-                                if(authenticationCode != null) {
-                                  push(context, const CartScreen());
-                                } else {
-                                  push(context, const SigInScreen());
-                                }
-                              },
-                              child: const Icon(Icons.shopping_cart_outlined)),
-                            if(cartViewModel.cartItemsCount!=0)
-                              Positioned(
-                                top: -4.5,
-                                right: -3.5,
-                                child: Container(
-                                  height: 14, // Adjust the size as needed
-                                  width: 14,  // Adjust the size as needed
-                                  decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
+                    ),
+                    Consumer<CartViewModel>(
+                        builder: (context, cartViewModel, child) {
+                          return Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              GestureDetector(
+                                  onTap: (){
+                                    if(authenticationCode != null) {
+                                      push(context, const CartScreen());
+                                    } else {
+                                      push(context, const SigInScreen());
+                                    }
+                                  },
+                                  child: const Icon(Icons.shopping_cart_outlined)),
+                              if(cartViewModel.cartItemsCount!=0)
+                                Positioned(
+                                  top: -4.5,
+                                  right: -3.5,
+                                  child: Container(
+                                    height: 14, // Adjust the size as needed
+                                    width: 14,  // Adjust the size as needed
+                                    decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Center(child: AppText.appText('${cartViewModel.cartItemsCount}', textColor: Colors.white, fontSize: 7.sp, fontWeight: FontWeight.bold)),
                                   ),
-                                  child: Center(child: AppText.appText('${cartViewModel.cartItemsCount}', textColor: Colors.white, fontSize: 7.sp, fontWeight: FontWeight.bold)),
                                 ),
-                              ),
-                          ],
-                        );
-                    }
-                  )
+                            ],
+                          );
+                        }
+                    )
 
-                ],
-              ),
+                  ],
+                ),
 
 
-            ],
-          ),
-        );
-      }
+              ],
+            ),
+          );
+        }
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(65.h);
+  Size get preferredSize => Size.fromHeight(MediaQuery.of(context).size.height * 0.077);
 }

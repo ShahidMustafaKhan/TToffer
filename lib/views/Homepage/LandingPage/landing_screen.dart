@@ -111,7 +111,10 @@ class _LandingScreenState extends State<LandingScreen> {
             return Stack(
             children: [
               if(( _searchController.text.isNotEmpty && productViewModel.searchProductList.status != Status.notStarted))
-                const ViewSearchedProducts()
+                Padding(
+                  padding: EdgeInsets.only(top: 67.h),
+                  child: const ViewSearchedProducts(),
+                )
               else
               Padding(
                 padding: EdgeInsets.only(top: 55.h),
@@ -213,9 +216,10 @@ class _LandingScreenState extends State<LandingScreen> {
 
                               setState((){});
                             },
-                            onFieldSubmitted: (value){
+                            onFieldSubmitted: (value) async {
                               if(value.isNotEmpty){
-                                productViewModel.searchAllProducts(search: value);
+                                Provider.of<SuggestionViewModel>(context, listen: false).emptySuggestionList(notify: true);
+                                await productViewModel.searchAllProducts(search: value);
                                 Provider.of<SuggestionViewModel>(context, listen: false).emptySuggestionList(notify: true);
                               }
                             },
@@ -270,9 +274,6 @@ class _LandingScreenState extends State<LandingScreen> {
 
                       ],
                     ),
-
-
-
                   ],
                 ),
               ),
