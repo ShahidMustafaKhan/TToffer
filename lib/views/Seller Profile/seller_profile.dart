@@ -48,6 +48,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
   bool loader = false;
   late bool isCurrentUser;
 
+  String selectedOption = 'Auction';
+
 
 
   @override
@@ -78,7 +80,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
   }
   
   
-  getSellerProfile() async {
+  void getSellerProfile() async {
     try{
       sellerProfile = await userViewModel.getSellerProfile(sellerProfile?.id);
 
@@ -93,7 +95,6 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
       log("get seller ${e.toString()}");
     }
   }
-  
 
 
   List<String> dataRequest = [
@@ -341,347 +342,394 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
           title: capitalizeWords(isCurrentUser ? 'My Profile' : "Seller's Profile"),
         ),
         body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              upperContainer(),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 55.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _upperContainer(),
 
-              SizedBox(height: 1.h,),
+                SizedBox(height: 17.h,),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  buildStatItem('0', 'Bought'),
-                  buildStatItem('0', 'Sold'),
-                  buildStatItem('0', 'Followers'),
-                  buildStatItem('0', 'Following'),
-                ],
-              ),
-
-              SizedBox(height: 3.h,),
-
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 26.w),
-                child: Column(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-
-                    if(sellerProfile?.emailVerifiedAt == null ||
-                        sellerProfile?.imageVerifiedAt == null ||
-                        sellerProfile?.phoneVerifiedAt == null
-                    )
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          verifiedContainer(
-                              txt: sellerProfile?.emailVerifiedAt == null
-                                  ? "Email\nis not\nVerified"
-                                  : "Email\nVerified",
-                              color: sellerProfile?.emailVerifiedAt !=
-                                  null
-                                  ? null
-                                  : Colors.red,
-                              img: "assets/images/sms.png"),
-                          SizedBox(width: 57.w,),
-                          verifiedContainer(
-                              txt: sellerProfile?.imageVerifiedAt ==
-                                  null
-                                  ? "Image\nis not\nVerified"
-                                  : "Image\nVerified",
-                              img: "assets/images/gallery.png",
-                              color: sellerProfile?.imageVerifiedAt !=
-                                  null
-                                  ? null
-                                  : Colors.red
-
-                          ),
-                          SizedBox(width: 57.w,),
-                          verifiedContainer(
-                              txt: sellerProfile?.phoneVerifiedAt ==
-                                  null
-                                  ? "Phone\nis not\nVerified"
-                                  : "Phone\nVerified",
-                              img: "assets/images/call.png",
-                              color: sellerProfile?.phoneVerifiedAt !=
-                                  null
-                                  ? null
-                                  : Colors.red),
-                        ],
-                      ),
-                    // selectOption(),
-                    const SizedBox(height: 10),
-
-                    Row(
-                      children: [
-                        SizedBox(width: 30.w,),
-                        SellerSelectOption(
-                          select: selectIndex == 0 ? true : false,
-                          onTap: () {
-                            selectIndex = 0;
-                            setState(() {});
-                          },
-                          txt: 'Products',
-                        ),
-                        const Spacer(),
-                        SellerSelectOption(
-                          select: selectIndex == 1 ? true : false,
-                          onTap: () {
-                            selectIndex = 1;
-                            setState(() {});
-                          },
-                          txt: 'Reviews',
-                        ),
-                        SizedBox(width: 30.w,),
-
-                      ],
-                    ),
-
-                    const SizedBox(height: 10),
-                    if (selectIndex == 0 && products.isNotEmpty)
-                      for (int i = 0; i < products.length; i++)
-                        InkWell(
-                          onTap: () {
-                            final productViewModel =  Provider.of<ProductViewModel>(context, listen: false);
-                            productViewModel.navigateToProductPage(products[i]?.id, context);
-                          },
-                          child: Row(
-                            children: [
-                              SizedBox(width: 30.w,),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: Container(
-                                    height: 80,
-                                    width: 80,
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: (products[i]?.photo?.isNotEmpty ?? false)
-                                            ? NetworkImage(products[i]!
-                                            .photo![0]
-                                            .url!
-                                            .toString()) as ImageProvider
-                                            : const AssetImage(
-                                            'assets/images/gallery1.png'),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                const EdgeInsets.symmetric(horizontal: 12.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      products[i]?.title?.toString() ?? '',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 17),
-                                    ),
-                                    SizedBox(height: 10.h,),
-                                    Text(
-                                      products[i]?.isSold == 1 ? 'Sold' : 'Listing',
-                                      style: GoogleFonts.poppins(
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff1E293B),
-                                          fontSize: 12),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 30.w,),
-
-                            ],
-                          ),
-                        ),
-
-                    if((selectIndex == 0 && products.isEmpty) || (selectIndex == 1 && reviews.isEmpty))
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(height: 60.h,),
-                          Center(child: Image.asset("assets/images/no_data_folder.png", height: 120.h,)),
-                          SizedBox(height: 12.h,),
-                          AppText.appText(selectIndex == 0 ? "No products" : "No reviews",
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              textColor: Colors.black),
-                          SizedBox(height: 12.h,)
-                        ],
-                      ),
-
-                    if (selectIndex == 1 && reviews.isNotEmpty)
-                      for (int i = 0; i < reviews.length; i++)
-                        InkWell(
-                          onTap: () {
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Row(
-                              children: [
-                                SizedBox(width: 30.w,),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: Container(
-                                    height: 80,
-                                    width: 80,
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image:
-                                        (
-                                            (reviews[i]?.product?.photo?.isNotEmpty ?? false)
-                                        )
-                                            ? NetworkImage(reviews[i]!.product!.photo![0].url!) as ImageProvider
-                                            : const AssetImage(
-                                            'assets/images/default_image.png'),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  child: Padding(
-                                    padding:
-                                    const EdgeInsets.only(left: 12.0),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          reviews[i]?.user?.name ?? '' ,
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 17),
-                                        ),
-                                        SizedBox(height: 6.h,),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          children: [
-                                            StarRating(
-                                              percentage: percentageOfFive(reviews[i]?.rating),
-                                              color: Colors.yellow,
-                                              size: 14,
-                                            ),
-                                            SizedBox(width: 7.w,),
-                                            AppText.appText("${getRating(reviews[i]?.rating.toString())}.0" ?? '',
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.normal,
-                                                textColor: const Color(0xff1E293B)),
-                                          ],
-                                        ),
-                                        SizedBox(height: 6.h,),
-                                        if(reviews[i]?.comment!=null)
-                                          Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 220.w,
-                                                child: LayoutBuilder(
-                                                  builder: (context, constraints) {
-                                                    final text = reviews[i]?.comment ?? '';
-
-                                                    // Create a TextPainter to determine the number of lines
-                                                    final textPainter = TextPainter(
-                                                      text: TextSpan(
-                                                        text: text,
-                                                        style: GoogleFonts.poppins(
-                                                          fontWeight: FontWeight.normal,
-                                                          color: Color(0xff000000),
-                                                          fontSize: 12, // Default font size
-                                                        ),
-                                                      ),
-                                                      maxLines: 5,
-                                                      textDirection: TextDirection.ltr,
-                                                    );
-
-                                                    // Perform layout to calculate size
-                                                    textPainter.layout(maxWidth: constraints.maxWidth);
-
-                                                    // Determine the number of lines
-                                                    final lineCount = textPainter.computeLineMetrics().length;
-
-                                                    // Set font size based on line count
-                                                    final fontSize = lineCount > 3 ? 9.0 : lineCount > 1 ? 10.5 : 12.0;
-
-                                                    return AutoSizeText(
-                                                      text,
-                                                      maxLines: 5,
-                                                      style: GoogleFonts.poppins(
-                                                        fontWeight: FontWeight.normal,
-                                                        color: Color(0xff000000),
-                                                        fontSize: fontSize,
-                                                      ),
-                                                      minFontSize: 8, // Ensure it doesn't go below 8 if multiline
-                                                      overflow: TextOverflow.ellipsis,
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                              ],
-                            ),
-                          ),
-                        )
+                    buildStatItem('0', 'Bought'),
+                    buildStatItem('0', 'Sold'),
+                    buildStatItem('${sellerProfile?.followersCount ?? 0}', 'Followers'),
+                    buildStatItem('${sellerProfile?.followingCount ?? 0}', 'Following'),
                   ],
                 ),
-              )
+
+
+                if(isCurrentUser == false)...[
+                  SizedBox(height: 20.h,),
+                  // Follow Button
+                  _followButton(),
+                ],
+
+                SizedBox(height: 20.h,),
+
+                _verifiedIcons(),
+
+                SizedBox(height: 20.h),
+
+                _productAndReview()
 
 
 
-
-
-
-            ],
+              ],
+            ),
           )
         ));
   }
 
 
-
-  Widget verifiedContainer({img, txt, color}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20.0),
-      child: SizedBox(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _productAndReview(){
+    return Column(
+      children: [
+        Row(
           children: [
-            Container(
-              height: 36,
-              width: 36,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle, color: color ?? AppTheme.appColor),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.asset(
-                  "$img",
-                  height: 20,
-                  color: AppTheme.whiteColor,
-                ),
-              ),
+            SellerSelectOption(
+              select: selectIndex == 0 ? true : false,
+              onTap: () {
+                selectIndex = 0;
+                setState(() {});
+              },
+              txt: 'Products',
             ),
-            const SizedBox(
-              height: 8,
+            const Spacer(),
+            SellerSelectOption(
+              select: selectIndex == 1 ? true : false,
+              onTap: () {
+                selectIndex = 1;
+                setState(() {});
+              },
+              txt: 'Reviews',
             ),
-            WordsOnNewLine(text: txt),
 
           ],
         ),
+
+        const SizedBox(height: 10),
+        if (selectIndex == 0 && products.isNotEmpty)
+          for (int i = 0; i < products.length; i++)
+            InkWell(
+              onTap: () {
+                final productViewModel =  Provider.of<ProductViewModel>(context, listen: false);
+                productViewModel.navigateToProductPage(products[i]?.id, context);
+              },
+              child: Row(
+                children: [
+                  SizedBox(width: 30.w,),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        height: 80,
+                        width: 80,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: (products[i]?.photo?.isNotEmpty ?? false)
+                                ? NetworkImage(products[i]!
+                                .photo![0]
+                                .url!
+                                .toString()) as ImageProvider
+                                : const AssetImage(
+                                'assets/images/gallery1.png'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          products[i]?.title?.toString() ?? '',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17),
+                        ),
+                        SizedBox(height: 10.h,),
+                        Text(
+                          products[i]?.isSold == 1 ? 'Sold' : 'Listing',
+                          style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.normal,
+                              color: Color(0xff1E293B),
+                              fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 30.w,),
+
+                ],
+              ),
+            ),
+
+        if((selectIndex == 0 && products.isEmpty) || (selectIndex == 1 && reviews.isEmpty))
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: 60.h,),
+              Center(child: Image.asset("assets/images/no_data_folder.png", height: 120.h,)),
+              SizedBox(height: 12.h,),
+              AppText.appText(selectIndex == 0 ? "No products" : "No reviews",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  textColor: Colors.black),
+              SizedBox(height: 12.h,)
+            ],
+          ),
+
+        if (selectIndex == 1 && reviews.isNotEmpty)
+          for (int i = 0; i < reviews.length; i++)
+            InkWell(
+              onTap: () {
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    SizedBox(width: 30.w,),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        height: 80,
+                        width: 80,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image:
+                            (
+                                (reviews[i]?.product?.photo?.isNotEmpty ?? false)
+                            )
+                                ? NetworkImage(reviews[i]!.product!.photo![0].url!) as ImageProvider
+                                : const AssetImage(
+                                'assets/images/default_image.png'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      child: Padding(
+                        padding:
+                        const EdgeInsets.only(left: 12.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              reviews[i]?.user?.name ?? '' ,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17),
+                            ),
+                            SizedBox(height: 6.h,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                StarRating(
+                                  percentage: percentageOfFive(reviews[i]?.rating),
+                                  color: Colors.yellow,
+                                  size: 14,
+                                ),
+                                SizedBox(width: 7.w,),
+                                AppText.appText("${getRating(reviews[i]?.rating.toString())}.0" ?? '',
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.normal,
+                                    textColor: const Color(0xff1E293B)),
+                              ],
+                            ),
+                            SizedBox(height: 6.h,),
+                            if(reviews[i]?.comment!=null)
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 220.w,
+                                    child: LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        final text = reviews[i]?.comment ?? '';
+
+                                        // Create a TextPainter to determine the number of lines
+                                        final textPainter = TextPainter(
+                                          text: TextSpan(
+                                            text: text,
+                                            style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.normal,
+                                              color: Color(0xff000000),
+                                              fontSize: 12, // Default font size
+                                            ),
+                                          ),
+                                          maxLines: 5,
+                                          textDirection: TextDirection.ltr,
+                                        );
+
+                                        // Perform layout to calculate size
+                                        textPainter.layout(maxWidth: constraints.maxWidth);
+
+                                        // Determine the number of lines
+                                        final lineCount = textPainter.computeLineMetrics().length;
+
+                                        // Set font size based on line count
+                                        final fontSize = lineCount > 3 ? 9.0 : lineCount > 1 ? 10.5 : 12.0;
+
+                                        return AutoSizeText(
+                                          text,
+                                          maxLines: 5,
+                                          style: GoogleFonts.poppins(
+                                            fontWeight: FontWeight.normal,
+                                            color: Color(0xff000000),
+                                            fontSize: fontSize,
+                                          ),
+                                          minFontSize: 8, // Ensure it doesn't go below 8 if multiline
+                                          overflow: TextOverflow.ellipsis,
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              )
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  ],
+                ),
+              ),
+            )
+      ],
+    );
+  }
+
+  Widget _followButton(){
+    return Consumer<UserViewModel>(
+        builder: (context, userViewModel, child) {
+          return InkWell(
+            onTap: (){
+              userViewModel.toggleFollowApi(sellerProfile?.id)
+                  .then((model) {
+                    sellerProfile = model;
+                    reviews = model?.reviews ?? [];
+                    products = model?.products ?? [];
+                    setState(() {
+
+                    });
+              }).onError((error, stackTrace){
+                    showSnackBar(context, error.toString());
+              });
+            },
+            child: Container(
+            height: 40.h,
+            decoration: BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.all(Radius.circular(6.r))
+            ),
+            child: Center(
+              child: userViewModel.toggleFollowLoading ?
+              const Center(child: CircularProgressIndicator(color: Colors.white,)) :
+              AppText.appText(
+                  'Follow',
+                  textColor: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14.sp
+              ),
+            ),
+                    ),
+          );
+      }
+    );
+  }
+
+  Widget _verifiedIcons(){
+      if(sellerProfile?.emailVerifiedAt == null ||
+        sellerProfile?.imageVerifiedAt == null ||
+        sellerProfile?.phoneVerifiedAt == null
+    ) {
+        return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _verifiedContainer(
+              txt: sellerProfile?.emailVerifiedAt == null
+                  ? "Email\nis not\nVerified"
+                  : "Email\nVerified",
+              color: sellerProfile?.emailVerifiedAt !=
+                  null
+                  ? null
+                  : Colors.red,
+              img: "assets/images/sms.png"),
+          SizedBox(width: 57.w,),
+          _verifiedContainer(
+              txt: sellerProfile?.imageVerifiedAt ==
+                  null
+                  ? "Image\nis not\nVerified"
+                  : "Image\nVerified",
+              img: "assets/images/gallery.png",
+              color: sellerProfile?.imageVerifiedAt !=
+                  null
+                  ? null
+                  : Colors.red
+
+          ),
+          SizedBox(width: 57.w,),
+          _verifiedContainer(
+              txt: sellerProfile?.phoneVerifiedAt ==
+                  null
+                  ? "Phone\nis not\nVerified"
+                  : "Phone\nVerified",
+              img: "assets/images/call.png",
+              color: sellerProfile?.phoneVerifiedAt !=
+                  null
+                  ? null
+                  : Colors.red),
+        ],
+      );
+      } else {
+        return const SizedBox();
+      }
+  }
+
+  Widget _verifiedContainer({img, txt, color}) {
+    return SizedBox(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            height: 36,
+            width: 36,
+            decoration: BoxDecoration(
+                shape: BoxShape.circle, color: color ?? AppTheme.appColor),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Image.asset(
+                "$img",
+                height: 20,
+                color: AppTheme.whiteColor,
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 8,
+          ),
+          WordsOnNewLine(text: txt),
+
+        ],
       ),
     );
   }
 
-  Widget upperContainer() {
+  Widget _upperContainer() {
     return Padding(
-      padding: EdgeInsets.only(top: 20.0, bottom: 16.0, left: 26.w, right: 26.w),
+      padding: const EdgeInsets.only(top: 20.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -769,119 +817,14 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
   }
 
 
-  String getRating(String? rating){
-    if(rating == null){
-      return "0";
-    }
-    else{
-      if(int.parse(rating) > 5){
-        return "5";
-      }
-      else if(int.parse(rating) < 0){
-        return '0';
-      }
-      return rating;
-    }
-  }
-
-  String selectedOption = 'Auction';
-
-  Widget selectOption() {
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
-      child: GestureDetector(
-        onTapDown: (TapDownDetails details) {
-          double tapPosition = details.localPosition.dx;
-          if (tapPosition < screenWidth * 0.45) {
-            setState(() {
-              if (selectedOption != 'Auction') {
-                // final apiProvider =
-                // Provider.of<ProductsApiProvider>(context, listen: false);
-                // apiProvider.getAuctionProducts(
-                //     dio: dio, context: context, cateId: widget.catId);
-              }
-              selectedOption = 'Auction';
-            });
-          } else if (tapPosition < screenWidth * 0.9) {
-            setState(() {
-              if (selectedOption == 'Auction') {
-                // final apiProvider =
-                // Provider.of<ProductsApiProvider>(context, listen: false);
-                // apiProvider.getFeatureProducts(
-                //     dio: dio, context: context, cateId: widget.catId);
-              }
-              selectedOption = 'Featured';
-            });
-          }
-        },
-        child: Container(
-          height: 40,
-          width: screenWidth,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(100),
-              border: Border.all(color: const Color(0xffEDEDED))),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: Container(
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xffEDEDED)),
-                    borderRadius: const BorderRadius.horizontal(
-                        left: Radius.circular(100)),
-                    color: selectedOption == 'Auction'
-                        ? AppTheme.appColor // Change color when selected
-                        : Colors.transparent,
-                  ),
-                  child: Text(
-                    'Auction',
-                    style: TextStyle(
-                      color: selectedOption == 'Auction'
-                          ? Colors.white // Change text color when selected
-                          : Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Container(
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xffEDEDED)),
-                    borderRadius: const BorderRadius.horizontal(
-                        right: Radius.circular(100)),
-                    color: selectedOption == 'Featured'
-                        ? AppTheme.appColor // Change color when selected
-                        : Colors.transparent,
-                  ),
-                  child: Text(
-                    'Featured',
-                    style: TextStyle(
-                      color: selectedOption == 'Featured'
-                          ? Colors.white // Change text color when selected
-                          : Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class SellerSelectOption extends StatefulWidget {
-  String? txt;
-  bool select;
-  Function()? onTap;
+  final String? txt;
+  final bool select;
+  final Function()? onTap;
 
-  SellerSelectOption({this.txt, this.onTap, required this.select});
+  const SellerSelectOption({super.key, this.txt, this.onTap, required this.select});
 
   @override
   State<SellerSelectOption> createState() => _SellerSelectOptionState();

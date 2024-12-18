@@ -56,6 +56,7 @@ class AppUrls {
   static const String updateProfile = "update/user";
   static const String updatePassword = "update/password";
   static const String getProfile = "me";
+  static const String toggleFollow = "user/toggle-follow";
   static const String getSellerProfile = "user/info";
 
   static const String getSuggestion = "search/suggestions";

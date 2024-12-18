@@ -2,12 +2,10 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/models/advertisement_banner.dart';
 import 'package:tt_offer/repository/banner_api/banner_repository.dart';
 
 import '../../models/banner_model.dart';
-import '../../repository/banner_api/banner_repository.dart';
 
 class BannerViewModel extends ChangeNotifier {
   List<String> firstBanner = [];

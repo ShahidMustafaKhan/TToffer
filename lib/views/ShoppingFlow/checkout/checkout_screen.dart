@@ -9,6 +9,8 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/models/cart_model.dart';
 import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
 import 'package:tt_offer/views/ShoppingFlow/cart/cart_screen.dart';
+import 'package:tt_offer/models/advertisement_banner.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../Constants/app_logger.dart';
 import '../../../view_model/banner/banner_view_model.dart' hide Data;
@@ -117,7 +119,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                   children: [
                     Consumer<BannerViewModel>(
                         builder: (context, bannerViewModel, child) {
-                          return bannerViewModel.firstBanner.isNotEmpty ? CarouselSlider(
+                          return bannerViewModel.secondBanner.isNotEmpty ? CarouselSlider(
                             options: CarouselOptions(
                               aspectRatio: 16 / 4,
                               viewportFraction: 1,
@@ -131,37 +133,50 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                               enlargeCenterPage: true,
                               scrollDirection: Axis.horizontal,
                             ),
-                            items: bannerViewModel.firstBanner.map((String imagePath) {
-                              return LayoutBuilder(
-                                builder: (context, constraints) {
-                                  double screenWidth = MediaQuery.of(context).size.width;
-                                  double bannerHeight = screenWidth * (7 / 16);
+                            items: bannerViewModel.secondBanner.map((AdvertisementBanner banner) {
+                              return InkWell(
+                                onTap: () async {
+                                  String? url = banner.redirect;
 
-                                  return Container(
-                                    height: bannerHeight,
-                                    width: screenWidth,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: CachedNetworkImage(
-                                      imageUrl: imagePath,
-                                      fit: BoxFit.fill,
-                                      placeholder: (context, url) => Center(
-                                        child: SizedBox(
-                                          height: 30.h,
-                                          child: CircularProgressIndicator(color: AppTheme.yellowColor),
-                                        ),
-                                      ),
-                                      errorWidget: (context, url, error) => SizedBox(),
-                                      cacheKey: imagePath,
-                                      maxWidthDiskCache: 200,
-                                      fadeInDuration: const Duration(milliseconds: 500),
-                                    ),
-                                  );
+                                  if(url != null){
+                                    if (await canLaunchUrl(Uri.parse(url))) {
+                                      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                                    } else {
+                                      showSnackBar(context, "Could not launch the URL");
+                                    }
+                                  }
+
                                 },
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    double screenWidth = MediaQuery.of(context).size.width;
+                                    double bannerHeight = screenWidth * (7 / 16);
+
+                                    return Container(
+                                      height: bannerHeight,
+                                      width: screenWidth,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: CachedNetworkImage(
+                                        imageUrl: banner.path ?? '',
+                                        fit: BoxFit.fill,
+                                        placeholder: (context, url) => Center(
+                                          child: SizedBox(
+                                            height: 30.h,
+                                            child: CircularProgressIndicator(color: AppTheme.yellowColor),
+                                          ),
+                                        ),
+                                        errorWidget: (context, url, error) => const SizedBox(),
+                                        cacheKey: banner.path,
+                                        fadeInDuration: const Duration(milliseconds: 500),
+                                      ),
+                                    );
+                                  },
+                                ),
                               );
                             }).toList(),
-                          ) : SizedBox();
+                          ) : const SizedBox();
                         }
                     ),
                     Padding(

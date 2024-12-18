@@ -1,7 +1,10 @@
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
@@ -16,15 +19,19 @@ import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 
+import '../../../Utils/widgets/others/app_text.dart';
 import '../../../models/product_model.dart';
 import '../../../view_model/product/product/product_viewmodel.dart';
 import '../../BottomNavigation/navigation_bar.dart';
+import '../../Profile Screen/profile_screen.dart';
 import '../widgets/action_buttons.dart';
 import '../widgets/description_widget.dart';
 import '../widgets/divider.dart';
 import '../widgets/dubai_property_rules.dart';
+import '../widgets/features.dart';
 import '../widgets/product_atrributes_widget.dart';
 import '../widgets/product_details_widget.dart';
+import '../widgets/product_reviews.dart';
 
 class FeatureInfoScreen extends StatefulWidget {
   Product? product;
@@ -489,6 +496,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
 
                                     SellerDetailWidget(authorizationToken: authorizationToken, product: product,),
 
+                                    FeatureWidget(product : product, propertyAttributes: propertyAttributes),
 
                                     const AddDivider(),
 
@@ -514,10 +522,14 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                             ),
                           ),
 
-                          const SizedBox(height: 12,),
 
-                          if(categoryName == 'Property for Rent' || categoryName == 'Property for Sale' )
-                            const DubaiPropertyRules()
+                          if(categoryName == 'Property for Rent' || categoryName == 'Property for Sale' )...[
+                            const SizedBox(height: 12,),
+
+                            const DubaiPropertyRules(),
+                          ],
+
+                          ProductReviewsSection(product: product)
 
                         ],
                       ),

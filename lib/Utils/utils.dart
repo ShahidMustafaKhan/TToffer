@@ -315,6 +315,21 @@ int percentageOfFive(int? rating) {
   return percentage;
 }
 
+String getRating(String? rating){
+  if(rating == null){
+    return "0";
+  }
+  else{
+    if(int.parse(rating) > 5){
+      return "5";
+    }
+    else if(int.parse(rating) < 0){
+      return '0';
+    }
+    return rating;
+  }
+}
+
 String formatDate(DateTime date) {
   return DateFormat('yyyy-MM-dd').format(date);
 }

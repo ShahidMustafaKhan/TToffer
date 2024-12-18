@@ -29,6 +29,7 @@ import 'package:tt_offer/views/Products/Auction%20Product/widgets/panel_widget.d
 
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
+import 'package:tt_offer/views/Products/widgets/product_reviews.dart';
 
 import '../../../models/product_model.dart';
 import '../../Authentication screens/login_screen.dart';
@@ -38,6 +39,7 @@ import '../widgets/action_buttons.dart';
 import '../widgets/description_widget.dart';
 import '../widgets/divider.dart';
 import '../widgets/dubai_property_rules.dart';
+import '../widgets/features.dart';
 import '../widgets/product_atrributes_widget.dart';
 import '../widgets/product_details_widget.dart';
 import '../widgets/product_image.dart';
@@ -914,6 +916,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                           propertyOwner: propertyAttributes.owner,
                           hireStatus: jobAttributes.hireStatus,
                         ),
+                        FeatureWidget(product: product, propertyAttributes: propertyAttributes, ),
                         const AddDivider(),
                         SellerDetailWidget(
                           authorizationToken: authorizationToken,
@@ -928,19 +931,22 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
                           isFav: isFav,
                           userId: userId,
                         ),
-                        if (userId.toString() != widget.product?.userId.toString() ||
-                            categoryName == 'Property for Rent' ||
-                            categoryName == 'Property for Sale')
-                          const AddDivider(),
+
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+
 
                   // Dubai Property Rules Section
-                  if (categoryName == 'Property for Rent' || categoryName == 'Property for Sale')
+                  if (categoryName == 'Property for Rent' || categoryName == 'Property for Sale')...[
+                    const AddDivider(),
+                    const SizedBox(height: 12),
                     const DubaiPropertyRules(),
+
+                  ],
+
+                  ProductReviewsSection(product: product,),
 
                   // Add Bottom Spacing
                   SizedBox(height: 270.h),
