@@ -221,13 +221,16 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                             == 'Property for Rent' || product?.category?.name == 'Vehicles')
                       product?.category?.name == 'Vehicles'
                           ? Row(
+                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           ImageText(
                               txt: vehicleAttributes.makeModel == '' ? '0' : vehicleAttributes.makeModel,
                               image: 'calender.png'),
+                          SizedBox(width: 5.w,),
                           ImageText(
                               txt: vehicleAttributes.mileAge == '' ? '0' : vehicleAttributes.mileAge,
                               image: 'road.png'),
+                          SizedBox(width: 5.w,),
                           ImageText(
                               txt: vehicleAttributes.fuelType == '' ? '0' : vehicleAttributes.fuelType,
                               image: 'petrol.png'),
@@ -236,20 +239,23 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                           : product?.category?.name == 'Property for Sale' ||
                           product?.category?.name == 'Property for Rent'
                           ? Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+
                         children: [
                           ImageText(
                               txt: propertyAttributes.bathroom == '' ? "0" : propertyAttributes.bathroom,
                               image: 'bath.png'),
+                          SizedBox(width: 5.w,),
                           ImageText(
                               txt: propertyAttributes.bedroom == '' ? "0" : propertyAttributes.bedroom,
                               image: 'bed.png'),
+                          SizedBox(width: 5.w,),
                           ImageText(
                               txt: propertyAttributes.area == '' ? "0" : propertyAttributes.area,
                               image: 'family.png'),
                         ],
                       )
                           : const SizedBox.shrink(),
-
 
 
                     Row(

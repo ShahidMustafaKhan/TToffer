@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/no_data_found.dart';
@@ -8,6 +9,7 @@ import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_container.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
+import '../../Utils/widgets/grid_delegate.dart';
 import '../../models/product_model.dart';
 
 class ViewSearchedProducts extends StatefulWidget {
@@ -43,12 +45,11 @@ class _ViewSearchedProductsState extends State<ViewSearchedProducts> {
                     padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
                     child: GridView.builder(
                       physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        mainAxisSpacing: 20,
-                        crossAxisSpacing: 10,
-                        crossAxisCount: 2,
-                        childAspectRatio: screenWidth / (3.8 * 150),
-                      ),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
+                          mainAxisSpacing: 15.h,
+                          crossAxisSpacing: 12,
+                          crossAxisCount: 2,
+                          height: MediaQuery.of(context).size.height * 0.28),
                       shrinkWrap: true,
                       itemCount: searchProduct?.length ?? 0,
                       itemBuilder: (context, int index) {

@@ -88,6 +88,8 @@ dependencies:
   firebase_dynamic_links:
   share_plus:
   video_player:
+  loading_animation_widget: 
+
 
 
 

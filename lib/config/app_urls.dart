@@ -33,6 +33,9 @@ class AppUrls {
   static const String getAllProducts = "get-all-products";
   static const String getProductDetails = "product-detail";
 
+  static const String getProductViews = "products/view";
+  static const String addProductView = "products/view-detail";
+
   static const String getPlaceBids = "get-placed-bids";
   static const String placeBid = "place-bid";
   static const String highestBid = "get-highest-bid";

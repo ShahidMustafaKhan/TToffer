@@ -419,16 +419,16 @@ class ShoppingCartItem extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           buyItNowLoading.isNotEmpty && buyItNowLoading[index!] == true ?  Center(
-                            child: CupertinoActivityIndicator(color: AppTheme.appColor, animating: true, radius: 12,),
+                            child: appLoading(),
                           ) :
                           GestureDetector(
                               onTap: (){buyItNow();},
                               child: AppText.appText('Buy it now', fontSize: 11.5.sp, textColor: Colors.blue.shade700, fontWeight: FontWeight.w600)),
-                          saveLaterLoading.isNotEmpty && saveLaterLoading[index!] == true ? CupertinoActivityIndicator(color: AppTheme.appColor, animating: true, radius: 12,) :
+                          saveLaterLoading.isNotEmpty && saveLaterLoading[index!] == true ? appLoading() :
                           GestureDetector(
                               onTap: (){toggleSaveItem();},
                               child: AppText.appText(savedForLater == true ? 'Remove from save' : 'Save for later', fontSize: 11.5.sp,textColor: Colors.blue.shade700, fontWeight: FontWeight.w600)),
-                          removeCartItemLoading.isNotEmpty && removeCartItemLoading[index!] == true ? CupertinoActivityIndicator(color: AppTheme.appColor, animating: true, radius: 12,) :
+                          removeCartItemLoading.isNotEmpty && removeCartItemLoading[index!] == true ? appLoading() :
                           GestureDetector(
                               onTap: (){deleteItem();},
                               child: AppText.appText('Remove', fontSize: 11.5.sp, textColor: Colors.blue.shade700, fontWeight: FontWeight.w600)),

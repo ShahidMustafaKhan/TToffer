@@ -235,7 +235,7 @@ class _RatingScreenState extends State<RatingScreen> {
         "seller_id": int.tryParse(widget.sellerId ?? ''),
         "reviewer_id": int.tryParse(pref.getString(PrefKey.userId) ?? ''),
         "rating": starValue?.ceil(),
-        "comments" : textEditingController.text,
+        "comment" : textEditingController.text,
         "product_id" : int.tryParse(widget.productId ?? '')
       };
 

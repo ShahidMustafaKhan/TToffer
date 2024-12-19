@@ -34,10 +34,10 @@ import '../../models/product_model.dart';
 
 class PostDetailScreen extends StatefulWidget {
   final productId;
-  String title;
-  Product? product;
+  final String title;
+  final Product? product;
 
-  PostDetailScreen(
+  const PostDetailScreen(
       {super.key, this.productId, required this.title, this.product});
 
   @override

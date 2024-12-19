@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
@@ -16,6 +17,7 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/view_model/product/post_product/post_product_viewmodel.dart';
+import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/add_post_detail.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
@@ -52,6 +54,7 @@ class _PostScreenState extends State<PostScreen> {
   @override
   void initState() {
     product = widget.product;
+    Provider.of<PostProductViewModel>(context, listen: false).setFirstStepLoading(false);
 
     dio = AppDio(context);
     logger.init();
@@ -62,6 +65,9 @@ class _PostScreenState extends State<PostScreen> {
     if (product != null) {
       _descController.text = product!.description ?? '';
     }
+
+    // _titleController.text = 'Testing mobile app';
+    // _descController.text = 'Testing mobile app';
 
 
     super.initState();
@@ -142,152 +148,150 @@ class _PostScreenState extends State<PostScreen> {
                     containerWidth: 110,
                     height: 48,
                     space: 20.0),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: AppButton.appButtonWithLeadingImage("Select Video",
-                      onTap: () {
-                    imageProvider.getVediosFromGallery(context);
-                  },
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      textColor: AppTheme.textColor,
-                      imagePath: "assets/images/video.png",
-                      imgHeight: 20,
-                      height: 48,
-                      containerWidth: 110,
-                      space: 20.0),
-                ),
+
+                if(widget.product == null && imageProvider.imagePaths.isEmpty )
+                  SizedBox(height : 20.h),
+
+
                 imageProvider.isCompressing == true
                     ? SizedBox(
-                        height: 110,
-                        child: LoadingDialog(),
-                      )
+                  height: 110,
+                  child: LoadingDialog(),
+                )
                     : imageProvider.imagePaths.isEmpty
-                        ? const SizedBox.shrink()
-                        : SizedBox(
-                            height: 110,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              shrinkWrap: true,
-                              itemCount: imageProvider.imagePaths.length,
-                              itemBuilder: (context, index) {
-                                return Stack(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 10.0,
-                                          bottom: 10,
-                                          top: 10,
-                                          right: 5),
-                                      child: Container(
-                                        height: 120,
-                                        width: 100,
-                                        decoration: BoxDecoration(
-                                            color: AppTheme.hintTextColor,
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            image: DecorationImage(
-                                                image: FileImage(
-                                                  File(imageProvider
-                                                      .imagePaths[index]),
-                                                ) as ImageProvider,
-                                                fit: BoxFit.fill)),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 1,
-                                      top: 1,
-                                      child: InkWell(
-                                        child: Container(
-                                          decoration: const BoxDecoration(
-                                              color: Colors.red,
-                                              shape: BoxShape.circle),
-                                          child: const Padding(
-                                            padding: EdgeInsets.all(3.0),
-                                            child: Icon(
-                                              Icons.close,
-                                              color: Colors.white,
-                                              size: 14,
-                                            ),
-                                          ),
-                                        ),
-                                        onTap: () {
-                                          imageProvider.removeImage(index);
-                                        },
-                                      ),
-                                    )
-                                  ],
-                                );
-                              },
+                    ? const SizedBox.shrink()
+                    : SizedBox(
+                  height: 110,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    shrinkWrap: true,
+                    itemCount: imageProvider.imagePaths.length,
+                    itemBuilder: (context, index) {
+                      return Stack(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 10.0,
+                                bottom: 10,
+                                top: 10,
+                                right: 5),
+                            child: Container(
+                              height: 120,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                  color: AppTheme.hintTextColor,
+                                  borderRadius:
+                                  BorderRadius.circular(8),
+                                  image: DecorationImage(
+                                      image: FileImage(
+                                        File(imageProvider
+                                            .imagePaths[index]),
+                                      ) as ImageProvider,
+                                      fit: BoxFit.fill)),
                             ),
                           ),
-
-                product != null && imageProvider.imagePaths.isEmpty
-                    ? Wrap(
-                        children: [
-                          for (var l in product!.photo!)
-                            Stack(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 20.0, horizontal: 8),
-                                  child: Container(
-                                    height: 100,
-                                    width: 100,
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: NetworkImage(l.url.toString()),
-                                        fit: BoxFit.cover,
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
+                          Positioned(
+                            right: 1,
+                            top: 1,
+                            child: InkWell(
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(3.0),
+                                  child: Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 14,
                                   ),
                                 ),
-                                Positioned(
-                                  right: 1,
-                                  top: 1,
-                                  child: InkWell(
-                                    onTap: () async {
-                                      await ImageDeleteService()
-                                          .imageDeleteService(
-                                        context: context,
-                                        id: l.id!,
-                                        productId: l.productId!,
-                                      );
-                                      setState(() {
-                                        product?.photo!.remove(l);
-                                      });
-                                    },
-                                    child: const Card(
-                                      child: Icon(Icons.close),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
+                              onTap: () {
+                                imageProvider.removeImage(index);
+                              },
                             ),
+                          )
                         ],
-                      )
-                    : product != null ||
-                            imageProvider.imagePaths.isNotEmpty
-                        ? const SizedBox.shrink()
-                        : imageProvider.videoPath.isNotEmpty ? const SizedBox.shrink() :
-                            AppText.appText("Add your cover photo first",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            textColor: AppTheme.textColor),
+                      );
+                    },
+                  ),
+                ),
 
-                if(imageProvider.videoPath.isNotEmpty)
+                if(product != null && imageProvider.imagePaths.isEmpty)
+                     Wrap(
+                  children: [
+                    for (var l in product!.photo!)
+                      Stack(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 14.0, horizontal: 8),
+                            child: Container(
+                              height: 80,
+                              width: 80,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: NetworkImage(l.url.toString()),
+                                  fit: BoxFit.cover,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            right: 1,
+                            top: 1,
+                            child: InkWell(
+                              onTap: () async {
+                                await ImageDeleteService()
+                                    .imageDeleteService(
+                                  context: context,
+                                  id: l.id!,
+                                  productId: l.productId!,
+                                );
+                                setState(() {
+                                  product?.photo!.remove(l);
+                                });
+                              },
+                              child: const Card(
+                                child: Icon(Icons.close),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+
+
+                AppButton.appButtonWithLeadingImage("Select Video",
+                    onTap: () {
+                  imageProvider.getVediosFromGallery(context);
+                },
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    textColor: AppTheme.textColor,
+                    imagePath: "assets/images/video.png",
+                    imgHeight: 20,
+                    height: 48,
+                    containerWidth: 110,
+                    space: 20.0),
+
+                const SizedBox(height: 14,),
+
+
+                if(imageProvider.videoPath.isNotEmpty)...[
                   Stack(
+                    clipBehavior: Clip.none,
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(
                             left: 10.0,
-                            bottom: 10,
-                            top: 10,
+                            bottom: 14,
                             right: 5),
                         child: Container(
-                          height: 120,
-                          width: 100,
+                          height: 130.h,
                           decoration: BoxDecoration(
                             color: AppTheme.hintTextColor,
                             borderRadius: BorderRadius.circular(10),
@@ -302,7 +306,7 @@ class _PostScreenState extends State<PostScreen> {
                       ),
                       Positioned(
                         right: 1,
-                        top: 1,
+                        top: -2,
                         child: InkWell(
                           child: Container(
                             decoration: const BoxDecoration(
@@ -313,7 +317,7 @@ class _PostScreenState extends State<PostScreen> {
                               child: Icon(
                                 Icons.close,
                                 color: Colors.white,
-                                size: 14,
+                                size: 16,
                               ),
                             ),
                           ),
@@ -325,6 +329,16 @@ class _PostScreenState extends State<PostScreen> {
                     ],
                   ),
 
+                ],
+
+
+                if(product == null && imageProvider.imagePaths.isEmpty)...[
+                  AppText.appText("Add your cover photo first",
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      textColor: AppTheme.textColor),
+                  SizedBox(height: 14.h,)
+                ],
 
                 Column(
                   children: [

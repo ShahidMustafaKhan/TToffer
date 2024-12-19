@@ -27,11 +27,11 @@ import '../../models/user_model.dart';
 import '../../view_model/profile/user_profile/user_view_model.dart';
 
 class SellerProfileScreen extends StatefulWidget {
-  var detailResponse;
-  UserModel? sellerProfile;
-  bool review;
+  final detailResponse;
+  final UserModel? sellerProfile;
+  final bool review;
 
-  SellerProfileScreen({super.key, this.detailResponse, this.sellerProfile , this.review=false});
+  const SellerProfileScreen({super.key, this.detailResponse, this.sellerProfile , this.review=false});
 
   @override
   State<SellerProfileScreen> createState() => _SellerProfileScreenState();
@@ -421,7 +421,6 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
               },
               child: Row(
                 children: [
-                  SizedBox(width: 30.w,),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: ClipRRect(
@@ -468,7 +467,6 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(width: 30.w,),
 
                 ],
               ),
@@ -498,7 +496,6 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Row(
                   children: [
-                    SizedBox(width: 30.w,),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(20),
                       child: Container(
@@ -553,7 +550,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                               Row(
                                 children: [
                                   SizedBox(
-                                    width: 220.w,
+                                    width: 197.w,
                                     child: LayoutBuilder(
                                       builder: (context, constraints) {
                                         final text = reviews[i]?.comment ?? '';

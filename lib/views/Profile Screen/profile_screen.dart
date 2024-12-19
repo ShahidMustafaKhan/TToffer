@@ -275,7 +275,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         push(
                             context,
                             CustomLinkScreen(
-                              link: userModel?.username,
+                              link: userModel?.shareAbleLink ?? "ttoffer.com/user/info/${userModel?.username}",
                             ));
                       },
                       txt: "Custom Profile Link",

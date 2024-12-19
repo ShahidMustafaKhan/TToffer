@@ -23,7 +23,7 @@ class _CustomLinkScreenState extends State<CustomLinkScreen> {
   @override
   void initState() {
     super.initState();
-    _linkController.text = 'ttoffer.com/profile/${widget.link!}';
+    _linkController.text = widget.link ?? '';
   }
 
   void _copyText() {

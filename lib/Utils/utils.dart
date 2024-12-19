@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/custom_requests/report_service.dart';
@@ -304,7 +305,7 @@ String starCount(double? percentage) {
   return "($star/5)";
 }
 
-int percentageOfFive(int? rating) {
+int percentageOfFive(dynamic rating) {
   if (rating == null) {
     return 0;
   }
@@ -328,6 +329,21 @@ String getRating(String? rating){
     }
     return rating;
   }
+}
+
+Widget appLoading() {
+  return Center(
+    child: SizedBox(
+      width: 30,
+      height: 15,
+      child:
+      showLoadingAnimation(), //SvgPicture.asset('assets/svg/ic_icon.svg', width: 50, height: 50,),
+    ),
+  );
+}
+
+Widget showLoadingAnimation({Color leftDotColor = const Color(0xFFFFC107), Color rightDotColor = const Color(0xFFB71C1C), double size = 35}){
+return Center(child: LoadingAnimationWidget.twistingDots(leftDotColor: leftDotColor, rightDotColor: rightDotColor, size: size));
 }
 
 String formatDate(DateTime date) {

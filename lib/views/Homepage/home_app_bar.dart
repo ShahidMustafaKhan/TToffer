@@ -21,6 +21,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
 
 
+
     return Consumer<SuggestionViewModel>(
         builder: (context, suggestionViewModel, child) {
           return Padding(

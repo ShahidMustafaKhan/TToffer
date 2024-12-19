@@ -494,9 +494,9 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
 
                                     const AddDivider(),
 
-                                    SellerDetailWidget(authorizationToken: authorizationToken, product: product,),
-
                                     FeatureWidget(product : product, propertyAttributes: propertyAttributes),
+
+                                    SellerDetailWidget(authorizationToken: authorizationToken, product: product,),
 
                                     const AddDivider(),
 

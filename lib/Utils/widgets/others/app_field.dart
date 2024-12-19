@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 
 class CustomAppFormField extends StatefulWidget {
@@ -97,48 +98,50 @@ class _CustomAppFormFieldState extends State<CustomAppFormField> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: widget.height ?? 48,
       width: widget.width ?? MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
           border:
               Border.all(color: widget.borderColor ?? const Color(0xff464646)),
           color: AppTheme.white,
           borderRadius: BorderRadius.circular(widget.radius ?? 10)),
-      child: TextFormField(
-        validator: widget.validator,
-        focusNode: widget.focusNode,
-        cursorColor: Colors.black,
-        enabled: widget.enable,
-        inputFormatters: widget.inputFormatters,
-        onFieldSubmitted: (widget.onFieldSubmitted),
-        onTap: widget.onTap,
-        readOnly: widget.readOnly,
-        onChanged: widget.onChanged,
-        style:
-            TextStyle(fontSize: widget.fontsize, fontWeight: widget.fontweight),
-        textAlign: widget.textAlign,
-        maxLines: widget.maxline ?? 1,
-        controller: widget.controller,
-        // cursorHeight: widget.cursorHeight ?? 20,
-        cursorWidth: 2,
-        keyboardType: widget.type ?? TextInputType.name,
-        decoration: InputDecoration(
-          errorText: widget.errorText,
-            suffixIcon: widget.suffixIcon,
-            suffixIconConstraints:
-                const BoxConstraints(maxHeight: 20, minWidth: 40),
-            prefixIcon: widget.prefixIcon,
-            prefixIconConstraints: const BoxConstraints(
-              minWidth: 50,
-            ),
-            border: InputBorder.none,
-            contentPadding: widget.contentPadding ?? EdgeInsets.all(widget.cPadding ?? 8),
-            hintText: widget.texthint,
-            hintStyle: widget.hintStyle ?? TextStyle(
-                color: widget.hintTextColor ?? AppTheme.textColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w400),
-            isDense: true),
+      child: ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(widget.radius ?? 10)),
+        child: TextFormField(
+          validator: widget.validator,
+          focusNode: widget.focusNode,
+          cursorColor: Colors.black,
+          enabled: widget.enable,
+          inputFormatters: widget.inputFormatters,
+          onFieldSubmitted: (widget.onFieldSubmitted),
+          onTap: widget.onTap,
+          readOnly: widget.readOnly,
+          onChanged: widget.onChanged,
+          style:
+              TextStyle(fontSize: widget.fontsize, fontWeight: widget.fontweight),
+          textAlign: widget.textAlign,
+          maxLines: widget.maxline ?? 1,
+          controller: widget.controller,
+          // cursorHeight: widget.cursorHeight ?? 20,
+          cursorWidth: 2,
+          keyboardType: widget.type ?? TextInputType.name,
+          decoration: InputDecoration(
+            errorText: widget.errorText,
+              suffixIcon: widget.suffixIcon,
+              suffixIconConstraints:
+                  const BoxConstraints(maxHeight: 20, minWidth: 40),
+              prefixIcon: widget.prefixIcon,
+              prefixIconConstraints: const BoxConstraints(
+                minWidth: 50,
+              ),
+              border: InputBorder.none,
+              contentPadding: widget.contentPadding ?? EdgeInsets.all(widget.cPadding ?? 8),
+              hintText: widget.texthint,
+              hintStyle: widget.hintStyle ?? TextStyle(
+                  color: widget.hintTextColor ?? AppTheme.textColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400),
+              isDense: true),
+        ),
       ),
     );
   }

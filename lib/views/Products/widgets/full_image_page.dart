@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+import '../../../Utils/widgets/video_player.dart';
 import '../../../models/product_model.dart';
 
 class FullImagePage extends StatefulWidget {
   final Product? product;
 
-  FullImagePage({Key? key, required this.product}) : super(key: key);
+  const FullImagePage({Key? key, required this.product}) : super(key: key);
 
   @override
   State<FullImagePage> createState() => _FullImagePageState();
@@ -47,7 +48,9 @@ class _FullImagePageState extends State<FullImagePage> {
                       panEnabled: true,
                       trackpadScrollCausesScale: true,
                       child: (product?.photo?.isNotEmpty ?? false)
-                          ? Image.network(
+                          ? product!.photo![0].url!.endsWith('.mp4') ?
+                      VideoPlayerWidget(videoPath: product!.photo![0].url!, networkVideo: true,):
+                      Image.network(
                         product!.photo![0].url!,
                         fit: BoxFit.cover,
                       ) : const SizedBox(),
@@ -61,7 +64,10 @@ class _FullImagePageState extends State<FullImagePage> {
                         maxScale: 2.0,
                         panEnabled: true,
                         trackpadScrollCausesScale: true,
-                        child: Image.network(
+                        child:
+                        photoUrl.url!.endsWith('.mp4') ?
+                        VideoPlayerWidget(videoPath: photoUrl.url!, networkVideo: true,):
+                        Image.network(
                           photoUrl.url as String,
                           fit: BoxFit.fill,
                         ),
