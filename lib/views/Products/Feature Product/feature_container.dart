@@ -8,49 +8,33 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/detail_model/attribute_model.dart';
 import 'package:tt_offer/main.dart';
+import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
+import 'package:tt_offer/views/Authentication%20screens/login_screen.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_container.dart';
 
 import '../../../Utils/utils.dart';
+import '../../../Utils/widgets/others/app_button.dart';
+import '../../../models/cart_model.dart';
 import '../../../models/product_model.dart';
 import '../../../view_model/profile/user_profile/user_view_model.dart';
 
-class FeatureProductContainer extends StatefulWidget {
-  final Product? product;
-
-   const FeatureProductContainer({super.key, this.product});
-
-  @override
-  State<FeatureProductContainer> createState() =>
-      _FeatureProductContainerState();
-}
-
-class _FeatureProductContainerState extends State<FeatureProductContainer> {
-  String timeDifference = ''; // Store the calculated time difference
-  int? userId;
-  String? authorizationToken;
-  bool isFav = false;
-
-
+class FeatureProductContainer extends StatelessWidget {
   Product? product;
+  bool fromHomePage;
 
+   FeatureProductContainer({super.key, this.product, this.fromHomePage = false});
+
+  String timeDifference = '';
+ // Store the calculated time difference
+  int? userId;
+
+  String? authorizationToken;
+
+  bool isFav = false;
 
   getUserId() async {
       userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
       authorizationToken = pref.getString(PrefKey.authorization);
-  }
-
-
-  @override
-  void initState() {
-    super.initState();
-
-    product = widget.product;
-
-    getUserId();
-    if(product?.createdAt != null){
-    DateTime dateTime = DateTime.parse(product?.createdAt ?? '');
-    timeDifference = calculateTimeDifference(dateTime);
-    }
   }
 
   String calculateTimeDifference(DateTime dateTime) {
@@ -71,12 +55,8 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-
-    product = widget.product;
 
     getUserId();
     if(product?.createdAt != null){
@@ -89,12 +69,10 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
     PropertyAttributes propertyAttributes =
     PropertyAttributes.fromJson(product?.attributes);
 
-
-
     return Container(
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(color: AppTheme.borderColorContainer)),
+          border: Border.all(color: Colors.red)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,15 +81,15 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
             height: 135.h,
             decoration: BoxDecoration(
               color: AppTheme.hintTextColor,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(8),
-                topRight: Radius.circular(8),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(7.r),
+                topRight: Radius.circular(7.r),
               ),
               image: product?.photo?.isNotEmpty ?? false
                   ? DecorationImage(
                       image:
                           NetworkImage("${product?.photo?[0].url}"),
-                      fit: BoxFit.fill,
+                      fit: BoxFit.cover,
                     )
                   : null,
             ),
@@ -125,29 +103,8 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if(isProductBoosted(product?.boosterEndDatetime))
-                      Container(
-                        margin: EdgeInsets.only(top: 6.h, left: 8.w),
-                        padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 4.h),
-                        decoration: BoxDecoration(
-                          color: const Color(0xffFFD33C),
-                          borderRadius: BorderRadius.all(Radius.circular(8.r)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.15), // Soft black shadow with 15% opacity
-                              offset: const Offset(0, 4),                  // Shadow positioned slightly below the container
-                              blurRadius: 4,                         // Moderate blur for a soft shadow effect
-                              spreadRadius: 0,                       // Slight spread to enhance the visibility
-                            ),
-                          ],
-                        ),
-                        child: AppText.appText('Special Offer', fontSize: 10.sp, fontWeight: FontWeight.w500, textColor: AppTheme.textColor ),
-                      )
-                      else
-                        SizedBox(),
-
-
-                      if(authorizationToken != null)
+                      specialOffer(product),
+                      if(authorizationToken != null && userId != product?.userId)
                         Consumer<UserViewModel>(
                             builder: (context, userViewModel , child) {
                               return GestureDetector(
@@ -180,18 +137,12 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                           );
                         }
                       ),
+
                     ],
                   ),
-                  CustomPaint(
-                      painter: PriceTagPainter(),
-                      child: Padding(
-                        padding: EdgeInsets.only(left: product?.productType == 'looking' || product?.productType == 'hiring' ? 18 : 24, right: product?.productType == 'looking' || product?.productType == 'hiring'  ? 5 : 14),
-                        child: AppText.appText(
-                            productPrice(product),
-                          textColor: Colors.white,
-                          fontSize: 14.sp
-
-                        ),))
+                  Padding(
+                      padding: const EdgeInsets.only(left: 12, right: 14),
+                      child: priceTag(product))
 
                 ],
               ),
@@ -207,7 +158,6 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                   children: [
                     SizedBox(
                       // height: 40,
-                      width: MediaQuery.sizeOf(context).width * .4,
                       child: AppText.appText(product?.title ?? '',
                           fontSize: 14,
                           overflow: TextOverflow.ellipsis,
@@ -215,24 +165,27 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                           textColor: AppTheme.textColor),
                     ),
 
+                    if(product?.deliveryType?.isNotEmpty ?? false)
+                      shippingMethodIconWidget(product),
+                    
 
                     if(product?.category?.name == 'Property for Sale' ||
                         product?.category?.name
                             == 'Property for Rent' || product?.category?.name == 'Vehicles')
                       product?.category?.name == 'Vehicles'
                           ? Row(
-                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                           mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           ImageText(
-                              txt: vehicleAttributes.makeModel == '' ? '0' : vehicleAttributes.makeModel,
+                              txt: vehicleAttributes.makeModel == '' || vehicleAttributes.makeModel.contains('null') ? '0' : vehicleAttributes.makeModel,
                               image: 'calender.png'),
                           SizedBox(width: 5.w,),
                           ImageText(
-                              txt: vehicleAttributes.mileAge == '' ? '0' : vehicleAttributes.mileAge,
+                              txt: vehicleAttributes.mileAge == '' || vehicleAttributes.mileAge.contains('null') ? '0' : vehicleAttributes.mileAge,
                               image: 'road.png'),
                           SizedBox(width: 5.w,),
                           ImageText(
-                              txt: vehicleAttributes.fuelType == '' ? '0' : vehicleAttributes.fuelType,
+                              txt: vehicleAttributes.fuelType == '' || vehicleAttributes.fuelType.contains('null') ? '0' : vehicleAttributes.fuelType,
                               image: 'petrol.png'),
                         ],
                       )
@@ -243,15 +196,15 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
 
                         children: [
                           ImageText(
-                              txt: propertyAttributes.bathroom == '' ? "0" : propertyAttributes.bathroom,
+                              txt: propertyAttributes.bathroom == '' || propertyAttributes.bathroom.contains('null') ? "0" : propertyAttributes.bathroom,
                               image: 'bath.png'),
                           SizedBox(width: 5.w,),
                           ImageText(
-                              txt: propertyAttributes.bedroom == '' ? "0" : propertyAttributes.bedroom,
+                              txt: propertyAttributes.bedroom == '' || propertyAttributes.bedroom.contains('null') ? "0" : propertyAttributes.bedroom,
                               image: 'bed.png'),
                           SizedBox(width: 5.w,),
                           ImageText(
-                              txt: propertyAttributes.area == '' ? "0" : propertyAttributes.area,
+                              txt: propertyAttributes.area == '' || propertyAttributes.area.contains('null') ? "0" : propertyAttributes.area,
                               image: 'family.png'),
                         ],
                       )
@@ -268,7 +221,7 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                         ),
                         const SizedBox(width: 5),
                         Expanded(
-                          child: AppText.appText(product?.location ?? '',
+                          child: AppText.appText(extractCity(product?.location ?? ''),
                               fontSize: 11,
                               overflow: TextOverflow.ellipsis,
                               fontWeight: FontWeight.w700,
@@ -278,9 +231,11 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                     ),
                     // const SizedBox(height: 5),
 
+
+
                     if(product?.category?.name != 'Property for Sale' &&
                         product?.category?.name
-                            != 'Property for Rent' && product?.category?.name  != 'Vehicles')
+                            != 'Property for Rent' && product?.category?.name  != 'Vehicles' && fromHomePage == false)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -294,11 +249,58 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
                         ],
                       ),
 
+                    if(fromHomePage == true && enableCartButton(product))
+                    Consumer<CartViewModel>(
+                        builder: (context, cartViewModel, child) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 0.w),
+                            child: AppButton.appButton(cartViewModel.isProductInCart(product?.id) == true ? "Added in cart" : "Add to Cart",
+                                onTap: () {
+                                  if(userId != product?.userId){
+                                    if(authorizationToken == null){
+                                      push(context, const SigInScreen());
+                                    }
+                                    else{
+                                      if(cartViewModel.isProductInCart(product?.id) == true ){
+                                        cartViewModel.removeCartItem(
+                                           product?.id,
+                                           userId,
+                                           );
+                                      }
+                                      else{
+                                        cartViewModel.addCartItemInList(Cart(
+                                          userId: userId,
+                                          productId: product?.id,
+                                          user: product?.user,
+                                          product: product,
+                                        ));
+                                        cartViewModel.addCartItem(
+                                            productId : product?.id,
+                                            price : product?.fixPrice,
+                                            quantity: 1,
+                                            userId: userId,
+                                            callGetCartApi: true);
+                                      }
+
+                                    }
+                                  }
+
+                            },
+                                height: 32,
+                                radius: 16.0,
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w500,
+                                backgroundColor: AppTheme.appColor,
+                                textColor: AppTheme.whiteColor),
+                          );
+                      }
+                    ),
+
 
                   ]),
             ),
           ),
-          SizedBox(height: 5.h,)
+          SizedBox(height: 6.h,)
 
 
 
@@ -307,39 +309,6 @@ class _FeatureProductContainerState extends State<FeatureProductContainer> {
     );
   }
 
-
-
-
-
   bool isLoading = false;
-
 }
 
-
-class PriceTagPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()
-      ..color = Color(0xff039b73)
-      ..style = PaintingStyle.fill;
-
-    // Draw rounded rectangle for tag background with custom corners
-    final RRect background = RRect.fromRectAndCorners(
-      Rect.fromLTWH(10, 0, size.width - 10, size.height),
-      topLeft: Radius.circular(25), // More rounded left side
-      bottomLeft: Radius.circular(25),
-      topRight: Radius.circular(4), // Less rounded right side
-      bottomRight: Radius.circular(4),
-    );
-    canvas.drawRRect(background, paint);
-
-    // Draw small white circle on the left
-    // final Paint dotPaint = Paint()..color = Colors.white;
-    // canvas.drawCircle(Offset(10, size.height / 2), 4, dotPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
-}

@@ -181,6 +181,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   };
 
                                   provider.registerApi(data).then((value){
+                                    unAuthorized = false;
                                     Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(

@@ -7,13 +7,14 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 
 Future congratulationAlertDialog(
-    {required String title,
+    {required String? title,
     required String description,
     required BuildContext context,
     required bool loading,
+    bool isDismissible = false,
     required Function() onTap}) {
   return showDialog(
-    barrierDismissible : false,
+    barrierDismissible : isDismissible,
     context: context,
     builder: (BuildContext context) {
       return StatefulBuilder(builder: (context, setStatess) {
@@ -36,7 +37,7 @@ Future congratulationAlertDialog(
                         height: 20.h,
                       ),
                       FittedBox(
-                        child: AppText.appText("Congratulations!",
+                        child: AppText.appText(title ?? "Congratulations!",
                             fontSize: 24.sp,
                             fontWeight: FontWeight.w700,
                             maxlines: 1,

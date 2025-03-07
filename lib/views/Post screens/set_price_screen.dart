@@ -5,26 +5,19 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
-import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
-import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
-import 'package:tt_offer/custom_requests/payment_status_service.dart';
 import 'package:tt_offer/main.dart';
-import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/view_model/product/post_product/post_product_viewmodel.dart';
-import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/enter_location_screen.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
-import 'package:tt_offer/config/app_urls.dart';
-import 'package:tt_offer/config/dio/app_dio.dart';
-
+import '../../Utils/widgets/others/congragulations_dialog.dart';
+import '../../Utils/widgets/others/divider.dart';
 import '../../models/product_model.dart';
 
 class SetPostPriceScreen extends StatefulWidget {
@@ -59,14 +52,15 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
 
   var startTime;
   var endTime;
-  var startTimeDubai;
-  var endTimeDubai;
+  var startTimeUtc;
+  var endTimeUtc;
 
   bool hideSelectedOptions = false;
   bool showSellToUsOption = false;
   bool isSelectedCategoryJob = false;
   
   Product? product;
+  int _toggleValue = 0;
 
   @override
   void initState() {
@@ -103,28 +97,27 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
       _priceController.text = formatNumber(product!.fixPrice.toString().replaceAll(".00", ""), textFiled:true);
       _startingPriceController.text = formatNumber(product!.auctionInitialPrice.toString().replaceAll(".00", ""), textFiled:false);
       _startingPriceController.text = formatNumber(product!.auctionInitialPrice.toString().replaceAll(".00", ""), textFiled:false);
+      _minSalaryController.text = formatNumber(product!.minSalary.toString().replaceAll(".00", ""), textFiled:false);
+      _maxSalaryController.text = formatNumber(product!.maxSalary.toString().replaceAll(".00", ""), textFiled:false);
+      _startingPriceController.text = formatNumber(product!.auctionInitialPrice.toString().replaceAll(".00", ""), textFiled:false);
 
-      try {
-        // Parse startingDate and endingDate strings
-        startDate = dateFormat.parse(product!.auctionStartingDate!);
-        endDate = dateFormat.parse(product!.auctionEndingDate!);
-
-        // Assuming startingTime and endingTime are in "HH:mm" format
-        startTime = DateFormat('HH:mm').parse(convertTo12HourFormat(product!.auctionStartingTime!));
-        endTime = DateFormat('HH:mm').parse(convertTo12HourFormat(product!.auctionEndingTime!));
-      } catch (e) {
-        print('Error parsing dates: $e');
-        // Handle parsing errors here
-      }
+      // try {
+      //   // Parse startingDate and endingDate strings
+      //   startDate = dateFormat.parse(product!.auctionStartingDate!);
+      //   endDate = dateFormat.parse(product!.auctionEndingDate!);
+      //
+      //   // Assuming startingTime and endingTime are in "HH:mm" format
+      //   startTime = DateFormat('HH:mm').parse(convertTo12HourFormat(product!.auctionStartingTime!));
+      //   endTime = DateFormat('HH:mm').parse(convertTo12HourFormat(product!.auctionEndingTime!));
+      // } catch (e) {
+      //   print('Error parsing dates: $e');
+      //   // Handle parsing errors here
+      // }
     }
 
     super.initState();
   }
 
-  // getPaymentStatus() async {
-  //   await PaymentStatusService()
-  //       .paymentStatusService(context: context, selling: product);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -136,40 +129,71 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
               child: provider.thirdStepLoading == true
                 ? const SizedBox(
                   height: 53,
-                  child: Center(child: CircularProgressIndicator()))
-                : Visibility(
-                  visible : selectedOption != "Sell to Us",
-                  child: AppButton.appButton("Next", onTap: () async {
-                      // await getPaymentStatus();
-                      if(selectedOption == "Fixed Price" && isSelectedCategoryJob == false && _priceController.text.isEmpty){
-                        showSnackBar(context, "Please enter price");
-                      }
-                      else if(isSelectedCategoryJob == true && _minSalaryController.text.isEmpty){
-                        showSnackBar(context, "Please enter minimum salary");
-                      }
-                      else if(isSelectedCategoryJob == true && _maxSalaryController.text.isEmpty){
-                        showSnackBar(context, "Please enter maximum salary");
-                      }
-                      else if(selectedOption == "Auction" && _startingPriceController.text.isEmpty){
-                        showSnackBar(context, "Please enter starting price");
-                      }
-                      else if(selectedOption == "Auction" && _finalPriceController.text.isEmpty){
-                        showSnackBar(context, "Please enter final price");
-                      }
-                      else if(selectedOption == "Auction" && (int.parse(_startingPriceController.text.replaceAll(',', '')) >= int.parse(_finalPriceController.text.replaceAll(',', '')))) {
-                        showSnackBar(context, "The final price must be greater than the starting price");
-                      }
-                      else{
-                        addProductPrice(provider);
-                      }
-                    },
-                      height: 53,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                      radius: 32.0,
-                      backgroundColor: AppTheme.appColor,
-                      textColor: AppTheme.whiteColor),
-                ),
+                  child: Center(child: CircularProgressIndicator())) :
+
+              selectedOption == "Sell to Us" ?
+              const SizedBox() :
+
+              AppButton.appButton("Next", onTap: () async {
+                int? maxSalary;
+                int? minSalary;
+
+                if (isSelectedCategoryJob == true) {
+                  maxSalary = int.tryParse(_maxSalaryController.text.replaceAll(',', ''));
+                  minSalary = int.tryParse(_minSalaryController.text.replaceAll(',', ''));
+                }
+
+                if(selectedOption == "Fixed Price" && isSelectedCategoryJob == false && _priceController.text.isEmpty){
+                  showSnackBar(context, "Please enter price");
+                }
+                else if(isSelectedCategoryJob == true && _minSalaryController.text.isEmpty){
+                  showSnackBar(context, "Please enter minimum salary");
+                }
+                else if(isSelectedCategoryJob == true && _maxSalaryController.text.isEmpty){
+                  showSnackBar(context, "Please enter maximum salary");
+                }
+                else if(isSelectedCategoryJob == true && (maxSalary! < minSalary!)){
+                  showSnackBar(context, "The maximum salary must exceed the minimum salary");
+                }
+                else if(selectedOption == "Auction" && _startingPriceController.text.isEmpty){
+                  showSnackBar(context, "Please enter starting price");
+                }
+                else if(selectedOption == "Auction" && _finalPriceController.text.isEmpty){
+                  showSnackBar(context, "Please enter final price");
+                }
+                else if(selectedOption == "Auction" && (int.parse(_startingPriceController.text.replaceAll(',', '')) >= int.parse(_finalPriceController.text.replaceAll(',', '')))) {
+                  showSnackBar(context, "The final price must be greater than the starting price");
+                }
+                else if(selectedOption == "Auction" && startDate == null){
+                  showSnackBar(context, "The auction starting date field is required");
+                }
+                else if(selectedOption == "Auction" && endDate == null){
+                  showSnackBar(context, "The auction ending date field is required");
+                }
+                else if(selectedOption == "Auction" && startTimeUtc == null){
+                  showSnackBar(context, "The auction starting time field is required");
+                }
+                else if(selectedOption == "Auction" && endTimeUtc == null){
+                  showSnackBar(context, "The auction ending time field is required");
+                }
+                else if(selectedOption == "Auction" && isEndDateTimeValid(startDate!, startTime, endDate!, endTime) == false){
+                  showSnackBar(context, "The auction's ending date and time must be at least 1 hour after its starting date and time.");
+                }
+                else if(selectedOption == "Auction" && isEndDateTimeWithinOneWeek(startDate!, startTime, endDate!, endTime) == false){
+                  showSnackBar(context, "The auction's end date and time must not exceed one week from its start date and time.");
+                }
+
+                else{
+                  addProductPrice(provider);
+                }
+              },
+                  height: 53,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  radius: 32.0,
+                  backgroundColor: AppTheme.appColor,
+                  textColor: AppTheme.whiteColor)
+
             );
         }
       ),
@@ -208,7 +232,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
                 SizedBox(width: MediaQuery.of(context).size.width,),
               if (selectedOption == "Fixed Price") if(isSelectedCategoryJob == true) jobColumn() else fixedColumn(),
               if (selectedOption == "Auction") auctionColumn(),
-              if (selectedOption == "Sell to Us") uXColumn(),
+              if (selectedOption == "Sell to Us") sellToUsColumn(),
             ],
           ),
         ),
@@ -420,32 +444,6 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
           const SizedBox(
             height: 40,
           ),
-          // const CustomDivider(),
-          // const SizedBox(
-          //   height: 15,
-          // ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     AppText.appText("Firm on price",
-          //         fontSize: 16,
-          //         fontWeight: FontWeight.w400,
-          //         textColor: AppTheme.txt1B20),
-          //     Switch(
-          //       activeColor: AppTheme.appColor,
-          //       value: _toggleValue == 1,
-          //       onChanged: (bool value) {
-          //         setState(() {
-          //           _toggleValue = value ? 1 : 0;
-          //         });
-          //       },
-          //     ),
-          //   ],
-          // ),
-          // const SizedBox(
-          //   height: 15,
-          // ),
-          // const CustomDivider()
         ],
       ),
     );
@@ -484,32 +482,35 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
           const SizedBox(
             height: 40,
           ),
-          // const CustomDivider(),
-          // const SizedBox(
-          //   height: 15,
-          // ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     AppText.appText("Firm on price",
-          //         fontSize: 16,
-          //         fontWeight: FontWeight.w400,
-          //         textColor: AppTheme.txt1B20),
-          //     Switch(
-          //       activeColor: AppTheme.appColor,
-          //       value: _toggleValue == 1,
-          //       onChanged: (bool value) {
-          //         setState(() {
-          //           _toggleValue = value ? 1 : 0;
-          //         });
-          //       },
-          //     ),
-          //   ],
-          // ),
-          // const SizedBox(
-          //   height: 15,
-          // ),
-          // const CustomDivider()
+          const CustomDivider(),
+          const SizedBox(
+            height: 15,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal : hideSelectedOptions == false && product==null ? 0 : 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                AppText.appText("Firm on price",
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    textColor: AppTheme.txt1B20),
+                Switch(
+                  activeColor: AppTheme.appColor,
+                  value: _toggleValue == 1,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _toggleValue = value ? 1 : 0;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          const CustomDivider()
         ],
       ),
     );
@@ -589,8 +590,14 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
                   date: true),
               dateContainer(
                   onTap: () {
-                    _selectDate1(context);
+                    if(startDate != null) {
+                      _selectDate1(context);
+                    }
+                    else{
+                      showSnackBar(context, 'Please provide the starting date first.');
+                    }
                   },
+
                   headText: "Ending Date",
                   nullText: "End Date",
                   dateCheck: endDate,
@@ -684,24 +691,27 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     return value.toString();
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDate(BuildContext context, {bool disablePastDates = false}) async {
+    final DateTime now = DateTime.now();
     final DateTime? picked = await showDatePicker(
-        context: context,
-        initialDate: startDate ?? DateTime.now(),
-        firstDate: DateTime(1900),
-        lastDate: DateTime(2100),
-        initialEntryMode: DatePickerEntryMode.calendarOnly,
-        builder: (BuildContext context, Widget? child) {
-          return Theme(
-            data: ThemeData.light().copyWith(
-              primaryColor: AppTheme.white, // Change the primary color
-              colorScheme: ColorScheme.light(
-                  primary: AppTheme.appColor), // Change overall color scheme
-              buttonTheme: ButtonThemeData(buttonColor: AppTheme.appColor),
+      context: context,
+      initialDate: startDate ?? now,
+      firstDate: now,
+      lastDate: DateTime(2100),
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: AppTheme.white, // Change the primary color
+            colorScheme: ColorScheme.light(
+              primary: AppTheme.appColor, // Change overall color scheme
             ),
-            child: child!,
-          );
-        });
+            buttonTheme: ButtonThemeData(buttonColor: AppTheme.appColor),
+          ),
+          child: child!,
+        );
+      },
+    );
     if (picked != null && picked != startDate) {
       setState(() {
         startDate = picked;
@@ -709,11 +719,13 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     }
   }
 
+
   Future<void> _selectDate1(BuildContext context) async {
+    final DateTime now = DateTime.now();
     final DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: endDate ?? DateTime.now(),
-        firstDate: DateTime(1900),
+        initialDate: startDate ?? now,
+        firstDate: startDate ?? now,
         lastDate: DateTime(2100),
         initialEntryMode: DatePickerEntryMode.calendarOnly,
         builder: (BuildContext context, Widget? child) {
@@ -753,10 +765,11 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
 
       setState(() {
         startTime = picked.format(context);
-        startTimeDubai = convertToUTC(picked, context);
+        startTimeUtc = convertToUTC(picked);
       });
     }
   }
+
 
   Future<void> _selectTimeTwo(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -776,18 +789,11 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     if (picked != null) {
       setState(() {
         endTime = picked.format(context);
-        endTimeDubai = convertToUTC(picked, context);
+        endTimeUtc = convertToUTC(picked);
       });
     }
   }
 
-
-
-  void main() {
-    String time12Hour = "01:01 PM";
-    String time24Hour = convertTo24HourFormat(time12Hour);
-    print(time24Hour); // Output: 13:01
-  }
 
 
   Future<void> _selectSellDate(BuildContext context) async {
@@ -851,60 +857,55 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
 
 
 
-  Widget uXColumn() {
-    return Column(
-      children: [
-        SizedBox(height: 20.h,),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: SizedBox(
-                child: AppText.appText(
-                    "Kindly schedule a convenient date for a meeting with our specialist to assess your items.",
-                    textColor: AppTheme.textColor,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500),
+  Widget sellToUsColumn() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 0.w, vertical: 15.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Instruction Text
+          Padding(
+            padding: EdgeInsets.only(left: 8.w),
+            child: RichText(
+              textAlign: TextAlign.start,
+              text: TextSpan(
+                style: TextStyle(
+                  color: AppTheme.textColor,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400,
+                  height: 1.7, // Line height for better readability
+                ),
+                children: const [
+                  TextSpan(text: "1. Post your product on our platform.\n"),
+                  TextSpan(text: "2. Copy the link to your ad.\n"),
+                  TextSpan(text: "3. Send the ad link to our email: "),
+                  TextSpan(
+                    text: "selltous@ttoffer.com",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(text: ".\n"),
+                  TextSpan(
+                    text: "4. Our representative will contact you via email within an hour.",
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-        SizedBox(height: 25.h,),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            AppText.appText("Selected Date:",
-                textColor: AppTheme.textColor,
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w500),
-            SizedBox(width: 8.w,),
-            AppText.appText(
-                sellDate == null
-                    ? ""
-                    : DateFormat('MM-dd-yyyy hh:mm a').format(sellDate!),
-                textColor: AppTheme.textColor,
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w500),
-            const Spacer(),
-            GestureDetector(
-              onTap: () {
-                _selectSellDate(context);
-              },
-              child: SvgPicture.asset(
-                "assets/svg/note.svg",
-                color: Colors.black,
-                height: 34.w,
-                width: 34.w,
-              ),
-            ),
+          ),
 
-          ],
-        ),
-        SizedBox(height: 12.h,),
-        SvgPicture.asset("assets/images/sell_to_us.svg", height: 280.h,)
-      ],
+          SizedBox(height: 25.h), // Spacing between text and image
+
+          // Centered Image
+          Center(
+            child: SvgPicture.asset(
+              "assets/images/sell_to_us.svg",
+              height: 250.h,
+            ),
+          ),
+        ],
+      ),
     );
   }
+
 
   addProductPrice(PostProductViewModel provider) async {
        provider.setThirdStepLoading(true);
@@ -926,18 +927,22 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
        Map<String, dynamic> params = {
       "product_id": widget.productId,
       "fix_price": fixPrice,
+      "firm_on_price" : _toggleValue,
       "auction_initial_price": auctionPrice,
       "auction_final_price": finalPrice,
+       if(selectedOption == 'Auction')
+         'auction_end_date_time' : formatDateTime(combineDateAndTime(endTimeUtc, endDate!)),
       "min_salary": minSalary,
       "max_salary": maxSalary,
+      "total_stock": 1,
+      "threshold_low_stock": 0,
       if(startDate != null)
       "auction_starting_date": formatDate(startDate!),
-      "auction_starting_time": startTimeDubai,
+      "auction_starting_time": startTimeUtc,
       // "auction_starting_time": startTime,
       if(endDate != null)
         "auction_ending_date": formatDate(endDate!),
-      "auction_ending_time": endTimeDubai,
-      "sell_to_us": sellDate,
+      "auction_ending_time": endTimeUtc,
       if(selectedOption == "Fixed Price")
         "product_type" : widget.productType ?? "featured"
       else
@@ -959,19 +964,10 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
       params.remove("sell_to_us");
       params.remove("max_salary");
       params.remove("min_salary");
-    } else if (selectedOption == "Sell to Us") {
-      params.remove("fix_price");
-      params.remove("firm_on_price");
-      params.remove("auction_initial_price");
-      params.remove("auction_final_price");
-      params.remove("auction_starting_date");
-      params.remove("auction_starting_time");
-      params.remove("auction_ending_date");
-      params.remove("auction_ending_time");
-      params.remove("max_salary");
-      params.remove("min_salary");
-    } else if(isSelectedCategoryJob == true){
+    }
+    else if(isSelectedCategoryJob == true){
       params.remove("sell_to_us");
+      params.remove("fix_price");
       params.remove("firm_on_price");
       params.remove("auction_initial_price");
       params.remove("auction_final_price");
@@ -1009,4 +1005,6 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
 
 
   }
+
+
 }

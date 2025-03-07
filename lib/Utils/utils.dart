@@ -1,22 +1,20 @@
+import 'dart:async';
+
 import 'package:country_list_pick/country_list_pick.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/custom_requests/report_service.dart';
 import 'package:tt_offer/utils/resources/res/app_theme.dart';
-import 'package:tt_offer/utils/widgets/custom_loader.dart';
-
 import '../main.dart';
 import '../models/product_model.dart';
-import '../models/user_info_model.dart';
 import '../view_model/product/product/product_viewmodel.dart';
-import '../views/BottomNavigation/navigation_bar.dart';
 
 void showSnackBar(BuildContext context, String text, {String title = "Oops!", bool error = true}) {
   final snackBar = SnackBar(
@@ -103,6 +101,11 @@ pushUntil(context, screen) {
 }
 
 String formatNumber(String numberString, {bool textFiled = false}) {
+
+  if(numberString == 'null'){
+    return '';
+  }
+
   // Split the string into integer and decimal parts
   String integerPart;
   String? decimalPart;
@@ -131,7 +134,10 @@ String formatNumber(String numberString, {bool textFiled = false}) {
   return formattedNumber;
 }
 
-String capitalizeWords(String input) {
+String capitalizeWords(String? input) {
+
+  if(input == null) return '';
+
   if (input.isEmpty) return input;
 
   return input.split(' ').map((word) {
@@ -300,9 +306,8 @@ String starCount(double? percentage) {
   }
 
   // Calculate the value out of 5
-  String star = ((percentage / 100) * 5).toStringAsFixed(1).replaceAll(".0", "");
 
-  return "($star/5)";
+  return "(${percentage.toStringAsFixed(1).replaceAll('.0', '')})";
 }
 
 int percentageOfFive(dynamic rating) {
@@ -350,28 +355,33 @@ String formatDate(DateTime date) {
   return DateFormat('yyyy-MM-dd').format(date);
 }
 
-String convertToUTC(TimeOfDay picked, BuildContext context){
+String formatDateTime(DateTime date) {
+  return DateFormat('yyyy-MM-dd HH:mm:ss').format(date);
+}
+
+
+String convertToUTC(TimeOfDay picked) {
   DateTime now = DateTime.now();
   DateTime selectedTime = DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
 
-  // Convert the selected time to Dubai time zone (UTC+4)
-  DateTime dubaiTime = selectedTime.toUtc();
+  // Convert to UTC
+  DateTime utcTime = selectedTime.toUtc();
 
-  // Format the time to display
-  final dubaiFormattedTime = TimeOfDay.fromDateTime(dubaiTime).format(context);
+  // Format UTC time in 24-hour format
+  String formattedTime = DateFormat("HH:mm").format(utcTime);
 
-  return convertTo24HourFormat(dubaiFormattedTime);
+  return formattedTime;
 }
 
-String convertToUTCTimeDateTime(DateTime picked, BuildContext context){
 
-  // Convert the selected time to Dubai time zone (UTC+4)
-  DateTime dubaiTime = picked.toUtc();
+String convertToUTCTimeDateTime(DateTime picked) {
+  // Convert the selected time to UTC
+  DateTime utcTime = picked.toUtc();
 
-  // Format the time to display
-  final dubaiFormattedTime = TimeOfDay.fromDateTime(dubaiTime).format(context);
+  // Format the UTC time in 24-hour format
+  String formattedTime = DateFormat("HH:mm").format(utcTime);
 
-  return convertTo24HourFormat(dubaiFormattedTime);
+  return formattedTime;
 }
 
 String convertTo24HourFormat(String time12Hour) {
@@ -410,12 +420,54 @@ String productPrice(Product? product){
     return "AED ${abbreviateNumber(product.auctionInitialPrice?.toString() ?? '')}";
   }
   else if(product.productType == 'looking' || product.productType == 'hiring'){
-    return "AED ${abbreviateNumber(product.minSalary?.toString() ?? '500')} - AED ${abbreviateNumber(product.maxSalary?.toString() ?? '900')}";
+    return "AED ${abbreviateNumber(product.minSalary?.toString() ?? '')} - AED ${abbreviateNumber(product.maxSalary?.toString() ?? '')}";
   }
   else{
     return '';
   }
 }
+
+String productPriceForImage(Product? product){
+  if(product == null){
+    return '';
+  }
+
+  if(product.productType == 'featured'){
+    return "AED ${abbreviateNumber(product.fixPrice?.toString() ?? '')}";
+  }
+  else if(product.productType == 'auction'){
+    return "Auction";
+  }
+  else if(product.productType == 'looking' || product.productType == 'hiring'){
+    return "AED ${abbreviateNumber(product.maxSalary?.toString() ?? '')}";
+  }
+  else{
+    return '';
+  }
+}
+
+String productPriceInFull(Product? product, {bool auctionFullPrice = false, bool jobFullPrice = false}){
+  if(product == null){
+    return '';
+  }
+
+  if(product.productType == 'featured'){
+    return "AED ${formatNumber(product.fixPrice?.toString() ?? '')}";
+  }
+  else if(product.productType == 'auction'){
+    return auctionFullPrice ? "AED ${formatNumber(product.auctionInitialPrice?.toString() ?? '')}" : "Auction";
+  }
+  else if(product.productType == 'looking' || product.productType == 'hiring'){
+    return jobFullPrice == false ? "AED ${abbreviateAndFormatNumber(product.maxSalary?.toString() ?? '')}" :
+    "AED ${abbreviateNumber(product.minSalary?.toString() ?? '')}"
+        "${jobFullPrice == true ? ' - AED ${abbreviateNumber(product.maxSalary?.toString() ?? '')}' : ''}";
+  }
+  else{
+    return '';
+  }
+}
+
+
 
 String convertTo12HourFormat(String time24Hour) {
   // Split the time into hours and minutes
@@ -439,15 +491,139 @@ String convertTo12HourFormat(String time24Hour) {
   return '$hourStr:$minutes $period';
 }
 
-void _navigateToBottomNavView(BuildContext context) {
-  Navigator.pushAndRemoveUntil(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const BottomNavView(),
-    ),
-        (Route<dynamic> route) => false, // This removes all previous routes
+bool isEndDateTimeValid(
+    DateTime startDate, String startTime, DateTime endDate, String endTime) {
+
+  startTime = startTime.trim().replaceAll(RegExp(r'\s+'), ' ');
+  endTime = endTime.trim().replaceAll(RegExp(r'\s+'), ' ');
+
+
+  DateTime parsedStartTime;
+  DateTime parsedEndTime;
+  if (is24HourFormat(startTime)) {
+    parsedStartTime = DateFormat('HH:mm').parse(startTime); // 24-hour format
+  } else {
+    DateFormat timeFormat = DateFormat('h:mm a');
+    print(startTime);// 12-hour format
+    parsedStartTime = timeFormat.parse(startTime);
+  }
+
+  if (is24HourFormat(endTime)) {
+    parsedEndTime = DateFormat('HH:mm').parse(endTime); // 24-hour format
+  } else {
+    DateFormat timeFormat = DateFormat('h:mm a'); // 12-hour format
+    parsedEndTime = timeFormat.parse(endTime);
+  }
+
+  // Combine dates with times
+  DateTime combinedStartDateTime = DateTime(
+    startDate.year,
+    startDate.month,
+    startDate.day,
+    parsedStartTime.hour,
+    parsedStartTime.minute,
   );
+
+  DateTime combinedEndDateTime = DateTime(
+    endDate.year,
+    endDate.month,
+    endDate.day,
+    parsedEndTime.hour,
+    parsedEndTime.minute,
+  );
+
+  // Check if the end date and time is greater than the start date and time
+  return combinedEndDateTime.difference(combinedStartDateTime).inMinutes >= 60;
 }
+
+
+bool isEndDateTimeWithinOneWeek(
+    DateTime startDate, String startTime, DateTime endDate, String endTime) {
+
+  startTime = startTime.trim().replaceAll(RegExp(r'\s+'), ' ');
+  endTime = startTime.trim().replaceAll(RegExp(r'\s+'), ' ');
+
+  DateTime parsedStartTime;
+  DateTime parsedEndTime;
+  if (is24HourFormat(startTime)) {
+    parsedStartTime = DateFormat('HH:mm').parse(startTime); // 24-hour format
+    parsedEndTime = DateFormat('HH:mm').parse(endTime); // 24-hour format
+  } else {
+    DateFormat timeFormat = DateFormat('h:mm a'); // 12-hour format
+    parsedStartTime = timeFormat.parse(startTime);
+    parsedEndTime = timeFormat.parse(endTime);
+  }
+
+  // Combine dates with times
+  DateTime combinedStartDateTime = DateTime(
+    startDate.year,
+    startDate.month,
+    startDate.day,
+    parsedStartTime.hour,
+    parsedStartTime.minute,
+  );
+
+  DateTime combinedEndDateTime = DateTime(
+    endDate.year,
+    endDate.month,
+    endDate.day,
+    parsedEndTime.hour,
+    parsedEndTime.minute,
+  );
+
+  // Calculate the duration between the start and end date times
+  Duration difference = combinedEndDateTime.difference(combinedStartDateTime);
+
+  // Check if the end date and time is within 1 week (7 days) from the start date and time
+  return difference.inDays <= 7;
+}
+
+
+bool is24HourFormat(String time) {
+  // 24-hour format does not have "AM" or "PM"
+  return !time.contains(RegExp(r'\b(AM|PM)\b', caseSensitive: false));
+}
+
+DateTime combineDateAndTime(String time, DateTime date) {
+  DateTime parsedTime;
+
+  if (is24HourFormat(time)) {
+    // Time is in 24-hour format
+    if (!RegExp(r'^\d{1,2}:\d{2}$').hasMatch(time)) {
+      throw const FormatException('Invalid 24-hour time format. Expected HH:mm.');
+    }
+
+    // Split the time into hours and minutes
+    List<String> timeParts = time.split(':');
+    int hours = int.parse(timeParts[0]);
+    int minutes = int.parse(timeParts[1]);
+
+    // Validate time values
+    if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+      throw const FormatException('Time values out of range. Hours: 0-23, Minutes: 0-59.');
+    }
+
+    // Combine date and time
+    parsedTime = DateTime(date.year, date.month, date.day, hours, minutes);
+  } else {
+    // Time is in 12-hour format
+    DateFormat timeFormat = DateFormat('h:mm a');
+    DateTime parsed12HourTime = timeFormat.parse(time);
+
+    // Combine date and time
+    parsedTime = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      parsed12HourTime.hour,
+      parsed12HourTime.minute,
+    );
+  }
+
+  return parsedTime;
+}
+
+
 
 String abbreviateNumber(String numberStr) {
   if(numberStr.isEmpty){
@@ -483,9 +659,9 @@ String formatTimestamp(String timestamp, {bool full=false}) {
   if (difference.inSeconds < 60) {
     return "just now";
   } else if (difference.inMinutes < 60) {
-    return "${difference.inMinutes} ${full ? "min" : "M"} ago";
+    return "${difference.inMinutes}${full ? " minutes" : "m"} ago";
   } else if (difference.inHours < 24) {
-    return "${difference.inHours} ${full ? "hour" : "H"} ago";
+    return "${difference.inHours}${full ? " hour" : "h"} ago";
   } else if (difference.inDays == 1) {
     return "yesterday";
   } else {
@@ -689,11 +865,431 @@ void reportProduct(BuildContext context, int productId, int userId){
           }));
 }
 
-loadingIndicator({double rightPadding = 0}){
-  return Padding(
-    padding: EdgeInsets.only(right: rightPadding.w),
-    child: CupertinoActivityIndicator(color: AppTheme.appColor, animating: true, radius: 12,),
+  Widget loadingIndicator({double rightPadding = 0}){
+    return Padding(
+      padding: EdgeInsets.only(right: rightPadding.w),
+      child: CupertinoActivityIndicator(color: AppTheme.appColor, animating: true, radius: 12,),
+    );
+
+    }
+
+    Future<void> clearCacheAndSignOut() async {
+      // Sign out from Google
+      GoogleSignIn googleSignIn = GoogleSignIn();
+      await googleSignIn.signOut();
+      pref.clear();
+
+    }
+
+
+String getCardType(String? input) {
+  if(input == null){
+    return '';
+  }
+
+
+  input = input.toLowerCase().trim();
+
+  if (input == 'master' || input == 'master card' || input == 'mastercard') {
+    return 'Master';
+  } else if (input == 'visa') {
+    return 'Visa';
+  } else if (input == 'google pay' || input == 'gpay' || input == 'googlepay') {
+    return 'Google Pay';
+  } else {
+    return 'Default';
+  }
+}
+
+
+bool makeOfferButton(Product? product){
+  if(product == null){
+    return true;
+  }
+
+  if(product.category?.name == 'Jobs' || product.category?.name == 'Services'){
+    return false;
+  }
+  else{
+    return true;
+  }
+
+}
+
+String featureChatButtonTitle(Product? product){
+  if(product==null){
+    return 'Ask Seller';
+  }
+
+  if(product.category?.name == 'Jobs'){
+     if(product.productType == 'looking'){
+       return 'Ask for CV';
+     }
+     else if(product.productType == 'hiring'){
+       return 'Send my CV';
+     }
+     else{
+       return 'Ask Seller';
+     }
+  }
+  else if(product.category?.name == 'Services'){
+    return 'Make an Appointment';
+  }
+  else{
+    return 'Ask Seller';
+  }
+
+}
+
+
+bool shippingMethodAllowed(String? category){
+  if(category == null){
+    return true;
+  }
+
+  if(category == 'Jobs'){
+    return false;
+  }
+  else if(category == 'Services'){
+    return false;
+  }
+  else if((category == 'Property for Sale' || category == 'Property for Rent')){
+    return false;
+  }
+  else{
+    return true;
+  }
+
+}
+
+
+
+bool enableCartButton(Product? product) {
+
+  if(product == null){
+    return true;
+  }
+
+  // List of categories that should return false
+  List<String> invalidCategories = [
+    'Property for Rent',
+    'Property for Sale',
+    'Vehicles',
+    'Services',
+    'Jobs',
+  ];
+
+  // Check if the category is in the list of invalid categories
+  return invalidCategories.contains(product.category?.name) == false;
+}
+
+
+String? shippingMethodIcon(String? deliveryType){
+
+  if(deliveryType == 'Pick Up'){
+    return 'assets/images/handshake.png';
+  }
+  else if(deliveryType == 'Local Delivery'){
+    return 'assets/images/shipping_truck.png';
+  }
+  else if(deliveryType == 'Shipping'){
+    return 'assets/images/plane.png';
+  }
+  return null;
+
+}
+
+String? shippingMethodTitle(String? deliveryType){
+
+  if(deliveryType == 'Pick Up'){
+    return 'Pick Up';
+  }
+  else if(deliveryType == 'Local Delivery'){
+    return 'Local Delivery';
+  }
+  else if(deliveryType == 'Shipping'){
+    return 'International Shipping';
+  }
+  return null;
+
+}
+
+
+Widget shippingMethodIconWidget(Product? product){
+  return Row(
+    children: List.generate(
+      product?.deliveryType?.length ?? 0, // Number of widgets in the row
+          (index) {
+        final deliveryType = product?.deliveryType?[index]; // Access the product at this index
+        return Row(
+          children: [
+            Image.asset(
+              shippingMethodIcon(deliveryType)!,
+              height: deliveryType == 'Shipping' ? 14.h : 15.h,
+            ),
+            SizedBox(width: 5.w),
+          ],
+        );
+      },
+    ),
   );
 }
+
+String abbreviateAndFormatNumber(String numberStr) {
+  if (numberStr.isEmpty) {
+    return '';
+  }
+
+  int? number = int.tryParse(numberStr);
+
+  if (number == null) {
+    return '';
+  }
+
+  if (number >= 1000000) {
+    return "${(number / 1000000).toStringAsFixed(0)}M";
+  } else if (number >= 100000) {
+    return "${(number / 1000).toStringAsFixed(0)}K";
+  } else {
+    return formatNumber(number.toString());
+  }
+}
+
+
+
+Widget priceTag(Product? product) {
+  final price = productPrice(product);
+  final priceLength = price.length;
+
+  // Check if the price ends with a letter
+  final endsWithLetter = price.isNotEmpty && RegExp(r'[a-zA-Z]$').hasMatch(price);
+
+  // Calculate width dynamically
+  final width = priceLength > 7
+      ? 80.w + (priceLength - 7) * 5.w + (endsWithLetter ? 5.w : 0.w)
+      : 80.w + (endsWithLetter ? 5.w : 0.w);
+
+  final height = 25.h;
+
+  if(price.isEmpty) {
+    return SizedBox();
+  }
+
+  return SizedBox(
+    height: height,
+    width: width,
+    child: Stack(
+      children: [
+        Image.asset(
+          "assets/images/price_tag_${product?.isBoosted == true ? "green" : "green"}.png",
+          height: height,
+          width: width,
+          fit: BoxFit.cover,
+        ),
+        Positioned(
+          left: 20.w,
+          top: 3.h,
+          child: RichText(
+            text: TextSpan(
+              children: [
+            TextSpan(
+              text: price,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14.sp, // Larger font size for the price
+                fontWeight: FontWeight.w400,
+              ),
+        ),
+      ],
+    ),
+  )
+  )]));
+}
+
+Widget fullPriceTag(Product? product, {bool detailPage = false}) {
+  final price = productPriceInFull(product, auctionFullPrice: true, jobFullPrice: true);
+  final priceLength = price.length;
+
+  // Check if the price ends with a letter
+
+  // Calculate width dynamically
+  final width = priceLength > 9
+      ?  145.w + (priceLength - 7) * 5.w + (0.w)
+      : 140.w + (0.w);
+
+  final height = 43.h;
+
+  if(price.isEmpty) {
+    return const SizedBox();
+  }
+
+  return SizedBox(
+    height: height,
+    width: width,
+    child: Stack(
+      children: [
+        Image.asset(
+          "assets/images/price_tag_green_large.png",
+          height: height,
+          width: width,
+          fit: BoxFit.cover,
+        ),
+        Positioned(
+          left: priceLength > 7 ? 32.w : 29.w,
+          top: 7.h,
+          child: AppText.appText(
+            price,
+            textColor: Colors.white,
+            fontSize: 19.sp,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget specialOffer(Product? product){
+  return product?.isBoosted == true ?
+    Container(
+      margin: EdgeInsets.only(top: 6.h, left: 8.w),
+      padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.5.h),
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.all(Radius.circular(8.r)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15), // Soft black shadow with 15% opacity
+            offset: const Offset(0, 4),                  // Shadow positioned slightly below the container
+            blurRadius: 4,                         // Moderate blur for a soft shadow effect
+            spreadRadius: 0,                       // Slight spread to enhance the visibility
+          ),
+        ],
+      ),
+      child: AppText.appText('Special Offer', fontSize: 10.sp, fontWeight: FontWeight.bold, textColor: AppTheme.white ),
+    ) : const SizedBox();
+}
+
+String extractCity(String address) {
+  // Split the address by commas and trim whitespace
+  final parts = address.split(',').map((part) => part.trim()).toList();
+
+  // Check if the address has at least two parts
+  if (parts.length >= 2) {
+    final secondLast = parts[parts.length - 2]; // Second last value
+    final last = parts.last; // Last value
+
+    // If the second last value is a single character, return the last value
+    if (secondLast.length == 1) {
+      return last;
+    }
+
+    // Otherwise, return the second last value
+    return secondLast;
+  }
+
+  // Return empty string if no valid value found
+  return address;
+}
+
+
+Widget auctionTimerCounter(DateTime? endDateTime){
+  return Container(
+    padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 7.w),
+    decoration: BoxDecoration(
+        color: AppTheme.yellowColor,
+        borderRadius: BorderRadius.all(Radius.circular(4.r))
+    ),
+    child: SizedBox(
+      child: AppText.appText(getTimeLeftString(endDateTime),
+          fontSize: 9.7.sp,
+          overflow: TextOverflow.ellipsis,
+          fontWeight: FontWeight.w600,
+          textColor: Colors.black),
+    ),
+  );
+}
+
+String getTimeLeftString(DateTime? endTime) {
+
+  if (endTime == null) {
+    return 'Invalid date/time';
+  }
+
+  Duration timeLeft = endTime.difference(DateTime.now());
+
+  if (timeLeft == const Duration(days: 0, minutes: 0, seconds: 0, microseconds: 0) || timeLeft.isNegative) {
+    return 'Time Ends';
+  }
+
+  if (timeLeft.inHours < 24) {
+    int hours = timeLeft.inHours;
+    int minutes = timeLeft.inMinutes.remainder(60);
+    int seconds = timeLeft.inSeconds.remainder(60);
+    return '0d ${hours}h ${minutes}m ${seconds}s';
+  }
+  else {
+    int days = timeLeft.inDays;
+    int hours = timeLeft.inHours % 24;
+    int minutes = timeLeft.inMinutes.remainder(60);
+    int seconds = timeLeft.inSeconds.remainder(60);
+    return '${days}d ${hours}h ${minutes}m ${seconds}s';
+  }
+}
+
+DateTime _parseEndingDateTime(Product? product) {
+  String? endingTimeString = product?.auctionEndingTime;
+  String? endingDateString = product?.auctionEndingDate;
+  DateTime endingDate =
+  DateFormat("yyyy-MM-dd").parse(endingDateString!);
+  DateTime endingTime;
+
+  if (endingTimeString!.contains("PM") || endingTimeString.contains("AM")) {
+    endingTime = DateFormat("h:mm a").parse(endingTimeString);
+    if (kDebugMode) {
+      print(" vkrvlrvm$endingTime");
+    }
+  } else {
+    endingTime = DateFormat("HH:mm").parse(endingTimeString);
+    if (kDebugMode) {
+      print(" jf3o3jfpfp3fpk$endingTime");
+    }
+  }
+  return DateTime(
+    endingDate.year,
+    endingDate.month,
+    endingDate.day,
+    endingTime.hour,
+    endingTime.minute,
+  );
+}
+
+DateTime convertEndTimeToUserTimeZone(String time) {
+  DateTime endTime = DateTime.parse(time);
+  // Get the user's local time zone offset (e.g., UTC+5)
+  Duration userTimeZoneOffset = DateTime.now().timeZoneOffset;
+
+  // Define the time zone offset for UTC+4 (Dubai time)
+  const dubaiTimeZoneOffset = Duration(hours: 0);
+
+  // Calculate the difference between user time zone and Dubai time zone
+  Duration timeDifference = userTimeZoneOffset - dubaiTimeZoneOffset;
+
+  // Add or subtract the time difference to the endTime
+  return endTime.add(timeDifference);
+}
+
+startAuctionTimer(Timer? timer, ValueNotifier<int> remainingTimeNotifier, BuildContext context, {bool callAuctionApi = true}){
+  timer = Timer.periodic(const Duration(seconds: 1), (_) {
+    if (remainingTimeNotifier.value > 0) {
+      remainingTimeNotifier.value -= 1;
+    } else {
+      if(callAuctionApi){
+        Provider.of<ProductViewModel>(context, listen: false).getAuctionProducts();
+      }
+      timer?.cancel(); // Stop timer when countdown ends
+    }
+  });
+}
+
 
 

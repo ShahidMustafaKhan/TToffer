@@ -14,6 +14,7 @@ import 'package:tt_offer/main.dart';
 
 import '../../models/product_model.dart';
 import '../../models/selling_products_model.dart';
+import '../utils.dart';
 
 class ListViewContainer extends StatefulWidget {
   const ListViewContainer({super.key, required this.product});
@@ -81,7 +82,7 @@ class _ListViewContainerState extends State<ListViewContainer> {
                       SizedBox(
                         // width: widget.selling.status== 1 ? 165.w : 270.w,
                         child: AppText.appText(
-                            "AED ${product?.productType == 'auction' ? product?.auctionInitialPrice?.toString() ?? '' : product?.fixPrice.toString() ?? ''}",
+                            productPriceInFull(product),
                             fontSize: 12,
                             overflow: TextOverflow.ellipsis,
                             fontWeight: FontWeight.w400,

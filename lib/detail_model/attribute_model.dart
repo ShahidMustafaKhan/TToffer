@@ -78,13 +78,13 @@ class VehicleAttributes {
       json = jsonDecode(json);
     }
     return VehicleAttributes(
-      makeModel: json?['makeAndModel'] ?? '',
-      owner: json?['owner'] ?? '',
-      mileAge: json?['kilometres'] ?? '',
-      year: json?['year'] ?? '',
-      color: json?['color'] ?? '',
-      fuelType: json?['fuelType'] ?? '',
-      location: json?['location'] ?? '',
+      makeModel: json?['makeAndModel']?.toString()  ?? '',
+      owner: json?['owner'].toString()  ?? '',
+      mileAge: json?['kilometres']?.toString()  ?? '',
+      year: json?['year']?.toString() ?? '',
+      color: json?['color'].toString()  ?? '',
+      fuelType: json?['fuelType']?.toString()  ?? '',
+      location: json?['location'].toString()  ?? '',
     );
   }
 }
@@ -154,24 +154,24 @@ class PropertyAttributes {
       json = jsonDecode(json);
     }
     return PropertyAttributes(
-      yearBuilt: json?['yearBuilt'] ?? '',
-      owner: json?['owner'] ?? '',
-      completion: json?['completion'] ?? '',
-      furnished: json?['furnished'] ?? '',
-      bathroom: json?['bathroom'] ?? '',
-      area: json?['area'] ?? '',
-      bedroom: json?['bedrooms'] ?? '',
-      features: json?['feature'] ?? '',
-      location: json?['location'] ?? '',
-      totalClosingFee: json?['totalClosingFee'] ?? '',
-      annualCommunityFee: json?['annualCommunityFee'] ?? '',
-      propertyReferenceID: json?['propertyReferenceID'] ?? '',
-      buyTransferFee: json?['buyTransferFee'] ?? '',
-      sellerTransferFee: json?['sellerTransferFee'] ?? '',
-      maintenanceFee: json?['maintenanceFee'] ?? '',
-      occupancyStatus: json?['occupancyStatus'] ?? '',
-      developer: json?['developer'] ?? '',
-      zoneFor: json?['zoneFor'] ?? '',
+      yearBuilt: json?['yearBuilt']?.toString() ?? '',
+      owner: json?['owner']?.toString() ?? '',
+      completion: json?['completion']?.toString() ?? '',
+      furnished: json?['furnished']?.toString() ?? '',
+      bathroom: json?['bathroom']?.toString() ?? '',
+      area: json?['area']?.toString() ?? '',
+      bedroom: json?['bedrooms']?.toString() ?? '',
+      features: json?['feature'],
+      location: json?['location']?.toString() ?? '',
+      totalClosingFee: json?['totalClosingFee']?.toString() ?? '',
+      annualCommunityFee: json?['annualCommunityFee']?.toString() ?? '',
+      propertyReferenceID: json?['propertyReferenceID']?.toString() ?? '',
+      buyTransferFee: json?['buyTransferFee']?.toString() ?? '',
+      sellerTransferFee: json?['sellerTransferFee']?.toString() ?? '',
+      maintenanceFee: json?['maintenanceFee']?.toString() ?? '',
+      occupancyStatus: json?['occupancyStatus']?.toString() ?? '',
+      developer: json?['developer']?.toString() ?? '',
+      zoneFor: json?['zoneFor']?.toString() ?? '',
     );
   }
 }
@@ -210,15 +210,15 @@ class JobAttributes {
     }
     return JobAttributes(
       type: json?['type'] ?? '',
-      education: json?['education'] ?? '',
-      salaryPeriod: json?['salaryPeriod'] ?? '',
-      positionType: json?['positionType'] ?? '',
-      salary: json?['salary'] ?? '',
-      experience: json?['experienceLevel'] ?? '',
+      education: json?['education']?.toString() ?? '',
+      salaryPeriod: json?['salaryPeriod']?.toString() ?? '',
+      positionType: json?['positionType']?.toString() ?? '',
+      salary: json?['salary']?.toString() ?? '',
+      experience: json?['experienceLevel']?.toString() ?? '',
       linkedinProfile: json?['linkedinProfile'] ?? '',
-      companyName: json?['companyName'] ?? '',
+      companyName: json?['companyName']?.toString() ?? '',
       location: json?['location'] ?? '',
-      hireStatus: json?['hireStatus'] ?? '',
+      hireStatus: json?['hireStatus']?.toString() ?? '',
       description: json?['description'] ?? '',
     );
   }
@@ -245,9 +245,9 @@ class BikeAttributes {
     }
     return BikeAttributes(
       description: json?['description'] ?? '',
-      engineCapacity: json?['engineCapacity'] ?? '',
+      engineCapacity: json?['engineCapacity']?.toString()  ?? '',
       subCategoryName: json?['sub_category_name'] ?? '',
-      model: json?['model'] ?? '',
+      model: json?['model'].toString()  ?? '',
       location: json?['location'] ?? '',
     );
   }
@@ -324,7 +324,7 @@ class AnimalsAttributes {
     }
     return AnimalsAttributes(
       description: json?['description'] ?? '',
-      age: json?['age'] ?? '',
+      age: json?['age']?.toString()  ?? '',
       breed: json?['breed'] ?? '',
       location: json?['location'] ?? '',
     );
@@ -357,7 +357,7 @@ class FurnitureAttributes {
       condition: json?['condition'] ?? '',
       description: json?['description'],
       type: json?['type'] ?? '',
-      price: json?['price'] ?? '',
+      price: json?['price']?.toString()  ?? '',
       color: json?['color'] ?? '',
       location: json?['location'] ?? '',
     );
@@ -387,7 +387,7 @@ class ElectronicApplianceAttributes {
     return ElectronicApplianceAttributes(
       condition: json?['condition'] ?? '',
       brand: json?['brand'] ?? '',
-      price: json?['price'] ?? '',
+      price: json?['price']?.toString()  ?? '',
       color: json?['color'] ?? '',
       location: json?['location'] ?? '',
     );

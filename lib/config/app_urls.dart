@@ -1,9 +1,10 @@
 class AppUrls {
   static const String baseUrl = "https://ttoffer.com/backend/public/api/";
-  // static const String baseUrl = "https://www.control.ttoffer.com/backend/public/api";
+  static const String testUrl = "https://ttoffer.com/backend/public/web-api/v1/web/";
   static const String logInEmail = "login-email";
   static const String logInPhone = "login-phone";
   static const String registration = "signup";
+  static const String googleAuthentication = "social-signup";
   static const String forgotEmailPass = "forgot-password";
   static const String forgotPhonePass = "forgot-password-phone";
   static const String verifyPhoneOtp = "verify-forgot-password-phone";
@@ -21,6 +22,7 @@ class AppUrls {
   static const String addImage = "upload-image";
   static const String overRideImage = "replace-image";
   static const String deleteImage = "delete-image";
+  static const String deleteVideo = "delete-video";
 
   static const String addProductDetail = "add-product-second-step";
   static const String updateProductDetail = "edit-product-second-step";
@@ -32,21 +34,20 @@ class AppUrls {
   static const String getAuctionProducts = "auction-products";
   static const String getAllProducts = "get-all-products";
   static const String getProductDetails = "product-detail";
-
-  static const String getProductViews = "products/view";
-  static const String addProductView = "products/view-detail";
+  static const String getProductInventory = "inventories/";
 
   static const String getPlaceBids = "get-placed-bids";
   static const String placeBid = "place-bid";
   static const String highestBid = "get-highest-bid";
-  static const String adddToFavorite = "add-wishlist-products";
+  static const String addToFavorite = "add-wishlist-products";
   static const String removeFavorite = "remove-wishlist-products";
 
   static const String toggleWishlist = "wishlist-toggle";
   static const String getWishlistProducts = "wishlist-products";
 
   static const String getSavedProducts = "save-for-later";
-  static const String toggleSavedProducts = "save-for-later/toggle";
+  static const String addSavedProduct = "save-for-later";
+  static const String deleteSavedProduct = "save-for-later";
 
   static const String makeOffer = "make-offer";
   static const String getOffer = "get-offer";
@@ -54,13 +55,15 @@ class AppUrls {
   static const String sendMessage = "send_msg";
   static const String getAllChats = "get/user/all/chats";
   static const String getConversation = "get/conversation";
-  static const String unReadCount = "mark/conversation/read/";
+  static const String unReadCount = "mark/conversation/read";
 
   static const String updateProfile = "update/user";
   static const String updatePassword = "update/password";
   static const String getProfile = "me";
-  static const String toggleFollow = "user/toggle-follow";
-  static const String getSellerProfile = "user/info";
+  static const String toggleFollow = "follow/user/toggle-following";
+  static const String getSellerProfile = "user";
+  static const String getTransaction = "transactions/user/";
+  static const String overView = "user/overview/";
 
   static const String getSuggestion = "search/suggestions";
 
@@ -80,25 +83,41 @@ class AppUrls {
   static const String newPasswordUrl = "new-password";
   static const String newPasswordPhoneUrl = "new-password-phone";
   static const String getUserInfoUrl = "user/info";
-  static const String rejectOfferrUrl = "reject-offer";
-  static const String acceptOfferrUrl = "accept-offer";
-  static const String customOfferrUrl = "custom-offer";
+  static const String rejectOfferUrl = "reject-offer";
+  static const String acceptOfferUrl = "accept-offer";
+  static const String customOfferUrl = "custom-offer";
   static const String sendNotificationUrl = "create/notification";
-  static const String review = "user-review";
   static const String getNotification = "get/user/all/notifications/";
 
+  static const String addProductView = "products/view";
 
   static const String getLastAddress = "address/last";
   static const String saveAddress = "address/save";
   static const String getCountries = "country";
   static const String getCities = "country/cities";
 
+  static const String addOrder = "orders";
+
+  static const String verifyCoupon = "apply-code";
+
   static const String updateDeviceToken = "device-token-update";
 
   static const String addProductReport = "add-product-report";
 
   static const String googlePayPayment = "google-pay";
-  static const String sellFaster = "sell-faster";
+  static const String sellFaster = "products/boost";
+
+  static const String paymentIntent = "payment/stripe/intent";
+  static const String paymentCharge = "payment/stripe/charge";
+
+  static const String googlePayment = "payment/google/charge";
+
+  static const String addNewCard = "users/add-payment-cards";
+  static const String getAllCard = "users/payment-cards";
+  static const String getCardDetail = "payment-card-detail";
+  static const String deleteCard = "users/cards/";
+
+  static const String getAllSubscription = "subscriptions-plan";
 
   static const String getBanners = "get-banners";
   static const String getAdvertisementBanners = "advertisement-banner";

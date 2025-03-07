@@ -50,7 +50,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
 
   String selectedOption = 'Auction';
 
-
+  String? authorizationToken;
 
   @override
   void initState() {
@@ -60,10 +60,11 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
 
     userViewModel = Provider.of<UserViewModel>(context, listen: false);
 
-    getSellerProfile();
-    
 
+    authorizationToken = pref.getString(PrefKey.authorization);
     int? userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
+
+    getSellerProfile();
 
     if(sellerProfile?.id == userId ){
       isCurrentUser=true;
@@ -343,34 +344,43 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
         ),
         body: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 55.w),
+            padding: EdgeInsets.symmetric(horizontal: 40.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _upperContainer(),
 
-                SizedBox(height: 17.h,),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15.w),
+                  child: Column(
+                    children: [
+                      _upperContainer(),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    buildStatItem('0', 'Bought'),
-                    buildStatItem('0', 'Sold'),
-                    buildStatItem('${sellerProfile?.followersCount ?? 0}', 'Followers'),
-                    buildStatItem('${sellerProfile?.followingCount ?? 0}', 'Following'),
-                  ],
+                      SizedBox(height: 17.h,),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          buildStatItem('${sellerProfile?.bought ?? 0}', 'Bought'),
+                          buildStatItem('${sellerProfile?.sold ?? 0}', 'Sold'),
+                          buildStatItem('${sellerProfile?.followersCount ?? 0}', 'Followers'),
+                          buildStatItem('${sellerProfile?.followingCount ?? 0}', 'Following'),
+                        ],
+                      ),
+
+
+                      if(isCurrentUser == false && authorizationToken != null)...[
+                        SizedBox(height: 20.h,),
+                        // Follow Button
+                        _followButton(),
+                      ],
+
+                      SizedBox(height: 20.h,),
+
+                      _verifiedIcons(),
+                    ],
+                  ),
                 ),
 
-
-                if(isCurrentUser == false)...[
-                  SizedBox(height: 20.h,),
-                  // Follow Button
-                  _followButton(),
-                ],
-
-                SizedBox(height: 20.h,),
-
-                _verifiedIcons(),
 
                 SizedBox(height: 20.h),
 
@@ -423,48 +433,74 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        height: 80,
-                        width: 80,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: (products[i]?.photo?.isNotEmpty ?? false)
-                                ? NetworkImage(products[i]!
-                                .photo![0]
-                                .url!
-                                .toString()) as ImageProvider
-                                : const AssetImage(
-                                'assets/images/gallery1.png'),
-                            fit: BoxFit.cover,
-                          ),
+                    child: SizedBox(
+                      height: 80,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Stack(
+                          children: [
+                            Container(
+                              height: 80,
+                              width: 80,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: (products[i]?.photo?.isNotEmpty ?? false)
+                                      ? NetworkImage(products[i]!
+                                      .photo![0]
+                                      .url!
+                                      .toString()) as ImageProvider
+                                      : const AssetImage(
+                                      'assets/images/gallery1.png'),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Container(
+                                    height: 25.h,
+                                    width: productPriceForImage(products[i]) == '' ? 0 : 80,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.black38,
+                                      borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(16),
+                                        bottomRight: Radius.circular(16),
+                                      ),
+
+                                    ),
+                                    child: Center(child: AppText.appText(productPriceForImage(products[i]),
+                                        fontSize: 10.sp, fontWeight: FontWeight.w500,
+                                        textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
+                          ],
                         ),
                       ),
                     ),
                   ),
-                  Padding(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          products[i]?.title?.toString() ?? '',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17),
-                        ),
-                        SizedBox(height: 10.h,),
-                        Text(
-                          products[i]?.isSold == 1 ? 'Sold' : 'Listing',
-                          style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.normal,
-                              color: Color(0xff1E293B),
-                              fontSize: 12),
-                        ),
-                      ],
+                  Expanded(
+                    child: Padding(
+                      padding:
+                      const EdgeInsets.only(left: 12.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            products[i]?.title?.toString() ?? '',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                overflow: TextOverflow.ellipsis,
+                                fontSize: 17),
+                          ),
+                          SizedBox(height: 10.h,),
+                          Text(
+                            products[i]?.isSold == 1 ? 'Sold' : 'Listing',
+                            style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.normal,
+                                color: Color(0xff1E293B),
+                                fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
@@ -634,7 +670,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
               child: userViewModel.toggleFollowLoading ?
               const Center(child: CircularProgressIndicator(color: Colors.white,)) :
               AppText.appText(
-                  'Follow',
+                  sellerProfile?.isUserFollowed == true ? 'Unfollow' : 'Follow',
                   textColor: Colors.white,
                   fontWeight: FontWeight.w600,
                   fontSize: 14.sp
@@ -771,9 +807,9 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(width: sellerProfile?.reviewPercentage == null || sellerProfile?.reviewPercentage == 0.0 ? 40.w : 12.w,),
+                      SizedBox(width: sellerProfile?.reviewPercentage == null || sellerProfile?.reviewPercentage == 0 ? 40.w : 12.w,),
                       StarRating(
-                        percentage: sellerProfile?.reviewPercentage == null || sellerProfile?.reviewPercentage == 0.0 ? 0 : sellerProfile?.reviewPercentage?.round() ?? 0,
+                        percentage: percentageOfFive(sellerProfile?.reviewPercentage?.round() ?? 0),
                         color: Colors.yellow,
                         size: 25,
                       ),

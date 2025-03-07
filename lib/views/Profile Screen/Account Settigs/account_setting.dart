@@ -94,7 +94,7 @@ class _AccountSettingScreenState extends State<AccountSettingScreen> {
                 userModel?.email == null
                     ? const SizedBox.shrink()
                     : divider(),
-                userModel?.email == null
+                userModel?.email == null || userModel?.socialLogin == 1
                     ? const SizedBox.shrink()
                     : customRow(
                         onTap: () {

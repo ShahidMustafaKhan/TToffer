@@ -8,6 +8,7 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
+import 'package:tt_offer/data/response/api_response.dart';
 import 'package:tt_offer/models/saved_model.dart';
 import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
 import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
@@ -151,7 +152,7 @@ class _SavedItemListViewState extends State<SavedItemListView> {
                                     width: 200.w, // Adjust width to make space for the button
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         AppText.appText(
                                           savedItemList[index].product?.title ?? '',
@@ -159,25 +160,27 @@ class _SavedItemListViewState extends State<SavedItemListView> {
                                           fontWeight: FontWeight.w600,
                                           textColor: AppTheme.txt1B20,
                                         ),
+                                        SizedBox(height: 8.h,),
                                         AppText.appText(
-                                          "AED ${savedItemList[index].product?.productType == 'auction' ? savedItemList[index].product?.auctionInitialPrice?.toString() ?? '' : savedItemList[index].product?.fixPrice?.toString()}",
+                                          "AED ${savedItemList[index].product?.productType == 'auction' ?  savedItemList[index].product?.auctionInitialPrice?.toString() ?? '' : savedItemList[index].product?.fixPrice?.toString()}",
                                           fontSize: 12.5,
                                           maxlines: 1,
                                           fontWeight: FontWeight.w500,
                                           overflow: TextOverflow.ellipsis,
                                           textColor: AppTheme.appColor,
                                         ),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            AppText.appText(
-                                              formatTimestamp("${savedItemList[index].product?.createdAt}"),
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w400,
-                                              textColor: AppTheme.appColor,
-                                            ),
-                                          ],
-                                        ),
+                                        // if(savedItemList[index].product?.createdAt!= null)
+                                        // Row(
+                                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        //   children: [
+                                        //     AppText.appText(
+                                        //       formatTimestamp("${savedItemList[index].product?.createdAt}"),
+                                        //       fontSize: 12,
+                                        //       fontWeight: FontWeight.w400,
+                                        //       textColor: AppTheme.appColor,
+                                        //     ),
+                                        //   ],
+                                        // ),
                                       ],
                                     ),
                                   ),
@@ -189,7 +192,17 @@ class _SavedItemListViewState extends State<SavedItemListView> {
                                     return userViewModel.toggleSaveLoadingList.isNotEmpty && userViewModel.toggleSaveLoadingList[index] == true ? loadingIndicator(rightPadding: 10) : IconButton(
                                     icon: const Icon(Icons.delete, color: Colors.red),
                                     onPressed: () {
-                                      userViewModel.toggleSavedItem(widget.userId, savedItemList[index].product?.id, context, saveItemIndex: index);
+                                      userViewModel.deleteSavedItem(savedItemList[index].id, context, saveItemIndex: index)
+                                          .then((value){
+                                            savedItemList.removeAt(index);
+                                            userViewModel.setSaveItemList(ApiResponse.completed(savedItemList));
+                                            setState(() {
+
+                                            });
+                                      })
+                                          .onError((error, stackTrace){
+                                            showSnackBar(context, error.toString());
+                                      });
                                       },
                                   );
                                 }

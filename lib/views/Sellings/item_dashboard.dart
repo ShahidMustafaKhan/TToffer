@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
@@ -11,6 +12,7 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
+import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
 import 'package:tt_offer/views/ChatScreens/chat_screen.dart';
 import 'package:tt_offer/views/Post%20screens/post_screen.dart';
@@ -40,12 +42,21 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
   void initState() {
     product = widget.product;
 
-    if(product?.auctionInitialPrice!=null && endTimeReached(product?.auctionEndingDate ?? '', product?.auctionEndingTime ?? '')==false){
+    if(product?.productType == 'auction' && endTimeReached(product?.auctionEndingDate ?? '', product?.auctionEndingTime ?? '')==false){
       restrictEdit = true;
       restrictMarkSold = true;
     }
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      updateProductDetail();
+    });
     super.initState();
+  }
+
+
+  updateProductDetail() async {
+    if(product?.id != null){
+    product = await Provider.of<ProductViewModel>(context, listen: false).getProductDetails(product!.id!);
+    }
   }
 
   @override
@@ -178,7 +189,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                                           push(
                                               context,
                                               PostScreen(
-                                                  product: widget.product,
+                                                  product: product,
                                                   ));
                                         },
                                         child: AppText.appText("Sell Another",
@@ -233,7 +244,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                   child: customListview(
                       img: (product?.photo?.isNotEmpty ?? false) ? product!.photo![0].url! : '',
                       title: product?.title ?? '',
-                      subtitle: product?.productType == 'featured' ? product?.fixPrice :  product?.auctionInitialPrice),
+                      subtitle: productPriceInFull(product)),
                 ),
               ),
               Padding(
@@ -256,7 +267,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                     InkWell(
                       onTap: () {
                         if(restrictEdit == false) {
-                          if(product?.auctionInitialPrice!=null){
+                          if(product?.productType=="auction"){
                             push(context, RescheduleTimeProduct(
                               productId: product?.id.toString(),
 
@@ -278,12 +289,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                           push(
                             context,
                             NewSoldScreen(
-                              title: product?.title,
-                              productId: product?.id.toString(),
-                              fixPrice: product?.fixPrice.toString(),
-                              auctionPrice: product?.auctionInitialPrice.toString(),
-                              image: product?.photo?.isNotEmpty ?? false ? product!.photo![0].url! : null,
-                              auction: product?.productType == 'auction' ? true : false,
+                              product: product,
                             ));
                         }
                         else{
@@ -522,7 +528,7 @@ class _ItemDashBoardState extends State<ItemDashBoard> {
                     const SizedBox(
                       height: 5,
                     ),
-                    AppText.appText("AED ${formatNumber((removeLastTwoZeros(subtitle.toString())))}",
+                    AppText.appText(subtitle,
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         textColor: subTitleColor ?? AppTheme.txt1B20),

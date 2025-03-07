@@ -6,15 +6,11 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
-import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
-import 'package:tt_offer/custom_requests/sell-faster_stripe_api.dart';
 import 'package:tt_offer/main.dart';
-import 'package:tt_offer/models/selling_products_model.dart';
-import 'package:tt_offer/views/Post%20screens/post_card_payment.dart';
 import 'package:http/http.dart' as http;
 
 import '../../models/product_model.dart';

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
@@ -37,13 +38,36 @@ class _PanelWidgetState extends State<PanelWidget> {
   DateTime? auctionEndTime;
   Product? product;
   int? highestBidUser;
+  ValueNotifier<int> remainingTimeNotifier = ValueNotifier(0);
+  DateTime? endDateTime;
+  Timer? _auctionTimer;
 
   @override
   void initState() {
     super.initState();
-
     product = widget.product;
+    getAuctionTime();
+  }
 
+  @override
+  void dispose(){
+    if(_auctionTimer!= null){
+      _auctionTimer!.cancel();
+    }
+    super.dispose();
+  }
+
+  getAuctionTime(){
+    DateTime? now = DateTime.now();
+
+    if(product?.auctionEndingDateTime != null) {
+      endDateTime = convertEndTimeToUserTimeZone(product!.auctionEndingDateTime!);
+      remainingTimeNotifier.value = endDateTime!.difference(now).inSeconds;
+      startAuctionTimer(_auctionTimer, remainingTimeNotifier, context, callAuctionApi: false);
+    }
+    else{
+      remainingTimeNotifier.value = 0;
+    }
   }
 
   DateTime _parseEndingDateTime() {
@@ -332,10 +356,13 @@ class _PanelWidgetState extends State<PanelWidget> {
               const SizedBox(
                 height: 10,
               ),
-              AppText.appText(getTimeLeftString(),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  textColor: AppTheme.textColor00),
+                if(endDateTime != null)
+                  ValueListenableBuilder<int>(
+                      valueListenable: remainingTimeNotifier,
+                      builder: (context, remainingTime, child) {
+                        return auctionTimerCounter(endDateTime);
+                }
+              ),
             ],
           ),
         ],

@@ -293,7 +293,12 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
                             textColor: Colors.white,
                             backgroundColor: AppTheme.appColor,
                             height: 50,
-                            onTap: (){forgotPasswordPhone(_phoneNumberController.text);}),
+                            onTap: (){
+                          showSnackBar(context, 'This feature is temporarily unavailable due to the unavailability of the Twilio service.');
+
+
+                          // forgotPasswordPhone(_phoneNumberController.text);
+                        }),
                   ],
                 ),
         ),

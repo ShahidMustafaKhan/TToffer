@@ -17,8 +17,6 @@ import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/custom_requests/custom_get_request.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/firebase_options.dart';
-import 'package:tt_offer/models/category_model.dart';
-import 'package:tt_offer/models/sub_categories_model.dart';
 import 'package:tt_offer/providers/bids_provider.dart';
 import 'package:tt_offer/providers/chat_list_provider.dart';
 import 'package:tt_offer/providers/chat_provider.dart';
@@ -31,7 +29,9 @@ import 'package:tt_offer/repository/auth_api/auth_repository.dart';
 import 'package:tt_offer/repository/banner_api/banner_repository.dart';
 import 'package:tt_offer/repository/bids_api/bids_repository.dart';
 import 'package:tt_offer/repository/cart_api/cart_repository.dart';
+import 'package:tt_offer/repository/categories_api/categories_repository.dart';
 import 'package:tt_offer/repository/chat_api/chat_repository.dart';
+import 'package:tt_offer/repository/coupon_api/coupon_repository.dart';
 import 'package:tt_offer/repository/notification/notification_repository.dart';
 import 'package:tt_offer/repository/offer_api/offer_repository.dart';
 import 'package:tt_offer/repository/payment_api/payment_repository.dart';
@@ -45,8 +45,10 @@ import 'package:tt_offer/search_location_page.dart';
 import 'package:tt_offer/splash_screen.dart';
 import 'package:tt_offer/view_model/bids/bids_view_model.dart';
 import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
+import 'package:tt_offer/view_model/category/category_view_model.dart';
 import 'package:tt_offer/view_model/chat/chat_list_view_model/chat_list_view_model.dart';
 import 'package:tt_offer/view_model/chat/chat_list_view_model/chat_view_model.dart';
+import 'package:tt_offer/view_model/coupon/coupon_viewmodel.dart';
 import 'package:tt_offer/view_model/google_auth/google_auth_view_model.dart';
 import 'package:tt_offer/view_model/login/login_view_model.dart';
 import 'package:tt_offer/view_model/notification/notification_view_model.dart';
@@ -57,6 +59,7 @@ import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 import 'package:tt_offer/view_model/register/register_view_model.dart';
 import 'package:tt_offer/view_model/selling/selling_view_model.dart';
+import 'package:tt_offer/view_model/subscription/subscription_view_model.dart';
 import 'package:tt_offer/view_model/suggestion/suggestion_view_model.dart';
 import 'package:tt_offer/view_model/verification/verificaiton_view_model.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
@@ -78,6 +81,7 @@ String? location;
 
 bool isAlready = false;
 bool isRegister = false;
+bool unAuthorized = false;
 
 int? firstTimeProductId;
 
@@ -203,11 +207,12 @@ Future<void> main() async {
   getIt.registerLazySingleton<VerificationRepository>(() => VerificationRepository());
   getIt.registerLazySingleton<BannerRepository>(() => BannerRepository());
   getIt.registerLazySingleton<SuggestionRepository>(() => SuggestionRepository());
+  getIt.registerLazySingleton<CategoryRepository>(() => CategoryRepository());
+  getIt.registerLazySingleton<CouponRepository>(() => CouponRepository());
 
   WidgetsFlutterBinding.ensureInitialized();
   Stripe.publishableKey =
-      "pk_test_51O7mVXJayAXqf3Vq8gnj64IGw9woyYdaSUTgkdh07uYy22MN6qg8VEMzJZvhdV4HnANed3rqsN4crMBBy6CkH8eo00u6HHRwj0";
-  //my "pk_test_51JUUldDdNsnMpgdhSlxjCo0yQBGHy9RsTQojb3YENwH5llfYiEmqqFjkc6SmsSQpLb9BH40OKQb0fwTlfifqJhFd00Cy7xTNwd";
+      "pk_test_51KYostE8QrqFGDryFAGuteKleAUUz2lVDCM7RWCuSPPMj4A82H1fpaYoS3Za6yE12RHpPtXqtE9FWWBN0kmGB7bk00Gu3R9WRh";
   await Stripe.instance.applySettings();
 
   tz.initializeTimeZones();
@@ -286,8 +291,6 @@ class _MyAppState extends State<MyApp> {
             ChangeNotifierProvider(create: (_) => SearchProvider()),
             ChangeNotifierProvider(create: (_) => BidsProvider()),
             ChangeNotifierProvider(create: (_) => PaymentFeeProvider()),
-            ChangeNotifierProvider(create: (_) => CategoryProvider()),
-            ChangeNotifierProvider(create: (_) => SubCategoriesProvider()),
             ChangeNotifierProvider(create: (_) => ScreenStateNotifier()),
             ChangeNotifierProvider(create: (_) => LoadingProvider()),
             ChangeNotifierProvider(create: (_) => LoginViewModel(authRepository: getIt())),
@@ -307,11 +310,17 @@ class _MyAppState extends State<MyApp> {
             ChangeNotifierProvider(create: (_) => VerificationViewModel(verificationRepository: getIt())),
             ChangeNotifierProvider(create: (_) => BannerViewModel(bannerRepository: getIt())),
             ChangeNotifierProvider(create: (_) => SuggestionViewModel(suggestionRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => CategoryViewModel(categoryRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => SubscriptionViewModel(paymentRepository: getIt())),
+            ChangeNotifierProvider(create: (_) => CouponViewModel(couponRepository: getIt())),
           ],
           child: MaterialApp(
             navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             title: 'TT Offer',
+            theme: ThemeData(
+              primaryColor: Colors.red
+            ),
             home: const SplashScreen(),
             // home: const SearchPageLocation(),
             // home:  TimeScreen(),

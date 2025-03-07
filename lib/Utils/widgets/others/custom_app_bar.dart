@@ -13,6 +13,7 @@ import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Seller%20Profile/seller_profile.dart';
 
+import '../../../models/product_model.dart';
 import '../../../models/user_model.dart';
 import '../../../views/Profile Screen/profile_screen.dart';
 
@@ -104,27 +105,22 @@ class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double preferredHeight = 70.0;
+  final UserModel? participantModel;
+  final Product? product;
   final context;
-  final title;
   final action;
   final int? productId;
   final int? recipientId;
-  final String? img;
-  final double? userRating;
-  final String? productImg;
-  final String? productPrice;
 
   // Callback function
-
   const ChatAppBar(
       {super.key,
       this.context,
-      this.title,
+      this.product,
+      this.participantModel,
       this.productId,
       this.recipientId,
-      this.action,
-      this.userRating,
-      this.img, this.productImg, this.productPrice});
+      this.action,});
 
   @override
   Widget build(BuildContext context) {
@@ -151,11 +147,11 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               InkWell(
                 onTap: (){
-                  push(context, SellerProfileScreen(sellerProfile: UserModel(id: recipientId, name: title, img: img, reviewPercentage: userRating),));
+                  push(context, SellerProfileScreen(sellerProfile: participantModel));
                 },
                 child: Row(
                   children: [
-                    if(img == null)
+                    if(participantModel?.img == null)
                       SvgPicture.asset('assets/images/Avatar.svg',
                           width: 45.w,
                           height: 45.w
@@ -164,16 +160,16 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                       Container(
                         decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: img == null ? Border.all(
+                            border: participantModel?.img == null ? Border.all(
                                 color: Color(0xffa2a2a2),
                                 width: 2
                             ) : null
                         ),
                         child: CircleAvatar(
                           backgroundColor: Colors.white,
-                          backgroundImage: img == null
+                          backgroundImage: participantModel?.img == null
                               ? const AssetImage("assets/images/user.png")
-                              : NetworkImage(img!) as ImageProvider,
+                              : NetworkImage(participantModel!.img!) as ImageProvider,
                           radius: 24.r,
                         ),
                       ),
@@ -183,7 +179,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        AppText.appText("$title",
+                        AppText.appText(capitalizeWords(participantModel?.name ?? ''),
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                             textColor: AppTheme.blackColor),
@@ -193,17 +189,17 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             StarRating(
-                              percentage: userRating?.round() ?? 0,
+                              percentage: percentageOfFive(participantModel?.reviewPercentage ?? 0),
                               color: Colors.yellow,
                               size: 18,
                             ),
-                            // SizedBox(width: 3.w,),
-                            // if(userRating != null)
-                            //   AppText.appText(
-                            //       starCount(userRating),
-                            //       fontSize: userRating == 0 ? 11.sp : 12.sp,
-                            //       fontWeight: FontWeight.normal,
-                            //       textColor: AppTheme.txt1B20),
+                            SizedBox(width: 3.w,),
+                            if(participantModel?.reviewPercentage != null)
+                              AppText.appText(
+                                  starCount(participantModel?.reviewPercentage),
+                                  fontSize: participantModel?.reviewPercentage == 0 ? 9.sp : 9.sp,
+                                  fontWeight: FontWeight.normal,
+                                  textColor: AppTheme.txt1B20),
                           ],
                         ),
 
@@ -214,7 +210,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
 
               const Spacer(),
-              if(productImg != null)
+              if(product?.photo?.isNotEmpty ?? false)
               InkWell(
                 onTap: (){
                   Provider.of<ProductViewModel>(context, listen: false).navigateToProductPage(productId, context);
@@ -230,11 +226,11 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                               borderRadius: BorderRadius.circular(12.r),
                               image: DecorationImage(
                                 fit: BoxFit.cover,
-                                image: NetworkImage(productImg!)
+                                image: NetworkImage(product!.photo![0].url!)
                               )
                             ),),
 
-                       if(productPrice != null)
+                       if(product != null)
                         Positioned(
                             bottom: 0,
                             child: Container(
@@ -244,7 +240,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                                 decoration: const BoxDecoration(
                                   color: Colors.black38,
                                 ),
-                                child: AppText.appText(productPrice == 'Auction' ? productPrice! : "AED ${removeLastTwoZeros(formatNumber(productPrice ?? ''))}" ?? '', fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85)))),
+                                child: AppText.appText(productPriceForImage(product), fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85)))),
 
                       ],
                     ),

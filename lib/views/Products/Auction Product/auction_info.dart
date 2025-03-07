@@ -19,7 +19,7 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
-import 'package:tt_offer/Utils/widgets/others/custom_logout_pop_up.dart';
+import 'package:tt_offer/Utils/widgets/others/place_bid_popup.dart';
 import 'package:tt_offer/data/response/status.dart';
 import 'package:tt_offer/detail_model/attribute_model.dart';
 import 'package:tt_offer/models/bids_model.dart';
@@ -84,7 +84,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     "80",
     "use custom bid",
   ];
-
+  late ProductViewModel productViewModel;
   late AppDio dio;
   AppLogger logger = AppLogger();
   int? userId;
@@ -242,11 +242,23 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     }
   }
 
+  updateProductDetails() async {
+    product = await productViewModel.getProductDetails(product?.id);
+    setState(() {});
+  }
+
+  ValueNotifier<int> remainingTimeNotifier = ValueNotifier(0);
+
+
 
   @override
   void initState() {
-    // final String AttributesJson = widget.detailResponse;
+    productViewModel = Provider.of<ProductViewModel>(context, listen: false);
+    final open = Provider.of<NotifyProvider>(context, listen: false);
     product = widget.product;
+
+    open.indexbid = 4;
+    open.bidPrice = '';
 
     dio = AppDio(context);
     logger.init();
@@ -256,16 +268,16 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
 
     getProductData();
 
-
-
-
-
     super.initState();
   }
 
 
+
   Future<void> getProductData() async {
     if(widget.product!= null){
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        updateProductDetails();
+      });
       getAttributes();
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         getUserId();
@@ -374,34 +386,11 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
     }
   }
 
-  int? loopLimit;
 
   @override
   Widget build(BuildContext context) {
 
     if(isPageLoading == false) {
-      loopLimit = (subCategoryName == 'Commercial Space' &&
-          (categoryName == 'Property for Sale')) ? 7 :
-      categoryName == 'Property for Sale' ? 6 :
-      categoryName == 'Property for Rent' ? 5
-          : categoryName == 'Vehicles'
-          ? 5
-          : categoryName == 'Jobs'
-          ? 5 :
-      categoryName == 'Electronics & Appliance'
-          ? 1
-          : categoryName == 'Mobiles'
-          ? subCategoryName == 'Accessories' ? 2 : 3
-          : categoryName == 'Animals' ||
-          categoryName == 'Kids'
-          ? 1
-          : categoryName == 'Fashion & beauty' ||
-          categoryName == 'Services' ? 0 :
-      categoryName == 'Bikes' ? (subCategoryName ==
-          'Bicycles' || subCategoryName == 'Bikes Accessories' ||
-          subCategoryName == 'Parts' ? 1 : 2)
-          : 2;
-
       Map<String, List<String>> sortedAttributes = {
         'Animals': [
           animalsAttributes.age,
@@ -607,237 +596,248 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
 
 ////////////////////////////////////////////////// auction ///////////////////////////////////
 
-  Widget auctionBottomCard() {
-    final open = Provider.of<NotifyProvider>(context);
-
+  Widget auctionBottomCard() {;
     // return SizedBox();
 
-    return Card(
-      margin: EdgeInsets.zero,
-      color: Colors.white,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(32), topRight: Radius.circular(32))),
-      elevation: 10,
-      shadowColor: Colors.grey,
-      child: Container(
-        height: 120,
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-            color: AppTheme.white,
-            borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(32), topRight: Radius.circular(32))),
-        child: Padding(
-          padding: const EdgeInsets.only(top: 10.0),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 20.0),
-                child: SizedBox(
-                  height: 30,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: bidList.length,
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      String bid;
-                      List newBidList;
-                      if(index<4 && highestPrice != 0){
-                        newBidList = calculatePercentIncrements(highestPrice);
-                        bid = (newBidList[index]).toString();
-                      }
-                      else{
-                        newBidList = calculatePercentIncrements(product?.auctionInitialPrice);
-                        bid = (newBidList[index]).toString();
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.only(
-                          right: 10.0,
-                        ),
-                        child: GestureDetector(
-                          onTap: () {
-                            log("clicked");
-                            open.index(index: index);
-                            if (index < bidList.length - 1) {
-                              open.bidPrices(price: bid);
-                              _priceController.text = bid;
-                            } else {
-                              _priceController.clear();
-                              open.makeField();
-                            }
-                          },
-                          child: Container(
-                            height: 26,
-                            decoration: BoxDecoration(
-                                color: open.indexbid == index
-                                    ? const Color(0xff14181B)
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                    width: 1, color: const Color(0xffBDBDBD))),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 5),
-                              child: AppText.appText(index==bidList.length-1 ? 'use custom bid' : 'AED ${formatNumber(bid)}',
-                                  textColor: open.indexbid == index
-                                      ? AppTheme.whiteColor
-                                      : const Color(0xff001B2E),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400),
+    return Consumer<NotifyProvider>(
+        builder: (context, open, child) {
+          return Card(
+          margin: EdgeInsets.zero,
+          color: Colors.white,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(32), topRight: Radius.circular(32))),
+          elevation: 10,
+          shadowColor: Colors.grey,
+          child: Container(
+            height: 120,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+                color: AppTheme.white,
+                borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(32), topRight: Radius.circular(32))),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: SizedBox(
+                      height: 30,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: bidList.length,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) {
+                          String bid;
+                          List newBidList;
+                          if(index<4 && highestPrice != 0){
+                            newBidList = calculatePercentIncrements(highestPrice);
+                            bid = (newBidList[index]).toString();
+                          }
+                          else{
+                            newBidList = calculatePercentIncrements(product?.auctionInitialPrice);
+                            bid = (newBidList[index]).toString();
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                              right: 10.0,
                             ),
-                          ),
-                        ),
-                      );
-                    },
+                            child: GestureDetector(
+                              onTap: () {
+                                log("clicked");
+                                open.index(index: index);
+                                if (index < bidList.length - 1) {
+                                  open.bidPrices(price: bid);
+                                  _priceController.text = bid;
+                                } else {
+                                  _priceController.clear();
+                                  open.makeField();
+                                }
+                              },
+                              child: Container(
+                                height: 26,
+                                decoration: BoxDecoration(
+                                    color: open.indexbid == index
+                                        ? const Color(0xff14181B)
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                        width: 1, color: const Color(0xffBDBDBD))),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 5),
+                                  child: AppText.appText(index==bidList.length-1 ? 'use custom bid' : 'AED ${formatNumber(bid)}',
+                                      textColor: open.indexbid == index
+                                          ? AppTheme.whiteColor
+                                          : const Color(0xff001B2E),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    open.field == true
-                        ? CustomAppFormField(
-                            texthint: "Custom Bid",
-                            hintStyle: TextStyle(
-                              fontSize: 16.7.sp,
-                              fontWeight: FontWeight.w500
-                            ),
-                            onChanged: (value){_priceController.text=formatNumber(value, textFiled: true);},
-                            controller: _priceController,
-                            width: 161,
-                            textAlign: TextAlign.center,
-                            fontsize: 24,
-                            fontweight: FontWeight.w600,
-                            cPadding: 2.0,
-                            type: TextInputType.number,
-                          )
-                        : AppButton.appButton(
-                            "Place Bid for AED ${formatNumber(open.bidPrice)}",
-                            onTap: () async {
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        open.field == true
+                            ? CustomAppFormField(
+                                texthint: "Custom Bid",
+                                hintStyle: TextStyle(
+                                  fontSize: 16.7.sp,
+                                  fontWeight: FontWeight.w500
+                                ),
+                                onChanged: (value){_priceController.text=formatNumber(value, textFiled: true);},
+                                controller: _priceController,
+                                width: 161,
+                                textAlign: TextAlign.center,
+                                fontsize: 24,
+                                fontweight: FontWeight.w600,
+                                cPadding: 2.0,
+                                type: TextInputType.number,
+                              )
+                            : AppButton.appButton(
+                                "Place Bid for AED ${formatNumber(open.bidPrice)}",
+                                onTap: () async {
 
-                              if(authorizationToken!=null){
-                              if(userId != widget.product?.userId) {
-                                if((double.parse(widget.product?.auctionInitialPrice?.toString() ?? '')) < double.parse(open.bidPrice.replaceAll(',', '')) ) {
-                                  if (isPriceLessThanOrEqualToExistingBids(
-                                      double.parse(
-                                          open.bidPrice.replaceAll(',', ''))) ==
-                                      false) {
-                                    await placeBidDialog(
-                                        context,
-                                        _priceController.text,
-                                        product?.id,
-                                        userId,
-                                        product?.id,);
-                                    // sendNotifications();
-                                    // getProductDetail();
-                                    getBidsHandler();
-                                    _priceController.text = '';
-                                    open.bidPrice = '';
-                                    open.field = true;
-                                    open.indexbid = 4;
+                                  if(authorizationToken!=null){
+                                  if(userId != widget.product?.userId) {
+                                    if(open.bidPrice.isNotEmpty){
+                                      if((double.parse(widget.product?.auctionInitialPrice?.toString() ?? '')) < double.parse(open.bidPrice.replaceAll(',', '')) ) {
+                                        if (isPriceLessThanOrEqualToExistingBids(
+                                            double.parse(
+                                                open.bidPrice.replaceAll(',', ''))) ==
+                                            false) {
+                                          await placeBidDialog(
+                                            context,
+                                            _priceController.text,
+                                            product?.id,
+                                            userId,
+                                            product?.id,);
+                                          // sendNotifications();
+                                          // getProductDetail();
+                                          getBidsHandler();
+                                          _priceController.text = '';
+                                          open.bidPrice = '';
+                                          open.field = true;
+                                          open.indexbid = 4;
+                                        }
+                                        else {
+                                          showSnackBar(context,
+                                              'This bid amount is already taken; please submit a higher bid.');
+                                        }
+                                      }
+                                      else{
+                                        showSnackBar(context,
+                                            'The bid amount must be higher than “Current bid Price”.');
+                                      }
+                                    }else{
+                                      open.bidPrice = '';
+                                      open.field = true;
+                                      open.indexbid = 4;
+                                      setState(() {
+
+                                      });
+                                    }
                                   }
                                   else {
-                                    showSnackBar(context,
-                                        'This bid amount is already taken; please submit a higher bid.');
+                                    showSnackBar(context, 'You can\'t place a bid on your own product.');
+                                  }
+
+                                  }
+                                  else {
+                                    push(context, const SigInScreen());
+
+                                  }
+                              },
+                                height: 53,
+                                width: 200,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                                radius: 32.0,
+                                backgroundColor: AppTheme.appColor,
+                                textColor: AppTheme.whiteColor),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                // log("open.field = ${open.field}");
+                                if (open.field == false) {
+                                  open.sheetTrue();
+                                  panelController.open();
+                                } else {
+                                  if(_priceController.text.isNotEmpty) {
+                                      open.bidPrices(price: _priceController.text);
+                                  }
+                                  else{
+                                    showSnackBar(context, 'Please enter amount', title: 'Input Required');
                                   }
                                 }
-                                else{
-                                  showSnackBar(context,
-                                      'The bid amount must be higher than “Current bid Price”.');
+                                //  else {
+                                //   open.field = false;
+                                // }
+                              },
+                              child: Container(
+                                height: 53,
+                                width: 53,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                        width: 1, color: const Color(0xffBDBDBD))),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Image.asset(open.field == true
+                                      ? "assets/images/correct.png"
+                                      : "assets/images/arrowUp.png"),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                _priceController.clear();
+                                if (open.field == false) {
+                                  open.sheetFalse();
+                                  panelController.close();
                                 }
-                              }
-                              else {
-                                showSnackBar(context, 'You can\'t place a bid on your own product.');
-                              }
-
-                              }
-                              else {
-                                push(context, const SigInScreen());
-
-                              }
-                          },
-                            height: 53,
-                            width: 200,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                            radius: 32.0,
-                            backgroundColor: AppTheme.appColor,
-                            textColor: AppTheme.whiteColor),
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            // log("open.field = ${open.field}");
-                            if (open.field == false) {
-                              open.sheetTrue();
-                              panelController.open();
-                            } else {
-                              if(_priceController.text.isNotEmpty) {
-                                  open.bidPrices(price: _priceController.text);
-                              }
-                              else{
-                                showSnackBar(context, 'Please enter amount', title: 'Input Required');
-                              }
-                            }
-                            //  else {
-                            //   open.field = false;
-                            // }
-                          },
-                          child: Container(
-                            height: 53,
-                            width: 53,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                    width: 1, color: const Color(0xffBDBDBD))),
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Image.asset(open.field == true
-                                  ? "assets/images/correct.png"
-                                  : "assets/images/arrowUp.png"),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            _priceController.clear();
-                            if (open.field == false) {
-                              open.sheetFalse();
-                              panelController.close();
-                            }
-                          },
-                          child: Container(
-                            height: 53,
-                            width: 53,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                    width: 1, color: const Color(0xffBDBDBD))),
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Image.asset(open.field == true
-                                  ? "assets/images/cancel.png"
-                                  : "assets/images/arrowDown.png"),
-                            ),
-                          ),
+                              },
+                              child: Container(
+                                height: 53,
+                                width: 53,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                        width: 1, color: const Color(0xffBDBDBD))),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Image.asset(open.field == true
+                                      ? "assets/images/cancel.png"
+                                      : "assets/images/arrowDown.png"),
+                                ),
+                              ),
+                            )
+                          ],
                         )
                       ],
-                    )
-                  ],
-                ),
-              )
-            ],
+                    ),
+                  )
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      }
     );
   }
 

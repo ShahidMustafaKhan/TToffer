@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -10,13 +9,11 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
-import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/Authentication%20screens/forgot_email.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
-import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
-import 'package:tt_offer/config/keys/pref_keys.dart';
 
+import '../../main.dart';
 import '../../view_model/login/login_view_model.dart';
 import '../Profile Screen/Settings/privacy_policy.dart';
 import '../Profile Screen/Settings/terms_and_condition.dart';
@@ -175,6 +172,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                                     "password": _passwordController.text
                                   };
                                   provider.loginApiWithEmail(data).then((value){
+                                    unAuthorized = false;
                                     Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(

@@ -7,6 +7,8 @@ import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/models/sub_categories_model.dart';
 import 'package:tt_offer/views/All%20Categories/category_products.dart';
 
+import '../../view_model/category/category_view_model.dart';
+
 class SubCategoriesScreen extends StatefulWidget {
   final String? title;
   final int? id;
@@ -21,9 +23,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
   List<SubCategoriesModel> filteredSubCategories = [];
 
   subCategoriesHandler() async {
-    await SubCategoriesService().subCategoriesService(context: context);
-    final provider = Provider.of<SubCategoriesProvider>(context, listen: false)
-        .subCategories;
+    final provider = Provider.of<CategoryViewModel>(context, listen: false).subCategoryList.data ?? [];
     filteredSubCategories =
         provider.where((subCategory) => subCategory.categoryId == widget.id).toList();
 

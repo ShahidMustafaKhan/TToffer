@@ -62,6 +62,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     super.initState();
 
     verificationViewModel = Provider.of<VerificationViewModel>(context, listen: false);
+    emailController.text = Provider.of<UserViewModel>(context, listen: false).userModel.data?.email ?? '';
   }
 
 

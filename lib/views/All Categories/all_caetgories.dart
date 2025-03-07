@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/models/category_model.dart';
+import 'package:tt_offer/view_model/category/category_view_model.dart';
 import 'package:tt_offer/views/All%20Categories/catagory_container.dart';
 import '../../utils/utils.dart';
 import 'sub_categories_screen.dart';
@@ -18,22 +19,11 @@ class AllCategories extends StatefulWidget {
 }
 
 class _AllCategoriesState extends State<AllCategories> {
-  handler() async {
-    await BlockedUserServices().getBlockedUser(context: context);
-    setState(() {});
-  }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    handler();
-  }
 
   @override
   Widget build(BuildContext context) {
-    // final apiProvider = Provider.of<ProductsApiProvider>(context);
-    final apiProvider = Provider.of<CategoryProvider>(context);
+    final apiProvider = Provider.of<CategoryViewModel>(context);
 
     return Scaffold(
       backgroundColor: AppTheme.whiteColor,
@@ -41,31 +31,18 @@ class _AllCategoriesState extends State<AllCategories> {
         title: "All Categories",
       ),
       body: ListView.builder(
-        // itemCount: widget.data.length,
-        itemCount: apiProvider.category.length,
-        // gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        //   mainAxisSpacing: 30,
-        //   crossAxisSpacing: 20,
-        //   crossAxisCount: 4,
-        // ),
+        itemCount: apiProvider.categoryList.data?.length ?? 0,
+
         shrinkWrap: true,
         itemBuilder: (context, index) {
-          // Color color = Color(
-          //     int.parse(widget.data[index]["color"].replaceFirst('#', '0xFF')));
+          List<CategoryModel> categoryList = apiProvider.categoryList.data ?? [];
           return InkWell(
               onTap: () {
-                // push(
-                //     context,
-                //     CatagoryProductScreen(
-                //       // catId: apiProvider.catagoryData[index]["id"],
-                //       catNAme: "${apiProvider.category[index].title}",
-                //     ));
-
                 push(
                     context,
                     SubCategoriesScreen(
-                      title: apiProvider.category[index].title,
-                      id: apiProvider.category[index].id,
+                      title: categoryList[index].title,
+                      id: categoryList[index].id,
                     ));
               },
               child: Column(
@@ -83,9 +60,9 @@ class _AllCategoriesState extends State<AllCategories> {
                       ),
                     ),
                   CatagoryContainer(
-                    color: apiProvider.category[index].color,
-                    img: apiProvider.category[index].image,
-                    txt: apiProvider.category[index].title,
+                    color: categoryList[index].color,
+                    img: categoryList[index].image,
+                    txt: categoryList[index].title,
                     isList: widget.isList,
                   ),
                 ],

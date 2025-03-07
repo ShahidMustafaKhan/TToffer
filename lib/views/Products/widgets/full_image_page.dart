@@ -49,7 +49,7 @@ class _FullImagePageState extends State<FullImagePage> {
                       trackpadScrollCausesScale: true,
                       child: (product?.photo?.isNotEmpty ?? false)
                           ? product!.photo![0].url!.endsWith('.mp4') ?
-                      VideoPlayerWidget(videoPath: product!.photo![0].url!, networkVideo: true,):
+                      VideoPlayerWidget(videoPath: product!.photo![0].url!, networkVideo: true, playBtnSize: 45,):
                       Image.network(
                         product!.photo![0].url!,
                         fit: BoxFit.cover,
@@ -66,7 +66,7 @@ class _FullImagePageState extends State<FullImagePage> {
                         trackpadScrollCausesScale: true,
                         child:
                         photoUrl.url!.endsWith('.mp4') ?
-                        VideoPlayerWidget(videoPath: photoUrl.url!, networkVideo: true,):
+                        VideoPlayerWidget(videoPath: photoUrl.url!, networkVideo: true, playBtnSize: 45):
                         Image.network(
                           photoUrl.url as String,
                           fit: BoxFit.fill,

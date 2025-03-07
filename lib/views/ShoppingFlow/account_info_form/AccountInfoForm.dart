@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
+import 'package:tt_offer/data/response/api_response.dart';
 import 'package:tt_offer/models/cart_model.dart';
 import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
 import 'package:tt_offer/views/ShoppingFlow/checkout/checkout_screen.dart';
@@ -13,6 +14,7 @@ import '../../../Utils/widgets/others/custom_app_bar.dart';
 import '../../../config/app_urls.dart';
 import '../../../config/keys/pref_keys.dart';
 import '../../../main.dart';
+import '../../../models/shipping_detail_model.dart';
 import '../cart/cart_screen.dart';
 
 
@@ -51,7 +53,7 @@ class _AccountInfoFormState extends State<AccountInfoForm> {
 
   @override
   void initState() {
-    phoneNumberController.text = "+92";
+    phoneNumberController.text = "+971";
     userId = int.parse(pref.getString(PrefKey.userId)!);
     cartViewModel = Provider.of<CartViewModel>(context, listen: false);
 
@@ -208,6 +210,7 @@ class _AccountInfoFormState extends State<AccountInfoForm> {
           CountryListPick(
             onChanged: (CountryCode? countryCode) {
               controller.text = countryCode?.dialCode ?? '';
+              phoneNumberController.text = controller.text;
             },
             theme: CountryTheme(
                 isShowFlag: true,
@@ -316,10 +319,11 @@ class _AccountInfoFormState extends State<AccountInfoForm> {
   }
 
   bool isValidPhoneNumber(String phoneNumber) {
-    // Regular expression for validating phone numbers in the format +923341622234
-    final RegExp regex = RegExp(r'^\+92\d{10}$');
+    // Regular expression for validating international phone numbers
+    final RegExp regex = RegExp(r'^\+\d{1,3}\d{4,14}$');
     return regex.hasMatch(phoneNumber);
   }
+
 
   void saveUserInfo({int? userId, int? cityId, String? address, String? address2,
     String? phoneNo, int? isLandLine, String? state, String? zipCode
@@ -338,9 +342,12 @@ class _AccountInfoFormState extends State<AccountInfoForm> {
       "zip_code": zipCode,
     };
 
-    cartViewModel.saveAddress(data).then((value) {
+    cartViewModel.saveAddress(data).then((value) async {
+      await cartViewModel.getLastAddress();
+      cartViewModel.setLoading(false);
       push(context, CheckOutScreen(items: widget.data, fromAccountInfo: true,));
     }).onError((error, stackTrace){
+      cartViewModel.setLoading(false);
       showSnackBar(context, error.toString());
     });
   }

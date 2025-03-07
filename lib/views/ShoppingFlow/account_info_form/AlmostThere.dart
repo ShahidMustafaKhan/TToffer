@@ -9,8 +9,8 @@ import 'package:tt_offer/models/cart_model.dart';
 
 
 class AlmostThereScreen extends StatelessWidget {
-  List<Cart>? data;
-  AlmostThereScreen({super.key, this.data});
+  final List<Cart>? data;
+  const AlmostThereScreen({super.key, this.data});
 
   @override
   Widget build(BuildContext context) {

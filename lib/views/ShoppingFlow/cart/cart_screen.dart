@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -9,17 +8,12 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/models/cart_model.dart';
 import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
 import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
-import 'package:tt_offer/models/advertisement_banner.dart';
-import 'package:url_launcher/url_launcher.dart';
-
-import '../../../Constants/app_logger.dart';
 import '../../../config/keys/pref_keys.dart';
 import '../../../main.dart';
 import '../../../view_model/banner/banner_view_model.dart';
 import '../../../Utils/resources/res/app_theme.dart';
 import '../../../Utils/widgets/others/app_text.dart';
 import '../../../Utils/widgets/others/custom_app_bar.dart';
-import '../../../config/dio/app_dio.dart';
 import '../../../data/response/status.dart';
 
 class CartScreen extends StatefulWidget {
@@ -33,8 +27,6 @@ class _CartScreenState extends State<CartScreen> {
 
 
   late CartViewModel cartViewModel;
-  late AppDio dio;
-  AppLogger logger = AppLogger();
 
   late int total;
   late int subTotal;
@@ -45,11 +37,7 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   void initState() {
-    dio = AppDio(context);
-    logger.init();
-
     userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
-
     cartViewModel = Provider.of<CartViewModel>(context, listen: false);
     cartViewModel.getCartList(userId);
     getTotalAmount(cartViewModel.cartItemList.data);
@@ -81,6 +69,7 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: CustomAppBar1(
@@ -102,68 +91,52 @@ class _CartScreenState extends State<CartScreen> {
                   Expanded(
                     child: SingleChildScrollView(
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Consumer<BannerViewModel>(
                               builder: (context, bannerViewModel, child) {
-                                return bannerViewModel.secondBanner.isNotEmpty ? CarouselSlider(
+                                return bannerViewModel.firstBanner.isNotEmpty ? CarouselSlider(
                                   options: CarouselOptions(
                                     aspectRatio: 16 / 4,
                                     viewportFraction: 1,
                                     initialPage: 0,
                                     enableInfiniteScroll: true,
                                     reverse: false,
-                                    autoPlay: true,
+                                    autoPlay: false,
                                     autoPlayInterval: const Duration(seconds: 3),
-                                    autoPlayAnimationDuration: const Duration(milliseconds: 1000),
+                                    autoPlayAnimationDuration:
+                                    const Duration(milliseconds: 800),
                                     autoPlayCurve: Curves.fastOutSlowIn,
-                                    enlargeCenterPage: true,
+                                    enlargeCenterPage: false,
                                     scrollDirection: Axis.horizontal,
                                   ),
-                                  items: bannerViewModel.secondBanner.map((AdvertisementBanner banner) {
+                                  items: bannerViewModel.firstBanner.map((String banner) {
                                     return InkWell(
                                       onTap: () async {
-                                        String? url = banner.redirect;
 
-                                        if(url != null){
-                                          if (await canLaunchUrl(Uri.parse(url))) {
-                                            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                                          } else {
-                                            showSnackBar(context, "Could not launch the URL");
-                                          }
-                                        }
 
                                       },
-                                      child: LayoutBuilder(
-                                        builder: (context, constraints) {
-                                          double screenWidth = MediaQuery.of(context).size.width;
-                                          double bannerHeight = screenWidth * (7 / 16);
-
-                                          return Container(
-                                            height: bannerHeight,
-                                            width: screenWidth,
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(20),
+                                      child: Container(
+                                        width: screenWidth,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                        child: CachedNetworkImage(
+                                          imageUrl: banner,
+                                          fit: BoxFit.fill,
+                                          placeholder: (context, url) => Center(
+                                            child: SizedBox(
+                                              height: 30.h,
+                                              child: CircularProgressIndicator(color: AppTheme.yellowColor,),
                                             ),
-                                            child: CachedNetworkImage(
-                                              imageUrl: banner.path ?? '',
-                                              fit: BoxFit.fill,
-                                              placeholder: (context, url) => Center(
-                                                child: SizedBox(
-                                                  height: 30.h,
-                                                  child: CircularProgressIndicator(color: AppTheme.yellowColor),
-                                                ),
-                                              ),
-                                              errorWidget: (context, url, error) => const SizedBox(),
-                                              cacheKey: imagePath,
-                                              fadeInDuration: const Duration(milliseconds: 500),
-                                            ),
-                                          );
-                                        },
+                                          ),
+                                          errorWidget: (context, url, error) => const SizedBox(),
+                                          cacheKey: banner, // Cache key to identify this image
+                                          fadeInDuration: const Duration(milliseconds: 500), // Smooth fade-in effect
+                                        ),
                                       ),
                                     );
                                   }).toList(),
-                                ) : const SizedBox();
+                                ): const SizedBox();
                               }
                           ),
 
@@ -184,7 +157,7 @@ class _CartScreenState extends State<CartScreen> {
                             ],
                           ) :
 
-                          cartModel!.data!.isEmpty ?
+                          cartModel?.data?.isEmpty ?? false ?
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -205,32 +178,39 @@ class _CartScreenState extends State<CartScreen> {
                           ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
-                            itemCount: cartModel.data?.length ?? 0,
+                            itemCount: cartModel?.data?.length ?? 0,
                             itemBuilder: (context, index) {
-                              Cart? item =  cartModel.data?[index];
+                              Cart? item =  cartModel?.data?[index];
                               return ShoppingCartItem(
                                 index : index,
                                 seller: item?.user?.name,
                                 productName: item?.product?.title,
+                                quantity: item?.product?.qty,
                                 savedForLater: userViewModel.isProductInSavedList(item?.product?.id),
                                 price: item?.product?.fixPrice !=null ? double.parse(item!.product!.fixPrice!.toString()) : null,
                                 shippingCost: 0,
                                 productImage: item?.product?.photo?.isNotEmpty ?? false ? item?.product!.photo![0].url : null,
-                                lastItem: (cartModel.data?.length ?? 0) - 1 == index,
+                                lastItem: (cartModel?.data?.length ?? 0) - 1 == index,
                                 deleteItem: (){
                                   cartViewModel.removeCartItem(item?.product?.id, userId, index: index).then((value){
+                                    cartModel?.data?.removeAt(index);
                                     showSnackBar(context, 'Product removed from cart' , title: 'Congratulations!');
                                   }).onError((error, stackTrace){
                                     showSnackBar(context, error.toString());
                                   });
                                 },
                                 buyItNow: (){
-                                  List<Cart>? temp = List.from(cartModel.data!);
+                                  List<Cart>? temp = List.from(cartModel?.data ?? []);
                                   List<Cart>? data = [temp[index]];
                                   getLastAddress(cartDataList: data, index: index);
                                   },
                                 toggleSaveItem: () {
-                                  userViewModel.toggleSavedItem(userId, item?.product?.id, context, index: index);
+                                  userViewModel.addSavedItem(userId, item?.product?.id, context, index: index)
+                                      .then((value) {
+                                        showSnackBar(context, 'Product has been saved for later', title: 'Congratulations!');
+                                        cartModel?.data?.removeAt(index);
+                                  })
+                                      .onError((error, stackTrace) {showSnackBar(context, error.toString());});
                                 },
                                 saveLaterLoading: cartViewModel.toggleSaveLoadingList,
                                 removeCartItemLoading: cartViewModel.removeCartLoadingList,
@@ -282,6 +262,7 @@ class _CartScreenState extends State<CartScreen> {
                               child: cartViewModel.loading ? const CircularProgressIndicator() : Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 15.w),
                                 child: AppButton.appButton('Go to checkout',
+                                height: 45.h,
                                 fontSize: 13.sp,
                                 fontWeight: cartModel?.data?.isNotEmpty ?? false ? null : FontWeight.w600,
                                 padding: EdgeInsets.symmetric(vertical: 11.h,),
@@ -309,19 +290,32 @@ class _CartScreenState extends State<CartScreen> {
 
   Future getLastAddress({required List<Cart>? cartDataList, int? index}) async {
 
-    cartViewModel.getLastAddress(index: index)
-        .then((value){
-          cartViewModel.determineNextScreen(true , cartDataList, context);
+    List<Cart> inStockItems = cartDataList?.where((cart) {
+      return cart.product?.inventory != null &&
+          cart.product?.inventory?.availableStock != null &&
+          cart.product!.inventory!.availableStock! > 0;
+    }).toList() ?? [];
 
-    })
-        .onError((error, stackTrace){
-          if(error.toString() == 'No address Found' ){
-            cartViewModel.determineNextScreen(false , cartDataList, context);
-          }
-          else{
-            showSnackBar(context, error.toString());
-          }
-    });
+    if(inStockItems.isNotEmpty){
+      cartViewModel.getLastAddress(index: index)
+          .then((value){
+        cartViewModel.determineNextScreen(true , inStockItems, context);
+
+      })
+          .onError((error, stackTrace){
+        if(error.toString() == 'No address Found' ){
+          cartViewModel.determineNextScreen(false , inStockItems, context);
+        }
+        else{
+          showSnackBar(context, error.toString());
+        }
+      });
+    }
+
+    else{
+      showSnackBar(context, "All the items in your cart are currently out of stock.");
+    }
+
   }
 
 
@@ -336,6 +330,7 @@ class ShoppingCartItem extends StatelessWidget {
   final String? seller;
   final String? productName;
   final double? price;
+  final int? quantity;
   final double? shippingCost;
   final String? productImage;
   final bool lastItem;
@@ -352,6 +347,7 @@ class ShoppingCartItem extends StatelessWidget {
     required this.seller,
     required this.productName,
     required this.price,
+    required this.quantity,
     required this.shippingCost,
     required this.productImage,
     required this.deleteItem,
@@ -403,7 +399,10 @@ class ShoppingCartItem extends StatelessWidget {
                     SizedBox(height: 3.h),
                     AppText.appText(capitalizeWords(productName ?? ''), fontWeight: FontWeight.w600, fontSize: 13.sp, textColor: AppTheme.textColor),
                     SizedBox(height: 4.h),
-                    AppText.appText("Qty 1", fontWeight: FontWeight.w400, fontSize: 11.5.sp, textColor: Colors.grey.shade600),
+                    if(quantity != null && quantity!=0)
+                      AppText.appText("Qty $quantity", fontWeight: FontWeight.w400, fontSize: 11.5.sp, textColor: Colors.grey.shade600)
+                    else
+                      AppText.appText("Out of stock", fontWeight: FontWeight.w400, fontSize: 11.5.sp, textColor: Colors.red),
                     const SizedBox(height: 8),
                     if(price!=null)
                       AppText.appText("AED ${price!.toStringAsFixed(0)}", fontWeight: FontWeight.bold, fontSize: 14.sp, textColor: AppTheme.textColor),
@@ -422,12 +421,12 @@ class ShoppingCartItem extends StatelessWidget {
                             child: appLoading(),
                           ) :
                           GestureDetector(
-                              onTap: (){buyItNow();},
-                              child: AppText.appText('Buy it now', fontSize: 11.5.sp, textColor: Colors.blue.shade700, fontWeight: FontWeight.w600)),
+                              onTap: quantity != null && quantity!=0 ? (){buyItNow();} : null,
+                              child: AppText.appText('Buy it now', fontSize: 11.5.sp, textColor: quantity != null && quantity!=0 ? Colors.blue.shade700 : AppTheme.hintTextColor, fontWeight: FontWeight.w600)),
                           saveLaterLoading.isNotEmpty && saveLaterLoading[index!] == true ? appLoading() :
                           GestureDetector(
                               onTap: (){toggleSaveItem();},
-                              child: AppText.appText(savedForLater == true ? 'Remove from save' : 'Save for later', fontSize: 11.5.sp,textColor: Colors.blue.shade700, fontWeight: FontWeight.w600)),
+                              child: AppText.appText('Save for later', fontSize: 11.5.sp,textColor: Colors.blue.shade700, fontWeight: FontWeight.w600)),
                           removeCartItemLoading.isNotEmpty && removeCartItemLoading[index!] == true ? appLoading() :
                           GestureDetector(
                               onTap: (){deleteItem();},

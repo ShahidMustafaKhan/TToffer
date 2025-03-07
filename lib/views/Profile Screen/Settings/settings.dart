@@ -42,7 +42,7 @@ class _SettingScreenState extends State<SettingScreen> {
   void initState() {
     dio = AppDio(context);
     logger.init();
-    userViewModel = Provider.of<UserViewModel>(context);
+    userViewModel = Provider.of<UserViewModel>(context, listen: false);
     getUserDetail();
     super.initState();
   }

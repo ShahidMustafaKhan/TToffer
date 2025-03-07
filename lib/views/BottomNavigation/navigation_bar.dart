@@ -1,9 +1,7 @@
 import 'dart:developer';
 import 'package:flutter_svg/flutter_svg.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -11,15 +9,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/view_model/banner/banner_view_model.dart';
 import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
-import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/utils/utils.dart';
 import 'package:tt_offer/view_model/chat/chat_list_view_model/chat_list_view_model.dart';
 import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
+import 'package:tt_offer/view_model/suggestion/suggestion_view_model.dart';
 import 'package:tt_offer/views/ChatScreens/chat_screen.dart';
 import 'package:tt_offer/views/Homepage/LandingPage/landing_screen.dart';
 import 'package:tt_offer/views/Post%20screens/post_screen.dart';
 import 'package:tt_offer/views/Profile%20Screen/profile_screen.dart';
 import 'package:tt_offer/views/Sellings/selling_purchase.dart';
+import '../../Utils/widgets/others/app_text.dart';
 import '../../Utils/widgets/others/congragulations_dialog.dart';
 import '../../Utils/widgets/others/delete_notification_dialog.dart';
 import '../../config/app_urls.dart';
@@ -45,8 +44,10 @@ class _BottomNavViewState extends State<BottomNavView> {
   late int selectedIndex;
   bool showUnreadMessageIndicator=false;
   int? userId;
-  var token;
   var authorizationToken;
+
+  late UserViewModel userViewModel;
+
 
   static final List<Widget> _widgetOptions = <Widget>[
     const LandingScreen(),
@@ -65,10 +66,7 @@ class _BottomNavViewState extends State<BottomNavView> {
       push(context, const SigInScreen());
     }
     else{
-      final imageProvider =
-      Provider.of<ImageNotifyProvider>(context, listen: false);
-      imageProvider.videoPath = "";
-      imageProvider.imagePaths.clear();
+
       setState(() {
         selectedIndex = index;
       });
@@ -76,10 +74,14 @@ class _BottomNavViewState extends State<BottomNavView> {
       if(index == 1) {
         Provider.of<ScreenStateNotifier>(context, listen: false)
             .setChatScreenActive(true);
+        Provider.of<ChatListViewModel>(context, listen: false)
+            .startTimer(userId);
       }
       else{
         Provider.of<ScreenStateNotifier>(context, listen: false)
             .setChatScreenActive(false);
+        Provider.of<ChatListViewModel>(context, listen: false)
+            .stopTimer();
       }
     }
 
@@ -89,40 +91,25 @@ class _BottomNavViewState extends State<BottomNavView> {
   bool canPopScope = false;
 
 
-  getAllChat() async {
-    final chatListViewModel = Provider.of<ChatListViewModel>(context, listen: false);
-
-    token = pref.getString('device-token');
-
-      if(authorizationToken != null) {
-        chatListViewModel.getAllChat(userId).then((value){
-          chatListViewModel.checkForUnReadMessages(chatListViewModel.buyingChat.data ?? [], userId);
-          chatListViewModel.checkForUnReadMessages(chatListViewModel.sellingChat.data ?? [], userId);
-        });
-        if (token != null && token.isNotEmpty) {
-          updateDeviceToken(
-              dio: dio, context: context, userId: userId, token: token);
-        }
-      }
+  addDeviceToken(){
+    var token = pref.getString('device-token');
+    if(authorizationToken!=null && token !=null){
+      userViewModel.addDeviceToken(userId, token);
+    }
   }
-
 
   getToken() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-
     authorizationToken = pref.getString(PrefKey.authorization);
-
     userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
   }
 
   @override
   void initState() {
-    selectedIndex = widget.index ?? 0;
-
-    asynchronousMethod();
-
     Provider.of<BannerViewModel>(context, listen: false).callBannerApi();
-
+    selectedIndex = widget.index ?? 0;
+    userViewModel = Provider.of<UserViewModel>(context, listen: false);
+    asynchronousMethod();
     super.initState();
   }
 
@@ -131,8 +118,6 @@ class _BottomNavViewState extends State<BottomNavView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if(widget.showDialog) {
         congratulationAlertDialog(title: 'Congratulations!', description: "Your ad posted successfully.", context: context, loading: false, onTap: () => Navigator.of(context).pop());
-        Provider.of<ProductViewModel>(context, listen: false).getFeatureProducts();
-        Provider.of<ProductViewModel>(context, listen: false).getAuctionProducts();
       }
     });
     super.didChangeDependencies();
@@ -144,7 +129,7 @@ class _BottomNavViewState extends State<BottomNavView> {
       await getToken();
       await FirebaseMessagingService().initialize(context, dio);
       getUserProfile();
-      getAllChat();
+      addDeviceToken();
     }
 
 
@@ -185,30 +170,20 @@ class _BottomNavViewState extends State<BottomNavView> {
     ));
 
 
-
-
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {
-        log("backPressCounter = $backPressCounter");
+
         if (backPressCounter < 2) {
           backPressCounter++;
           Future.delayed(const Duration(seconds: 2), () {
             backPressCounter--;
           });
+          final suggestionViewModel = Provider.of<SuggestionViewModel>(context, listen: false);
+          suggestionViewModel.removeSearchScreen(context);
         }
-        // else if (backPressCounter == 2){
-        //   showSnackBar(context,
-        //       "Are you sure you want to close the app? Press again to confirm", title: 'Exit Confirmation');
-        //   backPressCounter++;
-        //   Future.delayed(const Duration(seconds: 4), () {
-        //     backPressCounter--;
-        //   });
-        // }
         else {
-          // Navigator.pop(context);
           SystemNavigator.pop();
-
         }
       },
       child: Scaffold(
@@ -227,6 +202,15 @@ class _BottomNavViewState extends State<BottomNavView> {
                       push(context, const SigInScreen());
                     }
                     else {
+                      if(selectedIndex == 1){
+                        Provider.of<ChatListViewModel>(context, listen: false)
+                            .stopTimer();
+                      }
+                      final imageProvider =
+                      Provider.of<ImageNotifyProvider>(context, listen: false);
+                      imageProvider.videoPath = "";
+                      imageProvider.imagePaths.clear();
+
                       Navigator.push(context,
                           MaterialPageRoute(
                               builder: (context) => const PostScreen()));
@@ -284,7 +268,7 @@ class _BottomNavViewState extends State<BottomNavView> {
                 BottomNavBarCard(
                   image1: 'assets/svg/ic_tag.svg',
                   image2: 'assets/svg/ic_tag_dark.svg',
-                  title: 'My ADS',
+                  title: 'MY ADS',
                   changes: selectedIndex == 2 ? true : false,
                   onTap: () {
                     _onItemTapped(2);
@@ -445,9 +429,7 @@ class _BottomNavBarCardState extends State<BottomNavBarCard> {
                     ),
                     const SizedBox(height: 6),
                     Center(
-                      child: Text(widget.title!,style: GoogleFonts.poppins( color: AppTheme.appColor,fontWeight: FontWeight.w600,fontSize: 11.sp),)
-
-                    ),
+                      child: AppText.appText(widget.title!,textColor: AppTheme.appColor,fontWeight: FontWeight.w600,fontSize: 11.sp),),
                     SizedBox(height: 6.h),
                   ],
                 ),

@@ -1,17 +1,14 @@
 import 'dart:developer';
-
-import 'package:dialogs/dialogs/progress_dialog.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
+import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
@@ -20,18 +17,19 @@ import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/providers/selling_purchase_provider.dart';
 import 'package:tt_offer/utils/widgets/custom_loader.dart';
 import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
+import 'package:tt_offer/views/Post%20screens/post_screen.dart';
 import 'package:tt_offer/views/Sell%20Faster/sell_faster.dart';
 import 'package:tt_offer/views/Sellings/item_dashboard.dart';
 import 'package:tt_offer/config/app_urls.dart';
-import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/views/Sellings/new_sold_screen.dart';
 import '../../Utils/widgets/others/delete_notification_dialog.dart';
+import '../../Utils/widgets/others/no_data_found.dart';
 import '../../config/keys/pref_keys.dart';
 import '../../data/response/status.dart';
 import '../../models/product_model.dart';
 import '../../view_model/selling/selling_view_model.dart';
-import '../Products/Feature Product/feature_info.dart';
-import '../Products/Auction Product/auction_info.dart';
+import '../Rating/user_rating_screen.dart';
+
 
 class SellingPurchaseScreen extends StatefulWidget {
   final String title;
@@ -48,7 +46,6 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
   String selectedOption = 'Buying';
   bool isLoading = false;
   AppLogger logger = AppLogger();
-  late final dio;
   int? userId;
 
   SellingProductsModel? sellingProductsModel;
@@ -70,8 +67,6 @@ class _SellingPurchaseScreenState extends State<SellingPurchaseScreen> {
   void initState() {
     sellingViewModel = Provider.of<SellingViewModel>(context, listen: false);
 
-    dio = AppDio(context);
-    logger.init();
     if(widget.selectedOption!=null){
       selectedOption = widget.selectedOption!;
     }
@@ -311,18 +306,17 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
 
 
 
-  bool isItemPurchased(Product product){
+  bool? isItemPurchased(Product product){
     int? userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
 
-    if(product.userId!=null){
-      if(product.userId.toString() != userId.toString()){
-        return true;
-      }
-      else{
+      if(product.userId.toString() == userId.toString()){
         return false;
       }
-    }
-    return false;
+      else if(product.soldToUserId.toString() == userId.toString()){
+        return true;
+      }
+
+    return null;
   }
 
   @override
@@ -348,34 +342,48 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
       return dateB.compareTo(dateA);
     });
 
-
-
-
     if (data.isEmpty) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Center(child: Image.asset("assets/images/no_data_folder.png", height: 150.h,)),
-          SizedBox(height: 16.h,),
-          Center(
-              child: AppText.appText(
-                  "No Relevant Data found",
-                  textColor: AppTheme.appColor, fontSize: 14.sp
-              )),
-          SizedBox(height: 45.h,)
+          NoDataFound.noDataFound(
+             bottomPadding: widget.ischeck == 1 ? 20.h : 125.h,
+              fontSize: widget.ischeck == 3 ? 14.sp : 15.sp,
+              emptyImage : widget.ischeck == 3 ?  'assets/images/empty_data.png' : null,
+              spaceHeight: 20.h,
+              imageHeight: widget.ischeck == 3 ? 185.h : 255.h,
+              emptyText: widget.ischeck == 2 ? 'Begin Buying Items!' : widget.ischeck == 3 ? 'Your purchased and sold items\nwill appear here' : 'Begin Selling Items!',
+              spacer: 0),
+
+          if(widget.ischeck == 1)...[
+            SizedBox(height: 30.h,),
+            AppButton.appButton('Post an items',
+                backgroundColor: AppTheme.appColor,
+                onTap: (){push(context, const PostScreen());},
+                height: 48.h,
+                width: 180.w,
+                fontSize: 14.sp,
+                imagePath: "assets/images/ic_gallery.png",
+                imageColor: Colors.white,
+                radius: 32.r,
+                fontWeight: FontWeight.w500,
+                textColor: Colors.white),
+            SizedBox(height: 27.h,),
+          ]
         ],
       );
     }
     return ListView.builder(
       shrinkWrap: true,
+      padding: EdgeInsets.zero,
       itemCount: data.length,
       itemBuilder: (context, index) {
         bool restrictMarkSold = false;
-        if(data[index].auctionInitialPrice!=null && endTimeReached(data[index].auctionEndingDate ?? '', data[index].auctionEndingTime ?? '')==false){
+        if(data[index].productType == 'auction' && endTimeReached(data[index].auctionEndingDate ?? '', data[index].auctionEndingTime ?? '')==false){
           restrictMarkSold = true;
         }
         return InkWell(
-          onTap: widget.ischeck != 3 ? () {
+          onTap:() {
             if(widget.ischeck == 1) {
               push(
                 context,
@@ -383,220 +391,266 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                   product: data[index],
                 ));
             }
-            else if(widget.ischeck == 2) {
-              if (data[index].auctionInitialPrice == null) {
+            else {
                 navigateToProductPage(productId: data[index].id);
-              } else {
-                navigateToProductPage(productId: data[index].id);
-              }
             }
 
 
-          } : null,
+          },
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: GestureDetector(
-                  onTap: () {
-                    if (widget.ischeck == 1) {
-                      log("go to ItemDashBoard");
-                      push(
-                          context,
-                          ItemDashBoard(
-                            product: data[index],
-                          ),
-                      then: (){
-                        getSellingProducts(context);
-                      });
-                    }
-                    else if(widget.ischeck == 2) {
-                      if (data[index].auctionInitialPrice == null) {
-                        navigateToProductPage(productId: data[index].id);
-                        // print('featureId--->${l.id}');
-                      } else {
-                        navigateToProductPage(productId: data[index].id);
-                      }
-                    }
-                  },
-                  child: SizedBox(
-                    height: 70,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              height: 70,
-                              width: 70,
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    height: 70,
-                                    width: 70,
-                                    decoration: BoxDecoration(
-                                      color: Colors.amber,
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: data[index].photo?.isEmpty ?? true
-                                          ? Image.asset('assets/images/gallery.png')
-                                          : Image.network(
-                                             data[index].photo![0].url!,
-                                              fit: BoxFit.cover,
-                                            ),
-                                    ),
-                                  ),
-                                    Align(
-                                        alignment: Alignment.bottomCenter,
-                                        child: Container(
-                                            height: 25.h,
-                                            decoration: const BoxDecoration(
-                                              color: Colors.black38,
-                                              borderRadius: BorderRadius.only(
-                                                bottomLeft: Radius.circular(16),
-                                                bottomRight: Radius.circular(16),
-                                              ),
-
-                                            ),
-                                            child: Center(child: AppText.appText(data[index].productType == 'auction' ? "Auction" : "AED ${abbreviateNumber(data[index].fixPrice.toString() ?? '')}" ?? '', fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
-                                ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        if (widget.ischeck == 1) {
+                          push(
+                              context,
+                              ItemDashBoard(
+                                product: data[index],
                               ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                          then: (){
+                            getSellingProducts(context);
+                          });
+                        }
+                        else{
+                            navigateToProductPage(productId: data[index].id);}
+                      },
+                      child: SizedBox(
+                        height: 70,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
                               children: [
-                                SizedBox(
-                                  width: getWidth(context) * .5,
-                                  child: AppText.appText(
-                                      data[index].title ?? "",
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxlines: 1,
-                                      textColor: AppTheme.txt1B20),
+                                Container(
+                                  height: 70,
+                                  width: 70,
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        height: 70,
+                                        width: 70,
+                                        decoration: BoxDecoration(
+                                          color: Colors.amber,
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(16),
+                                          child: data[index].photo?.isEmpty ?? true
+                                              ? Image.asset('assets/images/gallery.png')
+                                              : Image.network(
+                                                 data[index].photo![0].url!,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                        ),
+                                      ),
+                                        Align(
+                                            alignment: Alignment.bottomCenter,
+                                            child: Container(
+                                                height: 25.h,
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.black38,
+                                                  borderRadius: BorderRadius.only(
+                                                    bottomLeft: Radius.circular(16),
+                                                    bottomRight: Radius.circular(16),
+                                                  ),
+
+                                                ),
+                                                child: Center(child: AppText.appText(productPriceForImage(data[index]), fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
+                                    ],
+                                  ),
                                 ),
                                 const SizedBox(
-                                  height: 5,
+                                  width: 10,
                                 ),
-
-                                if(widget.ischeck != 2)
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    if(widget.ischeck == 1)
-                                    InkWell(
-                                      onTap: () {
-                                        if (widget.ischeck == 1) {
-                                          push(
-                                              context,
-                                              SellFaster(
-                                                product: data[index],
-                                                fromLocation: false,
-                                              ));
-                                        }
-                                      },
-                                      child: AppText.appText(
-                                          widget.ischeck == 1
-                                              ? "Sell faster"
-                                              : widget.ischeck == 2
-                                              ? 'Purchased'
-                                              : widget.ischeck == 3
-                                              ? isItemPurchased(data[index]) ? 'Purchased' : 'Sold'
-                                              : '',
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400,
-                                          textColor: AppTheme.yellowColor),
-                                    )
-                                    else
-                                      if(data[index].auctionInitialPrice!=null || data[index].fixPrice!=null)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
-                                      decoration: BoxDecoration(
-                                        color: AppTheme.yellowColor,
-                                        borderRadius: BorderRadius.circular(8.r)
-                                      ),
-                                      child: AppText.appText(
-                                           widget.ischeck == 2
-                                                  ? 'Purchased'
-                                                  : widget.ischeck == 3
-                                                      ? isItemPurchased(data[index]) ? 'Purchased' : 'Sold for AED ${formatNumber(removeLastTwoZeros(data[index].productType == 'auction' ? data[index].auctionInitialPrice.toString() : data[index].fixPrice.toString())) }'
-                                                      : '',
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400,
-                                          textColor: AppTheme.appColor),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    widget.ischeck != 1
-                                        ? const SizedBox.shrink()
-                                        : Container(
-                                            height: 10,
-                                            width: 1,
-                                            color: const Color(0xffEAEAEA),
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          width: getWidth(context) * .5,
+                                          child: AppText.appText(
+                                              data[index].title ?? "",
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxlines: 1,
+                                              textColor: AppTheme.txt1B20),
+                                        ),
+                                        const SizedBox(
+                                          height: 5,
+                                        ),
+
+                                        if(widget.ischeck != 2)
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              if (widget.ischeck == 1)
+                                                InkWell(
+                                                  onTap: () {
+                                                    if (widget.ischeck == 1) {
+                                                      push(
+                                                        context,
+                                                        SellFaster(
+                                                          product: data[index],
+                                                          fromLocation: false,
+                                                        ),
+                                                      );
+                                                    }
+                                                  },
+                                                  child: AppText.appText(
+                                                    "Sell faster",
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w400,
+                                                    textColor: AppTheme.yellowColor,
+                                                  ),
+                                                )
+                                              else
+                                                Row(
+                                                  children: [
+                                                    Container(
+                                                      padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
+                                                      decoration: BoxDecoration(
+                                                        color: AppTheme.yellowColor,
+                                                        borderRadius: BorderRadius.circular(8.r),
+                                                      ),
+                                                      child: AppText.appText(
+                                                        widget.ischeck == 2
+                                                            ? 'Purchased'
+                                                            : widget.ischeck == 3
+                                                            ? isItemPurchased(data[index]) == true
+                                                            ? 'Purchased'
+                                                            : 'Sold for ${productPriceInFull(data[index], auctionFullPrice : true)}'
+                                                            : '',
+                                                        fontSize: 11,
+                                                        fontWeight: FontWeight.w400,
+                                                        textColor: AppTheme.appColor,
+                                                      ),
+                                                    ),
+
+                                                  ],
+                                                ),
+
+                                              const SizedBox(width: 10),
+
+                                              if (widget.ischeck == 1)
+                                                Container(
+                                                  height: 10,
+                                                  width: 1,
+                                                  color: const Color(0xffEAEAEA),
+                                                ),
+
+                                              const SizedBox(width: 10),
+
+                                              if (widget.ischeck != 3)
+                                                InkWell(
+                                                  onTap: () {
+                                                    if (widget.ischeck == 1) {
+                                                      if (!restrictMarkSold) {
+                                                        push(
+                                                          context,
+                                                          NewSoldScreen(
+                                                            product: data[index],
+                                                            fromMyAds: true,
+                                                          ),
+                                                          then: () {
+                                                            getSellingProducts(context);
+                                                            getUserSoldProducts(context);
+                                                          },
+                                                        );
+                                                      } else {
+                                                        showSnackBar(context, 'You cannot mark this as sold until the auction has ended.');
+                                                      }
+                                                    } else if (widget.ischeck == 3) {
+                                                      makrAsUnArchive(data[index].categoryId, context);
+                                                    }
+                                                  },
+                                                  child: AppText.appText(
+                                                    widget.ischeck == 1
+                                                        ? "Mark as sold"
+                                                        : widget.ischeck == 3
+                                                        ? "Unarchive"
+                                                        : '',
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w400,
+                                                    textColor: AppTheme.appColor,
+                                                  ),
+                                                ),
+                                            ],
                                           ),
-                                    const SizedBox(
-                                      width: 10,
+
+                                        if(widget.ischeck == 3)...[
+                                          const SizedBox(
+                                            height: 7,
+                                          ),
+
+                                        GestureDetector(
+                                          onTap: (){
+                                            if(isItemPurchased(data[index]) == true){
+                                              push(context,
+                                                  UserRatingScreen(
+                                                      id: data[index].userId?.toString() ?? '',
+                                                      userModel : data[index].user,
+                                                      productId: data[index].id.toString() ));
+                                            }
+                                            else{
+                                              push(context,
+                                                  UserRatingScreen(
+                                                      id: data[index].soldToUserId.toString(),
+                                                      reviewBuyer: true,
+                                                      userModel: data[index].soldToUser,
+                                                      productId: data[index].id.toString() ));
+                                            }
+
+                                          },
+                                          child: AppText.appText(
+                                            'Review ${isItemPurchased(data[index]) == true ? "Seller" : 'Buyer'} ',
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400,
+                                            textColor: AppTheme.appColor,
+                                          ),
+                                        ),
+                                        ]
+
+
+
+                                      ],
                                     ),
-                                    if(widget.ischeck!=3)
-                                    InkWell(
-                                      onTap: () {
-                                        if (widget.ischeck == 1) {
-                                          if(restrictMarkSold == false) {
-                                            push(
-                                              context,
-                                              NewSoldScreen(
-                                                title: data[index].title,
-                                                productId: data[index].id.toString(),
-                                                fixPrice: data[index].fixPrice.toString(),
-                                                auctionPrice: data[index].auctionInitialPrice.toString(),
-                                                image: data[index].photo?.isNotEmpty ?? false ? data[index].photo![0].url : null,
-                                                auction: data[index].fixPrice != null ? false : true,
-                                                fromMyAds: true,
-                                              ), then: (){
-                                            getSellingProducts(context);
-                                            getUserSoldProducts(context);
-                                          }
-                                          );
-                                          }
-                                          else{
-                                            showSnackBar(context, 'You cannot mark this as sold until the auction has ended.');
-                                          }
-                                          // markAsSold(
-                                          //     data[index].id, context, index);
-                                        } else if (widget.ischeck == 3) {
-                                          makrAsUnArchive(
-                                              data[index].categoryId, context);
-                                        }
-                                      },
-                                      child: AppText.appText(
-                                          widget.ischeck == 1
-                                              ? "Mark as sold"
-                                              : widget.ischeck == 2
-                                                  ? ""
-                                                  : "Unarchive",
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400,
-                                          textColor: AppTheme.appColor),
-                                    ),
+
                                   ],
-                                )
+                                ),
                               ],
                             ),
+
                           ],
                         ),
-
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                  if(widget.ischeck == 3 && ( isItemPurchased(data[index]) == false ? data[index].soldToUser?.img != null : data[index].user?.img != null ))
+                  Container(
+                    height: 70,
+                    width: 70,
+                    decoration: BoxDecoration(
+                      color: Colors.amber,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.network(
+                        isItemPurchased(data[index]) == false ? data[index].soldToUser!.img! : data[index].user!.img!,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const CustomDivider()
             ],
@@ -743,7 +797,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
     Duration userTimeZoneOffset = DateTime.now().timeZoneOffset;
 
     // Define the time zone offset for UTC+4 (Dubai time)
-    const dubaiTimeZoneOffset = Duration(hours: 4);
+    const dubaiTimeZoneOffset = Duration(hours: 0);
 
     // Calculate the difference between user time zone and Dubai time zone
     Duration timeDifference = userTimeZoneOffset - dubaiTimeZoneOffset;

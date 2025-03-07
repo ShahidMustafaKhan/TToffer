@@ -97,52 +97,40 @@ class CustomAppFormField extends StatefulWidget {
 class _CustomAppFormFieldState extends State<CustomAppFormField> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: widget.width ?? MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-          border:
-              Border.all(color: widget.borderColor ?? const Color(0xff464646)),
-          color: AppTheme.white,
-          borderRadius: BorderRadius.circular(widget.radius ?? 10)),
-      child: ClipRRect(
-        borderRadius: BorderRadius.all(Radius.circular(widget.radius ?? 10)),
-        child: TextFormField(
-          validator: widget.validator,
-          focusNode: widget.focusNode,
-          cursorColor: Colors.black,
-          enabled: widget.enable,
-          inputFormatters: widget.inputFormatters,
-          onFieldSubmitted: (widget.onFieldSubmitted),
-          onTap: widget.onTap,
-          readOnly: widget.readOnly,
-          onChanged: widget.onChanged,
-          style:
-              TextStyle(fontSize: widget.fontsize, fontWeight: widget.fontweight),
-          textAlign: widget.textAlign,
-          maxLines: widget.maxline ?? 1,
-          controller: widget.controller,
-          // cursorHeight: widget.cursorHeight ?? 20,
-          cursorWidth: 2,
-          keyboardType: widget.type ?? TextInputType.name,
-          decoration: InputDecoration(
-            errorText: widget.errorText,
-              suffixIcon: widget.suffixIcon,
-              suffixIconConstraints:
-                  const BoxConstraints(maxHeight: 20, minWidth: 40),
-              prefixIcon: widget.prefixIcon,
-              prefixIconConstraints: const BoxConstraints(
-                minWidth: 50,
-              ),
-              border: InputBorder.none,
-              contentPadding: widget.contentPadding ?? EdgeInsets.all(widget.cPadding ?? 8),
-              hintText: widget.texthint,
-              hintStyle: widget.hintStyle ?? TextStyle(
-                  color: widget.hintTextColor ?? AppTheme.textColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400),
-              isDense: true),
-        ),
-      ),
+    return TextField(
+
+
+      // style:
+      //     TextStyle(fontFamily : 'Poppins', fontSize: 13.5.sp, fontWeight: FontWeight.w400, color: AppTheme.textColor,  ),
+
+      controller: widget.controller,
+      textAlignVertical: TextAlignVertical.center,
+      // cursorHeight: widget.cursorHeight ?? 20,
+      cursorWidth: 2,
+      keyboardType: widget.type ?? TextInputType.name,
+      decoration: InputDecoration(
+        isDense: false,
+        errorText: widget.errorText,
+          prefixIcon: widget.prefixIcon,
+          prefixIconConstraints: BoxConstraints(
+            minHeight: 48,
+            maxHeight: 48,
+            minWidth: 50
+
+          ),
+
+
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14.r), // Rounded corners
+            borderSide: const BorderSide(
+              color: Color(0xff1E293B), // Border color
+              width: 1, // Border width
+            ),
+          ),
+          contentPadding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 0.h),
+          hintText: widget.texthint,
+          hintStyle: TextStyle(fontFamily : 'Poppins', fontSize: 13.5.sp, fontWeight: FontWeight.w400, color: AppTheme.textColor),
+          ),
     );
   }
 }
@@ -231,8 +219,7 @@ class _CustomAppPasswordfieldState extends State<CustomAppPasswordfield> {
       child: TextFormField(
         textAlign: widget.textAlign,
         controller: widget.controller,
-        cursorColor: AppTheme.white,
-        cursorHeight: 20,
+        cursorColor: AppTheme.blackColor,
         cursorWidth: 2,
         keyboardType: TextInputType.visiblePassword,
         textAlignVertical: TextAlignVertical.center,

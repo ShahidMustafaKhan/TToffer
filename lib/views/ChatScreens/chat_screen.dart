@@ -19,6 +19,7 @@ import 'package:tt_offer/view_model/chat/chat_list_view_model/chat_list_view_mod
 import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 
 import '../../Utils/utils.dart';
+import '../../models/product_model.dart';
 import 'offer_chat_screen.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -35,14 +36,12 @@ class _ChatScreenState extends State<ChatScreen> {
   late AppDio dio;
   AppLogger logger = AppLogger();
   int? userId;
-  Timer? _timer;
   String selectedOption = 'Selling';
   String emptyMessage = 'Start a chat and it will appear\n   here. If you\'re looking for   \n  something, try to find it on \n                 TTOffer.\nOr post a random ad and act\n     fast! Don\'t miss a deal!';
   late ChatListViewModel chatListViewModel;
 
   @override
   void dispose() {
-    stopTimer();
     super.dispose();
   }
 
@@ -54,8 +53,6 @@ class _ChatScreenState extends State<ChatScreen> {
     logger.init();
     getUserId();
     getUserDetail();
-
-    startTimer();
     super.initState();
   }
 
@@ -67,10 +64,7 @@ class _ChatScreenState extends State<ChatScreen> {
       final userViewModel = Provider.of<UserViewModel>(context, listen: false);
       await userViewModel.getUserProfile();
       userId = userViewModel.userModel.data?.id;
-    }
-
-    }
-
+    }}
 
   List<Conversation> chatList = [];
 
@@ -79,19 +73,6 @@ class _ChatScreenState extends State<ChatScreen> {
       chatListViewModel.getAllChat(int.tryParse(id ?? ''));
   }
 
-  void startTimer() {
-    if(widget.isProductChat == false){
-    _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
-      getUserDetail();
-    });
-  }
-  }
-
-  void stopTimer() {
-    if (_timer != null) {
-      _timer!.cancel();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +95,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 SizedBox(height: 15.h,),
               AppText.appText(emptyMessage,
                   fontSize: 14,
-                  letterSpacing: 2,
+                  letterSpacing: 1,
                   fontWeight: FontWeight.w500,
                   textColor: Colors.black),
               SizedBox(height: 12.h,)]
@@ -149,33 +130,26 @@ class _ChatScreenState extends State<ChatScreen> {
             return GestureDetector(
               onTap: () {
 
-                // if(chatList[index].receiver!.id == userId){
-                //   chatListViewModel.markReadChat(chatList[index].conversationId);
-                // }
+                if(chatList[index].receiver!.id == userId){
+                chatListViewModel.markReadChat(chatList[index].conversationId);
+                }
 
                 push(
                     context,
                     OfferChatScreen(
-                      userImgUrl: chatList[index].receiver?.id == userId
-                          ? chatList[index].sender?.img
-                          : chatList[index].receiver?.img,
-                      userRating: chatList[index].receiver?.id == userId
-                          ? chatList[index].sender?.reviewPercentage
-                          : chatList[index].receiver?.reviewPercentage,
                       conversationId: chatList[index].conversationId,
-                          title: chatList[index].receiver?.id == userId
-                              ? chatList[index].sender?.name
-                              : chatList[index].receiver?.name,
+                          participantModel: chatList[index].receiver?.id == userId
+                              ? chatList[index].sender
+                              : chatList[index].receiver,
                           receiverId:
                              chatList[index].receiver?.id == userId
                                   ?  chatList[index].senderId
                                   : chatList[index].receiverId,
                           sellerId: chatList[index].sellerId,
                           buyerId:  chatList[index].buyerId,
-                           productId: chatList[index].productId ,
+                           productId: chatList[index].productId,
+                           product: Product(id: chatList[index].productId, photo: [Photo(url: chatList[index].imagePath?.src)] ),
                     ));
-
-
               },
               child: Padding(
                 padding:
@@ -297,7 +271,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                         color: Colors.black38,
 
                                     ),
-                                    child: Center(child: AppText.appText(chatList[index].product!.productType == 'auction' ? "Auction" : "AED ${abbreviateNumber(chatList[index].product!.fixPrice.toString() ?? '')}" ?? '', fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
+                                    child: Center(child: AppText.appText(productPriceForImage(chatList[index].product), fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
                         ],
                       ),
 
@@ -336,33 +310,8 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  // String? getImage(ChatListData chatData) {
-  //   String? receiverImg;
-  //   if (recieverId == model.data.participant1.id) {
-  //     receiverImg = model.data.participant1.img;
-  //   } else {
-  //     receiverImg = model.data.participant2.img;
-  //   }
-  // }
 
-  String formatTimestamp(String timestamp) {
-    DateTime now = DateTime.now();
-    DateTime time = DateTime.parse(timestamp);
 
-    Duration difference = now.difference(time);
-
-    if (difference.inSeconds < 60) {
-      return "just now";
-    } else if (difference.inMinutes < 60) {
-      return "${difference.inMinutes} M ago";
-    } else if (difference.inHours < 24) {
-      return "${difference.inHours} H ago";
-    } else if (difference.inDays == 1) {
-      return "yesterday";
-    } else {
-      return "${time.day}/${time.month}/${time.year}";
-    }
-  }
 
   getImageUrl(Conversation chatList) {
     String? receiverImg;

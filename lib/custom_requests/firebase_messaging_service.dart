@@ -1,26 +1,19 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/views/Authentication%20screens/login_screen.dart';
-
-import '../Constants/app_logger.dart';
+import 'package:tt_offer/views/Rating/product_rating_screen.dart';
 import '../view_model/notification/notification_api.dart';
-import '../config/app_urls.dart';
 import '../config/dio/app_dio.dart';
 import '../config/keys/pref_keys.dart';
 import '../main.dart';
 import '../providers/screen_state_notifier.dart';
 import '../view_model/product/product/product_viewmodel.dart';
-import '../views/Products/Feature Product/feature_info.dart';
-import '../views/Products/Auction Product/auction_info.dart';
 import '../views/Products/Auction Product/widgets/reschdule_acution_time.dart';
 import '../views/ChatScreens/offer_chat_screen.dart';
-import '../views/Notification/notification_screen.dart';
-import '../views/Sellings/new_sold_screen.dart';
-import '../views/Rating/rating_screen.dart';
+import '../views/Rating/user_rating_screen.dart';
 
 class FirebaseMessagingService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -107,8 +100,15 @@ class FirebaseMessagingService {
       }
 
 
-      else if(title  == 'Review'){
-        push(context, RatingScreen(
+      else if(title  == 'User Review'){
+        push(context, UserRatingScreen(
+          id:typeId.split('0000')[0],
+          productId:typeId.split('0000')[1],
+        ));
+      }
+
+      else if(title  == 'Product Review'){
+        push(context, ProductRatingScreen(
           sellerId:typeId.split('0000')[0],
           productId:typeId.split('0000')[1],
         ));
@@ -169,7 +169,6 @@ class FirebaseMessagingService {
 
 
   }
-
 
   void getProductDetail({productId, required BuildContext context}) async {
 

@@ -68,7 +68,7 @@ class AppButton {
               else
                 Image.asset(imagePath),
             if(icon!=null)
-              Icon(icon, size: 15, color: Color(0xff434343),),
+              Icon(icon, size: 15, color: imageColor ?? Color(0xff434343),),
             if(imagePath!=null || icon!=null)
               SizedBox(width: 10.w,),
               AppText.appText(text,

@@ -11,17 +11,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
-import 'package:tt_offer/on_boarding_screen.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
-
-import 'Constants/app_logger.dart';
-import 'view_model/banner/banner_view_model.dart';
-import 'config/dio/app_dio.dart';
-import 'custom_requests/firebase_messaging_service.dart';
 import 'main.dart';
 import 'stripe_test.dart';
-import 'views/Authentication screens/login_screen.dart';
 import 'views/BottomNavigation/navigation_bar.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -48,11 +41,11 @@ class _SplashScreenState extends State<SplashScreen> {
     await getUserCredentials();
 
     if (token != null) {
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(const Duration(seconds: 5), () {
         pushReplacement(context, const BottomNavView(fromLogin : true));
       });
     } else {
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(const Duration(seconds: 5), () {
         pushReplacement(context, const BottomNavView(fromLogin : true));
       });
     }
@@ -123,10 +116,10 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             Align(
               child: Image.asset(
-                "assets/images/newFrame.png",
-                // fit: BoxFit.cover,
-                height: 120.w,
-                width: 120.w,
+                "assets/gifs/ttoffer_gif.gif",
+                fit: BoxFit.cover,
+                height: 200.w,
+                width: 200.w,
               ),
             ),
 

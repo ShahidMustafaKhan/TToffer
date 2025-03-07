@@ -54,14 +54,12 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
   String? subCategoryName;
 
   late AppDio dio;
-  var userId;
+  int? userId;
   String? authorizationToken;
-  AppLogger logger = AppLogger();
-
-
   double? userRating;
-  
   Product? product;
+
+  late ProductViewModel productViewModel;
 
   Map<String, dynamic>? attributes;
 
@@ -80,7 +78,6 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
 
 
   getUserId() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
     if(pref.getString(PrefKey.userId) != null) {
       userId = int.tryParse(pref.getString(PrefKey.userId)!);
     }
@@ -208,10 +205,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
   
   @override
   void initState() {
-
-    dio = AppDio(context);
-    logger.init();
-    
+    productViewModel = Provider.of<ProductViewModel>(context, listen: false);
     product = widget.product;
     categoryName = product?.category?.name;
     subCategoryName = product?.subCategory?.name;
@@ -220,10 +214,20 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     super.initState();
   }
 
+
+  updateProductDetails() async {
+    product = await productViewModel.getProductDetails(product?.id);
+    setState(() {});
+  }
+
   
 
   Future<void> getProductData() async {
     if(product!= null){
+      productViewModel.setProductDetailLoading(true);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        updateProductDetails();
+      });
       getAttributes();
         getUserId();
         // markProductView();
@@ -266,33 +270,10 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
   }
 
 
-  int? loopLimit;
-
   @override
   Widget build(BuildContext context) {
 
     if(isPageLoading == false) {
-      loopLimit = (subCategoryName == 'Commercial Space' &&
-          (categoryName == 'Property for Sale')) ? 7 :
-      categoryName == 'Property for Sale' ? 6 :
-      categoryName == 'Property for Rent' ? 4
-          : categoryName == 'Vehicles'
-          ? 5
-          : categoryName == 'Jobs'
-          ? 5 :
-      categoryName == 'Electronics & Appliance'
-          ? 1
-          : categoryName == 'Mobiles'
-          ? subCategoryName == 'Accessories' ? 2 : 3
-          : categoryName == 'Animals' ||
-          categoryName == 'Kids'
-          ? 1
-          : categoryName == 'Fashion & beauty' ||
-          categoryName == 'Services' ? 0 :
-      categoryName == 'Bikes' ? (subCategoryName ==
-          'Bicycles' || subCategoryName == 'Bikes Accessories' ||
-          subCategoryName == 'Parts' ? 1 : 2)
-          : 2;
 
       Map<String, List<String>> sortedAttributes = {
         'Animals': [
@@ -510,7 +491,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
                                       const AddDivider(),
 
                                     Visibility(
-                                        visible : userId.toString() != product?.userId.toString(),
+                                        visible : userId.toString() != product?.userId.toString() && product?.isSold != 1,
                                         child: FeatureProductInteractiveButtons(authorizationToken: authorizationToken, product: product, categoryName: categoryName, isFav : isFav, userId: userId,)
                                     ),
 
@@ -546,7 +527,6 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
 
   Future<void> getProductDetail({bool dynamicLink = false}) async {
 
-    final productViewModel = Provider.of<ProductViewModel>(context, listen: false);
 
     setState(() {
       isPageLoading = true;

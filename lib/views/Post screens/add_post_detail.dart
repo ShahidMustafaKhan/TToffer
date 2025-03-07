@@ -23,6 +23,7 @@ import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/models/sub_categories_model.dart';
+import 'package:tt_offer/view_model/category/category_view_model.dart';
 import 'package:tt_offer/view_model/product/post_product/post_product_viewmodel.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
@@ -45,9 +46,7 @@ class PostDetailScreen extends StatefulWidget {
 }
 
 class _PostDetailScreenState extends State<PostDetailScreen> {
-  subCategoriesHandler() async {
-    await SubCategoriesService().subCategoriesService(context: context);
-  }
+
 
   String? _selectedCategory = '';
   String? _selectedSubCategory = '';
@@ -67,8 +66,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   @override
   void initState() {
-
-    subCategoriesHandler();
     super.initState();
   }
 
@@ -138,32 +135,49 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   List<String> mileage = ['Under 10,000 miles', '', "Others"];
   List<String> fuelType = ['Diesel', 'Petrol', "Others"];
   List<String> color = [
-    'White',
-    'Black',
-    'Red',
-    'Pink',
-    'Blue',
-    'Green',
-    'Yellow',
-    'Orange',
-    'Purple',
-    'Brown',
-    'Gray',
-    'Cyan',
-    'Magenta',
-    'Lime',
-    'Indigo',
-    'Violet',
-    'Turquoise',
-    'Teal',
-    'Maroon',
-    'Olive',
-    'Navy',
-    'Coral',
+    'Amber',
     'Beige',
-    'Lavender'
-    , "Others"
+    'Black',
+    'Blue',
+    'Bronze',
+    'Brown',
+    'Charcoal',
+    'Coral',
+    'Copper',
+    'Cranberry',
+    'Crimson',
+    'Cyan',
+    'Emerald',
+    'Gold',
+    'Gray',
+    'Green',
+    'Indigo',
+    'Ivory',
+    'Lavender',
+    'Lime',
+    'Magenta',
+    'Maroon',
+    'Mint',
+    'Navy',
+    'Olive',
+    'Orange',
+    'Peach',
+    'Pink',
+    'Purple',
+    'Red',
+    'Ruby',
+    'Sapphire',
+    'Silver',
+    'Slate',
+    'Teal',
+    'Titanium',
+    'Turquoise',
+    'Violet',
+    'White',
+    'Yellow',
+    'Others'
   ];
+
   List<String> location = ['America'];
 
   bool owner = false;
@@ -646,7 +660,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   List<String> educationList = ['Intermediate', 'High School', 'Bachelor\'s Degree', 'Master\'s Degree', 'PhD', 'Others',];
   List<String> salaryList = ["\$30,000", '\$50,000', '\$60,000', "Others"];
   List<String> salaryPeriodList = ['Monthly', 'Daily', 'Weekly', "Others"];
-  List<String> experienceList = ["Entry-level", "Intermediate", "Expert"];
+  List<String> experienceList = ["1 year", "2 years", "3 years", "4 years", "5 years", "6 years and more"];
   List<String> companyNameList = ['DevSinc', 'Systems Limited', 'Neon System', "Others"];
   List<String> possitionTypeList = ['Full Time', 'Part Time', "Others"];
   List<String> careerLevelList = ['Mid - Senior Level', 'Full - Senior Level', "Others"];
@@ -707,10 +721,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   String? catId;
 
-  //ElectronicAmplience
-
   String? selectDealer;
-  String? selectJobType = "hiring";
+  String? selectJobType;
 
 
 
@@ -820,8 +832,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   Widget build(BuildContext context) {
 
     print("object$_selectedCategory");
-    return Consumer2<CategoryProvider, SubCategoriesProvider>(
-        builder: (context, category, subCat, _) {
+    return Consumer<CategoryViewModel>(
+        builder: (context, categoryViewModel, _) {
       final parseData = widget.product?.attributes ?? {};
 
       if(_selectedCategory=='Mobiles'){
@@ -854,8 +866,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
 
 
-      catModel = category.category;
-      subCatModel = subCat.subCategories;
+      catModel = categoryViewModel.categoryList.data ?? [];
+      subCatModel = categoryViewModel.subCategoryList.data ?? [];
 
       if (!_dataInitialized &&
           widget.product != null) {
@@ -869,8 +881,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         kidsAttributes = KidsAttributes.fromJson(parseData);
         animalsAttributes = AnimalsAttributes.fromJson(parseData);
         furnitureAttributes = FurnitureAttributes.fromJson(parseData);
-        electronicApplicanceAttributes =
-            ElectronicApplianceAttributes.fromJson(parseData);
+        electronicApplicanceAttributes = ElectronicApplianceAttributes.fromJson(parseData);
 
         _selectedCategory = widget.product?.category!.name!;
         _selectedSubCategory =widget.product?.subCategory!.name!;
@@ -878,6 +889,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         catagoryId =widget.product!.categoryId.toString();
         subCatagoryId =widget.product!.subCategory!.id.toString();
 
+        if(propertyAttributes?.owner == 'Owner'){
+          dealer = false;
+          owner = true;
+        }
+        else if(propertyAttributes?.owner == 'Dealer' || propertyAttributes?.owner == 'Agent'){
+          dealer = true;
+          owner = false;
+        }
+
+        selectJobType = jobAttributes?.hireStatus;
 
         brand = mobileAttributes?.brand ?? '';
         colorSelect = mobileAttributes!.color;
@@ -1382,7 +1403,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       selectText: _selectedSubCategory ??
                           'Select Subcategories'),
 
-                _selectedCategory == 'Electronics & Appliance' && _selectedSubCategory!.isNotEmpty
+                _selectedCategory == 'Electronics & Appliances' && _selectedSubCategory!.isNotEmpty
                     ? Column(
                         children: [
                           customRow(
@@ -1759,7 +1780,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           onTap: () {
                           },
                           textInputType: TextInputType.number,
-                          title: 'Buy Transfer Fee', textEditingController: buyTransferController,),
+                          title: 'Buyer Transfer Fee', textEditingController: buyTransferController,),
                         customRowTextField(
                           onTap: () {
                           },
@@ -1807,6 +1828,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           _selectedCategory == null
                               ? const SizedBox.shrink()
                               : customRowTextField(
+                                  textInputType: TextInputType.number,
                                   onTap: () {
                                     // yearBottom(context);
                                   },
@@ -1831,7 +1853,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               : _selectedSubCategory!= 'Car Accessories' && _selectedSubCategory!= 'Parts'
                                   ? customRowTextField(
                                   title: 'Kilometers',
-                                  textEditingController: kilometresController) : const SizedBox.shrink(),
+                                  textEditingController: kilometresController, textInputType: TextInputType.number) : const SizedBox.shrink(),
 
                           // customRow(
                           //         onTap: () {
@@ -1902,7 +1924,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                   'Kids'
                                   ? kidsJson
                                   : _selectedCategory ==
-                                  'Electronics & Appliance'
+                                  'Electronics & Appliances'
                                   ? electricApplianceJson
                                   : {}, provider);
                             },
@@ -4099,7 +4121,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       showSnackBar(context, "Subcategory is required. Please add it.");
     }
     else if ((_selectedCategory == 'Mobiles' || _selectedCategory == 'Vehicles' ||
-        _selectedCategory == 'Electronics & Appliance' || _selectedCategory == 'Furniture & home decor' ||
+        _selectedCategory == 'Electronics & Appliances' || _selectedCategory == 'Furniture & home decor' ||
         _selectedCategory == 'Kids')
         && conditionSelect!.isEmpty ) {
       showSnackBar(context, "Condition is required. Please add it.");
@@ -4175,40 +4197,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
 }
 
-class ImageDeleteService {
-  Future<bool> imageDeleteService(
-      {required BuildContext context,
-      required int id,
-      required int productId}) async {
-    try {
-      Map body = {'photo_id': id, 'product_id': productId};
-
-      // Assuming CustomPostRequest().httpPostRequest returns a Map
-      var res = await CustomPostRequest()
-          .httpPostRequest(url: AppUrls.deleteImage, body: body);
-
-      // Check the response type
-      if (res is bool) {
-        // If it's already a boolean value, return it directly
-        return res;
-      } else if (res is Map) {
-        // If it's a map, check if the response indicates success
-        // For example, assuming 'success' key in the response
-        if (res['success'] == true) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        // Handle other types of responses if needed
-        return false;
-      }
-    } catch (err) {
-      print(err);
-      return false;
-    }
-  }
-}
 
 
 Widget customCheckBox(bool val, Function(bool?)? onChanged, String? title) {

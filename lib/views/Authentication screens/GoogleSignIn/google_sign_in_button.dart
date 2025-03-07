@@ -56,25 +56,25 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                             "Continue with Google",
                             onTap: () async {
 
-                                  showSnackBar(context, "This feature is coming soon."  ,title: "Google Authentication");
+                                  // showSnackBar(context, "This feature is coming soon."  ,title: "Google Authentication");
 
 
-                              // googleAuthViewModel.setSigningIn(true);
-                              //
-                              //   await googleAuthViewModel
-                              //       .signInWithGoogle(loginViewModel, registerViewModel)
-                              //       .then((_) {
-                              //     Navigator.pushAndRemoveUntil(
-                              //       context,
-                              //       MaterialPageRoute(
-                              //         builder: (context) => const BottomNavView(fromLogin: true),
-                              //       ),
-                              //           (route) => false,
-                              //     );
-                              //   }).onError((error, stackTrace){
-                              //     googleAuthViewModel.setSigningIn(false);
-                              //     showSnackBar(context, error.toString());
-                              //   });
+                              googleAuthViewModel.setSigningIn(true);
+
+                                await googleAuthViewModel
+                                    .signInWithGoogle(loginViewModel, registerViewModel)
+                                    .then((_) {
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const BottomNavView(fromLogin: true),
+                                    ),
+                                        (route) => false,
+                                  );
+                                }).onError((error, stackTrace){
+                                  googleAuthViewModel.setSigningIn(false);
+                                  showSnackBar(context, error.toString());
+                                });
 
                             },
                             height: 44,

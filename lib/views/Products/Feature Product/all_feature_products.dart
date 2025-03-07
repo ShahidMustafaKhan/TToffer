@@ -13,6 +13,7 @@ import 'package:tt_offer/Utils/widgets/textField_lable.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/sub_categories_model.dart';
+import 'package:tt_offer/view_model/category/category_view_model.dart';
 import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/all_auction_procucts.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_container.dart';
@@ -56,19 +57,13 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
 
 
   getCategories() async {
-    await BlockedUserServices().getBlockedUser(context: context);
-
-    catModel = Provider.of<CategoryProvider>(context, listen: false).category;
-
+    catModel = Provider.of<CategoryViewModel>(context, listen: false).categoryList.data ?? [];
     setState(() {});
   }
 
   getSubCat() async {
-    await SubCategoriesService().subCategoriesService(context: context);
 
-    subCat = Provider.of<SubCategoriesProvider>(context, listen: false)
-        .subCategories;
-
+    subCat = Provider.of<CategoryViewModel>(context, listen: false).subCategoryList.data ?? [];
     setState(() {});
   }
 
@@ -180,7 +175,7 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                               mainAxisSpacing: 15.h,
                               crossAxisSpacing: 12,
                               crossAxisCount: 2,
-                              height: 245.h
+                              height: MediaQuery.of(context).size.height * 0.312
                           ),
                           shrinkWrap: true,
                           itemCount: featureProductList?.length ?? 0,
@@ -197,6 +192,7 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                                   //     featureProductList[index]["id"]);
                                 },
                                 child: FeatureProductContainer(
+                                  fromHomePage: true,
                                   product: featureProductList?[index],
                                 ));
                           },

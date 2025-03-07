@@ -61,14 +61,11 @@ dependencies:
   firebase_auth: ^4.17.8
   google_sign_in: ^6.2.1
   firebase_database: ^10.4.9
-  # flutter_chat_ui: ^1.6.12
   chat_bubbles: ^1.2.0
   http: ^1.2.1
   intl_phone_number_input: ^0.7.4
   pinput: ^4.0.0
-  flutter_stripe: ^10.1.1
-  # zego_uikit_prebuilt_call: ^4.9.0
-  # zego_uikit_signaling_plugin: ^2.7.6
+  flutter_stripe: ^11.3.0
   timeago: ^3.6.1
   flutter_local_notifications: ^17.1.2
   firebase_messaging: ^14.9.2
@@ -88,15 +85,14 @@ dependencies:
   firebase_dynamic_links:
   share_plus:
   video_player:
-  loading_animation_widget: 
-
-
+  loading_animation_widget:
+  lottie:
 
 
 
 
 flutter_icons:
-  image_path: "assets/images/TTOffer.png"
+  image_path: "assets/images/ttoffer_logo.png"
   android: true
   ios: true
 
@@ -126,6 +122,8 @@ flutter:
   assets:
     - assets/images/
     - assets/
+    - assets/gifs/
+    - assets/lottie/
     - assets/svg/
     - assets/service-account.json
   #   - images/a_dot_ham.jpeg
@@ -144,9 +142,17 @@ flutter:
   fonts:
     - family: Poppins
       fonts:
+        - asset: assets/fonts/Poppins-Light.ttf
+          weight: 300
         - asset: assets/fonts/Poppins-Regular.ttf
-        # - asset: fonts/Schyler-Italic.ttf
-        #   style: italic
+          weight: 400
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+
     - family: FranklinGothic
       fonts:
         - asset: assets/fonts/FranklinGothic.ttf

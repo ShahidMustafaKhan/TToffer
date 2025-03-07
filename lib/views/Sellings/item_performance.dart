@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/constants.dart';
-import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/products_count_model.dart';
-import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/Boost%20Plus%20Screens/boost_plus_screen.dart';
 
 import '../../models/product_model.dart';
+import '../../view_model/product/product/product_viewmodel.dart';
 
 class ItemPerformanceScreen extends StatefulWidget {
   final Product? product;
@@ -24,15 +23,65 @@ class ItemPerformanceScreen extends StatefulWidget {
 
 class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
   List<ItemData> data = [];
+
+  late ProductViewModel productViewModel;
+  Product? product;
+
+  int totalViews = 0;
+
+  List<int> views = [];
+
   @override
   void initState() {
-    getItemPerformance();
+    productViewModel = Provider.of<ProductViewModel>(context, listen: false);
+    product = widget.product;
+    updateViews();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getItemPerformance();
+    });
     super.initState();
   }
 
-  List<num> views = [];
-
   bool loading = false;
+
+  void updateViews({bool state = false}) {
+    // Initialize the views list with zeros for all 12 months
+    views = List.filled(10, 0);
+    totalViews = 0;
+
+    if (product != null && product!.viewSummary != null) {
+      // Map months to their respective indices
+      final monthToIndex = {
+        "December": 0,
+        "January": 1,
+        "February": 2,
+        "March": 3,
+        "April": 4,
+        "May": 5,
+        "June": 6,
+        "July": 7,
+        "August": 8,
+        "September": 9,
+      };
+
+      product!.viewSummary!
+          .where((element) => element.views != null)
+          .forEach((element) {
+        final monthIndex = monthToIndex[element.month];
+        if (monthIndex != null) {
+          // Replace the views for the corresponding month
+          views[monthIndex] = element.views!;
+        }
+        totalViews += element.views!;
+      });
+    }
+
+    // Trigger a state update if required
+    if (state == true) {
+      setState(() {});
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -96,41 +145,48 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                 ),
               ),
             ),
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(vertical: 10.0),
-            //   child: Row(
-            //     children: [
-            //       AppText.appText("Total Views:",
-            //           fontSize: 12,
-            //           fontWeight: FontWeight.w400,
-            //           textColor: AppTheme.textColor),
-            //       const SizedBox(
-            //         width: 20,
-            //       ),
-            //       AppText.appText("2344",
-            //           fontSize: 12,
-            //           fontWeight: FontWeight.w700,
-            //           textColor: AppTheme.textColor),
-            //     ],
-            //   ),
-            // ),
-            if (!loading)
-              Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 20.0,
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Row(
+                children: [
+                  AppText.appText("Total Views:",
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      textColor: AppTheme.textColor),
+                  const SizedBox(
+                    width: 20,
                   ),
-                  child: SizedBox(
-                    height: 256,
-                    child: ProductPerformanceChart(
-                      viewsData: views,
-                    ),
-                  ))
-            else
-              Center(
-                child: CircularProgressIndicator(
-                  color: AppTheme.appColor,
-                ),
+                  AppText.appText("$totalViews",
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      textColor: AppTheme.textColor),
+                ],
               ),
+            ),
+            Consumer<ProductViewModel>(
+            builder: (context, productViewModel, child) {
+
+
+              if (!loading) {
+                 return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 20.0,
+                    ),
+                    child: SizedBox(
+                      height: 256,
+                      child: ProductPerformanceChart(
+                        viewsData: views,
+                      ),
+                    ));
+               } else {
+                 return Center(
+                  child: CircularProgressIndicator(
+                    color: AppTheme.appColor,
+                  ),
+                );
+               }
+            }),
+
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: AppButton.appButton("Boost Plus", onTap: () {
@@ -158,25 +214,15 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
   }
 
   Future<void> getItemPerformance() async {
-    views = [10,7,3,2,5,6,4,3,2,1];
 
-    // var responce = await customPostRequest
-    //     .httpPostRequest(url: AppUrls.allProductsUrl, body: {});
-    //
-    // ProductCountModel model = ProductCountModel.fromJson(responce);
-    //
-    // data = model.data;
-    //
-    // data.forEach(
-    //   (element) {
-    //     views.add(element.viewsCount ?? 0.0);
-    //   },
-    // );
-    //
-    // setState(() {
-    //   loading = false;
-    // });
-  }
+      productViewModel.getProductDetails(product?.id)
+          .then((value){
+            product = value;
+            updateViews(state: true);
+      })
+          .onError((error, stackTrace){});
+    }
+
 }
 
 class ProductPerformanceChart extends StatelessWidget {
@@ -192,9 +238,11 @@ class ProductPerformanceChart extends StatelessWidget {
         lineBarsData: [
           LineChartBarData(
             dotData: const FlDotData(show: false),
-            spots: viewsData.asMap().entries.map((entry) {
-              return FlSpot(entry.key.toDouble(), entry.value.toDouble());
-            }).toList(),
+            spots: List.generate(10, (index) {
+              // Fill missing months with default values (e.g., 0)
+              double value = index < viewsData.length ? viewsData[index].toDouble() : 0.0;
+              return FlSpot(index.toDouble(), value);
+            }),
             isCurved: true,
             color: AppTheme.appColor,
             barWidth: 2,
@@ -209,30 +257,28 @@ class ProductPerformanceChart extends StatelessWidget {
           ),
         ],
         minY: 0,
-        titlesData: const FlTitlesData(
+        titlesData: FlTitlesData(
           show: true,
-          rightTitles: AxisTitles(
+          rightTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
-          topTitles: AxisTitles(
+          topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
-          // bottomTitles: AxisTitles(
-          //   sideTitles: SideTitles(
-          //     showTitles: true,
-          //     reservedSize: 30,
-          //     interval: 1,
-          //     getTitlesWidget: bottomTitleWidgets,
-          //   ),
-          // ),
-          // leftTitles: AxisTitles(
-          //   sideTitles: SideTitles(
-          //     showTitles: true,
-          //     interval: 1,
-          //     getTitlesWidget: leftTitleWidgets,
-          //     reservedSize: 42,
-          //   ),
-          // ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 30,
+              getTitlesWidget: bottomTitleWidgets,
+            ),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 42,
+              interval: 10, // Show labels at intervals of 10
+              getTitlesWidget: leftTitleWidgets,
+            ),)
         ),
         borderData: FlBorderData(
           show: false,
@@ -243,35 +289,55 @@ class ProductPerformanceChart extends StatelessWidget {
 
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
     Widget text;
+    String month = '';
+
+    // Mapping month numbers to month names
     switch (value.toInt()) {
+
+      case 0:
+        month = 'Dec';
+        break;
+      case 1:
+        month = 'Jan';
+        break;
       case 2:
-        text = AppText.appText('Jan',
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            textColor: const Color(0xff615E83));
+        month = 'Feb';
+        break;
+      case 3:
+        month = 'Mar';
+        break;
+      case 4:
+        month = 'Apr';
         break;
       case 5:
-        text = AppText.appText('Feb',
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            textColor: const Color(0xff615E83));
-
+        month = 'May';
+        break;
+      case 6:
+        month = 'Jun';
+        break;
+      case 7:
+        month = 'Jul';
         break;
       case 8:
-        text = AppText.appText('Mar',
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            textColor: const Color(0xff615E83));
-
+        month = 'Aug';
+        break;
+      case 9:
+        month = 'Sep';
+        break;
+      // case 9:
+      //   month = 'Oct';
+      //   break;
+      // case 10:
+      //   month = 'Nov';
         break;
       default:
-        text = AppText.appText('',
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            textColor: const Color(0xff615E83));
-
-        break;
+        month = ''; // For any other value
     }
+
+    text = AppText.appText(month,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        textColor: const Color(0xff615E83));
 
     return SideTitleWidget(
       axisSide: meta.axisSide,
@@ -284,21 +350,11 @@ class ProductPerformanceChart extends StatelessWidget {
       fontWeight: FontWeight.bold,
       fontSize: 15,
     );
-    String text;
-    switch (value.toInt()) {
-      case 1:
-        text = '10K';
-        break;
-      case 3:
-        text = '30k';
-        break;
-      case 5:
-        text = '50k';
-        break;
-      default:
-        return Container();
-    }
+
+    // Convert the `value` to a string to display as a label
+    String text = value.toInt().toString();
 
     return Text(text, style: style, textAlign: TextAlign.left);
   }
+
 }

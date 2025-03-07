@@ -18,8 +18,8 @@ class NotificationService {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString(PrefKey.authorization);
       String? id = prefs.getString(PrefKey.userId);
-      print('Authorization Token: $token');
-      print('id: $id');
+
+      debugPrint('${AppUrls.baseUrl}get/user/all/notifications/$id');
 
       var headers = {'Authorization': 'Bearer $token'};
       var dio = Dio();
@@ -58,9 +58,9 @@ class NotificationService {
       if (notification.status == 'unread') {
         Provider.of<NotificationProvider>(context, listen: false)
             .changeIndicatorStatus(true);
-        if(notification.type == 'conversation'){
-          changeChatStatus(context: context, notificationData: notification);
-        }
+        // if(notification.type == 'conversation'){
+        //   changeChatStatus(context: context, notificationData: notification);
+        // }
         // changeStatus(context: context, id: notification.id.toString());
       }
     }
@@ -114,33 +114,33 @@ class NotificationService {
     }
   }
 
-  Future<void> changeChatStatus({required BuildContext context, required NotificationData notificationData}) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString(PrefKey.authorization);
-      print('Authorization Token: $token');
-
-      var headers = {'Authorization': 'Bearer $token'};
-      var dio = Dio();
-      var response = await dio.get(
-        '${AppUrls.baseUrl}mark/conversation/read/${notificationData.typeId}',
-        options: Options(
-          headers: headers,
-        ),
-      );
-
-      if (response.statusCode == 200) {
-
-
-
-      } else {
-
-      }
-    } catch (err) {
-      print(err);
-
-    }
-  }
+  // Future<void> changeChatStatus({required BuildContext context, required NotificationData notificationData}) async {
+  //   try {
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     String? token = prefs.getString(PrefKey.authorization);
+  //     print('Authorization Token: $token');
+  //
+  //     var headers = {'Authorization': 'Bearer $token'};
+  //     var dio = Dio();
+  //     var response = await dio.get(
+  //       '${AppUrls.baseUrl}mark/conversation/read/${notificationData.typeId}',
+  //       options: Options(
+  //         headers: headers,
+  //       ),
+  //     );
+  //
+  //     if (response.statusCode == 200) {
+  //
+  //
+  //
+  //     } else {
+  //
+  //     }
+  //   } catch (err) {
+  //     print(err);
+  //
+  //   }
+  // }
 
 
 }

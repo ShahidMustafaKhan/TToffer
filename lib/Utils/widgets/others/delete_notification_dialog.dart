@@ -15,11 +15,14 @@ Future CustomAlertDialog(
     required String description,
     required String cancelButtonTitle,
     required String confirmButtonTitle,
+    bool barrierDismissible = true,
+    bool removeCancelButton = false,
     required BuildContext context,
     required bool loading,
     required Function() onTap}) {
   return showDialog(
     context: context,
+    barrierDismissible: barrierDismissible,
     builder: (BuildContext context) {
       return StatefulBuilder(builder: (context, setStatess) {
         return Dialog(
@@ -93,7 +96,9 @@ Future CustomAlertDialog(
                       SizedBox(
                         height: 10.h,
                       ),
-                      AppButton.appButton(cancelButtonTitle!, onTap: () {
+
+                      if(removeCancelButton == false)
+                      AppButton.appButton(cancelButtonTitle, onTap: () {
                         Navigator.of(context).pop();
                       },
                           height: 53,

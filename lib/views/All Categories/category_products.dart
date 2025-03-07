@@ -46,6 +46,13 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
   void initState() {
     dio = AppDio(context);
     logger.init();
+
+    if(widget.catNAme == "Animals" ||
+        widget.catNAme == "Jobs" ||
+        widget.catNAme == "Services"){
+      selectedOption = 'Featured';
+    }
+
     productViewModel =
         Provider.of<ProductViewModel>(context, listen: false);
     productViewModel.getAuctionProducts();
@@ -86,12 +93,15 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
           builder: (context, apiProvider, child) {
             return Column(
             children: [
+              if(widget.catNAme != "Animals" &&
+                  widget.catNAme != "Jobs" &&
+                  widget.catNAme != "Services")
               selectOption(),
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      if (selectedOption == "Auction")
+                      if (selectedOption == "Auction" )
                         apiProvider.auctionProductList.status == Status.loading
                             ? LoadingDialog()
                             : auctionList?.isEmpty ?? true  ? NoDataFound.noDataFound()
@@ -122,7 +132,7 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
                       if (selectedOption == "Featured")
                         apiProvider.featureProductList.status == Status.loading
                             ? LoadingDialog()
-                            : filteredList?.isEmpty ?? true ? NoDataFound.noDataFound()
+                            : filteredList?.isEmpty ?? true ? NoDataFound.noDataFound(spacer : widget.catNAme != "Animals" &&widget.catNAme != "Jobs" && widget.catNAme != "Services" ? null : 200.h)
                             : Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: GridView.builder(

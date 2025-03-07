@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,7 @@ import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
+import 'package:tt_offer/Utils/widgets/others/congragulations_dialog.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/data/response/api_response.dart';
 import 'package:tt_offer/main.dart';
@@ -22,18 +24,22 @@ import 'package:tt_offer/views/EmailVerification/email_verification_screen.dart'
 import 'package:tt_offer/views/PhoneVerify/phone_verify_screen.dart';
 import 'package:tt_offer/views/Profile%20Screen/Account%20Settigs/account_setting.dart';
 import 'package:tt_offer/views/Profile%20Screen/Settings/settings.dart';
+import 'package:tt_offer/views/Profile%20Screen/Transactions/transaction_screen.dart';
 import 'package:tt_offer/views/Profile%20Screen/custom_link.dart';
 import 'package:tt_offer/views/Profile%20Screen/saved_products.dart';
-import 'package:tt_offer/views/Profile%20Screen/wish_list_products.dart';
 import 'package:tt_offer/views/Sellings/selling_purchase.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
+import 'package:tt_offer/views/ShoppingFlow/coupon/coupon_screen.dart';
 
 import '../../Utils/widgets/custom_loader.dart';
+import '../../Utils/widgets/others/coming_soon_dialog.dart';
 import '../../Utils/widgets/others/delete_notification_dialog.dart';
 import '../../data/response/status.dart';
 import '../../models/user_model.dart';
 import '../../providers/selling_purchase_provider.dart';
+import '../../stripe_test.dart';
+import 'Sell To Us/sell_to_us.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -59,6 +65,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     userViewModel = Provider.of<UserViewModel>(context, listen: false);
     userViewModel.getUserProfile();
     getUserDetail();
+    userViewModel.overViewApi(userId, context);
+
 
     super.initState();
   }
@@ -106,7 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           automaticallyImplyLeading: false,
           forceMaterialTransparency: true,
           centerTitle: true,
-          title: AppText.appText("Profile",
+          title: AppText.appText("My Account",
               fontSize: 20,
               fontWeight: FontWeight.w500,
               textColor: AppTheme.blackColor),
@@ -142,10 +150,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                buildStatItem('0', 'Bought'),
-                                buildStatItem('0', 'Sold'),
-                                buildStatItem('0', 'Followers'),
-                                buildStatItem('0', 'Following'),
+                                buildStatItem('${userModel?.myBought ?? 0}', 'Bought'),
+                                buildStatItem('${userModel?.mySold ?? 0}', 'Sold'),
+                                buildStatItem('${userModel?.followersCount ?? 0}', 'Followers'),
+                                buildStatItem('${userModel?.followingCount ?? 0}', 'Following'),
                               ],
                             ),
 
@@ -224,18 +232,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       txt: "Purchases & Sales",
                       img: "assets/images/receipt.png"),
-                  // customRow(
-                  //     onTap: () {
-                  //       push(context, const PaymentScreen());
-                  //     },
-                  //     txt: "Payment & Deposit method",
-                  //     img: "assets/images/payment.png"),
+                  customRow(
+                      onTap: () {
+                        // push(context, PaymentScreen());
+                        comingSoonDialog(
+                            title: 'Wallet Coming!', // Shorter title
+                            description: "A new way to manage transactions is arriving soon. Enjoy secure and effortless payments right within the app. Stay tuned for updates!", // More detailed description
+                            context: context,
+                            loading: false,
+                            onTap: (){}
+                        );
+
+                      },
+                      txt: "Wallet",
+                      img: "assets/images/ic_wallet.png"),
+                  customRow(
+                      onTap: () {
+                        push(
+                            context,
+                            TransactionScreen());
+                      },
+                      txt: "Payment Transactions",
+                      img: "assets/images/payment.png"),
+
                   const CustomDivider(),
                   headingText(txt: "Save"),
                   customRow(
                       onTap: () {
                         push(context, const SavedItemsScreen());
                       },
+                      isSave: true,
                       txt: "Saved items",
                       img: "assets/images/heart.png"),
                   // customRow(
@@ -243,18 +269,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   //     txt: "Search alerts",
                   //     img: "assets/images/notification.png"),
                   const CustomDivider(),
-                  headingText(txt: "Wishlist"),
+                  headingText(txt: "Offers"),
                   customRow(
                       onTap: () {
-                        push(context, const WishListItemsScreen());
+                        push(context, const SellToUs());
                       },
-                      txt: "Wishlist items",
-                      img: "assets/images/heart.png"),
-                  // customRow(
-                  //     onTap: () {},
-                  //     txt: "Search alerts",
-                  //     img: "assets/images/notification.png"),
+                      txt: "Sell to Us",
+                      img: "assets/images/sell_to_us.svg"),
+                  customRow(
+                      onTap: () {
+                        push(context, GiftCardsCouponsScreen(showSuccessMessage: true,));
+                      },
+                      txt: "Gift cards",
+                      img: "assets/images/ic_gift_card.png"),
                   const CustomDivider(),
+                  // headingText(txt: "Wishlist"),
+                  // customRow(
+                  //     onTap: () {
+                  //       push(context, const WishListItemsScreen());
+                  //     },
+                  //     txt: "Wishlist items",
+                  //     img: "assets/images/heart.png"),
+                  // // customRow(
+                  // //     onTap: () {},
+                  // //     txt: "Search alerts",
+                  // //     img: "assets/images/notification.png"),
+                  // const CustomDivider(),
                   headingText(txt: "Account"),
                   customRow(
                       onTap: () {
@@ -316,35 +356,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       loading: isLoading,
 
       onTap: () async {
-        Navigator.of(context).pop();
-        clearCacheAndSignOut();
-        SharedPreferences pref =
-        await SharedPreferences.getInstance();
-        pref.clear();
-        Provider.of<SellingPurchaseProvider>(context, listen: false).sellingProductsModel = null;
-        userViewModel.userModel =  ApiResponse.notStarted();
-        pushUntil(context, const SigInScreen());
+        userViewModel.logout(context, userId);
       },
     );
   }
 
-
-  Future<void> clearCacheAndSignOut() async {
-    // Sign out from Google
-    GoogleSignIn googleSignIn = GoogleSignIn();
-    await googleSignIn.signOut();
-
-    // Clear shared preferences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-
-    // Optionally, clear other caches if needed
-    // e.g., app-specific caches, in-memory caches, etc.
-
-    // Restart the authentication flow or navigate to the login screen
-    // For example:
-    // Navigator.of(context).pushReplacementNamed('/login');
-  }
 
 
   Widget verifiedContainer({img, txt, color, Function()? onTap}) {
@@ -397,7 +413,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget customRow({img, txt, required Function() onTap}) {
+  Widget customRow({required String img, txt, required Function() onTap, bool isSave = false}) {
     return Padding(
       padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
       child: GestureDetector(
@@ -407,10 +423,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Row(
               children: [
-                Image.asset(
-                  "$img",
-                  height: 20,
+                if(isSave == false)
+                  if(img.endsWith('.png'))
+                      Image.asset(
+                        "$img",
+                        height: 20,
+                      )
+                      else
+                      SvgPicture.asset(img, height: 22,)
+                else
+                Consumer<UserViewModel>(
+                    builder: (context, userViewModel, child) {
+                      return Stack(
+                        clipBehavior: Clip.none,
+                      children: [
+                        Image.asset(
+                          "$img",
+                          height: 20,
+                        ),
+                        if(userViewModel.savedItemsCount != 0)
+                          Positioned(
+                            top: -4,
+                            right: -4,
+                            child: Container(
+                              height: 13, // Adjust the size as needed
+                              width: 13,  // Adjust the size as needed
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(child: AppText.appText('${userViewModel.savedItemsCount}', textColor: Colors.white, fontSize: 7.sp, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                      ],
+                    );
+                  }
                 ),
+
                 const SizedBox(
                   width: 20,
                 ),
@@ -551,7 +600,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     SizedBox(width: userModel?.reviewPercentage == null || userModel?.reviewPercentage == 0.0 ? 40.w : 12.w,),
                     StarRating(
-                      percentage: userModel?.reviewPercentage?.round() ?? 0,
+                      percentage: percentageOfFive(userModel?.reviewPercentage ?? 0),
                       color: Colors.yellow,
                       size: 25,
                     ),

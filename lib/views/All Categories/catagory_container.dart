@@ -28,7 +28,7 @@ class _CatagoryContainerState extends State<CatagoryContainer> {
                 width: 53.w,
                 decoration:
                     BoxDecoration(shape: BoxShape.circle, color: widget.color),
-                child: Image.asset(
+                child: Image.network(
                   widget.img,
                 ),
               ),
@@ -38,9 +38,13 @@ class _CatagoryContainerState extends State<CatagoryContainer> {
                       ? ' Property\n for Sale'
                       : widget.txt == 'Property for Rent'
                           ? ' Property\n for Rent'
-                          : widget.txt == 'Electronics & Appliance'
-                              ? 'Electronics\n & Appliance'
-                              : widget.txt,
+                          : widget.txt == 'Furniture & home decor'
+                              ? 'Furniture &\nhome decor'
+                              : widget.txt == 'Fashion & beauty'
+                                  ? 'Fashion\n & beauty'
+                                  : widget.txt == 'Electronics & Appliances'
+                                    ? 'Electronics\n & Appliance'
+                                    : widget.txt,
                   fontSize: 11.sp,
                   textAlign: TextAlign.center,
                   fontWeight: FontWeight.w600,
@@ -66,7 +70,7 @@ class _CatagoryContainerState extends State<CatagoryContainer> {
                 width: 50,
                 decoration:
                     BoxDecoration(shape: BoxShape.circle, color: widget.color),
-                child: Image.asset(
+                child: Image.network(
                   widget.img,
                   height: 32,
                   width: 32,

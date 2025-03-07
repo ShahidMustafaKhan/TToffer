@@ -163,6 +163,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                           };
 
                           provider.loginApiWithPhone(data).then((value){
+                            unAuthorized = false;
                             Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(

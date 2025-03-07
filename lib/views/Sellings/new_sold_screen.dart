@@ -1,15 +1,11 @@
 import 'dart:core';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
-import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/view_model/chat/chat_list_view_model/chat_list_view_model.dart';
 import 'package:tt_offer/view_model/selling/selling_view_model.dart';
@@ -19,22 +15,19 @@ import '../../config/keys/pref_keys.dart';
 import '../../data/response/status.dart';
 import '../../models/bids_model.dart';
 import '../../models/chat_list_model.dart';
+import '../../models/product_model.dart';
+import '../../models/user_model.dart';
 import '../../providers/bids_provider.dart';
 import '../../utils/utils.dart';
 import '../../view_model/bids/bids_view_model.dart';
-import '../Rating/rating_screen.dart';
+import '../Rating/user_rating_screen.dart';
 
 class NewSoldScreen extends StatefulWidget {
-  final String? productId;
-  String? title;
-  String? image;
-  String? fixPrice;
-  String? auctionPrice;
-  bool auction;
+  Product? product;
   bool fromNotification;
   bool fromMyAds;
 
-  NewSoldScreen({super.key,  this.auction=false, this.productId , this.fixPrice , this.title, this.auctionPrice, this.image, this.fromNotification = false, this.fromMyAds = false});
+  NewSoldScreen({super.key,  this.product, this.fromNotification = false, this.fromMyAds = false});
 
   @override
   State<NewSoldScreen> createState() => _NewSoldScreenState();
@@ -72,9 +65,9 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
   }
 
   getBidsHandler() async {
-    if(widget.productId != null) {
+    if(product?.id != null) {
       final bidViewModel = Provider.of<BidsViewModel>(context, listen: false);
-      await bidViewModel.getBids(int.parse(widget.productId!));
+      await bidViewModel.getBids(product?.id);
 
       if(bidViewModel.bidsList.status == Status.completed){
 
@@ -90,16 +83,19 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
 
     }
   }
+  
+  Product? product;
 
 
   @override
   void initState() {
     dio = AppDio(context);
     id = int.tryParse(pref.getString(PrefKey.userId) ?? '');
+    product = widget.product;
 
     chatListViewModel = Provider.of<ChatListViewModel>(context, listen: false);
 
-    if(widget.auction == false) {
+    if(product?.productType != 'auction') {
       getAllChat();
     } else{
       getBidsHandler();
@@ -127,7 +123,7 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        if(widget.image!=null)
+                        if(product?.photo?.isNotEmpty ?? false)
                         ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: Container(
@@ -137,7 +133,7 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                                 borderRadius: BorderRadius.circular(10),
                                 image: DecorationImage(
                                     image: NetworkImage(
-                                        widget.image!.toString()),
+                                        product!.photo![0].url!),
                                     fit: BoxFit.fill)),
                           ),
                         ),
@@ -146,11 +142,11 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            AppText.appText(widget.title!,
+                            AppText.appText(product?.title ?? '',
                                 fontSize: 17, fontWeight: FontWeight.bold),
                             const SizedBox(height: 8),
                             AppText.appText(
-                                'AED ${widget.auction == true ? widget.auctionPrice.toString() : widget.fixPrice.toString()}'),
+                                productPriceInFull(product)),
                           ],
                         )
                       ],
@@ -165,7 +161,7 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                       color: Colors.grey.shade200,
                     ),
 
-                    if(widget.auction == false)
+                    if(product?.productType != 'auction')
                     Container(
                       constraints: BoxConstraints(
                         minHeight: 120.h,
@@ -174,7 +170,7 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                           builder: (context, data, child) {
                             List<Conversation> temp=[];
                               for (var item in data.sellingChat.data ?? []) {
-                                if (item.productId.toString() == widget.productId!) {
+                                if (item.productId.toString() == product?.id.toString()) {
                                   temp.add(item);
                                 }
                               }
@@ -232,7 +228,7 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                       ),
                     ),
 
-                    if(widget.auction == true)
+                    if(product?.productType == 'auction')
                       Container(
                         constraints: BoxConstraints(
                           minHeight: 120.h,
@@ -308,7 +304,7 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                           child: Center(
                             child: InkWell(
                               onTap: () async {
-                                sellingViewModel.markSoldProduct(null, int.parse(widget.productId!), context, (){});
+                                sellingViewModel.markSoldProduct(null, product?.id, context, (){});
                               },
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -326,10 +322,10 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                           onTap: () async {
                             if(fromTTOffer == false && selectedIndex == 0){
 
-                              if(widget.auction == false && chatList.isEmpty){
+                              if(product?.productType != 'auction' && chatList.isEmpty){
                                 showSnackBar(context, "No users from TT Offer have made an offer on this product yet.");
                               }
-                              else if(widget.auction == true && bids.isEmpty){
+                              else if(product?.productType == 'auction' && bids.isEmpty){
                                 showSnackBar(context, "No users from TT Offer have made an bid on this product yet.");
                               }
                               else{
@@ -342,7 +338,7 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
                             else{
                               if(selectedIndex!=null) {
 
-                                await markAsSold(int.parse(widget.productId!), context , id);
+                                await markAsSold(product?.id, context);
                               }
                               else{
                                 showSnackBar(context, "Please select who bought your product or press the skip button to continue.");
@@ -410,6 +406,17 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
     return userId;
   }
 
+  getUserModel(Conversation chatList) {
+    UserModel? userModel;
+    if (id.toString() == chatList.receiver?.id.toString()) {
+      userModel = chatList.sender;
+    } else {
+      userModel = chatList.receiver;
+    }
+
+    return userModel;
+  }
+
   getUserName(Conversation chatList) {
     String? userName;
     if (id.toString() == chatList.receiver?.id.toString()) {
@@ -422,41 +429,53 @@ class _NewSoldScreenState extends State<NewSoldScreen> {
   }
 
 
-  Future<void> markAsSold(int? id, context, sellerId) async {
-           await Provider.of<SellingViewModel>(context, listen: false).markSoldProduct(fromTTOffer==true ? widget.auction == false ? int.parse(getUserId(chatList[selectedIndex!])) : bids[selectedIndex!].userId! : null, int.parse(widget.productId!), context, (){productMarkedSuccessfully(sellerId);});
+  Future<void> markAsSold(int? id, context) async {
+           await Provider.of<SellingViewModel>(context, listen: false).
+           markSoldProduct(fromTTOffer==true ? product?.productType != 'auction' ?
+           int.parse(getUserId(chatList[selectedIndex!])) : bids[selectedIndex!].userId! : null, product?.id,
+               context, (){productMarkedSuccessfully();});
   }
 
-  void productMarkedSuccessfully(int? sellerId){
+  void productMarkedSuccessfully(){
+
+    // deleteProductConversation();
+
     if(fromTTOffer){
-      SendNotification.sendNotification(
-          context: context,
-          userId: widget.auction == false ? int.parse(getUserId(chatList[selectedIndex!])) : bids[selectedIndex!].userId!,
-          buyerId: widget.auction == false ? int.parse(getUserId(chatList[selectedIndex!])) : bids[selectedIndex!].userId!,
-          sellerId: sellerId,
-          text: "Review ${capitalizeWords(widget.auction == false ? getUserName(chatList[selectedIndex!]) : bids[selectedIndex!].user!.name )} for ${(widget.title)} ",
-          type: "Review",
-          typeId: "${sellerId}0000${widget.productId}",
-        productId: int.tryParse(widget.productId ?? ''),);
+      push(context,
+          UserRatingScreen(id: product?.productType != 'auction' ? getUserId(chatList[selectedIndex!]) : bids[selectedIndex!].userId!.toString(), reviewBuyer: true,
+          userModel: product?.productType != 'auction' ? getUserModel(chatList[selectedIndex!]) : bids[selectedIndex!].user,
+          productId: product?.id.toString()), then: (){
+            if(widget.fromNotification==false) {
+              if(widget.fromMyAds == true){
+                Navigator.of(context).pop();
+              }
+              else{
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              }
+            } else{
+              Navigator.of(context).pop();
+            }
+          });
     }
-
-    deleteProductConversation();
-
-    if(widget.fromNotification==false) {
-      if(widget.fromMyAds == true){
+    else{
+      if(widget.fromNotification==false) {
+        if(widget.fromMyAds == true){
+          Navigator.of(context).pop();
+        }
+        else{
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+        }
+      } else{
         Navigator.of(context).pop();
       }
-      else{
-        Navigator.of(context).pop();
-        Navigator.of(context).pop();
-      }
-    } else{
-      Navigator.of(context).pop();
     }
   }
 
 
   void deleteProductConversation(){
-    chatListViewModel.deleteProductConversation(int.tryParse(widget.productId ?? ''));
+    chatListViewModel.deleteProductConversation(product?.id);
   }
 
 

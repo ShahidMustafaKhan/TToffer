@@ -93,7 +93,7 @@ class ImageNotifyProvider extends ChangeNotifier {
 
 ////////////////////////////////////////// Get Vedio  ///////////////////////////////////////
 
-  Future<void> getVediosFromGallery(context) async {
+  Future<void> pickVideo(context) async {
     final picker = ImagePicker();
     final pickedFiles = await picker.pickVideo(source: ImageSource.gallery);
 
@@ -103,15 +103,16 @@ class ImageNotifyProvider extends ChangeNotifier {
       int fileSizeInBytes = await videoFile.length();
       int fileSizeInMB = fileSizeInBytes ~/ (1024 * 1024);
 
-      // if (fileSizeInMB > 2) {
-      //   showSnackBar(context, "Selected video file size exceeds 2 MB.");
-      //   return;
+      if (fileSizeInMB > 3) {
+        showSnackBar(context, "Selected video file size exceeds 3 MB.");
+        return;
       }
-     if(pickedFiles != null) {
-       videoPath = pickedFiles.path;
-     }
+
+      videoPath = pickedFiles.path;
+
       notifyListeners();
 
+  }
   }
 
 // Future<void> _compressVideo(String videoPath) async {

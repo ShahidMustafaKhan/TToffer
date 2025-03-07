@@ -1,12 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:flutter/foundation.dart' show debugPrint, kDebugMode, kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:tt_offer/data/app_exceptions.dart';
 
+import '../../config/app_urls.dart';
+import '../../data/network/network_api_services.dart';
+import '../../models/authentication_model.dart';
+
 
 class GoogleAuthRepository {
+
+  final _apiServices = NetworkApiService() ;
+
 
   Future<FirebaseApp> initializeFirebase(
   ) async {
@@ -21,48 +28,48 @@ class GoogleAuthRepository {
     User? user;
 
     try {
-      if (kIsWeb) {
-        // Web sign-in
-        GoogleAuthProvider authProvider = GoogleAuthProvider();
-       userCredential =
-        await auth.signInWithPopup(authProvider);
+      // Mobile sign-in
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+
+      debugPrint('GoogleSignInAccount: $googleSignInAccount');
+
+      if (googleSignInAccount != null) {
+        final GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
+
+        debugPrint(
+            'GoogleSignInAuthentication: AccessToken=${googleSignInAuthentication.accessToken}, IdToken=${googleSignInAuthentication.idToken}');
+
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleSignInAuthentication.accessToken,
+          idToken: googleSignInAuthentication.idToken,
+        );
+
+        debugPrint('AuthCredential: $credential');
+
+        userCredential = await auth.signInWithCredential(credential);
+
+        debugPrint('UserCredential: ${userCredential.toString()}');
+
         user = userCredential.user;
-      } else {
-        // Mobile sign-in
-        final GoogleSignIn googleSignIn = GoogleSignIn();
-        final GoogleSignInAccount? googleSignInAccount =
-        await googleSignIn.signIn();
 
-        if (googleSignInAccount != null) {
-          final GoogleSignInAuthentication googleSignInAuthentication =
-          await googleSignInAccount.authentication;
+        debugPrint('User: ${user?.toString()}');
 
-          final AuthCredential credential = GoogleAuthProvider.credential(
-            accessToken: googleSignInAuthentication.accessToken,
-            idToken: googleSignInAuthentication.idToken,
-          );
-
-          userCredential =
-          await auth.signInWithCredential(credential);
-
-          user = userCredential.user;
-
-          // Handle new user logic if needed
-          bool isNewUser = userCredential.additionalUserInfo?.isNewUser ?? false;
-          if (isNewUser) {
-            // Perform actions for a new user
-            if (kDebugMode) {
-              print('New user signed in: ${user?.email}');
-            }
-          } else {
-            // Existing user logic
-            if (kDebugMode) {
-              print('Existing user signed in: ${user?.email}');
-            }
-          }
+        // Handle new user logic if needed
+        bool isNewUser = userCredential.additionalUserInfo?.isNewUser ?? false;
+        if (isNewUser) {
+          // Perform actions for a new user
+          debugPrint('New user signed in: ${user?.email}');
+        } else {
+          // Existing user logic
+          debugPrint('Existing user signed in: ${user?.email}');
         }
+      } else {
+        debugPrint('GoogleSignInAccount is null. User canceled the sign-in.');
       }
-    } on FirebaseAuthException catch (e) {
+    }
+    on FirebaseAuthException catch (e) {
       // Handle Firebase-specific exceptions
       if (e.code == 'account-exists-with-different-credential') {
         throw AppException(
@@ -82,6 +89,12 @@ class GoogleAuthRepository {
     }
 
     return userCredential;
+  }
+
+
+  Future<AuthenticationModel> authenticateThruGoogle(dynamic data )async{
+    dynamic response = await _apiServices.getPostApiResponse(AppUrls.baseUrl+AppUrls.googleAuthentication, data);
+    return AuthenticationModel.fromJson(response) ;
   }
 }
 

@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
-import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
@@ -59,7 +58,6 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
   void initState() {
     product = widget.product;
 
-
     if (product != null) {
       _locationController.text = product?.location ?? '';
     }
@@ -71,7 +69,8 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
       isSelectedCategoryJob = true;
     }
 
-    if(widget.selectedCategory != null && (widget.selectedCategory == 'Property for Sale' || widget.selectedCategory == 'Property for Rent') ){
+    if(widget.selectedCategory != null &&
+        (widget.selectedCategory == 'Property for Sale' || widget.selectedCategory == 'Property for Rent') ){
       isSelectedCategoryProperty = true;
     }
 
@@ -102,7 +101,12 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
                   }
                   else {
                     if(_locationController.text.isNotEmpty) {
-                      addLocation(provider);
+                      if(shippingMethodAllowed(widget.selectedCategory) == true && (localDelivery == false && addShipping == false && pickupOnly == false)){
+                        showSnackBar(context, 'Please select a shipping method');
+                      }
+                      else{
+                        addLocation(provider);
+                      }
                     } else{
                       showSnackBar(context, "Please add your location.");
                     }
@@ -171,7 +175,7 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
 
 
 
-              if(isSelectedCategoryJob == false && isSelectedCategoryProperty == false) ... [
+              if(shippingMethodAllowed(widget.selectedCategory)) ... [
                 const Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,7 +211,7 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
                 SizedBox(height:15.h),
 
                 AppButton.appButton(
-                    "ADD SHIPPING",
+                    "INTERNATIONAL SHIPPING",
                     height: 38.h,
                     fontWeight: FontWeight.w500,
                     padding : EdgeInsets.symmetric( vertical: 2.h),
@@ -286,13 +290,23 @@ class _PostLocationScreenState extends State<PostLocationScreen> {
   }
 
   void addLocation(PostProductViewModel provider) async {
+    
+    List<String> deliveryType = [];
+    if(addShipping == true){
+      deliveryType.add('Shipping');
+    }
+    if(pickupOnly == true){
+      deliveryType.add('Pick Up');
+    }
+    if(localDelivery == true){
+      deliveryType.add('Local Delivery');
+    }
+    
 
     Map<String, dynamic> params = {
       "product_id": widget.productId,
       "location": _locationController.text,
-      "Local_Delivery": localDelivery==true ? 1 : 0,
-      "Pick_Up": pickupOnly==true ? 1 : 0,
-      "Shipping": addShipping==true ? 1 : 0,
+      "delivery_type": deliveryType
     };
 
     provider.addProductLastStep(params, update: product != null || isBack == true).then((product) async {

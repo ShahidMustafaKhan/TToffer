@@ -15,7 +15,7 @@ import 'package:tt_offer/models/notifications_model.dart';
 import 'package:tt_offer/providers/notification_provider.dart';
 import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/widgets/reschdule_acution_time.dart';
-
+import 'package:tt_offer/views/Rating/product_rating_screen.dart';
 import '../../Constants/app_logger.dart';
 import '../../config/app_urls.dart';
 import '../../config/dio/app_dio.dart';
@@ -23,7 +23,7 @@ import '../../config/keys/pref_keys.dart';
 import '../../main.dart';
 import '../../view_model/profile/user_profile/user_view_model.dart';
 import '../ChatScreens/offer_chat_screen.dart';
-import '../Rating/rating_screen.dart';
+import '../Rating/user_rating_screen.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -58,7 +58,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
     notification =
         Provider.of<NotificationProvider>(context, listen: false).notifications;
-    Provider.of<NotificationProvider>(context, listen: false).changeAllNotificationStatus();
     checks = List.generate(notification.length, (index) => false);
     NotificationService().changeAllNotificationStatus(notification, context);
 
@@ -109,9 +108,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
     super.initState();
     dio = AppDio(context);
     logger.init();
+
+    String? authorizationToken = pref.getString(PrefKey.authorization);
+
+
     getUserId();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if(authorizationToken != null){
       getNotificationHandler();
+      }
     });
 
     pr = ProgressDialog(
@@ -128,15 +133,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
 
   getUserId() async {
-
     userId = pref.getString(PrefKey.userId);
-
-    if(userId != null){
-      final userViewModel =  Provider.of<UserViewModel>(context, listen: false);
-      await userViewModel.getUserProfile();
-      userId = userViewModel.userModel.data?.id.toString();
-    }
-
   }
 
   @override
@@ -173,9 +170,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
           child: CircularProgressIndicator(
             color: AppTheme.appColor,
           ))
-          : notification.isEmpty ? NoDataFound.noDataFound()
+          : notification.isEmpty ?
+           Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Center(child: NoDataFound.noDataFound(spacer: 0, bottomPadding: 70.h)),
+        ],
+      )
           :Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        padding: const EdgeInsets.only(left: 20.0, right: 18),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -195,9 +198,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             push(
                                 context,
                                 OfferChatScreen(
-                                  userImgUrl: notification[index].user!.img ,
+                                  participantModel: notification[index].user,
+                                  product: notification[index].product,
                                   conversationId: notification[index].typeId.toString(),
-                                  title: notification[index].user!.name ?? '',
                                   receiverId: notification[index].user!.id!,
                                 ));
 
@@ -206,24 +209,22 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             push(
                                 context,
                                 OfferChatScreen(
+                                  participantModel: notification[index].user,
+                                  product: notification[index].product,
                                   conversationId: notification[index].typeId.toString(),
                                 ));
                           }
                         }
-                        else if(notification[index].type == 'Review'){
-                          push(context, RatingScreen(
-                            name: notification[index].user?.name,
-                            sellerId: notification[index].fromUserId.toString(),
-                            img: notification[index].user?.img,
-                            location: notification[index].user?.location,
-                            joinDate: notification[index].user?.createdAt,
-                            productId: notification[index].typeId?.toString().split('0000')[1],
-
-                          ));
-                        }
-
                         else if(notification[index].type == 'auction'){
                           getProductDetail(productId:  notification[index].typeId, );
+                        }
+
+                        else if(notification[index].type == 'auction_final_price'){
+                          getProductDetail(productId:  notification[index].product?.id, );
+                        }
+
+                        else if(notification[index].type == 'MarkAsSold'){
+                          getProductDetail(productId:  notification[index].product?.id, );
                         }
 
                         else if(notification[index].type == 'Auction Expire'){
@@ -371,9 +372,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     height: 60.w,
                                     width: 60.w,
                                     decoration: BoxDecoration(
-                                      color: notification[index].product?.photo?.isNotEmpty ?? false ? Colors.transparent : Colors.amber,
-                                      image:  notification[index].product?.photo?.isNotEmpty ?? false ? DecorationImage(
-                                        image: NetworkImage(notification[index].product!.photo![0].url!),
+                                      color: notification[index].user?.img != null ? Colors.transparent : Colors.amber,
+                                      image:  notification[index].user?.img != null ? DecorationImage(
+                                        image: NetworkImage(notification[index].user!.img! ),
                                         fit: BoxFit.fill,
                                       ) : const DecorationImage(
                                         image: AssetImage('assets/images/gallery.png',
@@ -382,23 +383,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                       borderRadius: BorderRadius.circular(16.r),
                                     ),
                                   ),
-                                  // if(notification[index].product!=null)
-                                  // Positioned(
-                                  //     bottom: 0,
-                                  //     child: Container(
-                                  //         height: 25.h,
-                                  //         width: 60.w,
-                                  //         decoration: BoxDecoration(
-                                  //           color: Colors.black38,
-                                  //           borderRadius: BorderRadius.only(
-                                  //             bottomLeft: Radius.circular(16.r),
-                                  //             bottomRight: Radius.circular(16.r),
-                                  //           )
-                                  //         ),
-                                  //         child: Center(child: AppText.appText(notification[index].product!.productType == 'auction' ? "Auction" : "AED ${abbreviateNumber(notification[index].product!.fixPrice.toString() ?? '')}" ?? '', fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
                                 ],
                               ),
-                              SizedBox(width: 11.w),
+                              SizedBox(width: 9.w),
                             ],
                           ),
 
@@ -411,24 +398,96 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     notification[index].text.toString(),
                                     fontSize: 12.sp,
                                     fontWeight: FontWeight.w600,
-                                    textColor: Color(0xff1E293B)
+                                    textColor: const Color(0xff1E293B)
                                 ),
+                                if(notification[index].type != 'Seller Review')...[
                                 SizedBox(height: 3.h,),
                                 AppText.appText(
                                   timeAgo(DateTime.parse(notification[index].createdAt!)),
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w400,
                                   textColor: const Color(0xff878787),
-                                ),
+                                )]
+                                else ... [
+                                  SizedBox(height: 3.h,),
+                                  Row(
+                                    children: [
+                                      AppButton.appButton('Proceed',
+                                          onTap: (){
+                                            push(context, UserRatingScreen(
+                                              userModel: notification[index].user,
+                                              id: notification[index].fromUserId.toString(),
+                                              productId: notification[index].typeId?.toString().split('0000')[1],
+                                            ));
+                                          },
+                                          backgroundColor: AppTheme.appColor,
+                                          textColor: Colors.white,
+                                          fontSize: 12.sp,
+                                          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 1.h)),
+                                      SizedBox(width: 5.w,),
+                                      AppButton.appButton('Skip',
+                                          onTap: (){
+                                            NotificationDeleteRequest()
+                                                .notificationDeleteRequest(context: context, notificationId: notification[index].id);
+                                            notification.removeAt(index);
+                                            setState(() {});
+
+                                          },
+                                          backgroundColor: AppTheme.disableColor,
+                                          borderColor: AppTheme.disableColor,
+                                          textColor: Colors.white,
+                                          fontSize: 12.sp,
+                                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 1.h))
+                                    ],
+                                  )
+                                ]
+
+
                               ],
                             ),
+                          ),
+
+                          SizedBox(width: 5.w,),
+
+                          Stack(
+                            children: [
+                              Container(
+                                height: 60.w,
+                                width: 60.w,
+                                decoration: BoxDecoration(
+                                  color: notification[index].product?.photo?.isNotEmpty ?? false ? Colors.transparent : Colors.amber,
+                                  image:  notification[index].product?.photo?.isNotEmpty ?? false ? DecorationImage(
+                                    image: NetworkImage(notification[index].product!.photo![0].url!),
+                                    fit: BoxFit.fill,
+                                  ) : const DecorationImage(
+                                    image: AssetImage('assets/images/gallery.png',
+                                    ),
+                                  ),
+                                  borderRadius: BorderRadius.circular(16.r),
+                                ),
+                              ),
+                              if(notification[index].product!=null)
+                                Positioned(
+                                    bottom: 0,
+                                    child: Container(
+                                        height: 25.h,
+                                        width: 60.w,
+                                        decoration: BoxDecoration(
+                                            color: Colors.black38,
+                                            borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(16.r),
+                                              bottomRight: Radius.circular(16.r),
+                                            )
+                                        ),
+                                        child: Center(child: AppText.appText(productPriceForImage(notification[index].product), fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
+                            ],
                           ),
 
                         ],
                       )
 
                   );
-                }, separatorBuilder: (BuildContext context, int index) { return SizedBox(height: 15.h,); },
+                }, separatorBuilder: (BuildContext context, int index) { return SizedBox(height: 23.h, child: const Center(child: Divider(color: Color(0xfff0eeee),)),); },
               ),
             ],
           ),

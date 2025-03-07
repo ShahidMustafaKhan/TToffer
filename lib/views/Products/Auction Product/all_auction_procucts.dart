@@ -14,6 +14,7 @@ import 'package:tt_offer/data/response/status.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/models/sub_categories_model.dart';
+import 'package:tt_offer/view_model/category/category_view_model.dart';
 import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_container.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
@@ -52,18 +53,14 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
   List<SubCategoriesModel> subCat = [];
 
   getCategories() async {
-    await BlockedUserServices().getBlockedUser(context: context);
-
-    catModel = Provider.of<CategoryProvider>(context, listen: false).category;
+    catModel = Provider.of<CategoryViewModel>(context, listen: false).categoryList.data ?? [];
 
     setState(() {});
   }
 
   getSubCat() async {
-    await SubCategoriesService().subCategoriesService(context: context);
 
-    subCat = Provider.of<SubCategoriesProvider>(context, listen: false)
-        .subCategories;
+    subCat = Provider.of<CategoryViewModel>(context, listen: false).subCategoryList.data ?? [];
 
     setState(() {});
   }
@@ -739,138 +736,20 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
     );
   }
 
-  void getCatagories({search}) async {
-    setState(() {
-      _isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "search": "$search",
-      "limit": null,
-    };
-    try {
-      response = await dio.post(path: AppUrls.categories, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          catagoryData = responseData;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong $e");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
 
-  void getSubCatagories({search}) async {
-    setState(() {
-      _isLoading = true;
-    });
-    var response;
-    int responseCode200 = 200; // For successful request.
-    int responseCode400 = 400; // For Bad Request.
-    int responseCode401 = 401; // For Unauthorized access.
-    int responseCode404 = 404; // For For data not found
-    int responseCode422 = 422; // For For data not found
-    int responseCode500 = 500; // Internal server error.
-    Map<String, dynamic> params = {
-      "category_id": "",
-      "search": null,
-      "limit": null,
-      "id": "",
-    };
-    try {
-      response = await dio.post(path: AppUrls.subCategories, data: params);
-      var responseData = response.data;
-      if (response.statusCode == responseCode400) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode401) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode404) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode500) {
-        showSnackBar(context, "${responseData["msg"]}");
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode422) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else if (response.statusCode == responseCode200) {
-        setState(() {
-          subCatagoryData = responseData;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      print("Something went Wrong $e");
-      showSnackBar(context, "Something went Wrong.");
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
 
 }
 
-String _selectedCategory = "";
-String _selectedSubCategory = "";
+
 String _selectedCondition = "";
 String sorting = "Select Sort By";
 var condition = [];
 String selectedCondition = "Select By Condition";
 
-var catagoryId;
-var subCatagoryId;
 double sliderValue = 0;
 OverlayEntry? overlayEntry;
 GlobalKey tooltipKey = GlobalKey();
 
-bool _isLoading = false;
 
 List<String> filter = [
   'Newest on top',

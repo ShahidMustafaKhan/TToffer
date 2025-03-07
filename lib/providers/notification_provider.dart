@@ -25,19 +25,27 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   incrementIndicatorCount(){
-     unreadNotificationCount++;
-   }
+    unreadNotificationCount++;
+  }
 
-   setCountToZero(){
-     unreadNotificationCount= 0;
-     notifyListeners();
+  setIndicatorCount(int value){
+    if(value != 0){
+      unreadNotificationIndicator = true;
+    }
+    else{
+      unreadNotificationIndicator = false;
+    }
+    unreadNotificationCount = value;
+    notifyListeners();
+  }
 
-   }
-
-
-  changeAllNotificationStatus(){
+  setCountToZero(){
+    unreadNotificationCount= 0;
+    notifyListeners();
 
   }
+
+
 
 
 

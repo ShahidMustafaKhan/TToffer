@@ -117,23 +117,25 @@ class _ForgotEmailPassState extends State<ForgotEmailPass> {
                           }
                         }
                         else{
-                          if (_emailController.text.isNotEmpty) {
-                            // Adjust this pattern based on your specific phone number format requirements
-                            final phonePattern = RegExp(r'^\+?[1-9]\d{1,14}$');
-                            if (!phonePattern.hasMatch(_emailController.text)) {
-                              showSnackBar(
-                                  context,
-                                  "Please enter a valid phone number",
-                                  title: 'Input Required'
-                              );
-                            } else {
-                              // Proceed with your phone number-related function
-                              forgotPasswordPhone();
-                            }
-                          }
-                          else {
-                            showSnackBar(context, "Phone number required");
-                          }
+                          showSnackBar(context, 'This feature is temporarily unavailable due to the unavailability of the Twilio service.');
+
+                          // if (_emailController.text.isNotEmpty) {
+                          //   // Adjust this pattern based on your specific phone number format requirements
+                          //   final phonePattern = RegExp(r'^\+?[1-9]\d{1,14}$');
+                          //   if (!phonePattern.hasMatch(_emailController.text)) {
+                          //     showSnackBar(
+                          //         context,
+                          //         "Please enter a valid phone number",
+                          //         title: 'Input Required'
+                          //     );
+                          //   } else {
+                          //     // Proceed with your phone number-related function
+                          //     forgotPasswordPhone();
+                          //   }
+                          // }
+                          // else {
+                          //   showSnackBar(context, "Phone number required");
+                          // }
                         }
                       },
                           height: 53,

@@ -19,7 +19,7 @@ class AppTheme {
   static Color yellowColor = const Color(0xffFFD33C);
 
   static Color txt1B20 = const Color(0xff1B2028);
-  static Color disableColor = const Color(0xffB9D4CD);
+  static Color disableColor = Colors.grey.shade400;
   static Color textColor00 = const Color(0xff001B2E);
 
 

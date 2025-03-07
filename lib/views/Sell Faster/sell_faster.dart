@@ -13,18 +13,17 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/listview_container.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
-import 'package:tt_offer/Utils/widgets/others/congragulations_dialog.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
-import 'package:tt_offer/custom_requests/sell-faster_stripe_api.dart';
-import 'package:tt_offer/models/selling_products_model.dart';
-import 'package:tt_offer/stripe_payment_screen.dart';
-import 'package:tt_offer/utils/widgets/custom_loader.dart';
+import 'package:tt_offer/data/response/status.dart';
+import 'package:tt_offer/views/Payment/stripe_payment_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:tt_offer/view_model/subscription/subscription_view_model.dart';
 import 'package:tt_offer/views/Sell%20Faster/how_promotion_works.dart';
 
 import '../../Controller/image_provider.dart';
 import '../../models/product_model.dart';
+import '../../models/subscription_model.dart';
 import '../BottomNavigation/navigation_bar.dart';
 
 class SellFaster extends StatefulWidget {
@@ -44,32 +43,12 @@ class _SellFasterState extends State<SellFaster> {
   @override
   void initState() {
     product = widget.product;
+
+    SubscriptionViewModel subscriptionViewModel = Provider.of<SubscriptionViewModel>(context, listen: false);
+    subscriptionViewModel.getAllSubscriptionsPlan();
     super.initState();
   }
 
-
-  List<SellFasterData> sellFastData = [
-    SellFasterData(
-        boostDays: "3",
-        amount: "10",
-        subscriptionName: "Basic",
-        amountInCents: 10),
-    SellFasterData(
-        boostDays: "7",
-        amount: "20",
-        subscriptionName: "Standard",
-        amountInCents: 20),
-    SellFasterData(
-        boostDays: "15",
-        amount: "30",
-        subscriptionName: "Premium",
-        amountInCents: 30),
-    SellFasterData(
-        boostDays: "30",
-        amount: "50",
-        subscriptionName: "Elite",
-        amountInCents: 50),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -98,106 +77,133 @@ class _SellFasterState extends State<SellFaster> {
         dialog: true,
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: ListViewContainer(
-                product: product,
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.0),
-              child: CustomDivider(),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            SizedBox(
-              child: ListView.separated(
-                itemCount: sellFastData.length,
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                physics : const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                scrollDirection: Axis.vertical,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center(
-                      child: Container(
-                        height: 165,
-                        width: 240,
-                        decoration: BoxDecoration(
-                            border: Border.all(color: AppTheme.appColor),
-                            borderRadius: BorderRadius.circular(16)),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            AppText.appText(
-                                sellFastData[index].subscriptionName,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                textColor: AppTheme.appColor),
-                            AppText.appText(
-                                "Boost ${sellFastData[index].boostDays} Days",
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                textColor: AppTheme.blackColor),
-                            AppText.appText("AED ${sellFastData[index].amount}",
-                                fontSize: 28,
-                                fontWeight: FontWeight.w600,
-                                textColor: AppTheme.blackColor),
-                            AppButton.appButton("Subscribe", height: 38,
-                                onTap: () async {
-                              push(
-                                  context,
-                                  StripePaymentScreen(
-                                      product: product,
-                                      amount: sellFastData[index].amount,
-                                      currency: 'AED',
-                                      day: sellFastData[index].boostDays));
-        
-                              // makePayment(sellFastData[index].amount.toString(),
-                              //     sellFastData[index].boostDays);
-                            },
-                                width: 161,
-                                textColor: AppTheme.whiteColor,
-                                backgroundColor: AppTheme.appColor,
-                                radius: 32.0),
-                          ],
+        child: Consumer<SubscriptionViewModel>(
+            builder: (context, subscriptionViewModel, child) {
+              List<Subscription> subscriptionPlan = subscriptionViewModel.subscriptionsList.data ?? [];
+              return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: ListViewContainer(
+                    product: product,
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.0),
+                  child: CustomDivider(),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                if(subscriptionViewModel.subscriptionsList.status == Status.loading)
+                  const CircularProgressIndicator(),
+
+                if(subscriptionViewModel.subscriptionsList.status == Status.completed && subscriptionPlan.isEmpty)
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AppText.appText('No subscription Plan currently available')
+                    ],
+                  ),
+
+                if(subscriptionViewModel.subscriptionsList.status == Status.error)
+                  const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Error Fetching subscription Plan')
+                    ],
+                  ),
+
+                SizedBox(
+                  child: ListView.separated(
+                    itemCount: subscriptionPlan.length,
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    physics : const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    scrollDirection: Axis.vertical,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                          child: Container(
+                            height: 165,
+                            width: 240,
+                            decoration: BoxDecoration(
+                                border: Border.all(color: AppTheme.appColor),
+                                borderRadius: BorderRadius.circular(16)),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                AppText.appText(
+                                    subscriptionPlan[index].name ?? '',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    textColor: AppTheme.appColor),
+                                AppText.appText(
+                                    "Boost ${subscriptionPlan[index].duration} ${subscriptionPlan[index].durationType}",
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                    textColor: AppTheme.blackColor),
+                                AppText.appText("AED ${subscriptionPlan[index].price}",
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w600,
+                                    textColor: AppTheme.blackColor),
+                                AppButton.appButton("Subscribe", height: 38,
+                                    onTap: () async {
+                                  if(product?.isBoosted == null || product?.isBoosted == false){
+                                    push(
+                                        context,
+                                        StripePaymentScreen(
+                                          product: product,
+                                          subscriptionModel: subscriptionPlan[index],
+                                        ));
+                                  }
+                                  else{
+                                    showSnackBar(context, 'The product is already boosted');
+                                  }
+
+
+                                },
+                                    width: 161,
+                                    textColor: AppTheme.whiteColor,
+                                    backgroundColor: AppTheme.appColor,
+                                    radius: 32.0),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  );
-                }, separatorBuilder: (BuildContext context, int index) { return SizedBox(height: 4.h,); },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 40.0,left: 0),
-              child: customRow(txt: "Switch promotion to sell faster"),
-            ),
-            const SizedBox(
-              height: 40,
-            ),
-            GestureDetector(
-              onTap: (){
-                push(context, const HowPromotionWorks());
-              },
-              child: AppText.appText("How does promoting work?",
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  textColor: AppTheme.yellowColor),
-            ),
-            const SizedBox(
-              height: 25,
-            ),
-            SvgPicture.asset('assets/images/boosting.svg',
-            height: 280.h,
-            ),
-            const SizedBox(
-              height: 50,
-            ),
-          ],
+                      );
+                    }, separatorBuilder: (BuildContext context, int index) { return SizedBox(height: 4.h,); },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 40.0,left: 0),
+                  child: customRow(txt: "Switch promotion to sell faster"),
+                ),
+                const SizedBox(
+                  height: 40,
+                ),
+                GestureDetector(
+                  onTap: (){
+                    push(context, const HowPromotionWorks());
+                  },
+                  child: AppText.appText("How does promoting work?",
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      textColor: AppTheme.yellowColor),
+                ),
+                const SizedBox(
+                  height: 25,
+                ),
+                SvgPicture.asset('assets/images/boosting.svg',
+                height: 280.h,
+                ),
+                const SizedBox(
+                  height: 50,
+                ),
+              ],
+            );
+          }
         ),
       ),
     );

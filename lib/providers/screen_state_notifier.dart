@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class ScreenStateNotifier extends ChangeNotifier {
@@ -7,6 +9,5 @@ class ScreenStateNotifier extends ChangeNotifier {
 
   void setChatScreenActive(bool isActive) {
     _isChatScreenActive = isActive;
-    notifyListeners();
   }
 }
