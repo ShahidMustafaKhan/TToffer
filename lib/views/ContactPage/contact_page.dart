@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
-import 'package:tt_offer/views/Profile%20Screen/Account%20Settigs/account_info_edit.dart';
 
 import '../../utils/resources/res/app_theme.dart';
 
@@ -63,7 +62,7 @@ class _ContactPageState extends State<ContactPage> {
                   height: 20,
                 )
                 else
-                  Icon(Icons.access_time),
+                  const Icon(Icons.access_time),
                 const SizedBox(
                   width: 20,
                 ),

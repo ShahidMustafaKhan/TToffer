@@ -6,7 +6,6 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/custom_requests/payment_status_service.dart';
 import 'package:tt_offer/models/payment_fee_model.dart';
-import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/providers/payment_fee_provider.dart';
 import 'package:tt_offer/utils/utils.dart';
 

@@ -1,19 +1,7 @@
-import 'package:tt_offer/config/app_urls.dart';
-import '../../data/network/network_api_services.dart';
+import '../../models/notifications_model.dart';
 
+abstract class NotificationRepository {
+  Future<dynamic> createNotification(dynamic data);
 
-class NotificationRepository {
-
-  final _apiServices = NetworkApiService() ;
-
-
-  Future<dynamic> createNotification(dynamic data) async {
-    dynamic response = await _apiServices.getPostApiResponse(AppUrls.baseUrl+AppUrls.sendNotificationUrl, data);
-    return response;
-  }
-
-
-
-
-
+  Future<NotificationModel> getNotification(int? userId);
 }

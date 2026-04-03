@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:pin_code_text_field/pin_code_text_field.dart';
@@ -11,12 +10,10 @@ import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/view_model/verification/verificaiton_view_model.dart';
 import 'package:tt_offer/views/Authentication%20screens/update_forgot_password.dart';
 
-import '../../config/app_urls.dart';
-import '../../main.dart';
 
 class OTPScreen extends StatefulWidget {
   final String email;
-  OTPScreen({super.key, required this.email});
+  const OTPScreen({super.key, required this.email});
 
   @override
   State<OTPScreen> createState() => _OTPScreenState();

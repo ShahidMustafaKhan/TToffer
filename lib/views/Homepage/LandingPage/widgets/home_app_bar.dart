@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -10,8 +9,6 @@ import 'package:tt_offer/view_model/suggestion/suggestion_view_model.dart';
 import 'package:tt_offer/views/Authentication%20screens/login_screen.dart';
 import 'package:tt_offer/views/ShoppingFlow/cart/cart_screen.dart';
 
-import '../../../../data/response/api_response.dart';
-import '../../../../view_model/product/product/product_viewmodel.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final context;

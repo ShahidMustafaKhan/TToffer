@@ -4,7 +4,6 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
-import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/views/Boost%20Plus%20Screens/boost_work.dart';
 import 'package:tt_offer/views/Sell%20Faster/sell_faster.dart';
 

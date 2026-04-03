@@ -9,7 +9,6 @@ import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/view_model/chat/chat_list_view_model/chat_list_view_model.dart';
 import 'package:tt_offer/view_model/selling/selling_view_model.dart';
-import '../../Controller/APIs Manager/send_notification_service.dart';
 import '../../config/dio/app_dio.dart';
 import '../../config/keys/pref_keys.dart';
 import '../../data/response/status.dart';

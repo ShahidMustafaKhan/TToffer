@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
-import 'package:tt_offer/view_model/product/post_product/post_product_viewmodel.dart';
 import '../../../../Utils/resources/res/app_theme.dart';
 import '../../../../data/response/status.dart';
 import '../../../../view_model/product/product/product_viewmodel.dart';
@@ -12,7 +11,6 @@ import '../../../Products/Auction Product/all_auction_procucts.dart';
 import '../../../Products/Auction Product/auction_container.dart';
 import '../../../Products/Auction Product/auction_info.dart';
 import 'custom_product_row.dart';
-import 'custom_row.dart';
 
 
 class AuctionProductSection extends StatelessWidget {
@@ -27,7 +25,7 @@ class AuctionProductSection extends StatelessWidget {
         builder: (context, productViewModel, child) {
         return Column(
           children: [
-            ProductTypeDetails(
+            const ProductTypeDetails(
                 txt1: "Auction Products",
                 txt3: "Hurry up! The auction is ending soon."),
             const SizedBox(

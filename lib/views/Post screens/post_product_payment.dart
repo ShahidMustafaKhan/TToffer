@@ -23,7 +23,7 @@ class PostProductPayment extends StatefulWidget {
   int amount;
 
   PostProductPayment(
-      {required this.amount,
+      {super.key, required this.amount,
       required this.productId,
       required this.title,
       this.product});

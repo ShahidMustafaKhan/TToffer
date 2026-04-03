@@ -62,7 +62,7 @@ void showSnackBar(BuildContext context, String text, {String title = "Oops!", bo
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8.0),
     ),
-    margin: EdgeInsets.all(10.0), // Adjust margin as needed
+    margin: const EdgeInsets.all(10.0), // Adjust margin as needed
   );
 
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -1072,7 +1072,7 @@ Widget priceTag(Product? product) {
   final height = 25.h;
 
   if(price.isEmpty) {
-    return SizedBox();
+    return const SizedBox();
   }
 
   return SizedBox(

@@ -1,15 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
@@ -346,7 +340,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
 
   void startTimer() {
 
-    Duration interval = Duration(seconds: 10);
+    Duration interval = const Duration(seconds: 10);
 
    _timer =  Timer.periodic(interval, (Timer timer) {
       // Code to execute at each interval
@@ -557,7 +551,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
       }
 
       for (int i = 0; i < attributeValueList.length; i++) {
-        if (attributeValueList[i] == null || attributeValueList[i].isEmpty) {
+        if (attributeValueList[i].isEmpty) {
           attributeValueList[i] = '-';
         }
       }
@@ -596,7 +590,7 @@ class _AuctionInfoScreenState extends State<AuctionInfoScreen> {
 
 ////////////////////////////////////////////////// auction ///////////////////////////////////
 
-  Widget auctionBottomCard() {;
+  Widget auctionBottomCard() {
     // return SizedBox();
 
     return Consumer<NotifyProvider>(

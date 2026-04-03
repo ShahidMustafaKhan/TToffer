@@ -1,8 +1,4 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +15,6 @@ import 'package:tt_offer/view_model/chat/chat_list_view_model/chat_list_view_mod
 import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 
 import '../../Utils/utils.dart';
-import '../../models/product_model.dart';
 import 'offer_chat_screen.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -37,7 +32,8 @@ class _ChatScreenState extends State<ChatScreen> {
   AppLogger logger = AppLogger();
   int? userId;
   String selectedOption = 'Selling';
-  String emptyMessage = 'Start a chat and it will appear\n   here. If you\'re looking for   \n  something, try to find it on \n                 TTOffer.\nOr post a random ad and act\n     fast! Don\'t miss a deal!';
+  String emptyMessage =
+      'Start a chat and it will appear\n   here. If you\'re looking for   \n  something, try to find it on \n                 TTOffer.\nOr post a random ad and act\n     fast! Don\'t miss a deal!';
   late ChatListViewModel chatListViewModel;
 
   @override
@@ -56,232 +52,291 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
   }
 
-
   getUserId() async {
     userId = int.tryParse(pref.getString(PrefKey.userId) ?? '');
 
-    if(userId != null){
+    if (userId != null) {
       final userViewModel = Provider.of<UserViewModel>(context, listen: false);
       await userViewModel.getUserProfile();
       userId = userViewModel.userModel.data?.id;
-    }}
+    }
+  }
 
   List<Conversation> chatList = [];
 
   getUserDetail() async {
-       var id = pref.getString(PrefKey.userId);
-      chatListViewModel.getAllChat(int.tryParse(id ?? ''));
+    var id = pref.getString(PrefKey.userId);
+    chatListViewModel.getAllChat(int.tryParse(id ?? ''));
   }
-
 
   @override
   Widget build(BuildContext context) {
     var chatWidget = Consumer<ChatListViewModel>(
       builder: (context, chatListViewModel, child) {
-        List<Conversation>? sellingChatList = chatListViewModel.sellingChat.data;
+        List<Conversation>? sellingChatList =
+            chatListViewModel.sellingChat.data;
         List<Conversation>? buyingChatList = chatListViewModel.buyingChat.data;
 
-        if ((selectedOption =='Selling' && chatListViewModel.sellingChat.status == Status.loading) || (selectedOption =='Buying' && chatListViewModel.buyingChat.status == Status.loading) ) {
-          return LoadingDialog();
-        } else if ((selectedOption =='Selling' && (sellingChatList?.isEmpty ?? true))  || (selectedOption =='Buying' && (buyingChatList?.isEmpty ?? true) )) {
+        if ((selectedOption == 'Selling' &&
+                chatListViewModel.sellingChat.status == Status.loading) ||
+            (selectedOption == 'Buying' &&
+                chatListViewModel.buyingChat.status == Status.loading)) {
+          return const LoadingDialog();
+        } else if ((selectedOption == 'Selling' &&
+                (sellingChatList?.isEmpty ?? true)) ||
+            (selectedOption == 'Buying' && (buyingChatList?.isEmpty ?? true))) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Center(child: Image.asset("assets/images/no_data_folder.png", height: widget.isProductChat==false ? 150.h : 143.h,)),
-              if(widget.isProductChat==true)
-                SizedBox(height: 15.h,),
-
-              if(widget.isProductChat==false)...[
-                SizedBox(height: 15.h,),
-              AppText.appText(emptyMessage,
-                  fontSize: 14,
-                  letterSpacing: 1,
-                  fontWeight: FontWeight.w500,
-                  textColor: Colors.black),
-              SizedBox(height: 12.h,)]
+              Center(
+                  child: Image.asset(
+                "assets/images/no_data_folder.png",
+                height: widget.isProductChat == false ? 150.h : 143.h,
+              )),
+              if (widget.isProductChat == true)
+                SizedBox(
+                  height: 15.h,
+                ),
+              if (widget.isProductChat == false) ...[
+                SizedBox(
+                  height: 15.h,
+                ),
+                AppText.appText(emptyMessage,
+                    fontSize: 14,
+                    letterSpacing: 1,
+                    fontWeight: FontWeight.w500,
+                    textColor: Colors.black),
+                SizedBox(
+                  height: 12.h,
+                )
+              ]
             ],
           );
         }
-        if(widget.isProductChat==false) {
-          chatList = selectedOption=='Selling' ? sellingChatList ?? [] : buyingChatList ?? [];
-        } else{
-          List<Conversation> temp=[];
-          for (var item in selectedOption=='Selling' ? sellingChatList ?? [] : buyingChatList ?? []) {
+        if (widget.isProductChat == false) {
+          chatList = selectedOption == 'Selling'
+              ? sellingChatList ?? []
+              : buyingChatList ?? [];
+        } else {
+          List<Conversation> temp = [];
+          for (var item in selectedOption == 'Selling'
+              ? sellingChatList ?? []
+              : buyingChatList ?? []) {
             if (item.productId.toString() == widget.productId) {
               temp.add(item);
             }
           }
           chatList = temp;
         }
-        if(widget.isProductChat==true && chatList.isEmpty) {
+        if (widget.isProductChat == true && chatList.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset("assets/images/no_data.png", height : 180.h ),
+                Image.asset("assets/images/no_data.png", height: 180.h),
               ],
             ),
           );
         } else {
           return ListView.builder(
-          reverse: false,
-          itemCount: chatList.length,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () {
+            reverse: false,
+            itemCount: chatList.length,
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                onTap: () {
+                  if (chatList[index].receiver!.id == userId) {
+                    chatListViewModel
+                        .markReadChat(chatList[index].conversationId);
+                  }
 
-                if(chatList[index].receiver!.id == userId){
-                chatListViewModel.markReadChat(chatList[index].conversationId);
-                }
-
-                push(
-                    context,
-                    OfferChatScreen(
-                      conversationId: chatList[index].conversationId,
-                          participantModel: chatList[index].receiver?.id == userId
-                              ? chatList[index].sender
-                              : chatList[index].receiver,
-                          receiverId:
-                             chatList[index].receiver?.id == userId
-                                  ?  chatList[index].senderId
-                                  : chatList[index].receiverId,
-                          sellerId: chatList[index].sellerId,
-                          buyerId:  chatList[index].buyerId,
-                           productId: chatList[index].productId,
-                           product: Product(id: chatList[index].productId, photo: [Photo(url: chatList[index].imagePath?.src)] ),
-                    ));
-              },
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-                child: SizedBox(
-                  height: 50,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      if(getImageUrl(chatList[index]) == null)
-                        SvgPicture.asset('assets/images/Avatar.svg',
-                            width: 55.w,
-                            height: 55.w
-                        )
-                      else
-                        Container(
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: getImageUrl(chatList[index]) == null ? Border.all(
-                                  color: const Color(0xffa2a2a2),
-                                  width: 2
-                              ) : null
-                          ),
-                          child: CircleAvatar(
-                            backgroundColor: Colors.white,
-                            backgroundImage:
-                            getImageUrl(chatList[index]) != null
-                                ? NetworkImage(getImageUrl(chatList[index]))
-                                : const AssetImage("assets/images/user.png")
-                            as ImageProvider,
-                            radius: 26,
-                          ),
-                        ),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: getImageUrl(chatList[index]) == null ? 11.w : 20.w,
+                  push(
+                      context,
+                      OfferChatScreen(
+                        conversationId: chatList[index].conversationId,
+                        participantModel: chatList[index].receiver?.id == userId
+                            ? chatList[index].sender
+                            : chatList[index].receiver,
+                        receiverId: chatList[index].receiver?.id == userId
+                            ? chatList[index].senderId
+                            : chatList[index].receiverId,
+                        sellerId: chatList[index].sellerId,
+                        buyerId: chatList[index].buyerId,
+                        productId: chatList[index].productId,
+                        product: chatList[index].product,
+                      ));
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0, vertical: 10),
+                  child: SizedBox(
+                    height: 50,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        if (getImageUrl(chatList[index]) == null)
+                          SvgPicture.asset('assets/images/Avatar.svg',
+                              width: 55.w, height: 55.w)
+                        else
+                          Container(
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: getImageUrl(chatList[index]) == null
+                                    ? Border.all(
+                                        color: const Color(0xffa2a2a2),
+                                        width: 2)
+                                    : null),
+                            child: CircleAvatar(
+                              backgroundColor: Colors.white,
+                              backgroundImage: getImageUrl(chatList[index]) !=
+                                      null
+                                  ? NetworkImage(getImageUrl(chatList[index]))
+                                  : const AssetImage("assets/images/user.png")
+                                      as ImageProvider,
+                              radius: 26,
                             ),
-                         Expanded(child:  SizedBox(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          ),
+                        Expanded(
+                          child: Row(
                             children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: AppText.appText(
-                                        chatList[index].receiver?.id ==
-                                            userId
-                                            ? capitalizeWords(chatList[index].sender?.name ?? '')
-                                            : capitalizeWords(chatList[index].receiver?.name ?? ''),
-                                        fontSize: 14.5.sp,
-                                        maxlines: 1,
-                                        fontWeight: FontWeight.w700,
-                                        textColor: AppTheme.blackColor),
-                                  ),
-                                  SizedBox(width: 8.w,),
-                                  if(chatList[index].createdAt!= null)
-                                  AppText.appText(
-                                      formatTimestamp("${chatList[index].createdAt}"),
-                                      fontSize: 10.5.sp,
-                                      fontWeight: FontWeight.w400,
-                                      textColor: const Color(0xffA7ACB4)),
-                                  SizedBox(width: 15.w,)
-
-                                ],
-                              ),
-
-
                               SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.45,
-                                child: AppText.appText(
-                                    msg(chatList[index].message ?? "Image",
-                                        chatList[index].senderId == userId,
-                                        chatList[index].sender?.name ?? ''
-                                    ),
-
-                                    // capitalizeWholeTitle(chatList[index].message ?? "Image",
-                                    //   chatList[index].receiver!.id ==
-                                    //       userId
-                                    //       ? chatList[index].sender!.name!
-                                    //       : chatList[index].receiver!.name!,
-                                    // ) ,
-                                    fontSize: 12.3.sp,
-                                    overflow: TextOverflow.ellipsis,
-                                    fontWeight: chatList[index].unReadMsgsCount != null &&
-                                        chatList[index].unReadMsgsCount != 0 && chatList[index].receiver?.id == userId ? FontWeight.w700 :FontWeight.w400,
-                                    textColor: chatList[index].unReadMsgsCount != null &&
-                                        chatList[index].unReadMsgsCount != 0 && chatList[index].receiver?.id == userId ? AppTheme.blackColor : Color(0xff626C7B)),
+                                width: getImageUrl(chatList[index]) == null
+                                    ? 11.w
+                                    : 20.w,
                               ),
+                              Expanded(
+                                child: SizedBox(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: AppText.appText(
+                                                chatList[index].receiver?.id ==
+                                                        userId
+                                                    ? capitalizeWords(
+                                                        chatList[index]
+                                                                .sender
+                                                                ?.name ??
+                                                            '')
+                                                    : capitalizeWords(
+                                                        chatList[index]
+                                                                .receiver
+                                                                ?.name ??
+                                                            ''),
+                                                fontSize: 14.5.sp,
+                                                maxlines: 1,
+                                                fontWeight: FontWeight.w700,
+                                                textColor: AppTheme.blackColor),
+                                          ),
+                                          SizedBox(
+                                            width: 8.w,
+                                          ),
+                                          if (chatList[index].createdAt != null)
+                                            AppText.appText(
+                                                formatTimestamp(
+                                                    "${chatList[index].createdAt}"),
+                                                fontSize: 10.5.sp,
+                                                fontWeight: FontWeight.w400,
+                                                textColor:
+                                                    const Color(0xffA7ACB4)),
+                                          SizedBox(
+                                            width: 15.w,
+                                          )
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.45,
+                                        child: AppText.appText(
+                                            msg(
+                                                chatList[index].message ??
+                                                    "Image",
+                                                chatList[index].senderId ==
+                                                    userId,
+                                                chatList[index].sender?.name ??
+                                                    ''),
+
+                                            // capitalizeWholeTitle(chatList[index].message ?? "Image",
+                                            //   chatList[index].receiver!.id ==
+                                            //       userId
+                                            //       ? chatList[index].sender!.name!
+                                            //       : chatList[index].receiver!.name!,
+                                            // ) ,
+                                            fontSize: 12.3.sp,
+                                            overflow: TextOverflow.ellipsis,
+                                            fontWeight: chatList[index]
+                                                            .unReadMsgsCount !=
+                                                        null &&
+                                                    chatList[index].unReadMsgsCount !=
+                                                        0 &&
+                                                    chatList[index].receiver?.id ==
+                                                        userId
+                                                ? FontWeight.w700
+                                                : FontWeight.w400,
+                                            textColor: chatList[index]
+                                                            .unReadMsgsCount !=
+                                                        null &&
+                                                    chatList[index]
+                                                            .unReadMsgsCount !=
+                                                        0 &&
+                                                    chatList[index].receiver?.id ==
+                                                        userId
+                                                ? AppTheme.blackColor
+                                                : const Color(0xff626C7B)),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
                             ],
                           ),
-                        ),)
-
+                        ),
+                        Stack(
+                          children: [
+                            if (chatList[index].product?.photo?[0] != null)
+                              Container(
+                                width: 55.w,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5.r),
+                                    image: DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: NetworkImage(chatList[index]
+                                            .product!
+                                            .photo![0]
+                                            .url!))),
+                              ),
+                            if (chatList[index].product != null)
+                              Positioned(
+                                  bottom: 0,
+                                  child: Container(
+                                      height: 25.h,
+                                      width: 55.w,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.black38,
+                                      ),
+                                      child: Center(
+                                          child: AppText.appText(
+                                              productPriceForImage(
+                                                  chatList[index].product),
+                                              fontSize: 10.sp,
+                                              fontWeight: FontWeight.w500,
+                                              textAlign: TextAlign.center,
+                                              textColor: Colors.white
+                                                  .withOpacity(0.85))))),
                           ],
                         ),
-                      ),
-
-                      Stack(
-                        children: [
-                          if(chatList[index].imagePath?.src!=null)
-                          Container(
-                            width: 55.w,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5.r),
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                    image: NetworkImage(chatList[index].imagePath!.src!)
-                                )
-                            ),),
-                          if(chatList[index].product!=null)
-                            Positioned(
-                                bottom: 0,
-                                child: Container(
-                                    height: 25.h,
-                                    width: 55.w,
-                                    decoration: const BoxDecoration(
-                                        color: Colors.black38,
-
-                                    ),
-                                    child: Center(child: AppText.appText(productPriceForImage(chatList[index].product), fontSize: 10.sp, fontWeight: FontWeight.w500, textAlign: TextAlign.center, textColor: Colors.white.withOpacity(0.85))))),
-                        ],
-                      ),
-
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
-        );
+              );
+            },
+          );
         }
       },
     );
@@ -292,7 +347,7 @@ class _ChatScreenState extends State<ChatScreen> {
       return Scaffold(
           backgroundColor: AppTheme.whiteColor,
           appBar: AppBar(
-            forceMaterialTransparency : false,
+            forceMaterialTransparency: false,
             backgroundColor: AppTheme.whiteColor,
             automaticallyImplyLeading: false,
             centerTitle: true,
@@ -309,9 +364,6 @@ class _ChatScreenState extends State<ChatScreen> {
           ));
     }
   }
-
-
-
 
   getImageUrl(Conversation chatList) {
     String? receiverImg;
@@ -400,48 +452,41 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-  String msg(String? message, bool isCurrentUserSender, String title){
-    if(message!=null){
-      if(message.contains('accepted the offer') || message.contains('accepted your offer')){
-        if(isCurrentUserSender==true) {
+
+  String msg(String? message, bool isCurrentUserSender, String title) {
+    if (message != null) {
+      if (message.contains('accepted the offer') ||
+          message.contains('accepted your offer')) {
+        if (isCurrentUserSender == true) {
           return 'You have accepted this offer';
-        }
-        else{
+        } else {
           return 'Congratulations!, ${capitalizeWords(title ?? '')} has accepted the offer';
         }
-      }
-      else if(message.contains('rejected the offer') || message.contains('rejected your offer')){
-        if(isCurrentUserSender==true) {
+      } else if (message.contains('rejected the offer') ||
+          message.contains('rejected your offer')) {
+        if (isCurrentUserSender == true) {
           return 'You have rejected this offer';
-        }
-        else{
+        } else {
           return '${capitalizeWords(title ?? '')} has rejected the offer';
         }
-      }
-      else if(message.contains('made an offer')){
-        if(isCurrentUserSender==true) {
+      } else if (message.contains('made an offer')) {
+        if (isCurrentUserSender == true) {
           return 'You have made an offer';
-        }
-        else{
+        } else {
           return capitalizeWholeTitle(message, title ?? '');
         }
-      }
-      else if(message.contains('Unfortunately, the seller has canceled the offer.')){
-        if(isCurrentUserSender==true) {
-          return 'You have declined the buyer\’s offer and made a special offer';
-        }
-        else{
+      } else if (message
+          .contains('Unfortunately, the seller has canceled the offer.')) {
+        if (isCurrentUserSender == true) {
+          return 'You have declined the buyer’s offer and made a special offer';
+        } else {
           return message;
         }
-      }
-      else{
+      } else {
         return message;
       }
-    }
-    else{
+    } else {
       return '';
     }
   }
-
-
 }

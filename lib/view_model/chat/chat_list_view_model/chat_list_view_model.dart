@@ -4,14 +4,10 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:tt_offer/models/chat_list_model.dart';
-import 'package:tt_offer/models/post_product_model.dart';
 import 'package:tt_offer/repository/chat_api/chat_repository.dart';
 
 import '../../../data/app_exceptions.dart';
 import '../../../data/response/api_response.dart';
-import '../../../models/product_model.dart';
-import '../../../repository/product_api/get_product_api/get_product_repository.dart';
-import '../../../repository/product_api/post_products_api/post_product_repository.dart';
 
 
 class ChatListViewModel with ChangeNotifier {

@@ -6,7 +6,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
 import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
-import 'package:video_player/video_player.dart';
 import '../../../Utils/resources/res/app_theme.dart';
 import '../../../Utils/utils.dart';
 import '../../../Utils/widgets/others/app_text.dart';
@@ -122,7 +121,7 @@ class _ProductImageState extends State<ProductImage> {
                             child: IconButton(
                               icon: const Icon(Icons.arrow_forward_ios, color: Colors.black),
                               onPressed: _goToNextPage,
-                              padding: EdgeInsets.only(right: 10),
+                              padding: const EdgeInsets.only(right: 10),
                             ),
                           ),
                       ]
@@ -296,7 +295,7 @@ class _ProductImageState extends State<ProductImage> {
   void _goToPreviousPage() {
     if (_currentPage > 0) {
       _pageController.previousPage(
-        duration: Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     }

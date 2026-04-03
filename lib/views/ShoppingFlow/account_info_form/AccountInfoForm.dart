@@ -5,17 +5,13 @@ import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
-import 'package:tt_offer/data/response/api_response.dart';
 import 'package:tt_offer/models/cart_model.dart';
 import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
 import 'package:tt_offer/views/ShoppingFlow/checkout/checkout_screen.dart';
 
 import '../../../Utils/widgets/others/custom_app_bar.dart';
-import '../../../config/app_urls.dart';
 import '../../../config/keys/pref_keys.dart';
 import '../../../main.dart';
-import '../../../models/shipping_detail_model.dart';
-import '../cart/cart_screen.dart';
 
 
 
@@ -259,12 +255,12 @@ class _AccountInfoFormState extends State<AccountInfoForm> {
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Color(0xffE5E9EB),
             ),
           ),
           errorBorder: InputBorder.none,
-          contentPadding: EdgeInsets.only(top: 9, left: 12, right: 12),
+          contentPadding: const EdgeInsets.only(top: 9, left: 12, right: 12),
         ),
         items: countryItems,
         onChanged: (value) {
@@ -306,7 +302,7 @@ class _AccountInfoFormState extends State<AccountInfoForm> {
             ),
           ),
           errorBorder: InputBorder.none,
-          contentPadding: EdgeInsets.only(top: 9, left: 12, right: 12),
+          contentPadding: const EdgeInsets.only(top: 9, left: 12, right: 12),
         ),
         items: cityItems,
         onChanged: (value) {
@@ -421,7 +417,7 @@ class _AccountInfoFormState extends State<AccountInfoForm> {
                   enabledBorder: InputBorder.none,
                   disabledBorder: InputBorder.none,
                   errorBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.only(bottom: 4, left: 12, right: 12)
+                  contentPadding: const EdgeInsets.only(bottom: 4, left: 12, right: 12)
               ),
             ),
           ),

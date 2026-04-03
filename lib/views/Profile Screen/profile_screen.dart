@@ -1,23 +1,20 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
-import 'package:tt_offer/Utils/widgets/others/congragulations_dialog.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
-import 'package:tt_offer/data/response/api_response.dart';
+import 'package:tt_offer/config/dio/app_dio.dart';
+import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
-import 'package:tt_offer/views/Authentication%20screens/login_screen.dart';
 import 'package:tt_offer/views/Boost%20Plus%20Screens/boost_work.dart';
 import 'package:tt_offer/views/ContactPage/contact_page.dart';
 import 'package:tt_offer/views/EmailVerification/email_verification_screen.dart';
@@ -28,17 +25,12 @@ import 'package:tt_offer/views/Profile%20Screen/Transactions/transaction_screen.
 import 'package:tt_offer/views/Profile%20Screen/custom_link.dart';
 import 'package:tt_offer/views/Profile%20Screen/saved_products.dart';
 import 'package:tt_offer/views/Sellings/selling_purchase.dart';
-import 'package:tt_offer/config/dio/app_dio.dart';
-import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/views/ShoppingFlow/coupon/coupon_screen.dart';
 
-import '../../Utils/widgets/custom_loader.dart';
 import '../../Utils/widgets/others/coming_soon_dialog.dart';
 import '../../Utils/widgets/others/delete_notification_dialog.dart';
 import '../../data/response/status.dart';
 import '../../models/user_model.dart';
-import '../../providers/selling_purchase_provider.dart';
-import '../../stripe_test.dart';
 import 'Sell To Us/sell_to_us.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -56,7 +48,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   late UserViewModel userViewModel;
 
-
   @override
   void initState() {
     dio = AppDio(context);
@@ -67,14 +58,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     getUserDetail();
     userViewModel.overViewApi(userId, context);
 
-
     super.initState();
   }
 
-
   int percentageOfFive(double value) {
     // Convert the string input to a double
-
 
     // Calculate the percentage with respect to 5
     int percentage = ((value / 5) * 100).round();
@@ -95,10 +83,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (image != null) {
       setState(() {
         pickedFilePath = image.path;
-        userViewModel.updateUserProfileAndImage(userId, pickedFilePath ?? '').then((value){
-          showSnackBar(context, 'Profile updated Successfully!', title: 'Congratulations!');
+        userViewModel
+            .updateUserProfileAndImage(userId, pickedFilePath ?? '')
+            .then((value) {
+          showSnackBar(context, 'Profile updated Successfully!',
+              title: 'Congratulations!');
           userViewModel.updateVerification(userId);
-        }).onError((error, stackTrace){
+        }).onError((error, stackTrace) {
           showSnackBar(context, error.toString());
         });
       });
@@ -107,7 +98,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         // backgroundColor: AppTheme.whiteColor,
         appBar: AppBar(
@@ -134,38 +124,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
             )
           ],
         ),
-        body: Consumer<UserViewModel>(
-            builder: (context, userViewModel, child) {
-              UserModel? userModel = userViewModel.userModel.data;
-              return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  userViewModel.userModel.status == Status.loading
-                      ? LoadingDialog()
-                      : Column(
-                          children: [
-                            upperContainer(userModel),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                buildStatItem('${userModel?.myBought ?? 0}', 'Bought'),
-                                buildStatItem('${userModel?.mySold ?? 0}', 'Sold'),
-                                buildStatItem('${userModel?.followersCount ?? 0}', 'Followers'),
-                                buildStatItem('${userModel?.followingCount ?? 0}', 'Following'),
-                              ],
-                            ),
-
-                            SizedBox(height: 3.h,),
-
-                            if(userModel?.emailVerifiedAt == null ||
-                                userModel?.imageVerifiedAt == null ||
-                                userModel?.phoneVerifiedAt == null)
+        body: Consumer<UserViewModel>(builder: (context, userViewModel, child) {
+          UserModel? userModel = userViewModel.userModel.data;
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                userViewModel.userModel.status == Status.loading
+                    ? const LoadingDialog()
+                    : Column(
+                        children: [
+                          upperContainer(userModel),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              buildStatItem(
+                                  '${userModel?.myBought ?? 0}', 'Bought'),
+                              buildStatItem(
+                                  '${userModel?.mySold ?? 0}', 'Sold'),
+                              buildStatItem('${userModel?.followersCount ?? 0}',
+                                  'Followers'),
+                              buildStatItem('${userModel?.followingCount ?? 0}',
+                                  'Following'),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 3.h,
+                          ),
+                          if (userModel?.emailVerifiedAt == null ||
+                              userModel?.imageVerifiedAt == null ||
+                              userModel?.phoneVerifiedAt == null)
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 14.w),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   verifiedContainer(
@@ -183,8 +176,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ? Colors.red
                                           : null),
                                   verifiedContainer(
-                                    onTap: userModel?.imageVerifiedAt == null
-                                        ? ()=>pickImage() : null,
+                                      onTap: userModel?.imageVerifiedAt == null
+                                          ? () => pickImage()
+                                          : null,
                                       img: "assets/images/gallery.png",
                                       color: userModel?.imageVerifiedAt == null
                                           ? Colors.red
@@ -195,7 +189,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   verifiedContainer(
                                       onTap: userModel?.phoneVerifiedAt == null
                                           ? () {
-                                              push(context, PhoneVerifyScreen());
+                                              push(context,
+                                                  const PhoneVerifyScreen());
                                             }
                                           : null,
                                       txt: userModel?.phoneVerifiedAt == null
@@ -219,131 +214,131 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                  headingText(txt: "Transactions"),
-                  customRow(
-                      onTap: () {
-                        push(
-                            context,
-                            const SellingPurchaseScreen(
-                              title: "Purchase & Sale",
-                            ));
-                      },
-                      txt: "Purchases & Sales",
-                      img: "assets/images/receipt.png"),
-                  customRow(
-                      onTap: () {
-                        // push(context, PaymentScreen());
-                        comingSoonDialog(
-                            title: 'Wallet Coming!', // Shorter title
-                            description: "A new way to manage transactions is arriving soon. Enjoy secure and effortless payments right within the app. Stay tuned for updates!", // More detailed description
-                            context: context,
-                            loading: false,
-                            onTap: (){}
-                        );
+                        ],
+                      ),
+                headingText(txt: "Transactions"),
+                customRow(
+                    onTap: () {
+                      push(
+                          context,
+                          const SellingPurchaseScreen(
+                            title: "Purchase & Sale",
+                          ));
+                    },
+                    txt: "Purchases & Sales",
+                    img: "assets/images/receipt.png"),
+                customRow(
+                    onTap: () {
+                      // push(context, PaymentScreen());
+                      comingSoonDialog(
+                          title: 'Wallet Coming!', // Shorter title
+                          description:
+                              "A new way to manage transactions is arriving soon. Enjoy secure and effortless payments right within the app. Stay tuned for updates!", // More detailed description
+                          context: context,
+                          loading: false,
+                          onTap: () {});
+                    },
+                    txt: "Wallet",
+                    img: "assets/images/ic_wallet.png"),
+                customRow(
+                    onTap: () {
+                      push(context, const TransactionScreen());
+                    },
+                    txt: "Payment Transactions",
+                    img: "assets/images/payment.png"),
 
-                      },
-                      txt: "Wallet",
-                      img: "assets/images/ic_wallet.png"),
-                  customRow(
-                      onTap: () {
-                        push(
-                            context,
-                            TransactionScreen());
-                      },
-                      txt: "Payment Transactions",
-                      img: "assets/images/payment.png"),
-
-                  const CustomDivider(),
-                  headingText(txt: "Save"),
-                  customRow(
-                      onTap: () {
-                        push(context, const SavedItemsScreen());
-                      },
-                      isSave: true,
-                      txt: "Saved items",
-                      img: "assets/images/heart.png"),
-                  // customRow(
-                  //     onTap: () {},
-                  //     txt: "Search alerts",
-                  //     img: "assets/images/notification.png"),
-                  const CustomDivider(),
-                  headingText(txt: "Offers"),
-                  customRow(
-                      onTap: () {
-                        push(context, const SellToUs());
-                      },
-                      txt: "Sell to Us",
-                      img: "assets/images/sell_to_us.svg"),
-                  customRow(
-                      onTap: () {
-                        push(context, GiftCardsCouponsScreen(showSuccessMessage: true,));
-                      },
-                      txt: "Gift cards",
-                      img: "assets/images/ic_gift_card.png"),
-                  const CustomDivider(),
-                  // headingText(txt: "Wishlist"),
-                  // customRow(
-                  //     onTap: () {
-                  //       push(context, const WishListItemsScreen());
-                  //     },
-                  //     txt: "Wishlist items",
-                  //     img: "assets/images/heart.png"),
-                  // // customRow(
-                  // //     onTap: () {},
-                  // //     txt: "Search alerts",
-                  // //     img: "assets/images/notification.png"),
-                  // const CustomDivider(),
-                  headingText(txt: "Account"),
-                  customRow(
-                      onTap: () {
-                        push(context, const AccountSettingScreen(), then: (){
-                          userViewModel.getUserProfile();
-                        });
-                      },
-                      txt: "Account Settings",
-                      img: "assets/images/accountSetting.png"),
-                  customRow(
-                      onTap: () {
-                        push(context, const BoostWorkScreen());
-                      },
-                      txt: "Boost Plus",
-                      img: "assets/images/boostPlus.png"),
-                  customRow(
-                      onTap: () {
-                        push(
-                            context,
-                            CustomLinkScreen(
-                              link: userModel?.shareAbleLink ?? "ttoffer.com/user/info/${userModel?.username}",
-                            ));
-                      },
-                      txt: "Custom Profile Link",
-                      img: "assets/images/link.png"),
-                  const CustomDivider(),
-                  headingText(txt: "Help"),
-                  customRow(
-                      onTap: () {
-                        push(context, const ContactPage());
-                      },
-                      txt: "Help Center",
-                      img: "assets/images/helpCenter.png"),
-                  customRow(
-                      onTap: () {
-                        push(context, const SettingScreen());
-                      },
-                      txt: "Settings",
-                      img: "assets/images/settings.png"),
-                  const SizedBox(
-                    height: 20,
-                  )
-                ],
-              ),
-            );
-          }
-        ));
+                const CustomDivider(),
+                headingText(txt: "Save"),
+                customRow(
+                    onTap: () {
+                      push(context, const SavedItemsScreen());
+                    },
+                    isSave: true,
+                    txt: "Saved items",
+                    img: "assets/images/heart.png"),
+                // customRow(
+                //     onTap: () {},
+                //     txt: "Search alerts",
+                //     img: "assets/images/notification.png"),
+                const CustomDivider(),
+                headingText(txt: "Offers"),
+                customRow(
+                    onTap: () {
+                      push(context, const SellToUs());
+                    },
+                    txt: "Sell to Us",
+                    img: "assets/images/sell_to_us.svg"),
+                customRow(
+                    onTap: () {
+                      push(
+                          context,
+                          const GiftCardsCouponsScreen(
+                            showSuccessMessage: true,
+                          ));
+                    },
+                    txt: "Gift cards",
+                    img: "assets/images/ic_gift_card.png"),
+                const CustomDivider(),
+                // headingText(txt: "Wishlist"),
+                // customRow(
+                //     onTap: () {
+                //       push(context, const WishListItemsScreen());
+                //     },
+                //     txt: "Wishlist items",
+                //     img: "assets/images/heart.png"),
+                // // customRow(
+                // //     onTap: () {},
+                // //     txt: "Search alerts",
+                // //     img: "assets/images/notification.png"),
+                // const CustomDivider(),
+                headingText(txt: "Account"),
+                customRow(
+                    onTap: () {
+                      push(context, const AccountSettingScreen(), then: () {
+                        userViewModel.getUserProfile();
+                      });
+                    },
+                    txt: "Account Settings",
+                    img: "assets/images/accountSetting.png"),
+                customRow(
+                    onTap: () {
+                      push(context, const BoostWorkScreen());
+                    },
+                    txt: "Boost Plus",
+                    img: "assets/images/boostPlus.png"),
+                customRow(
+                    onTap: () {
+                      push(
+                          context,
+                          CustomLinkScreen(
+                            link: userModel?.shareAbleLink ??
+                                "ttoffer.com/user/info/${userModel?.username}",
+                          ));
+                    },
+                    txt: "Custom Profile Link",
+                    img: "assets/images/link.png"),
+                const CustomDivider(),
+                headingText(txt: "Help"),
+                customRow(
+                    onTap: () {
+                      push(context, const ContactPage());
+                    },
+                    txt: "Help Center",
+                    img: "assets/images/helpCenter.png"),
+                customRow(
+                    onTap: () {
+                      push(context, const SettingScreen());
+                    },
+                    txt: "Settings",
+                    img: "assets/images/settings.png"),
+                const SizedBox(
+                  height: 20,
+                )
+              ],
+            ),
+          );
+        }));
   }
-
 
   Future<void> logoutDialog() async {
     bool isLoading = false;
@@ -354,17 +349,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       confirmButtonTitle: "Yes",
       context: context,
       loading: isLoading,
-
       onTap: () async {
         userViewModel.logout(context, userId);
       },
     );
   }
 
-
-
   Widget verifiedContainer({img, txt, color, Function()? onTap}) {
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20.0),
       child: SizedBox(
@@ -402,7 +393,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-
   Widget headingText({txt}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
@@ -413,7 +403,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget customRow({required String img, txt, required Function() onTap, bool isSave = false}) {
+  Widget customRow(
+      {required String img,
+      txt,
+      required Function() onTap,
+      bool isSave = false}) {
     return Padding(
       padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
       child: GestureDetector(
@@ -423,43 +417,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Row(
               children: [
-                if(isSave == false)
-                  if(img.endsWith('.png'))
-                      Image.asset(
-                        "$img",
-                        height: 20,
-                      )
-                      else
-                      SvgPicture.asset(img, height: 22,)
+                if (isSave == false)
+                  if (img.endsWith('.png'))
+                    Image.asset(
+                      img,
+                      height: 20,
+                    )
+                  else
+                    SvgPicture.asset(
+                      img,
+                      height: 22,
+                    )
                 else
-                Consumer<UserViewModel>(
-                    builder: (context, userViewModel, child) {
-                      return Stack(
-                        clipBehavior: Clip.none,
+                  Consumer<UserViewModel>(
+                      builder: (context, userViewModel, child) {
+                    return Stack(
+                      clipBehavior: Clip.none,
                       children: [
                         Image.asset(
-                          "$img",
+                          img,
                           height: 20,
                         ),
-                        if(userViewModel.savedItemsCount != 0)
+                        if (userViewModel.savedItemsCount != 0)
                           Positioned(
                             top: -4,
                             right: -4,
                             child: Container(
                               height: 13, // Adjust the size as needed
-                              width: 13,  // Adjust the size as needed
+                              width: 13, // Adjust the size as needed
                               decoration: const BoxDecoration(
                                 color: Colors.red,
                                 shape: BoxShape.circle,
                               ),
-                              child: Center(child: AppText.appText('${userViewModel.savedItemsCount}', textColor: Colors.white, fontSize: 7.sp, fontWeight: FontWeight.bold)),
+                              child: Center(
+                                  child: AppText.appText(
+                                      '${userViewModel.savedItemsCount}',
+                                      textColor: Colors.white,
+                                      fontSize: 7.sp,
+                                      fontWeight: FontWeight.bold)),
                             ),
                           ),
                       ],
                     );
-                  }
-                ),
-
+                  }),
                 const SizedBox(
                   width: 20,
                 ),
@@ -547,13 +547,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(16),
                                     child: Image.network(
-                                      fit: BoxFit.fill,
+                                      fit: BoxFit.cover,
                                       userModel!.img!,
                                     ))
                                 : Image.asset(
-                                  fit: BoxFit.cover,
-                                  "assets/images/default_image.png",
-                                ),
+                                    fit: BoxFit.cover,
+                                    "assets/images/default_image.png",
+                                  ),
                       ),
                       Align(
                         alignment: Alignment.bottomCenter,
@@ -577,39 +577,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 12.h,),
+                SizedBox(
+                  height: 12.h,
+                ),
                 AppText.appText(capitalizeWords(userModel?.name ?? ''),
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     textColor: AppTheme.txt1B20),
-                SizedBox(height: 4.h,),
-                AppText.appText("Joined ${formatMonthYear(userModel?.createdAt)}",
+                SizedBox(
+                  height: 4.h,
+                ),
+                AppText.appText(
+                    "Joined ${formatMonthYear(userModel?.createdAt)}",
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                     textColor: AppTheme.txt1B20),
-                if(userModel?.location!=null)...[
-                SizedBox(height: 4.h,),
-                AppText.appText(userModel?.location?? '',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    textColor: AppTheme.txt1B20)],
-                SizedBox(height: 6.h,),
+                if (userModel?.location != null) ...[
+                  SizedBox(
+                    height: 4.h,
+                  ),
+                  AppText.appText(userModel?.location ?? '',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      textColor: AppTheme.txt1B20)
+                ],
+                SizedBox(
+                  height: 6.h,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(width: userModel?.reviewPercentage == null || userModel?.reviewPercentage == 0.0 ? 40.w : 12.w,),
+                    SizedBox(
+                      width: userModel?.reviewPercentage == null ||
+                              userModel?.reviewPercentage == 0.0
+                          ? 40.w
+                          : 12.w,
+                    ),
                     StarRating(
-                      percentage: percentageOfFive(userModel?.reviewPercentage ?? 0),
+                      percentage:
+                          percentageOfFive(userModel?.reviewPercentage ?? 0),
                       color: Colors.yellow,
                       size: 25,
                     ),
-                    SizedBox(width: 3.w,),
-                    AppText.appText(
-                            starCount(userModel?.reviewPercentage),
-                            fontSize: userModel?.reviewPercentage == null || userModel?.reviewPercentage == 0.0 ? 11.sp : 12.sp,
-                            fontWeight: FontWeight.normal,
-                            textColor: AppTheme.txt1B20),
+                    SizedBox(
+                      width: 3.w,
+                    ),
+                    AppText.appText(starCount(userModel?.reviewPercentage),
+                        fontSize: userModel?.reviewPercentage == null ||
+                                userModel?.reviewPercentage == 0.0
+                            ? 11.sp
+                            : 12.sp,
+                        fontWeight: FontWeight.normal,
+                        textColor: AppTheme.txt1B20),
                   ],
                 ),
               ],
@@ -658,8 +678,7 @@ class StarRating extends StatelessWidget {
         } else {
           return Icon(
             Icons.star,
-            color:
-                const Color(0xffD5DADD),
+            color: const Color(0xffD5DADD),
             size: size,
           );
         }
@@ -671,16 +690,16 @@ class StarRating extends StatelessWidget {
 class WordsOnNewLine extends StatelessWidget {
   final String text;
 
-  WordsOnNewLine({required this.text});
+  const WordsOnNewLine({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {
     // Split the text into words and join them with \n
 
     return AppText.appText(text,
-              textAlign: TextAlign.center,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              textColor: AppTheme.txt1B20);
+        textAlign: TextAlign.center,
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        textColor: AppTheme.txt1B20);
   }
 }

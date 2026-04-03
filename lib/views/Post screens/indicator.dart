@@ -86,7 +86,7 @@ class _StepsIndicatorState extends State<StepsIndicator> {
           ),
           child: color1 != null
               ? Padding(
-                  padding: EdgeInsets.all(5),
+                  padding: const EdgeInsets.all(5),
                   child: Image.asset(
                     "assets/images/tic.png",
                     height: 9,

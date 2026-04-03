@@ -1,12 +1,9 @@
 import 'dart:async';
 
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -14,7 +11,6 @@ import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
 import 'main.dart';
-import 'stripe_test.dart';
 import 'views/BottomNavigation/navigation_bar.dart';
 
 class SplashScreen extends StatefulWidget {

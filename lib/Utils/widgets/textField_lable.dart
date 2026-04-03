@@ -16,7 +16,10 @@ class LableTextField extends StatefulWidget {
   final maxLines;
   final onTap;
   final keyboard;
+  final double? borderRadius;
+  final Color? borderColor;
   final String? errorText;
+  final TextStyle? hintStyle;
   final ValueChanged<String>? onChanged;
   final FormFieldValidator? validator;
   final bool readOnly;
@@ -31,11 +34,19 @@ class LableTextField extends StatefulWidget {
       this.width,
       this.pass,
       this.hintTxt,
+      this.hintStyle,
       this.lableColor,
       this.height,
       this.onTap,
       this.keyboard,
-      this.maxLines, this.onChanged, this.readOnly=false, this.focusNode, this.inputFormatters, this.validator});
+      this.borderRadius,
+      this.borderColor,
+      this.maxLines,
+      this.onChanged,
+      this.readOnly = false,
+      this.focusNode,
+      this.inputFormatters,
+      this.validator});
 
   @override
   State<LableTextField> createState() => _LableTextFieldState();
@@ -63,29 +74,32 @@ class _LableTextFieldState extends State<LableTextField> {
             ? CustomAppPasswordfield(
                 texthint: "Password",
                 controller: widget.controller,
+                hintStyle: widget.hintStyle,
               )
             : CustomAppFormField(
                 maxline: widget.maxLines,
                 focusNode: widget.focusNode,
                 height: widget.height,
-                onChanged:  widget.onChanged,
+                onChanged: widget.onChanged,
                 onTap: widget.onTap,
+                hintStyle: widget.hintStyle,
+                radius: widget.borderRadius,
+                borderColor: widget.borderColor ?? AppTheme.borderColor,
                 readOnly: widget.readOnly,
                 validator: widget.validator,
                 type: widget.keyboard,
                 width: widget.width ?? MediaQuery.of(context).size.width,
                 texthint: "${widget.hintTxt}",
                 controller: widget.controller,
-                borderColor: AppTheme.borderColor,
                 hintTextColor: AppTheme.hintTextColor,
               ),
-        if(widget.errorText != null)
-        Padding(
-          padding: EdgeInsets.only(left: 5.w, top: 2.h),
-          child: AppText.appText(widget.errorText ?? '', textColor: Colors.red, fontSize: 11.sp),
-        )
+        if (widget.errorText != null)
+          Padding(
+            padding: EdgeInsets.only(left: 5.w, top: 2.h),
+            child: AppText.appText(widget.errorText ?? '',
+                textColor: Colors.red, fontSize: 11.sp),
+          )
       ],
     );
-    ;
   }
 }

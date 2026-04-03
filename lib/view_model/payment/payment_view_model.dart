@@ -62,7 +62,7 @@ class PaymentViewModel with ChangeNotifier {
       {int? productId,
       int? userId,
       int? subscriptionId,
-      dynamic? chargeId, bool googlePay = false,
+      dynamic chargeId, bool googlePay = false,
 
       bool save= false}) async {
 

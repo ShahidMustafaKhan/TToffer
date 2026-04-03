@@ -3,21 +3,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 
-class CatagoryContainer extends StatefulWidget {
+class CategoryContainer extends StatefulWidget {
   final img;
   final color;
   final txt;
 
-  bool isList = true;
+  final bool isList;
 
-  CatagoryContainer(
+  const CategoryContainer(
       {super.key, this.img, this.color, this.txt, required this.isList});
 
   @override
-  State<CatagoryContainer> createState() => _CatagoryContainerState();
+  State<CategoryContainer> createState() => _CategoryContainerState();
 }
 
-class _CatagoryContainerState extends State<CatagoryContainer> {
+class _CategoryContainerState extends State<CategoryContainer> {
   @override
   Widget build(BuildContext context) {
     return widget.isList == true
@@ -28,7 +28,7 @@ class _CatagoryContainerState extends State<CatagoryContainer> {
                 width: 53.w,
                 decoration:
                     BoxDecoration(shape: BoxShape.circle, color: widget.color),
-                child: Image.network(
+                child: Image.asset(
                   widget.img,
                 ),
               ),
@@ -42,9 +42,9 @@ class _CatagoryContainerState extends State<CatagoryContainer> {
                               ? 'Furniture &\nhome decor'
                               : widget.txt == 'Fashion & beauty'
                                   ? 'Fashion\n & beauty'
-                                  : widget.txt == 'Electronics & Appliances'
-                                    ? 'Electronics\n & Appliance'
-                                    : widget.txt,
+                                  : widget.txt == 'Electronics & Appliance'
+                                      ? 'Electronics\n & Appliance'
+                                      : widget.txt,
                   fontSize: 11.sp,
                   textAlign: TextAlign.center,
                   fontWeight: FontWeight.w600,
@@ -70,7 +70,7 @@ class _CatagoryContainerState extends State<CatagoryContainer> {
                 width: 50,
                 decoration:
                     BoxDecoration(shape: BoxShape.circle, color: widget.color),
-                child: Image.network(
+                child: Image.asset(
                   widget.img,
                   height: 32,
                   width: 32,

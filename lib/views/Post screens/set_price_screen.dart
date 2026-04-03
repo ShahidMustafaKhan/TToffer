@@ -16,7 +16,6 @@ import 'package:tt_offer/main.dart';
 import 'package:tt_offer/view_model/product/post_product/post_product_viewmodel.dart';
 import 'package:tt_offer/views/Post%20screens/enter_location_screen.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
-import '../../Utils/widgets/others/congragulations_dialog.dart';
 import '../../Utils/widgets/others/divider.dart';
 import '../../models/product_model.dart';
 
@@ -691,7 +690,7 @@ class _SetPostPriceScreenState extends State<SetPostPriceScreen> {
     return value.toString();
   }
 
-  Future<void> _selectDate(BuildContext context, {bool disablePastDates = false}) async {
+  Future<void> _selectDate(BuildContext context) async {
     final DateTime now = DateTime.now();
     final DateTime? picked = await showDatePicker(
       context: context,

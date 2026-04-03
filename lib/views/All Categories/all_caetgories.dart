@@ -5,22 +5,20 @@ import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/models/category_model.dart';
 import 'package:tt_offer/view_model/category/category_view_model.dart';
 import 'package:tt_offer/views/All%20Categories/catagory_container.dart';
+
 import '../../utils/utils.dart';
 import 'sub_categories_screen.dart';
 
-class AllCategories extends StatefulWidget {
+class AllCategoriesScreen extends StatefulWidget {
+  final bool isList;
 
-  bool isList;
-
-  AllCategories({super.key, required this.isList});
+  const AllCategoriesScreen({super.key, required this.isList});
 
   @override
-  State<AllCategories> createState() => _AllCategoriesState();
+  State<AllCategoriesScreen> createState() => _AllCategoriesScreenState();
 }
 
-class _AllCategoriesState extends State<AllCategories> {
-
-
+class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     final apiProvider = Provider.of<CategoryViewModel>(context);
@@ -32,10 +30,10 @@ class _AllCategoriesState extends State<AllCategories> {
       ),
       body: ListView.builder(
         itemCount: apiProvider.categoryList.data?.length ?? 0,
-
         shrinkWrap: true,
         itemBuilder: (context, index) {
-          List<CategoryModel> categoryList = apiProvider.categoryList.data ?? [];
+          List<CategoryModel> categoryList =
+              apiProvider.categoryList.data ?? [];
           return InkWell(
               onTap: () {
                 push(
@@ -59,7 +57,7 @@ class _AllCategoriesState extends State<AllCategories> {
                             fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                     ),
-                  CatagoryContainer(
+                  CategoryContainer(
                     color: categoryList[index].color,
                     img: categoryList[index].image,
                     txt: categoryList[index].title,

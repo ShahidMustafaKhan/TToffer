@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tt_offer/Utils/utils.dart';
-import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/main.dart';
-import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/models/selling_serach_model.dart';
 import 'package:tt_offer/providers/search_provider.dart';
-import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
 
 // var response;
 

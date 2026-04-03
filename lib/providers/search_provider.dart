@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/models/selling_serach_model.dart';
 
 class SearchProvider extends ChangeNotifier {

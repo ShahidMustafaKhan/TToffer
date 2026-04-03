@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:tt_offer/data/app_exceptions.dart';
 import 'package:tt_offer/repository/google_auth/authentication.dart';
-import '../../data/network/network_api_services.dart';
 import '../../models/user_model.dart';
 import '../login/login_view_model.dart';
 import '../register/register_view_model.dart';

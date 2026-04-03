@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -13,7 +12,7 @@ class SubCategoriesScreen extends StatefulWidget {
   final String? title;
   final int? id;
 
-  SubCategoriesScreen({super.key, this.title, this.id});
+  const SubCategoriesScreen({super.key, this.title, this.id});
 
   @override
   State<SubCategoriesScreen> createState() => _SubCategoriesScreenState();

@@ -9,7 +9,7 @@ import '../../../../Utils/resources/res/app_theme.dart';
 class ProductTypeDetails extends StatelessWidget {
   final String txt1;
   final String txt3;
-  ProductTypeDetails({super.key, required this.txt1, required this.txt3});
+  const ProductTypeDetails({super.key, required this.txt1, required this.txt3});
 
   @override
   Widget build(BuildContext context) {
@@ -23,18 +23,17 @@ class ProductTypeDetails extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          AppText.appText("$txt1",
+          AppText.appText(txt1,
               fontSize: 20,
               fontWeight: FontWeight.w600,
               textColor: AppTheme.white),
-          AppText.appText("$txt3",
+          AppText.appText(txt3,
               fontSize: 10,
               fontWeight: FontWeight.w300,
               textColor: AppTheme.white),
         ],
       ),
     );
-    ;
   }
 }
 

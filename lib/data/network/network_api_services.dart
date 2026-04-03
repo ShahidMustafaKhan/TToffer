@@ -6,17 +6,12 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
-import 'package:tt_offer/views/Authentication%20screens/login_screen.dart';
 
-import '../../Utils/utils.dart';
 import '../../Utils/widgets/others/delete_notification_dialog.dart';
 import '../../config/keys/pref_keys.dart';
 import '../../main.dart';
-import '../../providers/selling_purchase_provider.dart';
 import '../app_exceptions.dart';
-import '../response/api_response.dart';
 import 'base_api_services.dart';
 
 class NetworkApiService implements BaseApiServices {
@@ -150,9 +145,9 @@ class NetworkApiService implements BaseApiServices {
       fields.forEach((key, value) {
         if (value is List) {
           // For lists, convert each item to a string
-          value.forEach((item) {
+          for (var item in value) {
             request.fields[key] = item.toString();
-          });
+          }
         } else {
           // Convert other values to strings
           request.fields[key] = value.toString();

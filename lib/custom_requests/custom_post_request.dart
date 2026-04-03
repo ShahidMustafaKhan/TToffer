@@ -23,7 +23,7 @@ class CustomPostRequest {
 
     noTokenHeader ??= false;
 
-    var headers;
+    Map<String, String> headers;
 
     if (noTokenHeader == false) {
       String token = pref.getString(PrefKey.authorization)!;

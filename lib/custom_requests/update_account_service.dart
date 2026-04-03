@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
-import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 

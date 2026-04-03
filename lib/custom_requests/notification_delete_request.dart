@@ -1,8 +1,6 @@
-import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/custom_requests/custom_get_request.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';

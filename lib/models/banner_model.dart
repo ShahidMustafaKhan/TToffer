@@ -8,7 +8,7 @@ class BannerModel {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(Data.fromJson(v));
       });
     }
     message = json['message'];
@@ -49,12 +49,12 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     // data['id'] = this.id;
-    data['img'] = this.img;
+    data['img'] = img;
     // data['status'] = this.status;
-    data['page_name'] = this.pageName;
-    data['position'] = this.position;
+    data['page_name'] = pageName;
+    data['position'] = position;
     // data['sequence'] = this.sequence;
     // data['start_datetime'] = this.startDatetime;
     // data['end_datetime'] = this.endDatetime;

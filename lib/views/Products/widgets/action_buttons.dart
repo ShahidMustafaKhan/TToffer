@@ -1,18 +1,12 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../Utils/resources/res/app_theme.dart';
 import '../../../Utils/utils.dart';
 import '../../../Utils/widgets/others/app_button.dart';
 import '../../../custom_requests/dynmaic_link_service.dart';
 import '../../../models/product_model.dart';
-import '../../../view_model/profile/user_profile/user_view_model.dart';
 import '../../Authentication screens/login_screen.dart';
-import '../../ChatScreens/offer_chat_screen.dart';
-import '../Feature Product/widgets/make_offer_screen.dart';
 
 class ActionButtons extends StatelessWidget {
   String? authorizationToken;
@@ -80,7 +74,7 @@ class ActionButtons extends StatelessWidget {
                   radius: 32.r,
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
-                  backgroundColor: Color(0xffdfdde0),
+                  backgroundColor: const Color(0xffdfdde0),
                   borderColor: Colors.transparent,
                   borderWidth: 2,
                   imagePath: "assets/svg/ic_flag.svg",
@@ -97,7 +91,7 @@ class ActionButtons extends StatelessWidget {
                 radius: 32.r,
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
-                backgroundColor: Color(0xffdfdde0),
+                backgroundColor: const Color(0xffdfdde0),
                 borderColor: Colors.transparent,
                 imagePath: "assets/svg/ic_share.svg",
                 imageColor: AppTheme.appColor,

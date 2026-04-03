@@ -10,7 +10,6 @@ import '../../Controller/APIs Manager/send_notification_service.dart';
 import '../../Utils/widgets/others/app_text.dart';
 import '../../config/keys/pref_keys.dart';
 
-import '../../custom_requests/notification_delete_request.dart';
 import '../../models/user_model.dart';
 
 class UserRatingScreen extends StatefulWidget {
@@ -138,7 +137,7 @@ class _UserRatingScreenState extends State<UserRatingScreen> {
                             hintText:
                                 'How was your experience with the ${widget.reviewBuyer ? 'buyer' : 'seller'}?',
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.all(20)),
+                            contentPadding: const EdgeInsets.all(20)),
                       )),
                 ),
                 SizedBox(height: 63.h),

@@ -1,19 +1,10 @@
-import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
-import 'package:tt_offer/Controller/image_provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
-import 'package:tt_offer/constants.dart';
-import 'package:tt_offer/main.dart';
 
 import '../../models/product_model.dart';
-import '../../models/selling_products_model.dart';
 import '../utils.dart';
 
 class ListViewContainer extends StatefulWidget {

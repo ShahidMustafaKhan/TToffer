@@ -1,9 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:tt_offer/Controller/loading_provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
@@ -44,7 +41,7 @@ Future CustomAlertDialog(
                       ),
                       if(description != "")
                       FittedBox(
-                        child: AppText.appText(title!,
+                        child: AppText.appText(title,
                             fontSize: 24.sp,
                             fontWeight: FontWeight.w700,
                             maxlines: 1,
@@ -55,7 +52,7 @@ Future CustomAlertDialog(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Expanded(
-                              child: AppText.appText(title!,
+                              child: AppText.appText(title,
                                   fontSize: 26.sp,
                                   textAlign: TextAlign.center,
                                   fontWeight: FontWeight.w700,
@@ -70,7 +67,7 @@ Future CustomAlertDialog(
                       ),
                       if(description != "")...[
                       Container(
-                        child: AppText.appText(description!,
+                        child: AppText.appText(description,
                             textAlign: TextAlign.center,
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
@@ -83,7 +80,7 @@ Future CustomAlertDialog(
                           builder: (context, sellingViewModel, child) {
                             return sellingViewModel.markSoldLoading
                               ? CircularProgressIndicator(color: AppTheme.appColor)
-                              : AppButton.appButton(confirmButtonTitle!,
+                              : AppButton.appButton(confirmButtonTitle,
                                   onTap: onTap,
                                   height: 53,
                                   fontSize: 14,

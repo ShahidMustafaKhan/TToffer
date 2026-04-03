@@ -4,10 +4,7 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/payment_fee_model.dart';
-import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/providers/payment_fee_provider.dart';
-import 'package:tt_offer/stripe_test.dart';
-import 'package:tt_offer/views/Homepage/LandingPage/landing_screen.dart';
 import 'package:tt_offer/views/Post%20screens/enter_location_screen.dart';
 import 'package:tt_offer/views/Post%20screens/payment_charge_screen.dart';
 
@@ -23,7 +20,7 @@ class PaymentStatusService {
 
       if (res['success'] == true && res["data"]["value"] == "0") {
         navigate = true;
-        print('object--->${navigate}');
+        print('object--->$navigate');
         push(
             context,
             product != null

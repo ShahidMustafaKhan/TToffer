@@ -5,17 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/utils.dart';
-import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/models/advertisement_banner.dart';
-import 'package:tt_offer/view_model/product/post_product/post_product_viewmodel.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../view_model/banner/banner_view_model.dart';
 import '../../../../Utils/resources/res/app_theme.dart';
-import '../../../../data/response/status.dart';
 import '../../../../view_model/product/product/product_viewmodel.dart';
-import '../../../Products/Auction Product/all_auction_procucts.dart';
-import '../../../Products/Auction Product/auction_container.dart';
-import 'custom_row.dart';
 
 
 class BannerSection extends StatelessWidget {
@@ -65,9 +59,9 @@ class BannerSection extends StatelessWidget {
                               child: CircularProgressIndicator(color: AppTheme.yellowColor,),
                             ),
                           ),
-                          errorWidget: (context, url, error) => SizedBox(),
+                          errorWidget: (context, url, error) => const SizedBox(),
                           cacheKey: imagePath, // Cache key to identify this image
-                          fadeInDuration: Duration(milliseconds: 500), // Smooth fade-in effect
+                          fadeInDuration: const Duration(milliseconds: 500), // Smooth fade-in effect
                         ),
                       ),
                     );

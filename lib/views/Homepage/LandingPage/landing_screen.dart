@@ -120,7 +120,7 @@ class _LandingScreenState extends State<LandingScreen> {
                         ),
                       ),
 
-                      SearchBarWithSuggestions()
+                      const SearchBarWithSuggestions()
                     ],
                                 );
                   }

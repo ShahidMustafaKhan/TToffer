@@ -6,7 +6,6 @@ import 'package:image/image.dart' as img;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:tt_offer/Utils/utils.dart';
-import 'package:tt_offer/main.dart';
 
 class ImageNotifyProvider extends ChangeNotifier {
   List<String> imagePaths = [];

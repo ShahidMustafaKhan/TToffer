@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
 class PaymentScreen extends StatefulWidget {
+  const PaymentScreen({super.key});
+
   @override
   _PaymentScreenState createState() => _PaymentScreenState();
 }
@@ -15,7 +17,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Payment")),
+      appBar: AppBar(title: const Text("Payment")),
       body: Column(
         children: [
           CardField(
@@ -28,7 +30,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
           ElevatedButton(
             onPressed: _validCard ? _handlePayment : null,
-            child: Text('Save Card'),
+            child: const Text('Save Card'),
           ),
         ],
       ),
@@ -41,7 +43,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     try {
       // Create a Payment Method
       final paymentMethod = await Stripe.instance.createPaymentMethod(
-        params: PaymentMethodParams.card(
+        params: const PaymentMethodParams.card(
             paymentMethodData: PaymentMethodData(
                 // billingDetails: _cardDetails.
                 )),

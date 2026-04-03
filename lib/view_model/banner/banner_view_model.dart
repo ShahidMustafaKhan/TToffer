@@ -12,48 +12,39 @@ class BannerViewModel extends ChangeNotifier {
   List<AdvertisementBanner> secondBanner = [];
   List<AdvertisementBanner> thirdBanner = [];
 
-  BannerRepository bannerRepository ;
+  BannerRepository bannerRepository;
   BannerViewModel({required this.bannerRepository});
 
-
   Future<void> getBanner() async {
-
     try {
       final response = await bannerRepository.getBanner();
       addBanner(response);
-
-    } catch(e){
+    } catch (e) {
       log("banner api error ${e.toString()}");
     }
-
   }
 
   Future<void> getAdvertisementBanner() async {
-
     try {
       final response = await bannerRepository.getAdvertisementBanner();
       addAdvertisementBanner(response);
-
-    } catch(e){
+    } catch (e) {
       log("Advertisement banner api error ${e.toString()}");
     }
-
   }
 
-  void callBannerApi(){
+  void callBannerApi() {
     getBanner();
     getAdvertisementBanner();
   }
-
-
 
   addBanner(BannerModel model) {
     List<String> firstBannerTemp = [];
 
     for (var element in model.data!) {
-         if(element.img!=null) {
-           firstBannerTemp.add(element.img!);
-         }
+      if (element.img != null) {
+        firstBannerTemp.add(element.img!);
+      }
     }
 
     firstBanner = firstBannerTemp;
@@ -65,18 +56,12 @@ class BannerViewModel extends ChangeNotifier {
     List<AdvertisementBanner> thirdBannerTemp = [];
 
     for (var element in model.data ?? []) {
-         if(element !=null) {
-           secondBannerTemp.add(element);
-           thirdBannerTemp.add(element);
-         }
+      if (element != null) {
+        secondBannerTemp.add(element);
+      }
     }
 
     secondBanner = secondBannerTemp;
-    thirdBanner = thirdBannerTemp;
     notifyListeners();
   }
-
 }
-
-
-

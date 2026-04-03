@@ -49,7 +49,7 @@ class AlmostThereScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 24.w),
                 child: Text(
@@ -61,7 +61,7 @@ class AlmostThereScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 18.w),
                 child: AppButton.appButton(

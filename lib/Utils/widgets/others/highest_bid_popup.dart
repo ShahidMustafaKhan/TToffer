@@ -6,7 +6,6 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 
 import 'package:tt_offer/utils/utils.dart';
-import 'package:tt_offer/view_model/bids/bids_view_model.dart';
 import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 
 import '../../../views/Sellings/new_sold_screen.dart';

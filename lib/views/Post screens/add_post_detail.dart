@@ -1,35 +1,24 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
-import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
-import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/others/divider.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
-import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/detail_model/attribute_model.dart';
-import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/category_model.dart';
-import 'package:tt_offer/models/selling_products_model.dart';
 import 'package:tt_offer/models/sub_categories_model.dart';
 import 'package:tt_offer/view_model/category/category_view_model.dart';
 import 'package:tt_offer/view_model/product/post_product/post_product_viewmodel.dart';
-import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Post%20screens/indicator.dart';
 import 'package:tt_offer/views/Post%20screens/set_price_screen.dart';
-import 'package:tt_offer/config/app_urls.dart';
-import 'package:tt_offer/config/dio/app_dio.dart';
 
 import '../../models/product_model.dart';
 
@@ -937,7 +926,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         colorSelect = electronicApplicanceAttributes!.color;
 
 
-        print('catCat------>${catagoryId}');
+        print('catCat------>$catagoryId');
 
         engineCapacity = bikeAttributes!.engineCapacity;
         modelController.text = bikeAttributes!.model;
@@ -1320,7 +1309,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     // }, 'Dealer'),
                   ],
                 )
-                    : SizedBox.shrink(),
+                    : const SizedBox.shrink(),
 
                 ( _selectedCategory == 'Jobs' )
                     ? Row(
@@ -1385,7 +1374,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     // }, 'Dealer'),
                   ],
                 )
-                    : SizedBox.shrink(),
+                    : const SizedBox.shrink(),
 
                 customRow(
                     onTap: () {
@@ -2064,13 +2053,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           icon: Icon(Icons.close_sharp, size: 30.w),
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       AppText.appText(
                         'Categories',
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
-                      Spacer(),
+                      const Spacer(),
                       SizedBox(width: 34.w,)
                     ],
                   ),
@@ -2872,7 +2861,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 setState((){});
                 Navigator.of(context).pop();
 
-                print('catCat------>${catagoryId}');
+                print('catCat------>$catagoryId');
             });
           },
           child: Row(
@@ -2895,7 +2884,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       setState((){});
                       Navigator.of(context).pop();
 
-                      print('catCat------>${catagoryId}');
+                      print('catCat------>$catagoryId');
                     } else {
                       _selectedCategory = "";
                     }
@@ -4066,13 +4055,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           icon: Icon(Icons.close_sharp, size: 30.w),
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       AppText.appText(
                         title!,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
-                      Spacer(),
+                      const Spacer(),
                       SizedBox(width: 30.w,)
                     ],
                   ),

@@ -1,10 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tt_offer/Utils/utils.dart';
-import 'package:tt_offer/views/Payment/new_card_screen.dart';
 
-import '../resources/res/app_theme.dart';
 import 'others/app_text.dart';
 
 class ImageWithRightArrow extends StatefulWidget {

@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -5,7 +6,6 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:tt_offer/constants.dart';
 import 'package:tt_offer/models/products_count_model.dart';
 import 'package:tt_offer/views/Boost%20Plus%20Screens/boost_plus_screen.dart';
@@ -82,7 +82,6 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,21 +102,21 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                   children: [
                     Row(
                       children: [
-                        if(widget.product?.photo?.isNotEmpty ?? false)
-                        Container(
-                          height: 70,
-                          width: 70,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.network(
-                              widget.product!.photo![0].url!,
-                              fit: BoxFit.cover,
+                        if (widget.product?.photo?.isNotEmpty ?? false)
+                          Container(
+                            height: 70,
+                            width: 70,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Image.network(
+                                widget.product!.photo![0].url!,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
-                        ),
                         const SizedBox(
                           width: 20,
                         ),
@@ -125,10 +124,15 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            AppText.appText(widget.product?.title ?? '',
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                textColor: AppTheme.txt1B20),
+                            SizedBox(
+                              width: 300,
+                              child: AppText.appText(
+                                  widget.product?.title ?? '',
+                                  overflow: TextOverflow.ellipsis,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  textColor: AppTheme.txt1B20),
+                            ),
                             const SizedBox(
                               height: 5,
                             ),
@@ -164,11 +168,9 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
               ),
             ),
             Consumer<ProductViewModel>(
-            builder: (context, productViewModel, child) {
-
-
+                builder: (context, productViewModel, child) {
               if (!loading) {
-                 return Padding(
+                return Padding(
                     padding: const EdgeInsets.symmetric(
                       vertical: 20.0,
                     ),
@@ -178,15 +180,14 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
                         viewsData: views,
                       ),
                     ));
-               } else {
-                 return Center(
+              } else {
+                return Center(
                   child: CircularProgressIndicator(
                     color: AppTheme.appColor,
                   ),
                 );
-               }
+              }
             }),
-
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: AppButton.appButton("Boost Plus", onTap: () {
@@ -214,15 +215,11 @@ class _ItemPerformanceScreenState extends State<ItemPerformanceScreen> {
   }
 
   Future<void> getItemPerformance() async {
-
-      productViewModel.getProductDetails(product?.id)
-          .then((value){
-            product = value;
-            updateViews(state: true);
-      })
-          .onError((error, stackTrace){});
-    }
-
+    productViewModel.getProductDetails(product?.id).then((value) {
+      product = value;
+      updateViews(state: true);
+    }).onError((error, stackTrace) {});
+  }
 }
 
 class ProductPerformanceChart extends StatelessWidget {
@@ -240,7 +237,8 @@ class ProductPerformanceChart extends StatelessWidget {
             dotData: const FlDotData(show: false),
             spots: List.generate(10, (index) {
               // Fill missing months with default values (e.g., 0)
-              double value = index < viewsData.length ? viewsData[index].toDouble() : 0.0;
+              double value =
+                  index < viewsData.length ? viewsData[index].toDouble() : 0.0;
               return FlSpot(index.toDouble(), value);
             }),
             isCurved: true,
@@ -258,28 +256,28 @@ class ProductPerformanceChart extends StatelessWidget {
         ],
         minY: 0,
         titlesData: FlTitlesData(
-          show: true,
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 30,
-              getTitlesWidget: bottomTitleWidgets,
+            show: true,
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
             ),
-          ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 42,
-              interval: 10, // Show labels at intervals of 10
-              getTitlesWidget: leftTitleWidgets,
-            ),)
-        ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 30,
+                getTitlesWidget: bottomTitleWidgets,
+              ),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 42,
+                interval: 10, // Show labels at intervals of 10
+                getTitlesWidget: leftTitleWidgets,
+              ),
+            )),
         borderData: FlBorderData(
           show: false,
         ),
@@ -293,7 +291,6 @@ class ProductPerformanceChart extends StatelessWidget {
 
     // Mapping month numbers to month names
     switch (value.toInt()) {
-
       case 0:
         month = 'Dec';
         break;
@@ -324,11 +321,11 @@ class ProductPerformanceChart extends StatelessWidget {
       case 9:
         month = 'Sep';
         break;
-      // case 9:
-      //   month = 'Oct';
-      //   break;
-      // case 10:
-      //   month = 'Nov';
+        // case 9:
+        //   month = 'Oct';
+        //   break;
+        // case 10:
+        //   month = 'Nov';
         break;
       default:
         month = ''; // For any other value
@@ -356,5 +353,4 @@ class ProductPerformanceChart extends StatelessWidget {
 
     return Text(text, style: style, textAlign: TextAlign.left);
   }
-
 }

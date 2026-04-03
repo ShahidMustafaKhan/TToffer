@@ -1,7 +1,6 @@
-import 'package:country_list_pick/country_list_pick.dart';
+import 'package:dio/src/response.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
@@ -10,9 +9,7 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/Authentication%20screens/otp_screen.dart';
-import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
-import 'package:tt_offer/config/dio/app_dio.dart';
 
 import '../../view_model/verification/verificaiton_view_model.dart';
 import 'otp_phone_screen.dart';
@@ -170,7 +167,7 @@ class _ForgotEmailPassState extends State<ForgotEmailPass> {
 
   void forgotPasswordPhone() async {
 
-    var response;
+    Response response;
     int responseCode200 = 200; // For successful request.
     int responseCode400 = 400; // For Bad Request.
     int responseCode401 = 401; // For Unauthorized access.
@@ -227,7 +224,7 @@ class _ForgotEmailPassState extends State<ForgotEmailPass> {
         }
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
+      print("Something went Wrong $e");
       showSnackBar(context, "Something went Wrong.");
       setState(() {
         _isLoading = false;

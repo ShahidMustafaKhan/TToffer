@@ -1,9 +1,7 @@
-import 'package:country_list_pick/country_list_pick.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
@@ -13,9 +11,7 @@ import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
-import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
-import 'package:tt_offer/config/keys/pref_keys.dart';
 
 import '../../view_model/login/login_view_model.dart';
 import '../Profile Screen/Settings/privacy_policy.dart';
@@ -140,7 +136,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              push(context, PrivacyPolicyScreen());
+                              push(context, const PrivacyPolicyScreen());
                             },
                         ),])),
               Consumer<LoginViewModel>(

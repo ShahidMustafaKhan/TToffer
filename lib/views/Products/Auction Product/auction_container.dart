@@ -1,28 +1,18 @@
 import 'dart:async';
 
-import 'package:dialogs/dialogs/progress_dialog.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
-import 'package:tt_offer/detail_model/attribute_model.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
 
 import '../../../config/keys/pref_keys.dart';
 import '../../../main.dart';
 import '../../../models/product_model.dart';
-import '../../../view_model/product/product/product_viewmodel.dart';
 import '../../../view_model/profile/user_profile/user_view_model.dart';
-import '../Feature Product/feature_container.dart';
 
 class AuctionProductContainer extends StatelessWidget {
   Product? product;
@@ -250,7 +240,7 @@ class ImageText extends StatefulWidget {
   String? image;
   String? txt;
 
-  ImageText({this.txt, this.image});
+  ImageText({super.key, this.txt, this.image});
 
   @override
   State<ImageText> createState() => _ImageTextState();

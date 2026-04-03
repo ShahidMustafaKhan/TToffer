@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
-import 'package:tt_offer/Utils/widgets/loading_popup.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
@@ -18,7 +17,6 @@ import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/all_auction_procucts.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_container.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
-import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 
 import '../../../Utils/widgets/custom_radio_button.dart';
@@ -281,7 +279,6 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
         subCatId = subCatId;
       });
     });
-    ;
   }
 
   Widget buildCategoryList(StateSetter setState) {
@@ -344,7 +341,7 @@ class _ViewFeaturedProductsState extends State<ViewFeaturedProducts> {
                         subCat[i].title, () {
                       // subCatId = subCat[i].id;
                       subCatId = subCat[i].title;
-                      print('newSub---->${subCatId}');
+                      print('newSub---->$subCatId');
 
 
                       selectedIndexes[catModel[index-1].id!] = i;

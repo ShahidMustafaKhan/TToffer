@@ -18,7 +18,6 @@ class ProductModel {
     message = json['message'];
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
-
 }
 
 class Data {
@@ -38,18 +37,18 @@ class Data {
 
   Data(
       {this.currentPage,
-        this.productList,
-        this.firstPageUrl,
-        this.from,
-        this.lastPage,
-        this.lastPageUrl,
-        this.links,
-        this.nextPageUrl,
-        this.path,
-        this.perPage,
-        this.prevPageUrl,
-        this.to,
-        this.total});
+      this.productList,
+      this.firstPageUrl,
+      this.from,
+      this.lastPage,
+      this.lastPageUrl,
+      this.links,
+      this.nextPageUrl,
+      this.path,
+      this.perPage,
+      this.prevPageUrl,
+      this.to,
+      this.total});
 
   Data.fromJson(Map<String, dynamic> json) {
     // currentPage = json['current_page'];
@@ -76,8 +75,6 @@ class Data {
     // to = json['to'];
     // total = json['total'];
   }
-
-
 }
 
 class Product {
@@ -138,64 +135,62 @@ class Product {
   String? createdAt;
   int? qty;
 
-
   Product(
       {this.id,
-        this.userId,
-        this.soldToUserId,
-        this.soldToUser,
-        this.savedForLater,
-        this.reportedByUserId,
-        this.title,
-        this.slug,
-        this.description,
-        this.attributes,
-        this.categoryId,
-        this.subCategoryId,
-        this.condition,
-        this.makeAndModel,
-        this.edition,
-        this.authenticity,
-        this.isUrgent,
-        this.isArchived,
-        this.isSold,
-        this.isExpired,
-        this.totalReview,
-        this.reviewPercentage,
-        this.productType,
-        this.fixPrice,
-        this.maxSalary,
-        this.minSalary,
-        this.firmOnPrice,
-        this.auctionInitialPrice,
-        this.auctionFinalPrice,
-        this.auctionStartingDate,
-        this.auctionStartingTime,
-        this.auctionEndingDate,
-        this.auctionEndingDateTime,
-        this.auctionEndingTime,
-        this.notify,
-        this.sellToUs,
-        this.location,
-        this.longitude,
-        this.latitude,
-        this.deliveryType,
-        this.status,
-        this.viewsCount,
-        this.isBoosted,
-        this.isProductExpired,
-        this.user,
-        this.category,
-        this.subCategory,
-        this.video,
-        this.userWishlist,
-        this.photo,
-        this.createdAt,
-        this.viewSummary,
-        this.review,
-        this.qty
-      });
-
+      this.userId,
+      this.soldToUserId,
+      this.soldToUser,
+      this.savedForLater,
+      this.reportedByUserId,
+      this.title,
+      this.slug,
+      this.description,
+      this.attributes,
+      this.categoryId,
+      this.subCategoryId,
+      this.condition,
+      this.makeAndModel,
+      this.edition,
+      this.authenticity,
+      this.isUrgent,
+      this.isArchived,
+      this.isSold,
+      this.isExpired,
+      this.totalReview,
+      this.reviewPercentage,
+      this.productType,
+      this.fixPrice,
+      this.maxSalary,
+      this.minSalary,
+      this.firmOnPrice,
+      this.auctionInitialPrice,
+      this.auctionFinalPrice,
+      this.auctionStartingDate,
+      this.auctionStartingTime,
+      this.auctionEndingDate,
+      this.auctionEndingDateTime,
+      this.auctionEndingTime,
+      this.notify,
+      this.sellToUs,
+      this.location,
+      this.longitude,
+      this.latitude,
+      this.deliveryType,
+      this.status,
+      this.viewsCount,
+      this.isBoosted,
+      this.isProductExpired,
+      this.user,
+      this.category,
+      this.subCategory,
+      this.video,
+      this.userWishlist,
+      this.photo,
+      this.createdAt,
+      this.viewSummary,
+      this.review,
+      this.inventory,
+      this.qty});
 
   Product.copy(Product original)
       : id = original.id,
@@ -250,7 +245,8 @@ class Product {
         inventory = original.inventory,
         viewSummary = original.viewSummary,
         qty = original.qty,
-        photo = original.photo != null ? List<Photo>.from(original.photo!) : null,
+        photo =
+            original.photo != null ? List<Photo>.from(original.photo!) : null,
         createdAt = original.createdAt,
         review = original.review;
 
@@ -259,11 +255,13 @@ class Product {
     userId = json['user_id'];
     savedForLater = json['save_for_later'];
     soldToUserId = json['sold_to_user_id'];
-    soldToUser = json['sold_to_user'] != null ? UserModel.fromJson(json['sold_to_user']) : null;
+    soldToUser = json['sold_to_user'] != null
+        ? UserModel.fromJson(json['sold_to_user'])
+        : null;
     if (json['reported_by_user_id'] != null) {
       reportedByUserId = <int>[];
       json['reported_by_user_id'].forEach((v) {
-        if(v!=null) {
+        if (v != null) {
           reportedByUserId!.add(v);
         }
       });
@@ -284,46 +282,40 @@ class Product {
     isExpired = json['is_expired'];
     totalReview = json['total_review'];
     isBoosted = json['is_boosted'];
-    dynamic tempReviewPercentage= json['review_percentage'];
-    if(tempReviewPercentage!=null){
-      if(tempReviewPercentage is double){
+    dynamic tempReviewPercentage = json['review_percentage'];
+    if (tempReviewPercentage != null) {
+      if (tempReviewPercentage is double) {
         reviewPercentage = tempReviewPercentage.floor();
-      }
-      else if(tempReviewPercentage is String){
+      } else if (tempReviewPercentage is String) {
         reviewPercentage = int.parse(tempReviewPercentage);
-      }
-      else{
+      } else {
         reviewPercentage = tempReviewPercentage;
       }
     }
     productType = json['product_type'];
 
     dynamic tempFixPrice = json['fix_price'];
-    if(tempFixPrice is double){
+    if (tempFixPrice is double) {
       fixPrice = tempFixPrice.floor();
-    }
-    else if(tempFixPrice is String){
+    } else if (tempFixPrice is String) {
       fixPrice = int.parse(tempFixPrice);
-    }
-    else{
+    } else {
       fixPrice = tempFixPrice;
     }
 
     dynamic tempMinSalary = json['min_salary'];
-    if(tempMinSalary!=null){
-      if(tempMinSalary is double){
+    if (tempMinSalary != null) {
+      if (tempMinSalary is double) {
         minSalary = tempMinSalary.floor();
-      }
-      else if(tempMinSalary is String){
+      } else if (tempMinSalary is String) {
         minSalary = int.parse(tempMinSalary.split('.')[0]);
       }
     }
     dynamic tempMaxSalary = json['max_salary'];
-    if(tempMaxSalary!=null){
-      if(tempMaxSalary is double){
+    if (tempMaxSalary != null) {
+      if (tempMaxSalary is double) {
         maxSalary = tempMaxSalary.floor();
-      }
-      else if(tempMaxSalary is String){
+      } else if (tempMaxSalary is String) {
         maxSalary = int.parse(tempMaxSalary.split('.')[0]);
       }
     }
@@ -331,20 +323,18 @@ class Product {
     firmOnPrice = json['firm_on_price'];
     dynamic tempAuctionInitialPrice = json['auction_initial_price'];
     dynamic tempAuctionFinalPrice = json['auction_final_price'];
-    if(tempAuctionInitialPrice!=null) {
+    if (tempAuctionInitialPrice != null) {
       auctionInitialPrice = tempAuctionInitialPrice.floor();
     }
-    if(tempAuctionFinalPrice!=null) {
+    if (tempAuctionFinalPrice != null) {
       auctionFinalPrice = tempAuctionFinalPrice.floor();
-
     }
 
     dynamic tempAverageRating = json['average_rating'];
-    if(tempAverageRating!=null) {
-      if(tempAverageRating is String){
-      averageRating = double.parse(tempAverageRating);
-      }
-      else {
+    if (tempAverageRating != null) {
+      if (tempAverageRating is String) {
+        averageRating = double.parse(tempAverageRating);
+      } else {
         averageRating = tempAverageRating.toDouble();
       }
     }
@@ -363,10 +353,9 @@ class Product {
 
     dynamic deliveryTempType = json['delivery_type'];
 
-    if(deliveryTempType is String){
-    deliveryType = jsonDecode(json['delivery_type']) ?? [];
-    }
-    else{
+    if (deliveryTempType is String) {
+      deliveryType = jsonDecode(json['delivery_type']) ?? [];
+    } else {
       deliveryType = json['delivery_type'] ?? [];
     }
     status = json['status'];
@@ -378,12 +367,11 @@ class Product {
         reportedByUserId!.add(json[v]);
       });
     }
-    user = json['user'] != null ? new UserModel.fromJson(json['user']) : null;
-    category = json['category'] != null
-        ? new Category.fromJson(json['category'])
-        : null;
+    user = json['user'] != null ? UserModel.fromJson(json['user']) : null;
+    category =
+        json['category'] != null ? Category.fromJson(json['category']) : null;
     subCategory = json['sub_category'] != null
-        ? new SubCategory.fromJson(json['sub_category'])
+        ? SubCategory.fromJson(json['sub_category'])
         : null;
 
     if (json['video'] != null) {
@@ -403,8 +391,6 @@ class Product {
       });
     }
 
-
-
     if (json['photo'] != null) {
       photo = <Photo>[];
       if (json['photo'] is List) {
@@ -414,8 +400,7 @@ class Product {
       } else {
         photo!.add(Photo.fromJson(json['photo']));
       }
-    }
-    else if (json['photos'] != null) {
+    } else if (json['photos'] != null) {
       photo = <Photo>[];
       if (json['photos'] is List) {
         json['photos'].forEach((v) {
@@ -439,7 +424,6 @@ class Product {
       });
     }
   }
-
 }
 
 class Category {
@@ -456,10 +440,10 @@ class Category {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['slug'] = this.slug;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['slug'] = slug;
     return data;
   }
 }
@@ -478,10 +462,10 @@ class SubCategory {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['category_id'] = this.categoryId;
-    data['name'] = this.name;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['category_id'] = categoryId;
+    data['name'] = name;
     return data;
   }
 }
@@ -498,9 +482,9 @@ class ImagePath {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['product_id'] = this.productId;
-    data['url'] = this.url;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['product_id'] = productId;
+    data['url'] = url;
     return data;
   }
 }
@@ -519,10 +503,10 @@ class UserWishlist {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['product_id'] = this.productId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['user_id'] = userId;
+    data['product_id'] = productId;
     return data;
   }
 }
@@ -545,12 +529,12 @@ class Photo {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['product_id'] = this.productId;
-    data['url'] = this.url;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['product_id'] = productId;
+    data['url'] = url;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
     return data;
   }
 }
@@ -569,10 +553,10 @@ class Links {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['url'] = this.url;
-    data['label'] = this.label;
-    data['active'] = this.active;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['url'] = url;
+    data['label'] = label;
+    data['active'] = active;
     return data;
   }
 }
@@ -590,14 +574,14 @@ class ProductReviews {
 
   ProductReviews(
       {this.id,
-        this.reviewerId,
-        this.sellerId,
-        this.productId,
-        this.rating,
-        this.comment,
-        this.reviewer,
-        this.createdAt,
-        this.updatedAt});
+      this.reviewerId,
+      this.sellerId,
+      this.productId,
+      this.rating,
+      this.comment,
+      this.reviewer,
+      this.createdAt,
+      this.updatedAt});
 
   ProductReviews.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -606,11 +590,11 @@ class ProductReviews {
     productId = json['product_id'];
     rating = json['rating'];
     comment = json['comment'];
-    reviewer = json['reviewer'] != null ? UserModel.fromJson(json['reviewer']) : null;
+    reviewer =
+        json['reviewer'] != null ? UserModel.fromJson(json['reviewer']) : null;
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
   }
-
 }
 
 class ViewsSummary {
@@ -625,9 +609,9 @@ class ViewsSummary {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['month'] = this.month;
-    data['views'] = this.views;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['month'] = month;
+    data['views'] = views;
     return data;
   }
 }

@@ -1,4 +1,3 @@
-
 import 'package:tt_offer/models/product_model.dart';
 
 class ProfileModel {
@@ -15,10 +14,7 @@ class ProfileModel {
     message = json['message'];
     userModel = json['data'] != null ? UserModel.fromJson(json['data']) : null;
   }
-
 }
-
-
 
 class UserModel {
   int? id;
@@ -63,42 +59,44 @@ class UserModel {
 
   UserModel(
       {this.id,
-        this.name,
-        this.username,
-        this.email,
-        this.phone,
-        this.userType,
-        this.role,
-        this.socialLogin,
-        this.followersCount,
-        this.followingCount,
-        this.bought,
-        this.sold,
-        this.mySold,
-        this.myBought,
-        this.provider,
-        this.providerId,
-        this.providerToken,
-        this.code,
-        this.emailVerifiedAt,
-        this.emailCode,
-        this.phoneVerifiedAt,
-        this.imageVerifiedAt,
-        this.showContact,
-        this.shareAbleLink,
-        this.img,
-        this.src,
-        this.location,
-        this.customLink,
-        this.status,
-        this.isTrueYou,
-        this.deviceToken,
-        this.totalReview,
-        this.reviewPercentage,
-        this.isUserFollowed,
-        this.deletedAt,
-        this.createdAt,
-        this.updatedAt});
+      this.name,
+      this.username,
+      this.email,
+      this.phone,
+      this.userType,
+      this.role,
+      this.socialLogin,
+      this.followersCount,
+      this.followingCount,
+      this.bought,
+      this.sold,
+      this.mySold,
+      this.myBought,
+      this.provider,
+      this.providerId,
+      this.providerToken,
+      this.code,
+      this.emailVerifiedAt,
+      this.emailCode,
+      this.phoneVerifiedAt,
+      this.imageVerifiedAt,
+      this.showContact,
+      this.shareAbleLink,
+      this.img,
+      this.src,
+      this.location,
+      this.customLink,
+      this.status,
+      this.isTrueYou,
+      this.deviceToken,
+      this.totalReview,
+      this.reviewPercentage,
+      this.isUserFollowed,
+      this.products,
+      this.reviews,
+      this.deletedAt,
+      this.createdAt,
+      this.updatedAt});
 
   UserModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -108,15 +106,13 @@ class UserModel {
     phone = json['phone'];
     userType = json['user_type'];
     role = json['role'];
-    if(json['social_login'] is bool){
-      if(json['social_login'] == true){
+    if (json['social_login'] is bool) {
+      if (json['social_login'] == true) {
         socialLogin = 1;
-      }
-      else{
+      } else {
         socialLogin = 0;
       }
-    }
-    else{
+    } else {
       socialLogin = json['social_login'];
     }
     provider = json['provider'];
@@ -141,7 +137,6 @@ class UserModel {
     followersCount = json['followers_count'];
     followingCount = json['following_count'];
 
-
     sold = json['sold_product'];
     bought = json['bought_product'];
     mySold = json['sold'];
@@ -150,7 +145,7 @@ class UserModel {
     isUserFollowed = json['is_followed'];
 
     dynamic tempReviewPercentage = json['review_percentage'];
-    if(tempReviewPercentage!= null) {
+    if (tempReviewPercentage != null) {
       reviewPercentage = tempReviewPercentage.toDouble();
     }
     deletedAt = json['deleted_at'];
@@ -158,19 +153,16 @@ class UserModel {
     updatedAt = json['updated_at'];
 
     if (json['products'] != null) {
-      products = (json['products'] as List)
-          .map((v) => Product.fromJson(v))
-          .toList();
+      products =
+          (json['products'] as List).map((v) => Product.fromJson(v)).toList();
     }
     if (json['seller_reviews'] != null) {
       reviews = (json['seller_reviews'] as List)
           .map((v) => Reviews.fromJson(v))
           .toList();
     }
-
   }
 }
-
 
 class Reviews {
   int? id;
@@ -183,11 +175,13 @@ class Reviews {
 
   Reviews.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    rating = json['rating'] is String ? int.tryParse(json['rating']) : json['rating'];
+    rating = json['rating'] is String
+        ? int.tryParse(json['rating'])
+        : json['rating'];
     comment = json['comment'];
     product =
-    json['product'] != null ? Product.fromJson(json['product']) : null;
-    user = json['reviewer'] != null ? UserModel.fromJson(json['reviewer']) : null;
+        json['product'] != null ? Product.fromJson(json['product']) : null;
+    user =
+        json['reviewer'] != null ? UserModel.fromJson(json['reviewer']) : null;
   }
-
 }

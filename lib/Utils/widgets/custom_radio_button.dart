@@ -2,7 +2,6 @@
 
 
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../resources/res/app_theme.dart';
@@ -13,7 +12,7 @@ class CustomRadioButton extends StatefulWidget {
   final String? txt;
   final Function()? onTap;
 
-  CustomRadioButton(this.color, this.txt, this.onTap);
+  const CustomRadioButton(this.color, this.txt, this.onTap, {super.key});
 
   @override
   State<CustomRadioButton> createState() => _CustomRadioButtonState();

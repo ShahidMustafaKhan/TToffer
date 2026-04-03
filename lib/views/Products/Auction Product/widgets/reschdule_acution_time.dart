@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,7 +14,6 @@ import 'package:tt_offer/models/bids_model.dart';
 import 'package:tt_offer/view_model/bids/bids_view_model.dart';
 import '../../../../view_model/product/product/product_viewmodel.dart';
 import '../../../Profile Screen/profile_screen.dart';
-import '../../../Sellings/new_sold_screen.dart';
 
 class RescheduleTimeProduct extends StatefulWidget {
   final productId;
@@ -368,8 +366,8 @@ class _RescheduleTimeProductState extends State<RescheduleTimeProduct> {
                   color: AppTheme.textColor
               ),
               hintText: hintText,
-              border: OutlineInputBorder(),
-              disabledBorder: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
+              disabledBorder: const OutlineInputBorder(),
               contentPadding: EdgeInsets.only(bottom: 8.h)
           ),
           onChanged: (_){

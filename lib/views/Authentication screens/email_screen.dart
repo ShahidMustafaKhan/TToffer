@@ -9,9 +9,9 @@ import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
+import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/views/Authentication%20screens/forgot_email.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
-import 'package:tt_offer/config/dio/app_dio.dart';
 
 import '../../main.dart';
 import '../../view_model/login/login_view_model.dart';
@@ -72,8 +72,12 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
               CustomAppFormField(
                 texthint: "Email",
                 controller: _emailController,
-                hintTextColor: const Color(0xff939699),
                 borderColor: const Color(0xffE5E9EB),
+                radius: 10,
+                hintStyle: const TextStyle(
+                    color: Color(0xff939699),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 20.0, bottom: 10),
@@ -101,14 +105,15 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                       textColor: AppTheme.txt1B20),
                 ),
               ),
-
               SizedBox(height: 20.h),
-
               RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
                       text: 'By logging in I agree to the ',
-                      style: TextStyle(color: AppTheme.hintTextColor, fontFamily: 'Poppins', fontSize: 12),
+                      style: TextStyle(
+                          color: AppTheme.hintTextColor,
+                          fontFamily: 'Poppins',
+                          fontSize: 12),
                       children: [
                         TextSpan(
                           text: 'Terms and Conditions',
@@ -122,14 +127,15 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                             ..onTap = () {
                               push(context, const TermsAndCondition());
 
-
                               // Handle Terms and Conditions tap
                               print("Terms and Conditions Tapped");
                             },
                         ),
                         TextSpan(
                           text: ' and ',
-                          style: TextStyle(color: AppTheme.hintTextColor,  fontFamily: 'Poppins'),
+                          style: TextStyle(
+                              color: AppTheme.hintTextColor,
+                              fontFamily: 'Poppins'),
                         ),
                         TextSpan(
                           text: 'Privacy Policy',
@@ -141,70 +147,69 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              push(context, PrivacyPolicyScreen());
+                              push(context, const PrivacyPolicyScreen());
                               print("Privacy Policy Tapped");
                             },
-                        ),])),
-              Consumer<LoginViewModel>(
-                  builder: (context, provider, child){
-                    return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 40.0),
-                    child: provider.loginLoading == true
-                        ? Center(
-                            child: CircularProgressIndicator(
-                              color: AppTheme.appColor,
-                            ),
-                          )
-                        : AppButton.appButton("Sign In", onTap: () {
-                            _emailController.text =
-                                _emailController.text.replaceAll(' ', '');
+                        ),
+                      ])),
+              Consumer<LoginViewModel>(builder: (context, provider, child) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40.0),
+                  child: provider.loginLoading == true
+                      ? Center(
+                          child: CircularProgressIndicator(
+                            color: AppTheme.appColor,
+                          ),
+                        )
+                      : AppButton.appButton("Sign In", onTap: () {
+                          _emailController.text =
+                              _emailController.text.replaceAll(' ', '');
 
-                            if (_emailController.text.isNotEmpty) {
-                              final emailPattern =
-                                  RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                              if (!emailPattern.hasMatch(_emailController.text)) {
-                                showSnackBar(
-                                    context, "Please enter a valid email address");
-                              } else {
-                                if (_passwordController.text.isNotEmpty) {
-                                  Map<String, dynamic> data = {
-                                    "email": _emailController.text,
-                                    "password": _passwordController.text
-                                  };
-                                  provider.loginApiWithEmail(data).then((value){
-                                    unAuthorized = false;
-                                    Navigator.pushAndRemoveUntil(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const BottomNavView(fromLogin : true),
-                                        ),
-                                            (route) => false);
-                                  }).onError((error, stackTrace){
-                                    showSnackBar(context, error.toString());
-                                  });
-
-                                } else {
-                                  showSnackBar(context, "Enter Password");
-                                }
-                              }
+                          if (_emailController.text.isNotEmpty) {
+                            final emailPattern =
+                                RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                            if (!emailPattern.hasMatch(_emailController.text)) {
+                              showSnackBar(context,
+                                  "Please enter a valid email address");
                             } else {
-                              showSnackBar(context, "Enter Email");
+                              if (_passwordController.text.isNotEmpty) {
+                                Map<String, dynamic> data = {
+                                  "email": _emailController.text,
+                                  "password": _passwordController.text
+                                };
+                                provider.loginApiWithEmail(data).then((value) {
+                                  unAuthorized = false;
+                                  Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const BottomNavView(
+                                                fromLogin: true),
+                                      ),
+                                      (route) => false);
+                                }).onError((error, stackTrace) {
+                                  showSnackBar(context, error.toString());
+                                });
+                              } else {
+                                showSnackBar(context, "Enter Password");
+                              }
                             }
-                          },
-                            height: 53,
-                            radius: 32.0,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                            backgroundColor: AppTheme.appColor,
-                            textColor: AppTheme.whiteColor),
-                  );
-                }
-              )
+                          } else {
+                            showSnackBar(context, "Enter Email");
+                          }
+                        },
+                          height: 53,
+                          radius: 32.0,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                          backgroundColor: AppTheme.appColor,
+                          textColor: AppTheme.whiteColor),
+                );
+              })
             ],
           ),
         ),
       ),
     );
   }
-
 }

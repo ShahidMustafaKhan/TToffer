@@ -10,14 +10,14 @@ class SellingSearchModel {
     if (json['data'] != null) {
       data = <SearchData>[];
       json['data'].forEach((v) {
-        data!.add(new SearchData.fromJson(v));
+        data!.add(SearchData.fromJson(v));
       });
     }
     message = json['message'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['success'] = success;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
@@ -68,8 +68,8 @@ class SearchData {
   Category? category;
   SubCategory? subCategory;
   List<Photo>? photo;
-  List<Null>? video;
-  List<Null>? wishlist;
+  List<void>? video;
+  List<void>? wishlist;
 
   SearchData(
       {this.id,
@@ -152,17 +152,17 @@ class SearchData {
     viewsCount = json['views_count'];
     boosterStartDatetime = json['booster_start_datetime'];
     boosterEndDatetime = json['booster_end_datetime'];
-    user = json['user'] != null ? new User.fromJson(json['user']) : null;
+    user = json['user'] != null ? User.fromJson(json['user']) : null;
     category = json['category'] != null
-        ? new Category.fromJson(json['category'])
+        ? Category.fromJson(json['category'])
         : null;
     subCategory = json['sub_category'] != null
-        ? new SubCategory.fromJson(json['sub_category'])
+        ? SubCategory.fromJson(json['sub_category'])
         : null;
     if (json['photo'] != null) {
       photo = <Photo>[];
       json['photo'].forEach((v) {
-        photo!.add(new Photo.fromJson(v));
+        photo!.add(Photo.fromJson(v));
       });
     }
     // if (json['video'] != null) {
@@ -180,7 +180,7 @@ class SearchData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['user_id'] = userId;
     data['title'] = title;
@@ -319,7 +319,7 @@ class User {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['name'] = name;
     data['src'] = src;
@@ -380,7 +380,7 @@ class Category {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['name'] = name;
     data['slug'] = slug;
@@ -412,7 +412,7 @@ class SubCategory {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['category_id'] = categoryId;
     data['name'] = name;
@@ -440,7 +440,7 @@ class Photo {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['product_id'] = productId;
     data['src'] = src;

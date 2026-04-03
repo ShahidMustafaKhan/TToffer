@@ -2,16 +2,13 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/data/app_exceptions.dart';
 import 'package:tt_offer/models/bids_model.dart';
 import 'package:tt_offer/models/suggestion_model.dart';
 import 'package:tt_offer/repository/suggestion_api/suggestion_repository.dart';
 
-import '../../Utils/utils.dart';
 import '../../data/response/api_response.dart';
-import '../../repository/offer_api/offer_repository.dart';
 import '../product/product/product_viewmodel.dart';
 
 

@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:tt_offer/models/shipping_detail_model.dart';
 import 'package:tt_offer/repository/cart_api/cart_repository.dart';
 

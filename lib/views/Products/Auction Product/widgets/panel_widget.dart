@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +20,7 @@ class PanelWidget extends StatefulWidget {
   final Product? product;
   final List<BidsData> bidsData;
 
-  PanelWidget({
+  const PanelWidget({
     Key? key,
     required this.controller,
     required this.panelController,
@@ -93,10 +91,6 @@ class _PanelWidgetState extends State<PanelWidget> {
 
   String getTimeLeftString() {
     DateTime? endTime = _parseEndingDateTime();
-
-    if (endTime == null) {
-      return 'Invalid date/time';
-    }
 
     Duration timeLeft = endTime.difference(DateTime.now());
 

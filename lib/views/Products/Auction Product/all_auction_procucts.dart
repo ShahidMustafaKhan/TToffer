@@ -8,7 +8,6 @@ import 'package:tt_offer/Utils/widgets/others/app_field.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
-import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/data/response/status.dart';
 import 'package:tt_offer/main.dart';
@@ -276,7 +275,6 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
         subCatId = subCatId;
       });
     });
-    ;
   }
 
   Widget buildCategoryList(StateSetter setState) {
@@ -341,7 +339,7 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
                         subCat[i].title, () {
                           // subCatId = subCat[i].id;
                           subCatId = subCat[i].title;
-                          print('newSub---->${subCatId}');
+                          print('newSub---->$subCatId');
 
                           selectedIndexes[catModel[index-1].id!] = i;
                           subCategory = subCat[i].id.toString();
@@ -601,23 +599,23 @@ class _ViewAllAuctionProductsState extends State<ViewAllAuctionProducts> {
 
 
   void sortNewestOnTop() {
-    auctionProductList?.sort((a, b) => b!.createdAt!.compareTo(a!.createdAt!));
+    auctionProductList?.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
     setState(() {
 
     });  }
 
   void sortNewestOnBottom() {
-    auctionProductList?.sort((a, b) => a!.createdAt!.compareTo(b!.createdAt!));
+    auctionProductList?.sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
     setState(() {});
   }
 
   void sortLowestPriceOnTop() {
-    auctionProductList?.sort((a, b) => double.parse(a!.auctionInitialPrice.toString()).compareTo(double.parse(b!.auctionInitialPrice.toString())));
+    auctionProductList?.sort((a, b) => double.parse(a.auctionInitialPrice.toString()).compareTo(double.parse(b.auctionInitialPrice.toString())));
     setState(() {});
   }
 
   void sortLowestPriceOnBottom() {
-    auctionProductList?.sort((a, b) => double.parse(b!.auctionInitialPrice.toString()).compareTo(double.parse(a!.auctionInitialPrice.toString())));
+    auctionProductList?.sort((a, b) => double.parse(b.auctionInitialPrice.toString()).compareTo(double.parse(a.auctionInitialPrice.toString())));
     setState(() {});
   }
 // Notify listeners about the updated state

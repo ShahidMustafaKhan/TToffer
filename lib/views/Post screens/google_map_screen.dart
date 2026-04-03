@@ -9,11 +9,12 @@ import 'package:location/location.dart';
 import 'package:location/location.dart' as loc;
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
-import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:http/http.dart' as http;
 
 
 class GoogleMapView extends StatefulWidget {
+  const GoogleMapView({super.key});
+
   @override
   State<GoogleMapView> createState() => _GoogleMapViewState();
 }
@@ -114,7 +115,7 @@ class _GoogleMapViewState extends State<GoogleMapView> {
                             color: Colors.grey.withOpacity(0.5),
                             spreadRadius: 2,
                             blurRadius: 5,
-                            offset: Offset(0, 3), // changes position of shadow
+                            offset: const Offset(0, 3), // changes position of shadow
                           ),
                         ],
                       ),
@@ -153,7 +154,7 @@ class _GoogleMapViewState extends State<GoogleMapView> {
                             color: Colors.grey.withOpacity(0.5),
                             spreadRadius: 2,
                             blurRadius: 5,
-                            offset: Offset(0, 3), // changes position of shadow
+                            offset: const Offset(0, 3), // changes position of shadow
                           ),
                         ],
                       ),
@@ -163,10 +164,10 @@ class _GoogleMapViewState extends State<GoogleMapView> {
                         itemCount: predictions.length,
                         itemBuilder: (context, index) {
                           return ListTile(
-                            leading: Icon(Icons.history),
+                            leading: const Icon(Icons.history),
                             title: Text(
                               predictions[index]['description'],
-                              style: TextStyle(color: Colors.black, fontSize: 14.0),
+                              style: const TextStyle(color: Colors.black, fontSize: 14.0),
                             ),
                             // subtitle: Text(
                             //   predictions[index]['description'],
@@ -277,27 +278,27 @@ class _GoogleMapViewState extends State<GoogleMapView> {
     return address;
   }
   getCurrentLocation() async {
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
 
-    _serviceEnabled = await location.serviceEnabled();
+    serviceEnabled = await location.serviceEnabled();
     final GoogleMapController? controller = await _controller.future;
 
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
         return;
       }
     }
 
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
         return;
       }
     }
-    if (_permissionGranted == loc.PermissionStatus.granted) {
+    if (permissionGranted == loc.PermissionStatus.granted) {
       location.changeSettings(accuracy: loc.LocationAccuracy.high);
 
       _currentPosition = await location.getLocation();

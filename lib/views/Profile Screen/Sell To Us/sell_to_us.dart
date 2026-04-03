@@ -20,7 +20,7 @@ class SellToUs extends StatelessWidget {
   }
   Widget sellToUsColumn() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 17, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -82,7 +82,7 @@ class SellToUs extends StatelessWidget {
                 if (boldText != null)
                   TextSpan(
                     text: boldText,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
               ],
             ),

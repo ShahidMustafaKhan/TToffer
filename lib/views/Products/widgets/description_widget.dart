@@ -1,8 +1,5 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../Utils/resources/res/app_theme.dart';
 import '../../../Utils/widgets/others/app_text.dart';
 import '../../../models/product_model.dart';

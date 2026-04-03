@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -426,7 +425,7 @@ class _SellingPurchaseListViewState extends State<SellingPurchaseListView> {
                           children: [
                             Row(
                               children: [
-                                Container(
+                                SizedBox(
                                   height: 70,
                                   width: 70,
                                   child: Stack(

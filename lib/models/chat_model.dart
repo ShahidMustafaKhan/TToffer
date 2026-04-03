@@ -1,6 +1,5 @@
 import 'package:tt_offer/models/user_model.dart';
 
-import '../../../models/product_model.dart';
 import 'chat_list_model.dart';
 
 

@@ -1,11 +1,8 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
 import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
-import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../Utils/resources/res/app_theme.dart';
 import '../../../../Utils/utils.dart';
@@ -84,7 +81,7 @@ class FeatureProductInteractiveButtons extends StatelessWidget {
                         showCartBottomSheet(context, product);
                       }
                       else{
-                        push(context, SigInScreen());
+                        push(context, const SigInScreen());
                       }},
                     height: 45.h,
                     radius: 32.r,
@@ -221,7 +218,7 @@ class FeatureProductInteractiveButtons extends StatelessWidget {
                         style: TextStyle(color: Colors.red, fontSize: 14),
                       ),
                     ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -300,7 +297,7 @@ class FeatureProductInteractiveButtons extends StatelessWidget {
                               padding: const EdgeInsets.all(4),
                               child: Icon(
                                 Icons.remove,
-                                color: quantity > 1 ? const Color(0xff9ea1a8) : Color(0xff9ea1a8).withOpacity(0.5),
+                                color: quantity > 1 ? const Color(0xff9ea1a8) : const Color(0xff9ea1a8).withOpacity(0.5),
                                 size: 15,
                               ),
                             ),
@@ -325,7 +322,7 @@ class FeatureProductInteractiveButtons extends StatelessWidget {
                               color: const Color(0xfff9f8fd),
                               child: Icon(
                                 Icons.add,
-                                color: quantity < availableStock ? const Color(0xff9ea1a8) : Color(0xff9ea1a8).withOpacity(0.5),
+                                color: quantity < availableStock ? const Color(0xff9ea1a8) : const Color(0xff9ea1a8).withOpacity(0.5),
                                 size: 15,
                               ),
                             ),
@@ -411,7 +408,7 @@ class FeatureProductInteractiveButtons extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 18),
+              const SizedBox(height: 18),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -448,7 +445,7 @@ class FeatureProductInteractiveButtons extends StatelessWidget {
                       children: [
                         Text(
                           product?.title ?? '',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                         ),
                         Text(
                           'AED ${product?.fixPrice ?? ''}',
@@ -463,10 +460,10 @@ class FeatureProductInteractiveButtons extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 21),
+              const SizedBox(height: 21),
               AppButton.appButton("Go to cart", onTap: () async {
                 Navigator.of(context).pop();
-                push(context, CartScreen());
+                push(context, const CartScreen());
               },
                   height: 45.h,
                   radius: 32.r,

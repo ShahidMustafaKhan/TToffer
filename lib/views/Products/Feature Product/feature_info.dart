@@ -1,29 +1,19 @@
-
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/utils.dart';
+import 'package:tt_offer/config/app_urls.dart';
+import 'package:tt_offer/config/dio/app_dio.dart';
+import 'package:tt_offer/config/keys/pref_keys.dart';
 import 'package:tt_offer/detail_model/attribute_model.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/utils/resources/res/app_theme.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/widgets/feature_product_interactive_buttons.dart';
 import 'package:tt_offer/views/Products/widgets/product_image.dart';
 import 'package:tt_offer/views/Products/widgets/seller_detail_widget.dart';
-import 'package:tt_offer/config/app_urls.dart';
-import 'package:tt_offer/config/dio/app_dio.dart';
-import 'package:tt_offer/config/keys/pref_keys.dart';
 
-import '../../../Utils/widgets/others/app_text.dart';
 import '../../../models/product_model.dart';
 import '../../../view_model/product/product/product_viewmodel.dart';
 import '../../BottomNavigation/navigation_bar.dart';
-import '../../Profile Screen/profile_screen.dart';
 import '../widgets/action_buttons.dart';
 import '../widgets/description_widget.dart';
 import '../widgets/divider.dart';
@@ -39,7 +29,12 @@ class FeatureInfoScreen extends StatefulWidget {
   bool fromDynamicLink;
   bool popToBottomNav;
 
-  FeatureInfoScreen({super.key, this.product, this.fromDynamicLink=false, this.popToBottomNav=false, this.productId});
+  FeatureInfoScreen(
+      {super.key,
+      this.product,
+      this.fromDynamicLink = false,
+      this.popToBottomNav = false,
+      this.productId});
 
   @override
   State<FeatureInfoScreen> createState() => _FeatureInfoScreenState();
@@ -49,7 +44,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
   bool isLoading = false;
   bool isPageLoading = false;
   bool isFav = false;
-  bool isProperty=false;
+  bool isProperty = false;
   String? categoryName;
   String? subCategoryName;
 
@@ -75,23 +70,19 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
   late FurnitureAttributes furnitureAttributes;
   late ElectronicApplianceAttributes electronicApplicanceAttributes;
 
-
-
   getUserId() async {
-    if(pref.getString(PrefKey.userId) != null) {
+    if (pref.getString(PrefKey.userId) != null) {
       userId = int.tryParse(pref.getString(PrefKey.userId)!);
     }
     authorizationToken = pref.getString(PrefKey.authorization);
-    setState(() {
-
-    });
+    setState(() {});
   }
-
 
   late List<String> attributeKeyList;
   List<String> attributeValueList = [];
 
-  void initializeAttributeKeyList(String categoryName, String subCategoryName, JobAttributes jobAttributes) {
+  void initializeAttributeKeyList(String categoryName, String subCategoryName,
+      JobAttributes jobAttributes) {
     switch (categoryName) {
       case 'Animals':
         attributeKeyList = [
@@ -145,12 +136,8 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
       case 'Mobiles':
         attributeKeyList = [
           'Brand',
-          subCategoryName == 'Accessories'
-              ? 'Color'
-              : 'Storage Capacity',
-          if(subCategoryName != 'Accessories')
-            'Color'
-
+          subCategoryName == 'Accessories' ? 'Color' : 'Storage Capacity',
+          if (subCategoryName != 'Accessories') 'Color'
         ];
         break;
 
@@ -202,7 +189,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
         attributeKeyList = [];
     }
   }
-  
+
   @override
   void initState() {
     productViewModel = Provider.of<ProductViewModel>(context, listen: false);
@@ -214,38 +201,32 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     super.initState();
   }
 
-
   updateProductDetails() async {
     product = await productViewModel.getProductDetails(product?.id);
     setState(() {});
   }
 
-  
-
   Future<void> getProductData() async {
-    if(product!= null){
+    if (product != null) {
       productViewModel.setProductDetailLoading(true);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         updateProductDetails();
       });
       getAttributes();
-        getUserId();
-        // markProductView();
-
-    }
-    else{
+      getUserId();
+      // markProductView();
+    } else {
       isPageLoading = true;
-      await getProductDetail(dynamicLink: true );
+      await getProductDetail(dynamicLink: true);
       getAttributes();
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         getUserId();
         // markProductView();
       });
-
     }
   }
 
-  void getAttributes(){
+  void getAttributes() {
     final attributesJson = product?.attributes;
     fashionAttributes = FashionAttributes.fromJson(attributesJson);
     mobileAttributes = MobileAttributes.fromJson(attributesJson);
@@ -257,24 +238,21 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     kidsAttributes = KidsAttributes.fromJson(attributesJson);
     animalsAttributes = AnimalsAttributes.fromJson(attributesJson);
     furnitureAttributes = FurnitureAttributes.fromJson(attributesJson);
-    electronicApplicanceAttributes = ElectronicApplianceAttributes.fromJson(attributesJson);
+    electronicApplicanceAttributes =
+        ElectronicApplianceAttributes.fromJson(attributesJson);
 
-    initializeAttributeKeyList(categoryName ?? '' , subCategoryName! ?? '' , jobAttributes);
+    initializeAttributeKeyList(
+        categoryName ?? '', subCategoryName! ?? '', jobAttributes);
 
-
-    if(widget.fromDynamicLink == true){
-        isPageLoading = false;
-        setState(() {
-        });
+    if (widget.fromDynamicLink == true) {
+      isPageLoading = false;
+      setState(() {});
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-
-    if(isPageLoading == false) {
-
+    if (isPageLoading == false) {
       Map<String, List<String>> sortedAttributes = {
         'Animals': [
           animalsAttributes.age,
@@ -323,11 +301,13 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
               : '',
           propertyAttributes.bathroom.isNotEmpty
               ? propertyAttributes.bathroom == 'no bathroom'
-              ? propertyAttributes.bathroom
-              : '${propertyAttributes.bathroom} BA'
+                  ? propertyAttributes.bathroom
+                  : '${propertyAttributes.bathroom} BA'
               : '',
-          propertyAttributes.completion.isNotEmpty ? propertyAttributes.completion : '',
-          if(subCategoryName == 'Commercial Space')
+          propertyAttributes.completion.isNotEmpty
+              ? propertyAttributes.completion
+              : '',
+          if (subCategoryName == 'Commercial Space')
             propertyAttributes.zoneFor.isNotEmpty
                 ? propertyAttributes.zoneFor
                 : ''
@@ -346,10 +326,10 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
               : '',
           propertyAttributes.bathroom.isNotEmpty
               ? propertyAttributes.bathroom == 'no bathroom'
-              ? propertyAttributes.bathroom
-              : '${propertyAttributes.bathroom} BA'
+                  ? propertyAttributes.bathroom
+                  : '${propertyAttributes.bathroom} BA'
               : '',
-          if(subCategoryName == 'Commercial Space')
+          if (subCategoryName == 'Commercial Space')
             propertyAttributes.zoneFor.isNotEmpty
                 ? propertyAttributes.zoneFor
                 : ''
@@ -363,7 +343,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
           if (subCategoryName == 'Bikes Accessories')
             bikeAttributes.description ?? '-'
           else
-          bikeAttributes.model,
+            bikeAttributes.model,
           bikeAttributes.engineCapacity,
         ],
         'Kids': [
@@ -377,9 +357,8 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
 
       attributeValueList = sortedAttributes[categoryName] ?? [];
 
-
-      isProperty = categoryName == 'Property for Sale'
-          || categoryName == 'Property for Rent';
+      isProperty = categoryName == 'Property for Sale' ||
+          categoryName == 'Property for Rent';
 
       if (categoryName == 'Property for Sale' ||
           categoryName == 'Property for Rent' ||
@@ -425,7 +404,7 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     return PopScope(
         canPop: widget.popToBottomNav == true ? false : true,
         onPopInvoked: (didPop) {
-          if(widget.popToBottomNav == true) {
+          if (widget.popToBottomNav == true) {
             pushUntil(context, const BottomNavView());
           }
         },
@@ -433,113 +412,132 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
             Scaffold(backgroundColor: AppTheme.whiteColor, body: bodyColumn()));
   }
 
-
   Widget bodyColumn() {
     return SizedBox(
-      child:
-        isPageLoading==true ?
-          const Center(child: CircularProgressIndicator()) :
-        SizedBox(
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ProductImage(
-                        product: product,
-                        popToBottomNav: widget.popToBottomNav,
-                        userId: userId,
-                        categoryName: categoryName,
-                        subCategoryName: subCategoryName,
-                        authorizationToken: authorizationToken,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                              child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children : [
-
-                                    ProductDetailsWidget(product: product),
-
-                                    const AddDivider(),
-
-                                    ProductAttributesWidget(attributeValueList: attributeValueList, attributeKeyList: attributeKeyList, subCategoryName: subCategoryName,
-                                      userRating: userRating, isProperty: isProperty, loopLimit: attributeKeyList.length-1, propertyOwner: propertyAttributes.owner, hireStatus: jobAttributes.hireStatus,),
-
-                                    const AddDivider(),
-
-                                    FeatureWidget(product : product, propertyAttributes: propertyAttributes),
-
-                                    SellerDetailWidget(authorizationToken: authorizationToken, product: product,),
-
-                                    const AddDivider(),
-
-                                    DescriptionWidget(product : product),
-
-                                    const AddDivider(),
-
-                                    ActionButtons(authorizationToken: authorizationToken, product: product, isFav : isFav, userId: userId),
-
-                                    if(userId.toString() != product?.userId.toString())
-                                      const AddDivider(),
-
-                                    Visibility(
-                                        visible : userId.toString() != product?.userId.toString() && product?.isSold != 1,
-                                        child: FeatureProductInteractiveButtons(authorizationToken: authorizationToken, product: product, categoryName: categoryName, isFav : isFav, userId: userId,)
-                                    ),
-
-                                    if(categoryName == 'Property for Rent' || categoryName == 'Property for Sale')
-                                      const AddDivider(),
-
-
-                                  ]),
+        child: isPageLoading == true
+            ? const Center(child: CircularProgressIndicator())
+            : SizedBox(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ProductImage(
+                              product: product,
+                              popToBottomNav: widget.popToBottomNav,
+                              userId: userId,
+                              categoryName: categoryName,
+                              subCategoryName: subCategoryName,
+                              authorizationToken: authorizationToken,
                             ),
-                          ),
-
-
-                          if(categoryName == 'Property for Rent' || categoryName == 'Property for Sale' )...[
-                            const SizedBox(height: 12,),
-
-                            const DubaiPropertyRules(),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20.0),
+                                    child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          ProductDetailsWidget(
+                                              product: product),
+                                          const AddDivider(),
+                                          ProductAttributesWidget(
+                                            attributeValueList:
+                                                attributeValueList,
+                                            attributeKeyList: attributeKeyList,
+                                            subCategoryName: subCategoryName,
+                                            userRating: userRating,
+                                            isProperty: isProperty,
+                                            loopLimit:
+                                                attributeKeyList.length - 1,
+                                            propertyOwner:
+                                                propertyAttributes.owner,
+                                            hireStatus:
+                                                jobAttributes.hireStatus,
+                                          ),
+                                          const AddDivider(),
+                                          FeatureWidget(
+                                              product: product,
+                                              propertyAttributes:
+                                                  propertyAttributes),
+                                          SellerDetailWidget(
+                                            authorizationToken:
+                                                authorizationToken,
+                                            product: product,
+                                          ),
+                                          const AddDivider(),
+                                          DescriptionWidget(product: product),
+                                          const AddDivider(),
+                                          ActionButtons(
+                                              authorizationToken:
+                                                  authorizationToken,
+                                              product: product,
+                                              isFav: isFav,
+                                              userId: userId),
+                                          if (userId.toString() !=
+                                              product?.userId.toString())
+                                            const AddDivider(),
+                                          Visibility(
+                                              visible: userId.toString() !=
+                                                      product?.userId
+                                                          .toString() &&
+                                                  product?.isSold != 1,
+                                              child:
+                                                  FeatureProductInteractiveButtons(
+                                                authorizationToken:
+                                                    authorizationToken,
+                                                product: product,
+                                                categoryName: categoryName,
+                                                isFav: isFav,
+                                                userId: userId,
+                                              )),
+                                          if (categoryName ==
+                                                  'Property for Rent' ||
+                                              categoryName ==
+                                                  'Property for Sale')
+                                            const AddDivider(),
+                                        ]),
+                                  ),
+                                ),
+                                if (categoryName == 'Property for Rent' ||
+                                    categoryName == 'Property for Sale') ...[
+                                  const SizedBox(
+                                    height: 12,
+                                  ),
+                                  const DubaiPropertyRules(),
+                                ],
+                                ProductReviewsSection(product: product)
+                              ],
+                            ),
                           ],
-
-                          ProductReviewsSection(product: product)
-
-                        ],
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        )
-    );
+              ));
   }
 
-
   Future<void> getProductDetail({bool dynamicLink = false}) async {
-
-
     setState(() {
       isPageLoading = true;
     });
 
-    product = await productViewModel.getProductDetails(product != null ? product?.id : int.parse(widget.productId ?? ''));
+    product = await productViewModel.getProductDetails(
+        product != null ? product?.id : int.parse(widget.productId ?? ''));
     categoryName = product?.category?.name;
     subCategoryName = product?.subCategory?.name;
 
     setState(() {
       isPageLoading = false;
     });
-
   }
 
   void markProductView() {
@@ -547,6 +545,4 @@ class _FeatureInfoScreenState extends State<FeatureInfoScreen> {
     customPostRequest.httpPostRequest(
         url: AppUrls.increaseProductCount, body: body);
   }
-
-
 }

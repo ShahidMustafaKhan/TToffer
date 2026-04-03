@@ -148,7 +148,7 @@ class _PostScreenState extends State<PostScreen> {
 
 
                     imageProvider.isCompressing == true
-                        ? SizedBox(
+                        ? const SizedBox(
                       height: 110,
                       child: LoadingDialog(),
                     )
@@ -447,7 +447,7 @@ class _PostScreenState extends State<PostScreen> {
                     Consumer<PostProductViewModel>(
                         builder: (context, provider, child){
                           return provider.firstStepLoading == true
-                            ? LoadingDialog()
+                            ? const LoadingDialog()
                             : Padding(
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: AppButton.appButton("Next", onTap: () async {

@@ -1,7 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pay/pay.dart';
@@ -12,12 +10,10 @@ import 'package:tt_offer/data/app_exceptions.dart';
 import 'package:tt_offer/data/response/api_response.dart';
 import 'package:tt_offer/data/response/status.dart';
 import 'package:tt_offer/models/cart_model.dart';
-import 'package:tt_offer/models/advertisement_banner.dart';
 import 'package:tt_offer/view_model/cart/cart_viewmodel.dart';
 import 'package:tt_offer/view_model/coupon/coupon_viewmodel.dart';
 import 'package:tt_offer/view_model/payment/payment_view_model.dart';
 import 'package:tt_offer/views/Payment/stripe_payment_screen.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../main.dart';
 import '../../../view_model/banner/banner_view_model.dart';
 import '../../../Utils/resources/res/app_theme.dart';
@@ -870,7 +866,7 @@ class ShoppingCartItem extends StatelessWidget {
                     SizedBox(height: 9.h),
                     Row(
                       children: [
-                        AppText.appText("Quantity ${quantity}", fontWeight: FontWeight.w400, fontSize: 11.5.sp, textColor: Colors.grey.shade600),
+                        AppText.appText("Quantity $quantity", fontWeight: FontWeight.w400, fontSize: 11.5.sp, textColor: Colors.grey.shade600),
                         AppText.appText("    |  ", fontWeight: FontWeight.w400, fontSize: 11.5.sp, textColor: Colors.grey.shade300),
                         GestureDetector(
                             onTap: (){

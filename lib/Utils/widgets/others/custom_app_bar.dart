@@ -1,15 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
-import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
-import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/view_model/product/product/product_viewmodel.dart';
-import 'package:tt_offer/view_model/profile/user_profile/user_view_model.dart';
 import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/views/Seller%20Profile/seller_profile.dart';
 
@@ -161,7 +157,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                         decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: participantModel?.img == null ? Border.all(
-                                color: Color(0xffa2a2a2),
+                                color: const Color(0xffa2a2a2),
                                 width: 2
                             ) : null
                         ),

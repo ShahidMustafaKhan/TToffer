@@ -1,12 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:tt_offer/custom_requests/custom_post_request.dart';
 import 'package:tt_offer/main.dart';
 import 'package:tt_offer/models/bids_model.dart';
 import 'package:tt_offer/providers/bids_provider.dart';
 
-import '../config/app_urls.dart';
-import '../data/network/network_api_services.dart';
 
 class BidsService {
 

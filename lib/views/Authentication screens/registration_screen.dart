@@ -1,20 +1,20 @@
+import 'package:dio/src/response.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_button.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/Utils/widgets/textField_lable.dart';
-import 'package:tt_offer/main.dart';
-import 'package:tt_offer/view_model/register/register_view_model.dart';
-import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import 'package:tt_offer/config/keys/pref_keys.dart';
+import 'package:tt_offer/main.dart';
+import 'package:tt_offer/view_model/register/register_view_model.dart';
+import 'package:tt_offer/views/BottomNavigation/navigation_bar.dart';
 
 import '../Profile Screen/Settings/privacy_policy.dart';
 import '../Profile Screen/Settings/terms_and_condition.dart';
@@ -69,42 +69,64 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               const SizedBox(
                 height: 30,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
                 children: [
-                  LableTextField(
-                      width: MediaQuery.of(context).size.width * 0.4,
-                      labelTxt: "First Name",
-                      hintTxt: "First Name",
-                      controller: _fNameController),
-                  LableTextField(
-                      width: MediaQuery.of(context).size.width * 0.4,
-                      labelTxt: "Last Name",
-                      hintTxt: "Last Name",
-                      controller: _lNameController),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: _buildLabelField(
+                          labelText: "First Name",
+                          borderRadius: 10,
+                          controller: _fNameController,
+                        ),
+                      ),
+                      SizedBox(width: 14.w),
+                      Expanded(
+                        child: _buildLabelField(
+                          labelText: "Last Name",
+                          borderRadius: 10,
+                          controller: _lNameController,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  _buildLabelField(
+                    labelText: "Username",
+                    borderRadius: 10,
+                    controller: _userNameController,
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  _buildLabelField(
+                    labelText: "Email/Phone",
+                    borderRadius: 10,
+                    controller: _emailController,
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  _buildLabelField(
+                    labelText: "Password",
+                    borderRadius: 10,
+                    pass: true,
+                    controller: _passwordController,
+                  ),
                 ],
               ),
-              LableTextField(
-                  labelTxt: "Username",
-                  hintTxt: "Username",
-                  controller: _userNameController),
-              LableTextField(
-                  labelTxt: "Email/Phone",
-                  hintTxt: "Email/Phone",
-                  controller: _emailController),
-              LableTextField(
-                  labelTxt: "Password",
-                  hintTxt: "Password",
-                  pass: true,
-                  controller: _passwordController),
-
               SizedBox(height: 10.h),
-
               RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
                       text: 'By logging in I agree to the ',
-                      style: TextStyle(color: AppTheme.hintTextColor, fontFamily: 'Poppins', fontSize: 12),
+                      style: TextStyle(
+                          color: AppTheme.hintTextColor,
+                          fontFamily: 'Poppins',
+                          fontSize: 12),
                       children: [
                         TextSpan(
                           text: 'Terms and Conditions',
@@ -116,8 +138,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-
-                            push(context, const TermsAndCondition());
+                              push(context, const TermsAndCondition());
 
                               // Handle Terms and Conditions tap
                               print("Terms and Conditions Tapped");
@@ -125,7 +146,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         ),
                         TextSpan(
                           text: ' and ',
-                          style: TextStyle(color: AppTheme.hintTextColor,  fontFamily: 'Poppins'),
+                          style: TextStyle(
+                              color: AppTheme.hintTextColor,
+                              fontFamily: 'Poppins'),
                         ),
                         TextSpan(
                           text: 'Privacy Policy',
@@ -137,86 +160,86 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              push(context, PrivacyPolicyScreen());
+                              push(context, const PrivacyPolicyScreen());
                               print("Privacy Policy Tapped");
                             },
-                        ),])),
-
+                        ),
+                      ])),
               SizedBox(height: 10.h),
+              Consumer<RegisterViewModel>(builder: (context, provider, child) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: provider.registerLoading == true
+                      ? Center(
+                          child: CircularProgressIndicator(
+                            color: AppTheme.appColor,
+                          ),
+                        )
+                      : AppButton.appButton("Register", onTap: () {
+                          _emailController.text =
+                              _emailController.text.replaceAll(' ', '');
+                          if (_fNameController.text.isNotEmpty) {
+                            if (_userNameController.text.isNotEmpty) {
+                              if (_emailController.text.isNotEmpty) {
+                                String emailPhone =
+                                    _emailController.text.trim();
+                                bool isEmail =
+                                    RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                        .hasMatch(emailPhone);
+                                bool isPhoneNumber =
+                                    RegExp(r'^\+\d{1,3}\d{9,15}$')
+                                        .hasMatch(emailPhone);
+                                if (isPhoneNumber || isEmail) {
+                                  if (_passwordController.text.isNotEmpty) {
+                                    Map<String, dynamic> data = {
+                                      "name":
+                                          "${_fNameController.text} ${_lNameController.text}",
+                                      if (isEmail)
+                                        "email": _emailController.text,
+                                      "username": _userNameController.text,
+                                      "password": _passwordController.text,
+                                      if (isPhoneNumber)
+                                        "phone": _emailController.text,
+                                    };
 
-
-              Consumer<RegisterViewModel>(
-                  builder: (context, provider, child){
-                    return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
-                    child: provider.registerLoading == true
-                        ? Center(
-                      child: CircularProgressIndicator(
-                        color: AppTheme.appColor,
-                      ),
-                    )
-                        : AppButton.appButton("Register", onTap: () {
-                      _emailController.text =
-                          _emailController.text.replaceAll(' ', '');
-                      if (_fNameController.text.isNotEmpty) {
-                        if (_userNameController.text.isNotEmpty) {
-                          if (_emailController.text.isNotEmpty) {
-                            String emailPhone = _emailController.text.trim();
-                            bool isEmail =
-                                RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                    .hasMatch(emailPhone);
-                            bool isPhoneNumber =
-                                RegExp(r'^\+\d{1,3}\d{9,15}$').hasMatch(emailPhone);
-                            if (isPhoneNumber || isEmail) {
-                              if (_passwordController.text.isNotEmpty) {
-
-                                  Map<String, dynamic> data = {
-                                    "name": "${_fNameController.text} ${_lNameController.text}",
-                                    if(isEmail)
-                                    "email": _emailController.text,
-                                    "username": _userNameController.text,
-                                    "password": _passwordController.text,
-                                    if(isPhoneNumber)
-                                    "phone": _emailController.text,
-                                  };
-
-                                  provider.registerApi(data).then((value){
-                                    unAuthorized = false;
-                                    Navigator.pushAndRemoveUntil(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const BottomNavView(fromLogin : true),
-                                        ),
-                                            (route) => false);
-                                  }).onError((error, stackTrace){
-                                    showSnackBar(context, error.toString());
-                                  });
+                                    provider.registerApi(data).then((value) {
+                                      unAuthorized = false;
+                                      Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const BottomNavView(
+                                                    fromLogin: true),
+                                          ),
+                                          (route) => false);
+                                    }).onError((error, stackTrace) {
+                                      showSnackBar(context, error.toString());
+                                    });
+                                  } else {
+                                    showSnackBar(context, "Enter Password");
+                                  }
+                                } else {
+                                  showSnackBar(context,
+                                      "Please enter a valid email address or phone number with country code");
+                                }
                               } else {
-                                showSnackBar(context, "Enter Password");
+                                showSnackBar(context, "Enter Email");
                               }
                             } else {
-                              showSnackBar(context,
-                                  "Please enter a valid email address or phone number with country code");
+                              showSnackBar(context, "Enter Username");
                             }
                           } else {
-                            showSnackBar(context, "Enter Email");
+                            showSnackBar(context, "Enter Name");
                           }
-                        } else {
-                          showSnackBar(context, "Enter Username");
-                        }
-                      } else {
-                        showSnackBar(context, "Enter Name");
-                      }
-                    },
-                        height: 53,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
-                        radius: 32.0,
-                        backgroundColor: AppTheme.appColor,
-                        textColor: AppTheme.whiteColor),
-                  );
-                }
-              )
+                        },
+                          height: 53,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                          radius: 32.0,
+                          backgroundColor: AppTheme.appColor,
+                          textColor: AppTheme.whiteColor),
+                );
+              })
             ],
           ),
         ),
@@ -224,16 +247,35 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
+  Widget _buildLabelField({
+    required String labelText,
+    required double borderRadius,
+    required TextEditingController controller,
+    bool pass = false,
+  }) {
+    return LableTextField(
+        labelTxt: labelText,
+        hintTxt: labelText,
+        pass: pass,
+        borderRadius: borderRadius,
+        hintStyle: const TextStyle(
+            color: Color(0xff939699),
+            fontSize: 14,
+            fontWeight: FontWeight.w400),
+        controller: controller);
+  }
+
   void register({phone}) async {
     setState(() {
       _isLoading = true;
     });
-    var response;
+    Response response;
     int responseCode200 = 200; // For successful request.
     int responseCode400 = 400; // For Bad Request.
     int responseCode401 = 401; // For Unauthorized access.
     int responseCode404 = 404;
-    int responseCode409 = 409; // For For data not found// For For data not found
+    int responseCode409 =
+        409; // For For data not found// For For data not found
     int responseCode422 = 422; // For For data not found
     int responseCode500 = 500; // Internal server error.
     Map<String, dynamic> params = {
@@ -276,14 +318,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         setState(() {
           _isLoading = false;
         });
-      }
-      else if (response.statusCode == responseCode409) {
+      } else if (response.statusCode == responseCode409) {
         showSnackBar(context, "${responseData["message"]}");
         setState(() {
           _isLoading = false;
         });
-      }
-      else if (response.statusCode == responseCode200) {
+      } else if (response.statusCode == responseCode200) {
         if (responseData["status"] == false) {
           setState(() {
             _isLoading = false;
@@ -306,13 +346,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) => const BottomNavView(fromLogin : true),
+                builder: (context) => const BottomNavView(fromLogin: true),
               ),
               (route) => false);
         }
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
+      print("Something went Wrong $e");
       showSnackBar(context, "Something went Wrong.");
       setState(() {
         _isLoading = false;

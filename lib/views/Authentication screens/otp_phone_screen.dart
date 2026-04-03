@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:dio/src/response.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_text_field/pin_code_text_field.dart';
 import 'package:tt_offer/Utils/resources/res/app_theme.dart';
@@ -164,7 +165,7 @@ class _OTPPhoneScreenState extends State<OTPPhoneScreen> {
       setState(() {
         _isLoading = true;
       });
-      var response;
+      Response response;
       int responseCode200 = 200; // For successful request.
       int responseCode400 = 400; // For Bad Request.
       int responseCode401 = 401; // For Unauthorized access.
@@ -193,7 +194,7 @@ class _OTPPhoneScreenState extends State<OTPPhoneScreen> {
                 UpdateForgotPassordScreen(email: widget.phoneNumber , isPhone: true,));
           }
       } catch (e) {
-        print("Something went Wrong ${e}");
+        print("Something went Wrong $e");
         showSnackBar(context, "Something went Wrong.");
         setState(() {
           _isLoading = false;
@@ -205,7 +206,7 @@ class _OTPPhoneScreenState extends State<OTPPhoneScreen> {
     setState(() {
       _isLoading = true;
     });
-    var response;
+    Response response;
     int responseCode200 = 200; // For successful request.
     int responseCode400 = 400; // For Bad Request.
     int responseCode401 = 401; // For Unauthorized access.
@@ -260,7 +261,7 @@ class _OTPPhoneScreenState extends State<OTPPhoneScreen> {
         }
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
+      print("Something went Wrong $e");
       showSnackBar(context, "Something went Wrong.");
       setState(() {
         _isLoading = false;

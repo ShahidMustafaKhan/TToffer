@@ -1,10 +1,7 @@
-import 'package:country_list_pick/country_list_pick.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:dio/src/response.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +18,8 @@ import '../../config/app_urls.dart';
 import '../../config/dio/app_dio.dart';
 
 class PhoneVerifyScreen extends StatefulWidget {
+  const PhoneVerifyScreen({super.key});
+
   @override
   _PhoneVerifyScreenState createState() => _PhoneVerifyScreenState();
 }
@@ -60,7 +59,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
     setState(() {
       loading = true;
     });
-    var response;
+    Response response;
     int responseCode200 = 200; // For successful request.
     int responseCode400 = 400; // For Bad Request.
     int responseCode401 = 401; // For Unauthorized access.
@@ -113,7 +112,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
         }
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
+      print("Something went Wrong $e");
       showSnackBar(context, "Something went Wrong.");
       setState(() {
         loading = false;
@@ -126,7 +125,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
     setState(() {
       loading = true;
     });
-    var response;
+    Response response;
 
     Map<String, dynamic> params = {"phone": phoneNumber, "code" : code};
     try {
@@ -148,7 +147,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
         phoneVerifyHandler();
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
+      print("Something went Wrong $e");
       showSnackBar(context, "Something went Wrong.");
       setState(() {
         loading = false;
@@ -183,7 +182,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
   }
 
 
-  TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
 
   Future<void> savePhoneNumber(String phoneNumber) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

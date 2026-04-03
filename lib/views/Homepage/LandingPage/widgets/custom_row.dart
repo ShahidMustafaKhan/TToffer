@@ -23,27 +23,26 @@ class CustomRow extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              AppText.appText("$txt1",
+              AppText.appText(txt1,
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   textColor: AppTheme.textColor),
               GestureDetector(
                 onTap: onTap,
-                child: AppText.appText("$txt2",
+                child: AppText.appText(txt2,
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                     textColor: AppTheme.textColor),
               )
             ],
           ),
-          AppText.appText("$txt3",
+          AppText.appText(txt3,
               fontSize: 10,
               fontWeight: FontWeight.w300,
               textColor: AppTheme.textColor),
         ],
       ),
     );
-    ;
   }
 }
 

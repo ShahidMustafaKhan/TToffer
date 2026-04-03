@@ -2,19 +2,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:tt_offer/Constants/app_logger.dart';
 import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_container.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
-import 'package:tt_offer/config/dio/app_dio.dart';
 import '../../../../Utils/resources/res/app_theme.dart';
 import '../../../../Utils/widgets/grid_delegate.dart';
 import '../../../../data/response/status.dart';
 import '../../../../view_model/product/product/product_viewmodel.dart';
 import '../../../Products/Feature Product/all_feature_products.dart';
 import 'custom_product_row.dart';
-import 'custom_row.dart';
 
 
 class FeatureProductSection extends StatelessWidget {
@@ -26,7 +23,7 @@ class FeatureProductSection extends StatelessWidget {
         builder: (context, productViewModel, child) {
           return Column(
             children: [
-              ProductTypeDetails(
+              const ProductTypeDetails(
                   txt1: "Feature Products",
                   txt3: "Act fast! These featured products won't last long."),
 

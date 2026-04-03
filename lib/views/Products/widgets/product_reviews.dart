@@ -146,7 +146,7 @@ class ProductReviewsSection extends StatelessWidget {
                                           maxLines: 5,
                                           style: GoogleFonts.poppins(
                                             fontWeight: FontWeight.normal,
-                                            color: Color(0xff000000),
+                                            color: const Color(0xff000000),
                                             fontSize: fontSize,
                                           ),
                                           minFontSize: 8, // Ensure it doesn't go below 8 if multiline

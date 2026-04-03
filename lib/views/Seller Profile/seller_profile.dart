@@ -1,12 +1,8 @@
 import 'dart:developer';
-import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -496,7 +492,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                             products[i]?.isSold == 1 ? 'Sold' : 'Listing',
                             style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.normal,
-                                color: Color(0xff1E293B),
+                                color: const Color(0xff1E293B),
                                 fontSize: 12),
                           ),
                         ],
@@ -597,7 +593,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                             text: text,
                                             style: GoogleFonts.poppins(
                                               fontWeight: FontWeight.normal,
-                                              color: Color(0xff000000),
+                                              color: const Color(0xff000000),
                                               fontSize: 12, // Default font size
                                             ),
                                           ),
@@ -619,7 +615,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                           maxLines: 5,
                                           style: GoogleFonts.poppins(
                                             fontWeight: FontWeight.normal,
-                                            color: Color(0xff000000),
+                                            color: const Color(0xff000000),
                                             fontSize: fontSize,
                                           ),
                                           minFontSize: 8, // Ensure it doesn't go below 8 if multiline

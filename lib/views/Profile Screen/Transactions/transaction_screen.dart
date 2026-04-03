@@ -13,7 +13,7 @@ import '../../../models/transaction_model.dart';
 
 class TransactionScreen extends StatelessWidget {
 
-  TransactionScreen({super.key});
+  const TransactionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

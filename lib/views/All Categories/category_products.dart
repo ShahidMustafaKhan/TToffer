@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tt_offer/Constants/app_logger.dart';
@@ -15,7 +13,6 @@ import 'package:tt_offer/views/Products/Auction%20Product/auction_container.dart
 import 'package:tt_offer/views/Products/Feature%20Product/feature_container.dart';
 import 'package:tt_offer/views/Products/Feature%20Product/feature_info.dart';
 import 'package:tt_offer/views/Products/Auction%20Product/auction_info.dart';
-import 'package:tt_offer/config/app_urls.dart';
 import 'package:tt_offer/config/dio/app_dio.dart';
 import '../../../models/product_model.dart';
 import '../../Utils/widgets/grid_delegate.dart';
@@ -103,7 +100,7 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
                     children: [
                       if (selectedOption == "Auction" )
                         apiProvider.auctionProductList.status == Status.loading
-                            ? LoadingDialog()
+                            ? const LoadingDialog()
                             : auctionList?.isEmpty ?? true  ? NoDataFound.noDataFound()
                             : Padding(
                           padding: const EdgeInsets.all(20.0),
@@ -131,7 +128,7 @@ class _CatagoryProductScreenState extends State<CatagoryProductScreen> {
                         ),
                       if (selectedOption == "Featured")
                         apiProvider.featureProductList.status == Status.loading
-                            ? LoadingDialog()
+                            ? const LoadingDialog()
                             : filteredList?.isEmpty ?? true ? NoDataFound.noDataFound(spacer : widget.catNAme != "Animals" &&widget.catNAme != "Jobs" && widget.catNAme != "Services" ? null : 200.h)
                             : Padding(
                           padding: const EdgeInsets.all(20.0),

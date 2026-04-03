@@ -11,9 +11,7 @@ import '../../Controller/APIs Manager/send_notification_service.dart';
 import '../../Utils/widgets/others/app_text.dart';
 import '../../config/keys/pref_keys.dart';
 
-import '../../custom_requests/notification_delete_request.dart';
 import '../../models/product_model.dart';
-import '../../models/user_model.dart';
 
 class ProductRatingScreen extends StatefulWidget {
  final String? sellerId;

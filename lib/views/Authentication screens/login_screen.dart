@@ -27,7 +27,7 @@ class _SigInScreenState extends State<SigInScreen> {
             fontSize: 16,
             fontWeight: FontWeight.w400,
             textColor: const Color(0xff1B2028)),
-        actions: [
+        actions: const [
 
         ],
       ),

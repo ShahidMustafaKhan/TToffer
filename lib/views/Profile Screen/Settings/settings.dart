@@ -8,8 +8,6 @@ import 'package:tt_offer/Utils/utils.dart';
 import 'package:tt_offer/Utils/widgets/others/app_text.dart';
 import 'package:tt_offer/Utils/widgets/others/custom_app_bar.dart';
 import 'package:tt_offer/data/response/api_response.dart';
-import 'package:tt_offer/views/PhoneVerify/phone_verify_screen.dart';
-import 'package:tt_offer/views/Profile%20Screen/Account%20Settigs/account_info_edit.dart';
 import 'package:tt_offer/views/Profile%20Screen/Settings/about_us.dart';
 import 'package:tt_offer/views/Profile%20Screen/Settings/privacy_policy.dart';
 
@@ -75,7 +73,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 onTap: () {
                   push(
                       context,
-                      PrivacyPolicyScreen(
+                      const PrivacyPolicyScreen(
                       ));
                 },
                 img: Icons.privacy_tip_outlined,
@@ -85,7 +83,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     onTap: () {
                       push(
                           context,
-                          AboutUsScreen(
+                          const AboutUsScreen(
                               ));
                     },
                     img: Icons.info_outline,
@@ -193,7 +191,7 @@ class _SettingScreenState extends State<SettingScreen> {
         clearDataAndSignOut(context);
       }
     } catch (e) {
-      print("Something went Wrong ${e}");
+      print("Something went Wrong $e");
       Navigator.of(context).pop();
       showSnackBar(context, "Something went Wrong.");
           loadingProvider.changeLoadingStatus(false);

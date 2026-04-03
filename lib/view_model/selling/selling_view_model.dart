@@ -1,14 +1,11 @@
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:tt_offer/Utils/utils.dart';
-import 'package:tt_offer/models/chat_list_model.dart';
 import '../../../data/response/api_response.dart';
 import '../../Utils/widgets/others/delete_notification_dialog.dart';
 import '../../data/app_exceptions.dart';
 import '../../models/product_model.dart';
-import '../../models/selling_products_model.dart';
 import '../../repository/selling_api/selling_repository.dart';
 
 
